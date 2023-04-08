@@ -1,0 +1,12 @@
+**/__pycache__
+*.pyc
+examples/*
+output/*
+*.xlsx
+
+# ignore all .png excepts those coming from assets
+*.png
+!assets/**/*.png
+config.py
+token.json
+credentials.json

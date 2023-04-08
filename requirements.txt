@@ -1,0 +1,9 @@
+f1-22-telemetry==0.1.1
+Pillow==9.3.0
+pandas==1.5.2
+openpyxl==3.0.10
+google-api-python-client==2.73.0
+google-auth-httplib2==0.1.0
+google-auth-oauthlib==0.8.0
+disnake==2.8.0
+psd-tools==1.9.24
