@@ -31,27 +31,6 @@ class Race:
             return 10
         return None
 
-    def get_title_image(self, width: int, height: int, font, big_font):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-        # bg
-        with Image.open(f'assets/results/bgdate.png') as bg_date:
-            bg_date.thumbnail((int(3 * width / 4), height), Image.Resampling.LANCZOS)
-        img.paste(bg_date)
-        draw_canvas = ImageDraw.Draw(img)
-        left = 20
-        top = 0
-        # day
-        draw_canvas.text((left,top+15), f'{self.day}.', 'white', font)
-        # month
-        draw_canvas.text((left+80,top+15), self.month, 'grey', font)
-        # circuit name
-        draw_canvas.text((left+250,top+5), self.circuit.name, 'white', big_font)
-        # flag
-        with Image.open(f'assets/circuits/flags/{self.circuit.id}.png') as flag:
-            flag.thumbnail((100,100), Image.Resampling.LANCZOS)
-            img.paste(flag, (bg_date.width - flag.width - 10, top-2), flag)
-        return img
-
     def get_title_image_simple(self, width:int, height:int, date_font, circuit_font):
         img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
         draw = ImageDraw.Draw(img)
@@ -78,7 +57,6 @@ class Race:
         bg_top = 0
         bg = Image.new('RGB', (width, height), (80, 80, 80))
         alpha = Image.linear_gradient('L').rotate(90).resize((width, height))
-        # alpha = alpha.crop((alpha.width/2, 0, alpha.width, alpha.height)).resize((width, height))
         bg.putalpha(alpha)
         img.paste(bg, (0, bg_top), bg)
 
@@ -104,49 +82,6 @@ class Race:
         # map
         with Image.open(f'assets/circuits/maps/{self.circuit.id}.png') as map:
             map.thumbnail((width, height//2), Image.Resampling.LANCZOS)
-            img.paste(map, (width - map.width, height - map.height), map)
-        return img
-
-    def get_information_image(self, width: int, height: int, font):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-
-        # photo
-        with Image.open(f'assets/circuits/photos/{self.circuit.id}.png') as photo:
-            photo.thumbnail((width, height), Image.Resampling.LANCZOS)
-            alpha = Image.linear_gradient('L').rotate(180).resize((photo.width, photo.height))
-            alpha = alpha.crop((0, 0, alpha.width, alpha.height/2)).resize((photo.width, photo.height))
-            photo.putalpha(alpha)
-            img.paste(photo)
-
-        bg_top = int(3 * (photo.height / 4))
-        bg = Image.new('RGB', (width, height), (120, 120, 120))
-        alpha = Image.linear_gradient('L').rotate(90).resize((width, height))
-        alpha = alpha.crop((alpha.width/2, 0, alpha.width, alpha.height)).resize((width, height))
-        bg.putalpha(alpha)
-        img.paste(bg, (0, bg_top), bg)
-
-        draw_canvas = ImageDraw.Draw(img)
-        with Image.open('assets/results/redcorner.png') as red_corner:
-            red_corner = red_corner.convert('RGBA')
-            img.paste(red_corner, (0, bg_top), red_corner)
-        draw_canvas.rectangle(((0,bg_top+red_corner.height), (9, bg_top+red_corner.height+300)), fill=(255, 0, 0))
-        draw_canvas.rectangle(((red_corner.width-2,bg_top), (width, bg_top+9)), fill=(255, 0, 0))
-
-        # infos
-        title_color = (0,0,0)
-        info_color = (255, 255, 255)
-        draw_canvas.text((50,bg_top+25), f'Longueur', title_color, font)
-        draw_canvas.text((350,bg_top+25), f'Nombre de tours', title_color, font)
-        draw_canvas.text((50,bg_top+75), f'{self.circuit.lap_length} Km', info_color, font)
-        draw_canvas.text((350,bg_top+75), f'{self.laps} tours', info_color, font)
-        draw_canvas.text((50,bg_top+150), f'Distance totale', title_color, font)
-        draw_canvas.text((50,bg_top+200), f'{self.get_total_length()} Km', info_color, font)
-        draw_canvas.text((50,bg_top+275), f'Meilleur temps', title_color, font)
-        draw_canvas.text((50,bg_top+325), f'{self.circuit.best_lap}', info_color, font)
-
-        # map
-        with Image.open(f'assets/circuits/maps/{self.circuit.id}.png') as map:
-            map.thumbnail((625, 5000), Image.Resampling.LANCZOS)
             img.paste(map, (width - map.width, height - map.height), map)
         return img
 

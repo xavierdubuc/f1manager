@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw
 from .race import Race
 from ..font_factory import FontFactory
+from ..helpers.transform import *
 
 @dataclass
 class Visual:
@@ -17,12 +18,19 @@ class Visual:
         return Image.open(f'assets/f122{"_black" if black else ""}.png')
 
     def get_title_image(self, width:int, height: int):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         # background
-        with Image.open(f'assets/results/bgtop.png') as tmp:
-            bg_top = tmp.copy().convert('RGBA')
-            bg_top.thumbnail((width, height), Image.Resampling.LANCZOS)
-            img.paste(bg_top, (0, 0), bg_top)
+
+        draw = ImageDraw.Draw(img)
+        line_color = (200, 0, 0)
+        # ------------- \               / ------------
+        #                \ ----------- /
+        #   <--540--> <160> <- 645 -> <160> <--540-->
+        draw.line(((0, 4), (540, 4)), fill=line_color, width=10)
+        draw.line(((width-540, 4), (width, 4)), fill=line_color, width=10)
+        draw.line(((538, 0), (700, 170)), fill=line_color, width=10)
+        draw.line(((698, 168), (1345, 168)), fill=line_color, width=10)
+        draw.line(((1343, 168), (width-538, 0)), fill=line_color, width=10)
 
         # FBRT logo
         with Visual.get_fbrt_logo() as fbrt:
