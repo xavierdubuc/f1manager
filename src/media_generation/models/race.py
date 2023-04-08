@@ -61,7 +61,7 @@ class Race:
         img.paste(bg, (0, bg_top), bg)
 
         draw_canvas = ImageDraw.Draw(img)
-        with Image.open('assets/results/redcorner.png') as red_corner:
+        with Image.open('assets/redcorner.png') as red_corner:
             red_corner = red_corner.convert('RGBA')
             img.paste(red_corner, (0, bg_top), red_corner)
         draw_canvas.rectangle(((0,bg_top+red_corner.height), (9, bg_top+red_corner.height+325)), fill=(255, 0, 0))

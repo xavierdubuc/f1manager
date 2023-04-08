@@ -61,9 +61,9 @@ class Reader:
                 race.get_pilot(self.data['G'][30]),
                 race.get_pilot(self.data['G'][31]),
             ]
-        if self.type in ('results', 'details', 'fastest', 'grid'):
+        if self.type in ('details', 'fastest', 'grid'):
             config.ranking = self._get_ranking()
-        if self.type in ('results', 'details'):
+        if self.type == 'details':
             config.fastest_lap = self._get_fastest_lap(race)
         return config
 
@@ -133,8 +133,6 @@ class Reader:
 
     def _get_ranking(self):
         ranking_cols = ['I', 'J', 'K', 'L']
-        if self.type == 'results':
-            ranking_cols = 'I'
         return self.data[ranking_cols][:20]
 
     def _get_fastest_lap(self, race: Race):
@@ -190,6 +188,4 @@ class Reader:
         all_columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
         if self.type in ('details', 'fastest'):
             return all_columns
-        if self.type == 'results':
-            return all_columns[:9]  # -> I
         return all_columns[:8]  # -> H

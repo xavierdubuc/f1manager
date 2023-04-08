@@ -7,7 +7,6 @@ from src.media_generation.models import Pilot, Race
 class GeneratorType(enum.Enum):
     Presentation = 'presentation'
     Lineup ='lineup'
-    Results ='results'
     Details = 'details'
     Fastest = 'fastest'
     TeamsRanking = 'teams_ranking'

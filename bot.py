@@ -88,7 +88,7 @@ async def rankings(inter,
 async def race(inter: disnake.ApplicationCommandInteraction,
                race_number: str = commands.Param(name="race_number", description='Le numéro de la course'),
                what: str = commands.Param(name="what", choices=[
-                                          'lineup', 'presentation', 'results', 'details', 'fastest', 'pole'])
+                                          'lineup', 'presentation', 'details', 'fastest', 'pole'])
                ):
     _logger.info(f'{inter.user.display_name} called Race(race_number={race_number}, what={what})')
     sheet_name = f'Race {race_number}'
@@ -144,7 +144,7 @@ original_error_handler = bot.on_slash_command_error
 async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, exception):
     what = inter.filled_options.get('what')
     await inter.delete_original_message()
-    if what in ('results', 'details', 'fastest'):
+    if what in ('details', 'fastest'):
         await inter.channel.send("Une erreur est survenue dans la génération, êtes-vous sûr que la Google Sheet est bien remplie ? Si oui, contactez Xion.")
     else:
         await inter.channel.send('Une erreur est survenue dans la génération, contactez Xion.')
