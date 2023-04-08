@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 import os
 from PIL import Image, ImageDraw
-from src.media_generation.models.team import Team
+from ..font_factory import FontFactory
+from .team import Team
+from ..helpers.transform import text, paste
 
 
 @dataclass
@@ -74,10 +76,12 @@ class Pilot:
         img.paste(grid_position_bg, (5, 0))
 
         white_box_width = height
-        with Image.open(f'assets/results/positions/{position}.png') as tmp:
+        with Image.open(f'assets/position.png') as tmp:
             grid_position_number = tmp.copy().convert('RGBA')
             grid_position_number.thumbnail((white_box_width, height), Image.Resampling.LANCZOS)
-            img.paste(grid_position_number, grid_position_number)
+            txt = text(str(position), (0,0,0), FontFactory.regular(20))
+            paste(txt, grid_position_number)
+            paste(grid_position_number, img, left=0)
 
         pilot_image = self.get_image(width - (white_box_width+15), height, number_font, pilot_font)
         img.paste(pilot_image, (white_box_width+15, 0), pilot_image)
