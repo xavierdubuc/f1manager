@@ -138,8 +138,8 @@ class Brain:
                         ]
                         msg = ''.join(msg_parts)
                         _logger.warning(msg)
-                        if self.bot:
-                            asyncio.get_running_loop().create_task(
+                        if self.bot and self.bot.loop:
+                            self.bot.loop.create_task(
                                 self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
                             )
 
