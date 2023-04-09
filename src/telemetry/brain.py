@@ -15,6 +15,8 @@ from f1_22_telemetry.packets import (
     PacketFinalClassificationData,
     PacketLobbyInfoData
 )
+
+from src.telemetry.models.enums.safety_car_status import SafetyCarStatus
 from .managers.classification_manager import ClassificationManager
 from .managers.damage_manager import DamageManager
 from .managers.lap_manager import LapManager
@@ -56,6 +58,12 @@ class Brain:
         elif packet_type == PacketLapData:
             self._handle_received_lap_packet(packet)
 
+    def _send_discord_message(self, msg):
+        if self.bot and self.bot.loop:
+            self.bot.loop.create_task(
+                self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
+            )
+
     def _handle_received_session_packet(self, packet: PacketSessionData):
         tmp_session = SessionManager.create(packet)
         if not self.current_session:
@@ -68,6 +76,15 @@ class Brain:
             if 'weather_forecast' in changes:
                 print('Forecast has changed !')
                 print(self.current_session.weather_forecast)
+            if 'safety_car_status' in changes:
+                actual_status = changes['safety_car_status'].actual.safety_car_status
+                if actual_status == SafetyCarStatus.virtual:
+                    msg = '⚠️ 🟡 VIRTUAL SAFETY CAR 🟡 ⚠️'
+                elif actual_status == SafetyCarStatus.full:
+                    msg = '⛔ 🔴 FULL SAFETY CAR 🔴 ⛔'
+                elif actual_status == SafetyCarStatus.no:
+                    msg = '🟢 DRAPEAU VERT 🟢'
+                self._send_discord_message(msg)
         else:
             _logger.info('A new session has started, previous one has been backuped')
             self.previous_sessions.append(self.current_session)
@@ -140,23 +157,7 @@ class Brain:
                         ]
                         msg = '\n'.join(msg_parts)
                         _logger.warning(msg)
-                        if self.bot and self.bot.loop:
-                            self.bot.loop.create_task(
-                                self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
-                            )
-
-    def _padded_percent(self, percent):
-        if 100 > percent > 9:
-            return f' {percent}%'
-        if percent <= 9:
-            return f'  {percent}%'
-        return f'{percent}%'
-
-    def _get_status_bar(self, value, max_value=100):
-        percent = 100 * (value/max_value)
-        amount_of_char = int(percent // 10) # (ex 87% --> 8 chars)
-        return f'[{"="*amount_of_char}{" "*(10-amount_of_char)}]'
-
+                        self._send_discord_message(msg)
 
     def _handle_received_telemetry_packet(self, packet:PacketCarTelemetryData):
         if not self.current_session:
@@ -240,4 +241,14 @@ class Brain:
                         elif delta < -1:
                             _logger.warning(f'{pilot} gained {-delta} positions ({change.old} -> {change.actual}) !')
 
-                #_logger.info(changes)
+    def _padded_percent(self, percent):
+        if 100 > percent > 9:
+            return f' {percent}%'
+        if percent <= 9:
+            return f'  {percent}%'
+        return f'{percent}%'
+
+    def _get_status_bar(self, value, max_value=100):
+        percent = 100 * (value/max_value)
+        amount_of_char = int(percent // 10) # (ex 87% --> 8 chars)
+        return f'[{"="*amount_of_char}{" "*(10-amount_of_char)}]'
