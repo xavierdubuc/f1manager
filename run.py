@@ -24,7 +24,7 @@ logging.basicConfig(
 )
 _logger = logging.getLogger(__name__)
 
-thread_telemetry = Thread(target=lambda: run_telemetry(args.ip, bot))
+thread_telemetry = Thread(target=lambda: run_telemetry(args.ip, args.sheet_name, bot))
 thread_telemetry.daemon = True
 thread_telemetry.start()
 
