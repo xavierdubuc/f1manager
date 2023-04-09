@@ -145,7 +145,7 @@ class Brain:
 
     def _get_status_bar(self, value, max_value=100):
         percent = 100 * (value/max_value)
-        amount_of_char = percent // 10 # (ex 87% --> 8 chars)
+        amount_of_char = int(percent // 10) # (ex 87% --> 8 chars)
         return f'[{"="*amount_of_char}{" "*(10-amount_of_char)}]'
 
 
