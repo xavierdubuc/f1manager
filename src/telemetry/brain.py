@@ -59,6 +59,8 @@ class Brain:
             self._handle_received_lap_packet(packet)
 
     def _send_discord_message(self, msg):
+        _logger.info('Following msg to be sent to Discord')
+        _logger.info(msg)
         if self.bot and self.bot.loop:
             self.bot.loop.create_task(
                 self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
@@ -156,7 +158,6 @@ class Brain:
                             '```',
                         ]
                         msg = '\n'.join(msg_parts)
-                        _logger.warning(msg)
                         self._send_discord_message(msg)
 
     def _handle_received_telemetry_packet(self, packet:PacketCarTelemetryData):
