@@ -22,11 +22,5 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[logging.StreamHandler()]
 )
-_logger = logging.getLogger(__name__)
 
-thread_telemetry = Thread(target=lambda: run_telemetry(args.ip, bot))
-thread_telemetry.daemon = True
-thread_telemetry.start()
-
-_logger.info('Starting bot...')
-bot.run(discord_bot_token)
+run_telemetry(args.ip, args.sheet_name, None)

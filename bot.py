@@ -152,6 +152,3 @@ async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, e
     await original_error_handler(inter, exception)
 
 bot.on_slash_command_error = on_slash_command_error
-
-_logger.info('Starting...')
-bot.run(discord_bot_token)
