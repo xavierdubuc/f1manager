@@ -138,11 +138,11 @@ class Brain:
                             else:
                                 key_str = f'{damage_keys[key]}: '
                                 key_spaces = len(key_str) * ' '
-                                lines = [
+                                status = '\n'.join([
                                     f'{key_str}[{self._padded_percent(damage_value[0])}]  [{self._padded_percent(damage_value[1])}]',
                                     f'{key_spaces}[{self._padded_percent(damage_value[2])}]  [{self._padded_percent(damage_value[3])}]',
-                                ]
-                                status_parts.append(f'{damage_keys[key]}: {"\n".join(lines)}')
+                                ])
+                                status_parts.append(f'{damage_keys[key]}: {status}')
 
                         msg_parts = [
                             f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}',
