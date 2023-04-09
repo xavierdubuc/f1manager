@@ -113,26 +113,26 @@ class Brain:
                 else:
                     participant = self.current_session.participants[i]
                     damage_keys = {
-                        'front_left_wing_damage': 'Aileron avant gauche',
-                        'front_right_wing_damage': 'Aileron avant droit',
-                        'rear_wing_damage': 'Aileron arrière',
-                        'floor_damage': 'Fond plat',
-                        'diffuser_damage': 'Diffuseur',
-                        'sidepod_damage': 'Sidepods',
+                        'front_left_wing_damage':  'Aileron avant gauche',
+                        'front_right_wing_damage': ' Aileron avant droit',
+                        'rear_wing_damage':        '     Aileron arrière',
+                        'floor_damage':            '           Fond plat',
+                        'diffuser_damage':         '           Diffuseur',
+                        'sidepod_damage':          '            Sidepods',
                     }
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
                     damages = self.current_session.damages[i]
                     if changes and any(key in changes for key in damage_keys.keys()):
-                        msg_parts = ['```\n', f'{participant.name} has a change in following damages : ']
                         changed_parts = []
                         status_parts = []
                         for key in damage_keys.keys():
                             if key in changes:
                                 changed_parts.append(damage_keys[key])
-                            status_parts.append(f'{damage_keys[key]}: {getattr(damages, key)}%')
-                        msg_parts += [
-                            ','.join(changed_parts),
-                            '\n',
+                            damage_value = getattr(damages, key)
+                            status_parts.append(f'{damage_keys[key]}: {damage_value}% {self._get_status_bar(damage_value)}')
+                        msg_parts = [
+                            f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}'
+                            '```'
                             '\n'.join(status_parts),
                             '```'
                         ]
@@ -142,6 +142,12 @@ class Brain:
                             self.bot.loop.create_task(
                                 self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
                             )
+
+    def _get_status_bar(self, value, max_value=100):
+        percent = 100 * (value/max_value)
+        amount_of_char = percent // 10 # (ex 87% --> 8 chars)
+        return f'[{"="*amount_of_char}{" "*(10-amount_of_char)}]'
+
 
     def _handle_received_telemetry_packet(self, packet:PacketCarTelemetryData):
         if not self.current_session:
