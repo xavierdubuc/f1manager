@@ -136,7 +136,7 @@ class Brain:
                             '\n'.join(status_parts),
                             '```'
                         ]
-                        msg = ''.join(msg_parts)
+                        msg = '\n'.join(msg_parts)
                         _logger.warning(msg)
                         if self.bot and self.bot.loop:
                             self.bot.loop.create_task(
