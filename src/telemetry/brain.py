@@ -113,8 +113,6 @@ class Brain:
                 else:
                     participant = self.current_session.participants[i]
                     damage_keys = {
-                        'tyres_damage':            '               Pneus',
-                        'brakes_damage':           '              Freins',
                         'front_left_wing_damage':  'Aileron avant gauche',
                         'front_right_wing_damage': ' Aileron avant droit',
                         'rear_wing_damage':        '     Aileron arrière',
@@ -129,20 +127,10 @@ class Brain:
                         status_parts = []
                         for key in damage_keys.keys():
                             if key in changes:
-                                changed_parts.append(damage_keys[key])
+                                changed_parts.append(damage_keys[key].strip())
                             damage_value = getattr(damages, key)
-
-                            if key not in ('tyres_damage', 'brakes_damage'):
-                                damage_value_str = self._padded_percent(damage_value)
-                                status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
-                            else:
-                                key_str = f'{damage_keys[key]}: '
-                                key_spaces = len(key_str) * ' '
-                                status = '\n'.join([
-                                    f'{key_str}[{self._padded_percent(damage_value[0])}]  [{self._padded_percent(damage_value[1])}]',
-                                    f'{key_spaces}[{self._padded_percent(damage_value[2])}]  [{self._padded_percent(damage_value[3])}]',
-                                ])
-                                status_parts.append(f'{damage_keys[key]}: {status}')
+                            damage_value_str = self._padded_percent(damage_value)
+                            status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
 
                         msg_parts = [
                             f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}',
