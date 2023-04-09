@@ -113,6 +113,8 @@ class Brain:
                 else:
                     participant = self.current_session.participants[i]
                     damage_keys = {
+                        'tyres_damage':            '               Pneus',
+                        'brakes_damage':           '              Freins',
                         'front_left_wing_damage':  'Aileron avant gauche',
                         'front_right_wing_damage': ' Aileron avant droit',
                         'rear_wing_damage':        '     Aileron arrière',
@@ -129,13 +131,18 @@ class Brain:
                             if key in changes:
                                 changed_parts.append(damage_keys[key])
                             damage_value = getattr(damages, key)
-                            if 100 > damage_value > 9:
-                                damage_value_str = f' {damage_value}'
-                            elif damage_value <= 9:
-                                damage_value_str = f'  {damage_value}'
+
+                            if key not in ('tyres_damage', 'brakes_damage'):
+                                damage_value_str = self._padded_percent(damage_value)
+                                status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
                             else:
-                                damage_value_str = str(damage_value)
-                            status_parts.append(f'{damage_keys[key]}: {damage_value_str}% {self._get_status_bar(damage_value)}')
+                                key_str = f'{damage_keys[key]}: '
+                                key_spaces = len(key_str) * ' '
+                                lines = [
+                                    f'{key_str}[{self._padded_percent(damage_value[0])}]  [{self._padded_percent(damage_value[1])}]',
+                                    f'{key_spaces}[{self._padded_percent(damage_value[2])}]  [{self._padded_percent(damage_value[3])}]',
+                                ]
+                                status_parts.append(f'{damage_keys[key]}: {"\n".join(lines)}')
 
                         msg_parts = [
                             f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}',
@@ -149,6 +156,13 @@ class Brain:
                             self.bot.loop.create_task(
                                 self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
                             )
+
+    def _padded_percent(self, percent):
+        if 100 > percent > 9:
+            return f' {percent}%'
+        if percent <= 9:
+            return f'  {percent}%'
+        return f'{percent}%'
 
     def _get_status_bar(self, value, max_value=100):
         percent = 100 * (value/max_value)
