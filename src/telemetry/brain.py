@@ -129,12 +129,19 @@ class Brain:
                             if key in changes:
                                 changed_parts.append(damage_keys[key])
                             damage_value = getattr(damages, key)
-                            status_parts.append(f'{damage_keys[key]}: {damage_value}% {self._get_status_bar(damage_value)}')
+                            if 100 > damage_value > 9:
+                                damage_value_str = f' {damage_value}'
+                            elif damage_value <= 9:
+                                damage_value_str = f'  {damage_value}'
+                            else:
+                                damage_value_str = str(damage_value)
+                            status_parts.append(f'{damage_keys[key]}: {damage_value_str}% {self._get_status_bar(damage_value)}')
+
                         msg_parts = [
-                            f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}'
-                            '```'
+                            f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}',
+                            '```',
                             '\n'.join(status_parts),
-                            '```'
+                            '```',
                         ]
                         msg = '\n'.join(msg_parts)
                         _logger.warning(msg)
