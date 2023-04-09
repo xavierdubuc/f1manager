@@ -233,10 +233,11 @@ class Brain:
                         change = changes['car_position']
                         pilot = self.current_session.participants[i].name
                         delta = change.actual - change.old
+                        actual_str = f' P{change.actual}' if change.actual < 10 else f'P{change.actual}'
                         if delta >= 1:
-                            msg = f'`P{change.actual}` (🔻 {delta}) **{pilot}**'
+                            msg = f'`{actual_str}` (🔻 {delta}) **{pilot}**'
                         else:
-                            msg = f'`P{change.actual}` (🔼 {-delta}) **{pilot}**'
+                            msg = f'`{actual_str}` (🔼 {-delta}) **{pilot}**'
                         self._send_discord_message(msg)
 
     def _padded_percent(self, percent):
