@@ -1,4 +1,5 @@
-import logging
+import logging, asyncio
+from disnake.ext import commands
 from f1_22_telemetry.packets import (
     Packet,
     PacketCarDamageData,
@@ -24,11 +25,14 @@ from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
+DAMAGE_GUILD_ID = 1074380392154533958
+DAMAGE_CHANNEL_ID = 1074380392720773312
 
 class Brain:
-    def __init__(self):
+    def __init__(self, bot:commands.InteractionBot=None):
         self.current_session = None
         self.previous_sessions = []
+        self.bot = bot
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
@@ -107,11 +111,37 @@ class Brain:
                 if i > current_amount_of_damage - 1:
                     self.current_session.damages.append(DamageManager.create(packet_data))
                 else:
+                    participant = self.current_session.participants[i]
+                    damage_keys = {
+                        'front_left_wing_damage': 'Aileron avant gauche',
+                        'front_right_wing_damage': 'Aileron avant droit',
+                        'rear_wing_damage': 'Aileron arrière',
+                        'floor_damage': 'Fond plat',
+                        'diffuser_damage': 'Diffuseur',
+                        'sidepod_damage': 'Sidepods',
+                    }
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
-                    # if changes:
-                    #     pilot = self.current_session.participants[i].name
-                    #     _logger.warning(f'{pilot} had a change in damages !')
-                    #     _logger.warning(changes)
+                    damages = self.current_session.damages[i]
+                    if changes and any(key in changes for key in damage_keys.keys()):
+                        msg_parts = ['```\n', f'{participant.name} has a change in following damages : ']
+                        changed_parts = []
+                        status_parts = []
+                        for key in damage_keys.keys():
+                            if key in changes:
+                                changed_parts.append(damage_keys[key])
+                            status_parts.append(f'{damage_keys[key]}: {getattr(damages, key)}%')
+                        msg_parts += [
+                            ','.join(changed_parts),
+                            '\n',
+                            '\n'.join(status_parts),
+                            '```'
+                        ]
+                        msg = ''.join(msg_parts)
+                        _logger.warning(msg)
+                        if self.bot:
+                            asyncio.get_running_loop().create_task(
+                                self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
+                            )
 
     def _handle_received_telemetry_packet(self, packet:PacketCarTelemetryData):
         if not self.current_session:

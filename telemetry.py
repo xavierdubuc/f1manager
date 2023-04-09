@@ -14,7 +14,7 @@ _logger = logging.getLogger(__name__)
 
 
 def run_telemetry(ip:str, sheet_name:str=None, bot:commands.InteractionBot=None):
-    brain = Brain()
+    brain = Brain(bot)
     _logger.info(f'Starting listening on {ip}:20777')
     listener = TelemetryListener(host=ip)
     i = 0
