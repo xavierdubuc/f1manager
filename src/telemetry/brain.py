@@ -79,7 +79,7 @@ class Brain:
                 print('Forecast has changed !')
                 print(self.current_session.weather_forecast)
             if 'safety_car_status' in changes:
-                actual_status = changes['safety_car_status'].actual.safety_car_status
+                actual_status = changes['safety_car_status'].actual
                 if actual_status == SafetyCarStatus.virtual:
                     msg = '⚠️ 🟡 VIRTUAL SAFETY CAR 🟡 ⚠️'
                 elif actual_status == SafetyCarStatus.full:
