@@ -1,11 +1,8 @@
-from threading import Thread
 from f1_22_telemetry.packets import *
 import logging
 from src.telemetry.telemetry_command import Command
 
 from telemetry import run_telemetry
-from bot import bot
-from config.config import discord_bot_token
 
 args = Command().parse_args()
 levels = {
