@@ -249,13 +249,16 @@ class Brain:
                     if 'result_status' in changes:
                         if changes['result_status'].actual == 'finished':
                             msg = f'🏁 **{pilot.name}**'
+                            self._send_discord_message(msg)
                         if changes['result_status'].actual == 'dnf':
                             msg = f'🟥 **{pilot.name}** a NT'
+                            self._send_discord_message(msg)
                         if changes['result_status'].actual == 'dsq':
                             msg = f'🟥 **{pilot.name}** a été disqualifié'
+                            self._send_discord_message(msg)
                         if changes['result_status'].actual == 'retired':
                             msg = f'🟥 **{pilot.name}** a abandonné'
-                        self._send_discord_message(msg)
+                            self._send_discord_message(msg)
 
     def _padded_percent(self, percent):
         if 100 > percent > 9:
