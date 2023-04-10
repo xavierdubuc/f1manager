@@ -226,18 +226,35 @@ class Brain:
                 car_last_lap = car_laps[-1] if car_laps else None
                 if not car_last_lap or car_last_lap.current_lap_num != packet_data.current_lap_num:
                     car_laps.append(LapManager.create(packet_data, len(car_laps)))
+                    if car_laps[-1].car_position == 1:
+                        self._send_discord_message(f'--- Tour {car_laps[-1].current_lap_num} ---')
                 else:
+                    pilot = self.current_session.participants[i].name
                     changes = LapManager.update(car_last_lap, packet_data)
 
+                    # TODO essayer d'inclure une notion de durée pour éviter d'avoir 45 changements quand y'a une bataille
+                    # Ex : afficher le premier puis attendre 10 secondes, si a rechangé on remet un message
+                    # Ne pas envoyer les messages si le gars pit, on envoit un message à la fin du pit avec le nombre
+                    # total de position perdue par ex ? (moyen de stocker sur le lap précédent à priori ou sur le pilot directement)
                     if 'car_position' in changes:
                         change = changes['car_position']
-                        pilot = self.current_session.participants[i].name
                         delta = change.actual - change.old
                         actual_str = f' P{change.actual}' if change.actual < 10 else f'P{change.actual}'
                         if delta >= 1:
                             msg = f'`{actual_str}` (🔻 {delta}) **{pilot}**'
                         else:
                             msg = f'`{actual_str}` (🔼 {-delta}) **{pilot}**'
+                        self._send_discord_message(msg)
+
+                    if 'result_status' in changes:
+                        if changes['result_status'].actual == 'finished':
+                            msg = f'🏁 **{pilot.name}**'
+                        if changes['result_status'].actual == 'dnf':
+                            msg = f'🟥 **{pilot.name}** a NT'
+                        if changes['result_status'].actual == 'dsq':
+                            msg = f'🟥 **{pilot.name}** a été disqualifié'
+                        if changes['result_status'].actual == 'retired':
+                            msg = f'🟥 **{pilot.name}** a abandonné'
                         self._send_discord_message(msg)
 
     def _padded_percent(self, percent):
