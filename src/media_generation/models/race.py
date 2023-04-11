@@ -102,7 +102,7 @@ class Race:
 
     def get_pilot(self, pilot_name:str) -> Pilot:
         pilot = self.pilots.get(pilot_name, None)
-        if not pilot:
+        if not pilot or pilot.reservist:
             replaces = self.swappings.get(pilot_name)
             if not replaces:
                 return None

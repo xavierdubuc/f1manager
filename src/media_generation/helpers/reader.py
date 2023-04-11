@@ -79,9 +79,12 @@ class Reader:
 
     def _build_pilots_list(self, values: pandas.DataFrame):
         return {
-            row['Pilotes']: Pilot(name=row['Pilotes'], team=teams_idx.get(
-                row['Ecurie'], RESERVIST_TEAM if row['Ecurie'] == 'R' else DEFAULT_TEAM), number=row['Numéro'])
-            for _, row in values[values['Pilotes'].notnull()].iterrows()
+            row['Pilotes']: Pilot(
+                name=row['Pilotes'],
+                team=teams_idx.get(row['Ecurie'], RESERVIST_TEAM if row['Ecurie'] == 'R' else DEFAULT_TEAM),
+                reservist=row['Ecurie'] == 'R',
+                number=row['Numéro']
+            ) for _, row in values[values['Pilotes'].notnull()].iterrows()
         }
 
     def _build_teams_list(self, values: pandas.DataFrame):

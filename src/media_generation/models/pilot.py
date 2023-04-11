@@ -12,6 +12,7 @@ class Pilot:
     team: Team = None
     number: str = 'Re'
     title: str = None
+    reservist: bool = False
 
     def get_celebrating_image(self):
         possible_img_paths = [
