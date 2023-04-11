@@ -7,7 +7,8 @@ from src.media_generation.helpers.reader import Reader
 from src.media_generation.helpers.general_ranking_reader import GeneralRankingReader
 from src.media_generation.helpers.renderer import Renderer
 
-from src.media_generation.breaking import Renderer as BreakingRenderer
+from breaking import Renderer as BreakingRenderer
+from quote import Renderer as QuoteRenderer
 
 from src.media_generation.data import teams_idx
 from config import discord_bot_token
@@ -74,7 +75,7 @@ async def rankings(inter,
 
     _logger.info('Reading google sheet')
     tech_metric = 'Total' if metric == 'Points' else metric
-    config = GeneralRankingReader(f'{what}_ranking', 'gsheet', 'tmp.png', 5, tech_metric).read()
+    config = GeneralRankingReader(f'{what}_ranking', 'gsheet', 'rankings.png', 5, tech_metric).read()
     _logger.info('Rendering image...')
     output_filepath = Renderer.render(config)
     _logger.info('Sending image...')
@@ -95,7 +96,7 @@ async def race(inter: disnake.ApplicationCommandInteraction,
     await inter.response.defer()
 
     _logger.info('Reading google sheet')
-    config = Reader(what, 'gsheet', sheet_name, 'tmp.png').read()
+    config = Reader(what, 'gsheet', sheet_name, f'output/race_{what}.png').read()
 
     _logger.info('Rendering image...')
     output_filepath = Renderer.render(config)
@@ -129,7 +130,40 @@ async def breaking(inter,
     _logger.info('Rendering image...')
     input = (await img.to_file()).fp
     renderer = BreakingRenderer(main_txt, secondary_txt, team, background, foreground,
-                                output='tmp.png', input=input, padding_top=padding_top)
+                                output='output/breaking.png', input=input, padding_top=padding_top)
+    output_filepath = renderer.render()
+
+    _logger.info('Sending image...')
+    with open(output_filepath, 'rb') as f:
+        picture = disnake.File(f)
+        await inter.followup.send(file=picture)
+        _logger.info('Image sent !')
+
+
+@bot.slash_command(name="quote", description='Citation')
+async def quote(inter,
+                img: disnake.Attachment = commands.Param(
+                    name='img', description='Image utilisée comme fond de la citation'),
+                author: str = commands.Param(name='auteur', description='Auteur de la citation'),
+                quote: str = commands.Param(
+                    name='citation', description='Texte de la citation'),
+                team: str = commands.Param(name='team', default=None, choices=TEAMS,
+                                           description="L'équipe concernée par la citation"),
+                background: str = commands.Param(
+                    name='background', default='255,255,255', description="La couleur de fond à utiliser (au format R,G,B ou R,G,B,A), ignoré si le paramètre team est présent"),
+                foreground: str = commands.Param(
+                    name='foreground', default='0,0,0', description="La couleur du texte (au format R,G,B ou R,G,B,A), ignoré si le paramètre team est présent"),
+                padding_top: int = commands.Param(
+                    name='padding_top', default=None, description="L'espace en pixel à partir duquel l'image est collée en partant du haut. 0 pour tout en haut.")
+                ):
+    _logger.info(
+        f'{inter.user.display_name} called Quote(author={author}, quote={quote}, team={team}, bg={background}, fg={foreground}, pt={padding_top})')
+    await inter.response.defer()
+
+    _logger.info('Rendering image...')
+    input = (await img.to_file()).fp
+    renderer = QuoteRenderer(quote, author, team, background, foreground,
+                             output='output/quote.png', input=input, padding_top=padding_top)
     output_filepath = renderer.render()
 
     _logger.info('Sending image...')

@@ -2,10 +2,10 @@ import argparse
 import logging
 import math
 from PIL import Image, ImageDraw
-from .data import teams_idx
-from .font_factory import FontFactory
-from .models import Visual
-from .helpers.transform import *
+from src.media_generation.data import teams_idx
+from src.media_generation.font_factory import FontFactory
+from src.media_generation.models import Visual
+from src.media_generation.helpers.transform import *
 
 
 logging.basicConfig(
