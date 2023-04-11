@@ -15,6 +15,7 @@ from f1_22_telemetry.packets import (
     PacketFinalClassificationData,
     PacketLobbyInfoData
 )
+from src.telemetry.models.enums.result_status import ResultStatus
 
 from src.telemetry.models.enums.safety_car_status import SafetyCarStatus
 from .managers.classification_manager import ClassificationManager
@@ -247,16 +248,16 @@ class Brain:
                         self._send_discord_message(msg)
 
                     if 'result_status' in changes:
-                        if changes['result_status'].actual == 'finished':
+                        if changes['result_status'].actual == ResultStatus.finished:
                             msg = f'🏁 **{pilot.name}**'
                             self._send_discord_message(msg)
-                        if changes['result_status'].actual == 'dnf':
+                        if changes['result_status'].actual == ResultStatus.dnf:
                             msg = f'🟥 **{pilot.name}** a NT'
                             self._send_discord_message(msg)
-                        if changes['result_status'].actual == 'dsq':
+                        if changes['result_status'].actual == ResultStatus.dsq:
                             msg = f'🟥 **{pilot.name}** a été disqualifié'
                             self._send_discord_message(msg)
-                        if changes['result_status'].actual == 'retired':
+                        if changes['result_status'].actual == ResultStatus.retired:
                             msg = f'🟥 **{pilot.name}** a abandonné'
                             self._send_discord_message(msg)
 
