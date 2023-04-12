@@ -32,10 +32,10 @@ class TelemetryThread(Thread):
                 packet_type = type(packet)
                 _logger.debug(f'{packet_type} received...')
                 self.brain.handle_received_packet(packet)
-                if self.brain.current_session and self.brain.current_session.participants:
-                    for participant in self.brain.current_session.participants:
-                        if not participant.telemetry_is_public:
-                            print(f'{participant.race_number} {participant.name} does not have public telemetry !')
+                # if self.brain.current_session and self.brain.current_session.participants:
+                #     for participant in self.brain.current_session.participants:
+                #         if not participant.telemetry_is_public:
+                #             print(f'{participant.race_number} {participant.name} does not have public telemetry !')
                 i += 1
         except KeyboardInterrupt:
             _logger.info('Stopping telemetry...')
