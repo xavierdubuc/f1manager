@@ -90,6 +90,10 @@ class Brain:
                 self._send_discord_message(msg)
         else:
             _logger.info('A new session has started, previous one has been backuped')
+            _logger.info('Final ranking of previous session below.')
+            final_ranking = self.current_session.get_formatted_final_ranking()
+            for row in final_ranking:
+                print('\t'.join(map(str, row)))
             self.previous_sessions.append(self.current_session)
             self.current_session = tmp_session
 
