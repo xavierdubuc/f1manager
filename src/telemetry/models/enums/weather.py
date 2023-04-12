@@ -8,3 +8,4 @@ class Weather(Enum):
     light_rain = 3
     heavy_rain = 4
     storm = 5
+    unknown = 6
