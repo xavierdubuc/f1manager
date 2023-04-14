@@ -90,10 +90,6 @@ class Brain:
                 self._send_discord_message(msg)
         else:
             _logger.info('A new session has started, previous one has been backuped')
-            _logger.info('Final ranking of previous session below.')
-            final_ranking = self.current_session.get_formatted_final_ranking()
-            for row in final_ranking:
-                print('\t'.join(map(str, row)))
             self.previous_sessions.append(self.current_session)
             self.current_session = tmp_session
 
@@ -197,8 +193,10 @@ class Brain:
                 ClassificationManager.create(packet.classification_data[i])
                 for i in range(packet.num_cars)
             ]
+            print(self._get_final_classification_as_string())
         else:
             current_amount_of_classification = len(self.current_session.final_classification)
+            at_least_one_changed = False
             for i in range(packet.num_cars):
                 packet_data = packet.classification_data[i]
                 if i > current_amount_of_classification - 1:
@@ -208,6 +206,14 @@ class Brain:
                     if changes:
                         _logger.warning('!? final classification changed !?')
                         _logger.warning(changes)
+                        at_least_one_changed = True
+            if at_least_one_changed:
+                print(self._get_final_classification_as_string())
+
+    def _get_final_classification_as_string(self):
+        _logger.info('Final ranking of previous session below.')
+        final_ranking = self.current_session.get_formatted_final_ranking()
+        return '\n'.join(['\t'.join(map(str, row)) for row in final_ranking])
 
     def _handle_received_lap_packet(self, packet:PacketLapData):
         if not self.current_session:
