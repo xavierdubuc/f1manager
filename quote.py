@@ -66,14 +66,14 @@ class Renderer:
         paste(overlay, final)
 
         # author_font_size = get_max_font_size(self.author, main_width, 44, FontFactory.black, 84)
-        author_font_size = 46
+        author_font_size = 30
         author_img = self._get_author_img(author_font_size)
         author_padding_bottom = 60
         author_position = paste(author_img, final, top=main_height-author_img.height-author_padding_bottom, use_obj=True)
 
         # quote_font_size = math.ceil(1.1 * author_font_size)
-        quote_font_size = 51
-        text_lines = textwrap.wrap(self.quote, width=29)
+        quote_font_size = 33
+        text_lines = textwrap.wrap(self.quote, width=45)
         padding_between = 15
         bottom = author_position.top - padding_between * 4
         text_lines.reverse()
@@ -82,7 +82,7 @@ class Renderer:
             pos = paste(img, final, top = bottom - img.height, use_obj=True)
             bottom = pos.top - padding_between
 
-        final.save(self.output or 'quote.png', quality=95)
+        final.save(self.output or 'output/quote.png', quality=95)
         return self.output
 
     def _get_author_img(self, author_font_size):
