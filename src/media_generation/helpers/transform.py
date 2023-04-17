@@ -36,7 +36,7 @@ def paste_rounded(bg: PngImageFile, img: PngImageFile, xy: tuple = (0, 0), radiu
 def resize(img: PngImageFile, width, height, keep_ratio=True):
     if keep_ratio:
         img.thumbnail((width, height), Image.Resampling.LANCZOS)
-        return img
+        return img.copy()
     else:
         return img.resize((width, height))
 
