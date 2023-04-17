@@ -19,7 +19,7 @@ class Visual:
 
     @staticmethod
     def get_f1_logo(black=False):
-        return Image.open(f'assets/f122{"_black" if black else ""}.png')
+        return Image.open(f'assets/f122{"_white" if black else ""}.png')
 
     def get_title_image(self, width:int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
@@ -37,7 +37,7 @@ class Visual:
         draw.line(((1343, 168), (width-538, 0)), fill=line_color, width=10)
 
         # FBRT logo
-        with Visual.get_fbrt_logo() as fbrt:
+        with Visual.get_fbrt_logo_50gp() as fbrt:
             fbrt.thumbnail((width//3, height), Image.Resampling.LANCZOS)
             left = (width//3 - fbrt.width) // 2 # centered in the left cell
             top = (height-fbrt.height)//2 # centered

@@ -68,7 +68,7 @@ class Race:
         draw_canvas.rectangle(((red_corner.width-2,bg_top), (width, bg_top+9)), fill=(255, 0, 0))
 
         # infos
-        title_color = (0,0,0)
+        title_color = (238,204,81)
         info_color = (255, 255, 255)
         draw_canvas.text((50,bg_top+50), f'Longueur', title_color, font)
         draw_canvas.text((350,bg_top+50), f'Nombre de tours', title_color, font)

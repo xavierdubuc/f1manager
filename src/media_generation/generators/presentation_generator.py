@@ -10,13 +10,13 @@ class PresentationGenerator(AbstractGenerator):
         return 'presentation'
 
     def _generate_basic_image(self) -> PngImageFile:
-        with Image.open('assets/bg.png') as original_bg:
+        with Image.open('assets/bggold.png') as original_bg:
             base = original_bg.copy().convert('RGB')
             # BG
-            bg = Image.new('RGB', (base.width, base.height), (150, 150, 150))
-            alpha = Image.linear_gradient('L').rotate(-90).resize((base.width, base.height))
-            alpha = alpha.crop(((0, 0, base.width//2, base.height))).resize((base.width, base.height))
-            base.paste(bg, alpha)
+            # bg = Image.new('RGB', (base.width, base.height), (150, 150, 150))
+            # alpha = Image.linear_gradient('L').rotate(-90).resize((base.width, base.height))
+            # alpha = alpha.crop(((0, 0, base.width//2, base.height))).resize((base.width, base.height))
+            # base.paste(bg, alpha)
         return base
 
     def _add_content(self, final: PngImageFile):
@@ -40,8 +40,8 @@ class PresentationGenerator(AbstractGenerator):
     def _get_left_content_image(self, width:int, height:int):
         img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
 
-        month_color = (50, 50, 50)
-        title_color = (50, 50, 50)
+        month_color = (238,204,81)
+        title_color = (238,204,81)
         day_color = (210, 210, 210)
         text_font = FontFactory.regular(32)
         hour_font = FontFactory.bold(40)
@@ -66,10 +66,10 @@ class PresentationGenerator(AbstractGenerator):
         month_left = (month_with_padding_right - date_width) // 2
 
         # Title BG
-        bg = Image.new('RGB', (width, date_bottom), (100, 100, 100))
-        alpha = Image.linear_gradient('L').rotate(-90).resize((width, date_bottom))
-        bg.putalpha(alpha)
-        img.paste(bg)
+        # bg = Image.new('RGB', (width, date_bottom), (100, 100, 100))
+        # alpha = Image.linear_gradient('L').rotate(-90).resize((width, date_bottom))
+        # bg.putalpha(alpha)
+        # img.paste(bg)
 
         # horizontal top line
         draw.line(((0,0), (day_right, 0)), fill=(255, 0, 0), width=line_width)
@@ -124,8 +124,15 @@ class PresentationGenerator(AbstractGenerator):
         # TEXT
         text_lines = textwrap.wrap(self.config.description, width=58)
         top = hour_top+hour_v_padding+70
+
+        bg = Image.new('RGB', (width, height-top-25), (80,80,80))
+        alpha = Image.linear_gradient('L').rotate(-90).resize((bg.width, bg.height))
+        alpha = alpha.crop(((alpha.width//4, 0, alpha.width, alpha.height))).resize((alpha.width, alpha.height))
+        bg.putalpha(alpha)
+        paste_rounded(img, bg, (month_left, top-16), radius=20)
+        # img.paste(bg, (month_left, top-20))
         for text_line in text_lines:
-            draw.text((month_left,  top), text_line, 'white', text_font)
+            draw.text((month_left+20,  top), text_line, 'white', text_font)
             top += 40
 
         return img

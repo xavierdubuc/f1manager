@@ -93,7 +93,6 @@ class Brain:
         else:
             _logger.info('A new session has started, previous one has been backuped')
             self.previous_sessions.append(self.current_session)
-            self._send_discord_message(f"Fin de la session voici le classement final :\n'''{self._get_final_classification_as_string()}\n'''")
             self.current_session = tmp_session
             msg = f'Début de la session "{self.current_session.session_type}" à {self.current_session.track}'
             self._send_discord_message(msg)
@@ -199,6 +198,7 @@ class Brain:
                 for i in range(packet.num_cars)
             ]
             print(self._get_final_classification_as_string())
+            self._send_discord_message(f"Fin de la session voici le classement final :\n'''{self._get_final_classification_as_string()}\n'''")
         else:
             current_amount_of_classification = len(self.current_session.final_classification)
             at_least_one_changed = False
@@ -214,6 +214,7 @@ class Brain:
                         at_least_one_changed = True
             if at_least_one_changed:
                 print(self._get_final_classification_as_string())
+                self._send_discord_message(f"Le classement a changé !? Voici la nouvelle version:\n'''{self._get_final_classification_as_string()}\n'''")
 
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
