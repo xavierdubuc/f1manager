@@ -198,7 +198,7 @@ class Brain:
                 for i in range(packet.num_cars)
             ]
             print(self._get_final_classification_as_string())
-            self._send_discord_message(f"Fin de la session voici le classement final :\n'''{self._get_final_classification_as_string()}\n'''")
+            self._send_discord_message(f"Fin de la session voici le classement final :\n'''\n{self._get_final_classification_as_string()}\n'''")
         else:
             current_amount_of_classification = len(self.current_session.final_classification)
             at_least_one_changed = False
