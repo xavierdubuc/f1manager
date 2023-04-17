@@ -27,7 +27,7 @@ class Race:
     def get_max_position_for_fastest_lap(self):
         if self.type in ('Normale', 'Sprint (2)', '100 %'):
             return 14
-        elif self.type.startswith('Double Grid', 'Sprint (1)'):
+        elif self.type.startswith('Double Grid') or self.type.startswith('Sprint (1)'):
             return 10
         return None
 
