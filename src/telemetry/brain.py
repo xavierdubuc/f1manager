@@ -28,8 +28,8 @@ from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
-DAMAGE_GUILD_ID = 1074380392154533958
-DAMAGE_CHANNEL_ID = 1074380392720773312
+DAMAGE_GUILD_ID = 923505034778509342
+DAMAGE_CHANNEL_ID = 1096511089858064384
 
 class Brain:
     def __init__(self, bot:commands.InteractionBot=None):
@@ -72,6 +72,8 @@ class Brain:
         if not self.current_session:
             _logger.info('A new session has started')
             self.current_session = tmp_session
+            msg = f'Début de la session "{self.current_session.session_type}" à {self.current_session.track}'
+            self._send_discord_message(msg)
             return
 
         if self.current_session == tmp_session:
@@ -91,7 +93,10 @@ class Brain:
         else:
             _logger.info('A new session has started, previous one has been backuped')
             self.previous_sessions.append(self.current_session)
+            self._send_discord_message(f"Fin de la session voici le classement final :\n'''{self._get_final_classification_as_string()}\n'''")
             self.current_session = tmp_session
+            msg = f'Début de la session "{self.current_session.session_type}" à {self.current_session.track}'
+            self._send_discord_message(msg)
 
     def _handle_received_participants_packet(self, packet:PacketParticipantsData):
         if not self.current_session:
@@ -255,7 +260,8 @@ class Brain:
                             msg = f'`{actual_str}` (🔻 {delta}) **{pilot}**'
                         else:
                             msg = f'`{actual_str}` (🔼 {-delta}) **{pilot}**'
-                        self._send_discord_message(msg)
+                        print(msg)
+                        # self._send_discord_message(msg)
 
                     if 'result_status' in changes:
                         if changes['result_status'].actual == ResultStatus.finished:

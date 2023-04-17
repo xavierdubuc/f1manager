@@ -16,3 +16,20 @@ class SessionType(Enum):
     race_2 = 11
     race_3 = 12
     clm = 13
+
+    def __str__(self):
+        if self == SessionType.race:
+            return "Course"
+        if self == SessionType.race_2:
+            return "Course 2"
+        if self == SessionType.race_3:
+            return "Course 3"
+        if self == SessionType.short_p:
+            return "Essais courts"
+        if self == SessionType.short_q:
+            return "Qualifs courtes"
+        if self == SessionType.one_lap_q:
+            return "Qualif en un tour"
+        if self == SessionType.clm:
+            return "Contre-la-montre"
+        return self.name.capitalize()
