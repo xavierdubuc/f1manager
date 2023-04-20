@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 import logging
-import os.path
 import pandas
 from src.gsheet.gsheet import GSheet
 from src.media_generation.helpers.generator_config import FastestLap, GeneratorConfig
@@ -118,8 +117,6 @@ class Reader:
         if isinstance(race_day, str):
             race_day = datetime.strptime(race_day, '%d/%m')
         hour = self.data['B'][4]
-        if isinstance(hour, str):
-            hour = datetime.strptime(hour, '%H:%M')
 
         return Race(
             round=self.data['B'][0],
@@ -127,7 +124,7 @@ class Reader:
             circuit=circuits[self.data['B'][1]],
             day=race_day.day,
             month=race_day.strftime('%b'),
-            hour=hour.strftime('%H.%M'),
+            hour=hour,
             pilots=pilots,
             teams=teams,
             type=self.data['B'][20],
