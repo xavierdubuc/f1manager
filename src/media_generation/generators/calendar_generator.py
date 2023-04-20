@@ -65,7 +65,6 @@ class CalendarGenerator(AbstractGenerator):
         left_img = Image.new('RGBA', (left_width, height), color)
         right_img = Image.new('RGB', (right_width, height), (31,31,31))
 
-
         # left_part
         round_text = text(f"R{race['index']}", (255, 255, 255), FontFactory.black(36))
         paste(round_text, left_img, top=(height-round_text.height)//2-3,use_obj=True)
