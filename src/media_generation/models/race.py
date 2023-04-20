@@ -52,39 +52,6 @@ class Race:
         img.paste(circuit_img, (circuit_left, circuit_top), circuit_img)
         return img
 
-    def get_just_information_image(self, width: int, height: int, font):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        bg_top = 0
-        bg = Image.new('RGB', (width, height), (80, 80, 80))
-        alpha = Image.linear_gradient('L').rotate(90).resize((width, height))
-        bg.putalpha(alpha)
-        img.paste(bg, (0, bg_top), bg)
-
-        draw_canvas = ImageDraw.Draw(img)
-        with Image.open('assets/redcorner.png') as red_corner:
-            red_corner = red_corner.convert('RGBA')
-            img.paste(red_corner, (0, bg_top), red_corner)
-        draw_canvas.rectangle(((0,bg_top+red_corner.height), (9, bg_top+red_corner.height+325)), fill=(255, 0, 0))
-        draw_canvas.rectangle(((red_corner.width-2,bg_top), (width, bg_top+9)), fill=(255, 0, 0))
-
-        # infos
-        title_color = (238,204,81)
-        info_color = (255, 255, 255)
-        draw_canvas.text((50,bg_top+50), f'Longueur', title_color, font)
-        draw_canvas.text((350,bg_top+50), f'Nombre de tours', title_color, font)
-        draw_canvas.text((50,bg_top+100), f'{self.circuit.lap_length} Km', info_color, font)
-        draw_canvas.text((350,bg_top+100), f'{self.laps} tours', info_color, font)
-        draw_canvas.text((50,bg_top+175), f'Distance totale', title_color, font)
-        draw_canvas.text((50,bg_top+225), f'{self.get_total_length()} Km', info_color, font)
-        draw_canvas.text((50,bg_top+300), f'Meilleur temps', title_color, font)
-        draw_canvas.text((50,bg_top+350), f'{self.circuit.best_lap}', info_color, font)
-
-        # map
-        with Image.open(f'assets/circuits/maps/{self.circuit.id}.png') as map:
-            map.thumbnail((width, height//2), Image.Resampling.LANCZOS)
-            img.paste(map, (width - map.width, height - map.height), map)
-        return img
-
     def get_pilots(self, team):
         main_pilots = [pilot for pilot in self.pilots.values() if pilot.team == team]
         if not self.swappings or len(self.swappings) == 0:

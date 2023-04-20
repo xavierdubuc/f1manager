@@ -37,7 +37,7 @@ class Visual:
         draw.line(((1343, 168), (width-538, 0)), fill=line_color, width=10)
 
         # FBRT logo
-        with Visual.get_fbrt_logo_50gp() as fbrt:
+        with Visual.get_fbrt_logo() as fbrt:
             fbrt.thumbnail((width//3, height), Image.Resampling.LANCZOS)
             left = (width//3 - fbrt.width) // 2 # centered in the left cell
             top = (height-fbrt.height)//2 # centered

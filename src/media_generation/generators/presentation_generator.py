@@ -5,140 +5,197 @@ from ..generators.abstract_generator import AbstractGenerator
 from ..helpers.transform import *
 import textwrap
 
+
 class PresentationGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
         return 'presentation'
 
     def _generate_basic_image(self) -> PngImageFile:
-        with Image.open('assets/bggold.png') as original_bg:
-            base = original_bg.copy().convert('RGB')
-            # BG
-            # bg = Image.new('RGB', (base.width, base.height), (150, 150, 150))
-            # alpha = Image.linear_gradient('L').rotate(-90).resize((base.width, base.height))
-            # alpha = alpha.crop(((0, 0, base.width//2, base.height))).resize((base.width, base.height))
-            # base.paste(bg, alpha)
-        return base
+        with Image.open('assets/bgred.png') as original_bg:
+            return original_bg.copy().convert('RGB')
 
     def _add_content(self, final: PngImageFile):
-        title_height = self._get_visual_title_height()
+        vertical_padding = 20
+        initial_top = self._get_visual_title_height()+vertical_padding
+        race_title = self._get_race_title_image(int(0.67 * final.width), 180)
+        race_title_pos = paste(
+            race_title, final, left=0,
+            top=initial_top, use_obj=True
+        )
 
-        right_part_width = int(3.5 * (final.width / 10))
-        padding_between = int(0.5 * (final.width / 10))
-        left_content_height = final.height - title_height 
-        left_part_width = final.width - right_part_width - padding_between
-        right_part_left = final.width - right_part_width
-        right_part_top = title_height + 100
-        right_part_height = final.height - right_part_top
+        left_height = final.height - race_title_pos.bottom + vertical_padding
+        h_padding = -100
+        left_width = int(0.67 * final.width)
+        left_img = self._get_left_content_image(left_width, left_height)
+        left_pos = paste(
+            left_img, final, left=0, top=race_title_pos.bottom+vertical_padding, use_obj=True
+        )
 
-        # get race title
+        right_width = final.width - h_padding - left_width
+        right_img = self._get_right_content_image(right_width, final.height)
+        paste(right_img, final, left=left_pos.right + h_padding, top=race_title_pos.bottom)
 
-        left_content = self._get_left_content_image(left_part_width, left_content_height)
-        right_content = self._get_right_content_image(right_part_width, right_part_height)
-        final.paste(left_content, (0, title_height), left_content)
-        final.paste(right_content, (right_part_left, right_part_top), right_content)
-
-    def _get_left_content_image(self, width:int, height:int):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-
-        month_color = (238,204,81)
-        title_color = (238,204,81)
-        day_color = (210, 210, 210)
-        text_font = FontFactory.regular(32)
-        hour_font = FontFactory.bold(40)
-        day_font = FontFactory.regular(50)
-        month_font = FontFactory.regular(60)
-        title_font_size = 80
-        title_font = FontFactory.bold(title_font_size)
-
-        padding_h = 75
-        padding_v = 20
-        padding_between_dates = 20
-        line_width = 5
-
+    def _get_title_lines_image(self, width:int, height:int):
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         draw = ImageDraw.Draw(img)
-        _, _, day_width, day_height = draw.textbbox((0, 0), f'{self.config.race.day}.', day_font)
-        _, _, date_width, date_height = draw.textbbox((0, 0), self.config.race.month, month_font)
 
-        date_bottom = line_width+padding_v+day_height+padding_between_dates+date_height+padding_v
-        month_with_padding_right = date_width + 2 * padding_h
-        day_right = padding_h+date_width
-        day_left = (month_with_padding_right - day_width) // 2
-        month_left = (month_with_padding_right - date_width) // 2
-
-        # Title BG
-        # bg = Image.new('RGB', (width, date_bottom), (100, 100, 100))
-        # alpha = Image.linear_gradient('L').rotate(-90).resize((width, date_bottom))
-        # bg.putalpha(alpha)
-        # img.paste(bg)
+        # -------- 200
+        #         \
+        #      280 \__________
+        line_width = 5
+        bottom = height - line_width
+        fill = (255, 0, 0)
 
         # horizontal top line
-        draw.line(((0,0), (day_right, 0)), fill=(255, 0, 0), width=line_width)
-
-        # day
-        draw.text((day_left, padding_v), f'{self.config.race.day}.', day_color, day_font)
-
-        # month
-        draw.text((month_left, padding_v + day_height + padding_between_dates), self.config.race.month, month_color, month_font)
-
+        draw.line(((0, 0), (200, 0)), fill=fill, width=line_width)
         # oblic line
-        draw.line(((day_right, 0), (month_with_padding_right, date_bottom)), fill=(255, 0, 0), width=line_width)
-
+        draw.line(((200, 0), (280, bottom)), fill=fill, width=line_width)
         # horizontal bottom line
-        hbline_right = width - padding_h
-        draw.line(((month_with_padding_right-1, date_bottom), (hbline_right, date_bottom)), fill=(255, 0, 0), width=line_width)
+        draw.line(((280, bottom), (width, bottom)), fill=fill, width=line_width)
+        return img
 
-        # circuit name
-        padding_before_circuit_name = 40
-        name_top = ((date_bottom - title_font_size) // 2) - 3
-        name_left = month_with_padding_right + padding_before_circuit_name
-        draw.text((name_left, name_top), self.config.race.circuit.name, title_color, title_font)
+    def _get_race_title_image(self, width:int, height:int):
+        race = self.config.race
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        lines_image = self._get_title_lines_image(width, height)
+        paste(lines_image, img)
 
-        # circuit flag
-        with Image.open(f'assets/circuits/flags/{self.config.race.circuit.id}.png') as flag:
-            flag.thumbnail((200,200), Image.Resampling.LANCZOS)
-            img.paste(flag, (hbline_right - flag.width, (date_bottom - flag.height)//2), flag)
+        day_color = (210, 210, 210)
+        day_font = FontFactory.regular(50)
+        month_color = (200, 0, 0)
+        month_font = FontFactory.regular(60)
+        name_color = (200, 0, 0)
+        name_font = FontFactory.black(70)
 
-        # photo
-        img_top = date_bottom + 20
-        remaining_height = height - img_top
-        with Image.open(f'assets/circuits/photos/{self.config.race.circuit.id}.png') as photo:
-            photo = resize(photo, width-month_left, remaining_height)
-            paste_rounded(img, photo, (month_left, img_top))
+        #  80 - 280
+        day = text(str(race.day), day_color, day_font)
+        month = text(race.month, month_color, month_font)
 
-        # hour
-        _, _, hour_width, hour_height = draw.textbbox((0, 0), self.config.race.hour, hour_font)
-        hour_h_padding = 40
-        hour_v_padding = 20
-        hour_top = img_top + photo.height - hour_height - 2 * hour_v_padding
-        bg_size = (hour_width + 2 * hour_h_padding, hour_height + 2 * hour_v_padding)
+        day_pos = paste(day, img, left = (280 - day.width) // 2, top=35, use_obj=True)
+        paste(month, img, left = (280 - month.width) // 2, top=day_pos.bottom+10, use_obj=True)
 
-        # hour bg
-        bg_hour = Image.new('RGB', bg_size, (0, 0, 0))
-        gradient(bg_hour, GradientDirection.LEFT_TO_RIGHT)
-        img.alpha_composite(bg_hour, (month_left, hour_top))
-        # hour line
-        draw.line(((month_left+4, hour_top), (month_left+4, hour_top+bg_hour.height-1)), fill=(32, 167, 215), width=10)
-        # hour text
-        draw.text((month_left+hour_h_padding, hour_top+hour_v_padding), self.config.race.hour, color=day_color, font=hour_font)
-
-        # TEXT
-        text_lines = textwrap.wrap(self.config.description, width=58)
-        top = hour_top+hour_v_padding+70
-
-        bg = Image.new('RGB', (width, height-top-25), (80,80,80))
-        alpha = Image.linear_gradient('L').rotate(-90).resize((bg.width, bg.height))
-        alpha = alpha.crop(((alpha.width//4, 0, alpha.width, alpha.height))).resize((alpha.width, alpha.height))
-        bg.putalpha(alpha)
-        paste_rounded(img, bg, (month_left, top-16), radius=20)
-        # img.paste(bg, (month_left, top-20))
-        for text_line in text_lines:
-            draw.text((month_left+20,  top), text_line, 'white', text_font)
-            top += 40
+        circuit = self.config.race.circuit
+        with self.config.race.circuit.get_flag() as flag:
+            flag = resize(flag, 200, 200)
+            flag_pos = paste(flag, img, left=300, use_obj=True)
+        circuit_img = circuit.get_full_name_img(
+            width-flag_pos.right,
+            height,
+            name_font=name_font,
+            name_color=name_color,
+            city_font=FontFactory.black(60)
+        )
+        paste(circuit_img, img, left=flag_pos.right+30)
 
         return img
 
-    def _get_right_content_image(self, width:int, height:int):
+    def _get_left_content_image(self, width: int, height: int):
+        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        left_padding = 40
+
+        # photo
+        img_top = 20
+        remaining_height = height - img_top
+        with self.config.race.circuit.get_photo() as photo:
+            photo = resize(photo, width-left_padding, remaining_height)
+            paste_rounded(img, photo, (left_padding, img_top))
+
+        padding_photo_txt = -150
+        top = photo.height+padding_photo_txt-40
+        size = photo.height+padding_photo_txt
+        bg = Image.new('RGB', (width, size), (80, 80, 80))
+        alpha = Image.linear_gradient('L').rotate(-90).resize((bg.width, bg.height))
+        alpha = alpha.crop(((alpha.width//4, 0, alpha.width, alpha.height))).resize((alpha.width, alpha.height))
+        bg.putalpha(alpha)
+        paste(bg, img, left_padding, top)
+        draw.line(((left_padding+4, top), (left_padding+4, top+68)), fill=(32, 167, 215), width=10)
+
+        # hour text
+        hour_font = FontFactory.black(40)
+        top += 16
+        hour_img = text(self.config.race.hour, (255, 255, 255), hour_font)
+        hour_pos = paste(hour_img, img, left=left_padding+20, top=top, use_obj=True)
+        top = hour_pos.bottom + 40
+
+        # TEXT
+        text_font = FontFactory.regular(32)
+        text_lines = textwrap.wrap(self.config.description, width=67)
+
+        for text_line in text_lines:
+            draw.text((left_padding+20,  top), text_line, 'white', text_font)
+            top += 45
+
+        return img
+
+    def _get_right_content_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        inf_img = self.config.race.get_just_information_image(width, height, FontFactory.regular(34))
-        img.alpha_composite(inf_img)
+        # bg_top = 0
+        # bg = Image.new('RGB', (width, height), (80, 80, 80))
+        # alpha = Image.linear_gradient('L').rotate(90).resize((width, height))
+        # bg.putalpha(alpha)
+        # img.paste(bg, (0, bg_top), bg)
+
+        # draw_canvas = ImageDraw.Draw(img)
+        # # with Image.open('assets/redcorner.png') as red_corner:
+        # #     red_corner = red_corner.convert('RGBA')
+        # #     img.paste(red_corner, (0, bg_top), red_corner)
+        # # draw_canvas.rectangle(((0,bg_top+red_corner.height), (9, bg_top+red_corner.height+325)), fill=(255, 0, 0))
+        # # draw_canvas.rectangle(((red_corner.width-2,bg_top), (width, bg_top+9)), fill=(255, 0, 0))
+
+        # # infos
+        title_color = (230, 0, 0)
+        value_color = (255, 255, 255)
+        title_font = FontFactory.regular(32)
+        value_font = FontFactory.bold(32)
+
+        with self.config.race.circuit.get_map() as map:
+            map = resize(map, width, height)
+            prev_pos = paste(map, img, top=0, left=0, use_obj=True)
+
+        race_length_label = text('Distance totale', title_color, title_font)
+        race_length_value = text(f'{self.config.race.get_total_length()} Km', value_color, value_font)
+
+        lap_length_label = text('Longueur', title_color, title_font)
+        lap_length_value = text(f'{self.config.race.circuit.lap_length} Km', value_color, value_font)
+
+        lap_amount_label = text('Nombre de tours', title_color, title_font)
+        lap_amount_value = text(f'{self.config.race.laps}', value_color, value_font)
+
+        best_lap_label = text('Meilleur temps', title_color, title_font)
+        best_lap_value = text(f'{self.config.race.circuit.best_lap}', value_color, value_font)
+
+        left = 120
+        right = width-40
+        vertical_padding = 40
+        line_padding = 15
+        line_color = (255,255,255)
+        line_step = 2
+        line_space = 10
+        line_height_offset = 5
+
+        top = prev_pos.bottom+vertical_padding//2
+        prev_pos = paste(race_length_label, img, top=top, left = left, use_obj=True)
+        paste(race_length_value, img, top=top, left = right - race_length_value.width)
+        line_top = top + race_length_label.height - line_height_offset - (race_length_label.height - race_length_value.height)
+        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - race_length_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
+
+        top = prev_pos.bottom+vertical_padding
+        prev_pos = paste(lap_amount_label, img, top=top, left = left, use_obj=True)
+        paste(lap_amount_value, img, top=top, left = right - lap_amount_value.width, use_obj=True)
+        line_top = top + lap_amount_label.height - line_height_offset - (lap_amount_label.height - lap_amount_value.height)
+        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - lap_amount_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
+
+        top = prev_pos.bottom+vertical_padding
+        prev_pos = paste(lap_length_label, img, top=top, left = left, use_obj=True)
+        paste(lap_length_value, img, top=top, left = right - lap_length_value.width)
+        line_top = top + lap_length_label.height - line_height_offset - (lap_length_label.height - lap_length_value.height)
+        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - lap_length_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
+
+        top = prev_pos.bottom+vertical_padding
+        prev_pos = paste(best_lap_label, img, top=top, left = left, use_obj=True)
+        paste(best_lap_value, img, top=top, left = right - best_lap_value.width)
+        line_top = top + best_lap_label.height - line_height_offset - (best_lap_label.height - best_lap_value.height)
+        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - best_lap_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
+
         return img

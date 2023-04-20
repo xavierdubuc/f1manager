@@ -22,6 +22,7 @@ class GradientDirection(Enum):
 def gradient(img: PngImageFile, direction: GradientDirection = GradientDirection.RIGHT_TO_LEFT):
     alpha = Image.linear_gradient('L').rotate(direction.value*90).resize((img.width, img.height))
     img.putalpha(alpha)
+    return img
 
 def get_round_corner_mask(img: PngImageFile, radius=50):
     mask = Image.new('1', (img.width, img.height), 0)
@@ -170,3 +171,16 @@ def _pos_to_ordinal_suffix(n):
 
 def _pos_to_ordinal(n):
     return f'{n}{_pos_to_ordinal_suffix(n)}'
+
+def draw_horizontal_dotted_line(img, xy, color, width=3, step=10, space=10):
+    draw = ImageDraw.Draw(img)
+    begin, end = xy
+    x1,y = begin
+    x2,_ = end
+
+    current = x1
+    while current < x2:
+        origin = (current, y)
+        end = (min(current+step, x2), y)
+        draw.line((origin, end),color,width)
+        current = current+step+space
