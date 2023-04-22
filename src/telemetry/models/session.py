@@ -106,6 +106,7 @@ class Session:
         # transform race time or fastest laps in delta
         for row in data:
             if row[0] != 1:
+                print(row[2], type(row[2]), bool(row[2]))
                 if type(row[2]) != str:
                     if row[2]:
                         row[2] = self._format_time(row[2] - first_pos_time)
