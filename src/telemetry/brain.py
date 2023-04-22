@@ -219,7 +219,11 @@ class Brain:
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
         final_ranking = self.current_session.get_formatted_final_ranking()
-        return tabulate(final_ranking, tablefmt='simple_grid', colalign=('right','left','right'))
+        if self.current_session.session_type.is_race():
+            colalign = ('right','left','right', 'left', 'right')
+        else:
+            colalign = ('right','left','right', 'right')
+        return tabulate(final_ranking, tablefmt='simple_grid', colalign=colalign)
 
     def _handle_received_lap_packet(self, packet:PacketLapData):
         if not self.current_session:
