@@ -99,14 +99,15 @@ class Session:
             data.append(row)
 
         # transform race time or fastest laps in delta
+        delta_column_index = 2 if self.session_type.is_race() else 3
         for row in data:
             if row[0] == 1:
-                row[2] = self._format_time(row[2])
-            elif type(row[2]) != str:
-                if row[2]:
-                    row[2] = f'+ {self._format_time(row[2] - first_pos_time)}'
+                row[delta_column_index] = self._format_time(row[delta_column_index])
+            elif type(row[delta_column_index]) != str:
+                if row[delta_column_index]:
+                    row[delta_column_index] = f'+ {self._format_time(row[delta_column_index] - first_pos_time)}'
                 else:
-                    row[2] = '-' if self.session_type.is_race() else '--:--.---'
+                    row[delta_column_index] = '-' if self.session_type.is_race() else '--:--.---'
 
         data.sort(key=lambda x: x[0])
         return data
@@ -123,10 +124,10 @@ class Session:
             else:
                 race_time = timedelta(seconds=classification.get_race_time())
             return [
-                classification.position, driver, race_time, current_tyres, best_lap_time
+                classification.position, driver, race_time, current_tyres, self._format_time(best_lap_time)
             ]
         else:
-            return [classification.position, driver, best_lap_time]
+            return [classification.position, driver, self._format_time(best_lap_time), best_lap_time]
 
     def _format_time(self, obj:timedelta):
         minutes = obj.seconds//60
