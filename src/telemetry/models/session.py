@@ -94,7 +94,7 @@ class Session:
         first_race_time = None
         best_lap = 999999999999
         for participant, classification in zip(self.participants, self.final_classification):
-            if classification.best_lap_time_in_ms < best_lap:
+            if classification.best_lap_time_in_ms and classification.best_lap_time_in_ms < best_lap:
                 best_lap = classification.best_lap_time_in_ms
             row = self._get_formatted_final_ranking_row(classification, participant)
             if classification.position == 1:
@@ -103,9 +103,7 @@ class Session:
 
         first_pos_time = first_race_time if self.session_type.is_race() else best_lap
         # transform race time or fastest laps in delta
-        print(first_pos_time)
         for row in data:
-            print(row)
             if row[0] != 1:
                 if type(row[2]) != str:
                     row[2] = self._format_time(row[2] - first_pos_time)
