@@ -92,14 +92,14 @@ class Session:
             return []
         data = []
         first_pos_time = None
+        delta_column_index = 2 if self.session_type.is_race() else 3
         for participant, classification in zip(self.participants, self.final_classification):
             row = self._get_formatted_final_ranking_row(classification, participant)
             if classification.position == 1:
-                first_pos_time = row[2]
+                first_pos_time = row[delta_column_index]
             data.append(row)
 
         # transform race time or fastest laps in delta
-        delta_column_index = 2 if self.session_type.is_race() else 3
         for row in data:
             if row[0] == 1:
                 row[delta_column_index] = self._format_time(row[delta_column_index])
