@@ -130,6 +130,8 @@ class Session:
             return [classification.position, driver, self._format_time(best_lap_time), best_lap_time]
 
     def _format_time(self, obj:timedelta):
+        if obj == timedelta(0):
+            return '--:--.---'
         minutes = obj.seconds//60
         minutes_str = f'{obj.seconds//60}:' if minutes > 0 else ''
         seconds = obj.seconds%60
