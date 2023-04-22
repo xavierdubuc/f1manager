@@ -162,6 +162,8 @@ class Brain:
                             '```',
                             '\n'.join(status_parts),
                             '```',
+                            f'Brakes damages : {damages.brakes_damage}',
+                            f'Tyres damages : {damages.tyres_damage}',
                         ]
                         msg = '\n'.join(msg_parts)
                         self._send_discord_message(msg)
@@ -247,7 +249,7 @@ class Brain:
                 car_last_lap = car_laps[-1] if car_laps else None
                 if not car_last_lap or car_last_lap.current_lap_num != packet_data.current_lap_num:
                     car_laps.append(LapManager.create(packet_data, len(car_laps)))
-                    if car_laps[-1].car_position == 1:
+                    if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
                         self._send_discord_message(f'--- Tour {car_laps[-1].current_lap_num} ---')
                 else:
                     pilot = self.current_session.participants[i].name
