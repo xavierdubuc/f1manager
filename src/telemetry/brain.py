@@ -211,7 +211,9 @@ class Brain:
                 ClassificationManager.create(packet.classification_data[i])
                 for i in range(packet.num_cars)
             ]
-            self._send_discord_message(f"Fin de la session voici le classement final :\n```\n{self._get_final_classification_as_string()}\n```")
+            self._send_discord_message("Fin de la session voici le classement final :")
+            for part in self._get_final_classification_as_string():
+                self._send_discord_message(f"```\n{part}\n```")
         else:
             current_amount_of_classification = len(self.current_session.final_classification)
             at_least_one_changed = False
@@ -226,8 +228,9 @@ class Brain:
                         _logger.warning(changes)
                         at_least_one_changed = True
             if at_least_one_changed:
-                print(self._get_final_classification_as_string())
-                self._send_discord_message(f"Le classement a changé !? Voici la nouvelle version:\n```\n{self._get_final_classification_as_string()}\n```")
+                self._send_discord_message('Le classement a changé !? Voici la nouvelle version:')
+                for part in self._get_final_classification_as_string():
+                    self._send_discord_message(f"```\n{part}\n```")
 
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
@@ -236,7 +239,12 @@ class Brain:
             colalign = ('right','left','right', 'left', 'right')
         else:
             colalign = ('right','left','right', 'right')
-        return tabulate(final_ranking, tablefmt='simple_grid', colalign=colalign)
+        if len(self.current_session.final_classification) > 15:
+            return [
+                tabulate(final_ranking[:10], tablefmt='simple_grid', colalign=colalign),
+                tabulate(final_ranking[10:], tablefmt='simple_grid', colalign=colalign)
+            ]
+        return [tabulate(final_ranking, tablefmt='simple_grid', colalign=colalign)]
 
     def _handle_received_lap_packet(self, packet:PacketLapData):
         if not self.current_session:
