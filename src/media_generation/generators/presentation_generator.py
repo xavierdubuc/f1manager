@@ -33,9 +33,11 @@ class PresentationGenerator(AbstractGenerator):
         # get race title
 
         left_content = self._get_left_content_image(left_part_width, left_content_height)
+        right_top_content = self._get_right_top_content_image(right_part_width, 100)
         right_content = self._get_right_content_image(right_part_width, right_part_height)
         final.paste(left_content, (0, title_height), left_content)
         final.paste(right_content, (right_part_left, right_part_top), right_content)
+        final.paste(right_top_content, (right_part_left, title_height), right_top_content)
 
     def _get_left_content_image(self, width:int, height:int):
         img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
@@ -135,3 +137,15 @@ class PresentationGenerator(AbstractGenerator):
         inf_img = self.config.race.get_just_information_image(width, height, FontFactory.regular(34))
         img.alpha_composite(inf_img)
         return img
+
+    def _get_right_top_content_image(self, width: int, height: int):
+        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
+        with Image.open('assets/twitch.png') as twitch_logo :
+            twitch_name = text('FBRT_ECHAMP', (255,255,255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
+            left = width-twitch_name.width-40
+            tw_name_pos = paste(twitch_name, img, left=left, use_obj=True)
+
+            twitch_logo = resize(twitch_logo, width, twitch_name.height)
+            paste(twitch_logo, img, left=tw_name_pos.left - 20 - twitch_logo.width, use_obj=True)
+        return img
+
