@@ -94,6 +94,7 @@ class Session:
         first_race_time = None
         best_lap = 999999999999
         for participant, classification in zip(self.participants, self.final_classification):
+            print(best_lap, classification.best_lap_time_in_ms)
             if classification.best_lap_time_in_ms and classification.best_lap_time_in_ms < best_lap:
                 best_lap = classification.best_lap_time_in_ms
             row = self._get_formatted_final_ranking_row(classification, participant)
