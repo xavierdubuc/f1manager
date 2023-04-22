@@ -107,7 +107,10 @@ class Session:
         for row in data:
             if row[0] != 1:
                 if type(row[2]) != str:
-                    row[2] = self._format_time(row[2] - first_pos_time)
+                    if row[2]:
+                        row[2] = self._format_time(row[2] - first_pos_time)
+                    else:
+                        row[2] = '-' if self.session_type.is_race() else '--:--.---'
             else:
                 row[2] = self._format_time(row[2])
 
