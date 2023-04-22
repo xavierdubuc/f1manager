@@ -63,6 +63,7 @@ class Brain:
     def _send_discord_message(self, msg):
         _logger.info('Following msg to be sent to Discord')
         _logger.info(msg)
+        _logger.info(f'{len(msg)} chars')
         if self.bot and self.bot.loop:
             self.bot.loop.create_task(
                 self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
@@ -226,7 +227,7 @@ class Brain:
                         at_least_one_changed = True
             if at_least_one_changed:
                 print(self._get_final_classification_as_string())
-                self._send_discord_message(f"Le classement a changé !? Voici la nouvelle version:\n```{self._get_final_classification_as_string()}\n```")
+                self._send_discord_message(f"Le classement a changé !? Voici la nouvelle version:\n```\n{self._get_final_classification_as_string()}\n```")
 
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
