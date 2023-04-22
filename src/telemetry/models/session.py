@@ -101,15 +101,15 @@ class Session:
         print(first_pos_time, type(first_pos_time), bool(first_pos_time))
         # transform race time or fastest laps in delta
         for row in data:
-            if row[0] != 1:
+            if row[0] == 1:
+                row[2] = self._format_time(row[2])
+            else:
                 print(row[2], type(row[2]), bool(row[2]))
                 if type(row[2]) != str:
                     if row[2]:
-                        row[2] = self._format_time(row[2] - first_pos_time)
+                        row[2] = f'+ {self._format_time(row[2] - first_pos_time)}'
                     else:
                         row[2] = '-' if self.session_type.is_race() else '--:--.---'
-            else:
-                row[2] = self._format_time(row[2])
 
         data.sort(key=lambda x: x[0])
         return data
