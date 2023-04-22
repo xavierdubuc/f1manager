@@ -103,7 +103,9 @@ class Session:
 
         first_pos_time = first_race_time if self.session_type.is_race() else best_lap
         # transform race time or fastest laps in delta
+        print(first_pos_time)
         for row in data:
+            print(row)
             if row[0] != 1:
                 if type(row[2]) != str:
                     row[2] = self._format_time(row[2] - first_pos_time)
