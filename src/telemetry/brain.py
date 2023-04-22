@@ -15,6 +15,7 @@ from f1_22_telemetry.packets import (
     PacketFinalClassificationData,
     PacketLobbyInfoData
 )
+from tabulate import tabulate
 from src.telemetry.models.enums.result_status import ResultStatus
 
 from src.telemetry.models.enums.safety_car_status import SafetyCarStatus
@@ -28,8 +29,8 @@ from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
-DAMAGE_GUILD_ID = 923505034778509342
-DAMAGE_CHANNEL_ID = 1096511089858064384
+DAMAGE_GUILD_ID = 1074380392154533958
+DAMAGE_CHANNEL_ID = 1096169137589461082
 
 class Brain:
     def __init__(self, bot:commands.InteractionBot=None):
@@ -219,7 +220,7 @@ class Brain:
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
         final_ranking = self.current_session.get_formatted_final_ranking()
-        return '\n'.join(['\t'.join(map(str, row)) for row in final_ranking])
+        return tabulate(final_ranking, 'simple_grid')
 
     def _handle_received_lap_packet(self, packet:PacketLapData):
         if not self.current_session:

@@ -33,3 +33,8 @@ class SessionType(Enum):
         if self == SessionType.clm:
             return "Contre-la-montre"
         return self.name.capitalize()
+
+    def is_race(self):
+        return self in (
+            SessionType.race, SessionType.race_2, SessionType.race_3
+        )

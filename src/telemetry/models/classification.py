@@ -13,7 +13,7 @@ class Classification:
     points: int = None
     num_pit_stops: int = None
     total_race_time: float = None #in seconds, without penalties
-    penalties_time: int = None # total amount of time
+    penalties_time: int = None # total amount of time in sec
     num_penalties: int = None # total amount
     num_tyre_stints: int = None
     best_lap_time_in_ms: int = None
@@ -21,3 +21,6 @@ class Classification:
     tyre_stints_actual: List[TyreCompound] = field(default_factory=list)
     tyre_stints_visual: List[Tyre] = field(default_factory=list)
     tyre_stints_end_laps: List[int] = field(default_factory=list)
+
+    def get_race_time(self):
+        return self.total_race_time + self.penalties_time

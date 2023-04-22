@@ -92,36 +92,47 @@ class Session:
             return []
         data = []
         first_race_time = None
+        best_lap = 999999999999
         for participant, classification in zip(self.participants, self.final_classification):
-            current_tyres = ''.join([str(t) for t in classification.tyre_stints_visual])
-
-            if classification.result_status in (ResultStatus.retired, ResultStatus.dnf, ResultStatus.not_classified):
-                race_time = 'NT'
-            elif classification.result_status == ResultStatus.dsq:
-                race_time = 'DSQ'
-            else:
-                race_time = timedelta(seconds=classification.total_race_time)
+            if classification.best_lap_time_in_ms < best_lap:
+                best_lap = classification.best_lap_time_in_ms
+            row = self._get_formatted_final_ranking_row(classification, participant)
             if classification.position == 1:
-                first_race_time = race_time
-
-            best_lap_time = self._format_time(timedelta(seconds=classification.best_lap_time_in_ms/1000))
-            driver = participant.name.decode('utf-8') if isinstance(participant.name, bytes) else participant.name
-            row = [
-                classification.position, driver, race_time, current_tyres, best_lap_time
-            ]
+                first_race_time = row[2]
             data.append(row)
 
+        first_pos_time = first_race_time if self.session_type.is_race() else best_lap
+        # transform race time or fastest laps in delta
         for row in data:
             if row[0] != 1:
                 if type(row[2]) != str:
-                    row[2] = self._format_time(row[2] - first_race_time)
+                    row[2] = self._format_time(row[2] - first_pos_time)
             else:
                 row[2] = self._format_time(row[2])
 
         data.sort(key=lambda x: x[0])
         return data
 
-    def _format_time(self, obj):
+    def _get_formatted_final_ranking_row(self, classification:Classification, participant:Participant):
+        best_lap_time = timedelta(seconds=classification.best_lap_time_in_ms/1000)
+        driver = participant.name.decode('utf-8') if isinstance(participant.name, bytes) else participant.name
+        if self.session_type.is_race():
+            current_tyres = ''.join([str(t) for t in classification.tyre_stints_visual])
+            if classification.result_status in (ResultStatus.retired, ResultStatus.dnf, ResultStatus.not_classified):
+                race_time = 'NT'
+            elif classification.result_status == ResultStatus.dsq:
+                race_time = 'DSQ'
+            else:
+                race_time = timedelta(seconds=classification.get_race_time())
+            return [
+                classification.position, driver, race_time, current_tyres, best_lap_time
+            ]
+        else:
+            return [classification.position, driver, best_lap_time]
+
+    def _format_time(self, obj:timedelta):
         minutes = obj.seconds//60
         minutes_str = f'{obj.seconds//60}:' if minutes > 0 else ''
-        return f'{minutes_str}{obj.seconds%60}.{str(obj.microseconds//1000).zfill(3)}'
+        seconds = obj.seconds%60
+        seconds_str = str(seconds).zfill(2) if minutes > 0 else seconds
+        return f'{minutes_str}{seconds_str}.{str(obj.microseconds//1000).zfill(3)}'
