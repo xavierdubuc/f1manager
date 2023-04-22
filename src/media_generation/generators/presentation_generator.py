@@ -32,6 +32,9 @@ class PresentationGenerator(AbstractGenerator):
         )
 
         right_width = final.width - h_padding - left_width
+        right_top_img = self._get_right_top_content_image(final.width - left_width, race_title.height)
+        paste(right_top_img, final, left=left_pos.right, top=initial_top)
+
         right_img = self._get_right_content_image(right_width, final.height)
         paste(right_img, final, left=left_pos.right + h_padding, top=race_title_pos.bottom)
 
@@ -101,7 +104,7 @@ class PresentationGenerator(AbstractGenerator):
             photo = resize(photo, width-left_padding, remaining_height)
             paste_rounded(img, photo, (left_padding, img_top))
 
-        padding_photo_txt = -150
+        padding_photo_txt = -100
         top = photo.height+padding_photo_txt-40
         size = photo.height+padding_photo_txt
         bg = Image.new('RGB', (width, size), (80, 80, 80))
@@ -109,41 +112,33 @@ class PresentationGenerator(AbstractGenerator):
         alpha = alpha.crop(((alpha.width//4, 0, alpha.width, alpha.height))).resize((alpha.width, alpha.height))
         bg.putalpha(alpha)
         paste(bg, img, left_padding, top)
-        draw.line(((left_padding+4, top), (left_padding+4, top+68)), fill=(32, 167, 215), width=10)
-
-        # hour text
-        hour_font = FontFactory.black(40)
-        top += 16
-        hour_img = text(self.config.race.hour, (255, 255, 255), hour_font)
-        hour_pos = paste(hour_img, img, left=left_padding+20, top=top, use_obj=True)
-        top = hour_pos.bottom + 40
 
         # TEXT
         text_font = FontFactory.regular(32)
         text_lines = textwrap.wrap(self.config.description, width=67)
 
         for text_line in text_lines:
-            draw.text((left_padding+20,  top), text_line, 'white', text_font)
             top += 45
+            draw.text((left_padding+20,  top), text_line, 'white', text_font)
 
+        return img
+
+    def _get_right_top_content_image(self, width: int, height: int):
+        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
+        with Image.open('assets/twitch.png') as twitch_logo :
+            twitch_name = text('FBRT_ECHAMP', (255,255,255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
+            left = width-twitch_name.width-40
+            tw_name_pos = paste(twitch_name, img, left=left, top=25, use_obj=True)
+            hour_img = text(self.config.race.hour, (255, 255, 255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
+            paste(hour_img, img, left=left, top=tw_name_pos.bottom + 10)
+
+            twitch_logo = resize(twitch_logo, width, int(2*(height/3)))
+            paste(twitch_logo, img, left=tw_name_pos.left - 20 - twitch_logo.width, use_obj=True)
         return img
 
     def _get_right_content_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        # bg_top = 0
-        # bg = Image.new('RGB', (width, height), (80, 80, 80))
-        # alpha = Image.linear_gradient('L').rotate(90).resize((width, height))
-        # bg.putalpha(alpha)
-        # img.paste(bg, (0, bg_top), bg)
 
-        # draw_canvas = ImageDraw.Draw(img)
-        # # with Image.open('assets/redcorner.png') as red_corner:
-        # #     red_corner = red_corner.convert('RGBA')
-        # #     img.paste(red_corner, (0, bg_top), red_corner)
-        # # draw_canvas.rectangle(((0,bg_top+red_corner.height), (9, bg_top+red_corner.height+325)), fill=(255, 0, 0))
-        # # draw_canvas.rectangle(((red_corner.width-2,bg_top), (width, bg_top+9)), fill=(255, 0, 0))
-
-        # # infos
         title_color = (230, 0, 0)
         value_color = (255, 255, 255)
         title_font = FontFactory.regular(32)
