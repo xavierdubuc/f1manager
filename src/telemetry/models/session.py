@@ -92,17 +92,16 @@ class Session:
             return []
         data = []
         first_race_time = None
-        best_lap = 999999999999
+        best_lap = None
         for participant, classification in zip(self.participants, self.final_classification):
-            print(best_lap, classification.best_lap_time_in_ms)
-            if classification.best_lap_time_in_ms and classification.best_lap_time_in_ms < best_lap:
-                best_lap = classification.best_lap_time_in_ms
             row = self._get_formatted_final_ranking_row(classification, participant)
             if classification.position == 1:
                 first_race_time = row[2]
+                best_lap = classification.best_lap_time_in_ms
             data.append(row)
 
         first_pos_time = first_race_time if self.session_type.is_race() else best_lap
+        print(first_pos_time, type(first_pos_time), bool(first_pos_time))
         # transform race time or fastest laps in delta
         for row in data:
             if row[0] != 1:
