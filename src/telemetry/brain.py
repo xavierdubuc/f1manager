@@ -170,9 +170,9 @@ class Brain:
                             f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}',
                             '```',
                             '\n'.join(status_parts),
-                            f'[{str(damages.tyres_damage[2]).rjust(3)}%] --- [{str(damages.tyres_damage[3]).rjust(3)}%]',
-                            f'        |        ',
-                            f'[{str(damages.tyres_damage[0]).rjust(3)}%] --- [{str(damages.tyres_damage[1]).rjust(3)}%]',
+                            f'[{str(damages.tyres_damage[2]).rjust(3)}% ] --- [{str(damages.tyres_damage[3]).rjust(3)}% ]',
+                            f'         |         ',
+                            f'[{str(damages.tyres_damage[0]).rjust(3)}% ] --- [{str(damages.tyres_damage[1]).rjust(3)}% ]',
                             '```',
                         ]
                         msg = '\n'.join(msg_parts)
