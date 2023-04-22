@@ -147,9 +147,18 @@ class Brain:
                     }
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
                     damages = self.current_session.damages[i]
-                    if changes and any(key in changes for key in damage_keys.keys()):
+                    has_damage_changes = any(key in changes for key in damage_keys.keys()) or 100 in damages.tyres_damage
+                    if changes and has_damage_changes:
                         changed_parts = []
                         status_parts = []
+                        if damages.tyres_damage[0] == 100:
+                            changed_parts.append('Crevaison/Roue arrière gauche arrachée')
+                        if damages.tyres_damage[1] == 100:
+                            changed_parts.append('Crevaison/Roue arrière droite arrachée')
+                        if damages.tyres_damage[2] == 100:
+                            changed_parts.append('Crevaison/Roue avant gauche arrachée')
+                        if damages.tyres_damage[3] == 100:
+                            changed_parts.append('Crevaison/Roue avant droite arrachée')
                         for key in damage_keys.keys():
                             if key in changes:
                                 changed_parts.append(damage_keys[key].strip())
@@ -161,9 +170,10 @@ class Brain:
                             f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}',
                             '```',
                             '\n'.join(status_parts),
+                            f'[{str(damages.tyres_damage[2]).rjust(3)}%] --- [{str(damages.tyres_damage[3]).rjust(3)}%]',
+                            f'        |        ',
+                            f'[{str(damages.tyres_damage[0]).rjust(3)}%] --- [{str(damages.tyres_damage[1]).rjust(3)}%]',
                             '```',
-                            f'Brakes damages : {damages.brakes_damage}',
-                            f'Tyres damages : {damages.tyres_damage}',
                         ]
                         msg = '\n'.join(msg_parts)
                         self._send_discord_message(msg)
