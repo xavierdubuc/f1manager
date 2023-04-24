@@ -84,7 +84,7 @@ class Brain:
                 wfcasts = self.current_session.weather_forecast
                 rows = []
                 for wfcast in wfcasts:
-                    rows = [
+                    rows += [
                         f'+{wfcast.time_offset}min',
                         str(wfcast.weather),
                         f'{wfcast.rain_percentage}% pluie',
