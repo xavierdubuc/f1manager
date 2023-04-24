@@ -81,8 +81,18 @@ class Brain:
         if self.current_session == tmp_session:
             changes = SessionManager.update(self.current_session, packet)
             if 'weather_forecast' in changes:
-                print('Forecast has changed !')
-                print(self.current_session.weather_forecast)
+                wfcasts = self.current_session.weather_forecast
+                rows = []
+                for wfcast in wfcasts:
+                    rows = [
+                        f'+{wfcast.time_offset}min',
+                        str(wfcast.weather),
+                        f'{wfcast.rain_percentage}% pluie',
+                        f'Circuit: {wfcast.track_temperature}°C',
+                        f'Air: {wfcast.air_temperature}°C',
+                    ]
+                msg = tabulate(rows, tablefmt='simple_grid'),
+                self._send_discord_message(msg)
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
                 if actual_status == SafetyCarStatus.virtual:
