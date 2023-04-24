@@ -91,8 +91,8 @@ class Brain:
                         f'Circuit: {wfcast.track_temperature}°C',
                         f'Air: {wfcast.air_temperature}°C',
                     ]
-                msg = tabulate(rows, tablefmt='simple_grid'),
-                self._send_discord_message(msg)
+                msg = tabulate(rows, tablefmt='simple_grid')
+                self._send_discord_message(f"```\n{msg}\n```")
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
                 if actual_status == SafetyCarStatus.virtual:
