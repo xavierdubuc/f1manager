@@ -22,5 +22,5 @@ class Weather(Enum):
         elif self == Weather.heavy_rain:
             return 'Pluie forte'
         elif self == Weather.storm:
-            return 'Tempête':
+            return 'Tempête'
         return '?'
