@@ -65,9 +65,11 @@ class Brain:
         _logger.info(msg)
         _logger.info(f'{len(msg)} chars')
         if self.bot and self.bot.loop:
-            self.bot.loop.create_task(
-                self.bot.get_guild(DAMAGE_GUILD_ID).get_channel(DAMAGE_CHANNEL_ID).send(msg)
-            )
+            guild = self.bot.get_guild(DAMAGE_GUILD_ID)
+            if guild:
+                channel = guild.get_channel(DAMAGE_CHANNEL_ID)
+                if channel:
+                    self.bot.loop.create_task(channel.send(msg))
 
     def _handle_received_session_packet(self, packet: PacketSessionData):
         tmp_session = SessionManager.create(packet)
