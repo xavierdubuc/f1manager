@@ -17,6 +17,7 @@ from f1_22_telemetry.packets import (
 )
 from tabulate import tabulate
 from src.telemetry.models.enums.result_status import ResultStatus
+from datetime import datetime
 
 from src.telemetry.models.enums.safety_car_status import SafetyCarStatus
 from .managers.classification_manager import ClassificationManager
@@ -37,6 +38,7 @@ class Brain:
         self.current_session = None
         self.previous_sessions = []
         self.bot = bot
+        self.last_weather_notified_at = None
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
@@ -82,20 +84,24 @@ class Brain:
 
         if self.current_session == tmp_session:
             changes = SessionManager.update(self.current_session, packet)
+
             if 'weather_forecast' in changes:
-                wfcasts = self.current_session.weather_forecast
-                rows = []
-                for wfcast in wfcasts:
-                    if wfcast.session_type == self.current_session.session_type:
-                        rows.append([
-                            f'+{wfcast.time_offset}min',
-                            str(wfcast.weather),
-                            f'{wfcast.rain_percentage}% pluie',
-                            f'Circuit: {wfcast.track_temperature}°C',
-                            f'Air: {wfcast.air_temperature}°C',
-                        ])
-                msg = tabulate(rows, tablefmt='simple_grid')
-                self._send_discord_message(f"```\n{msg}\n```")
+                now = datetime.now()
+                delta = now - self.last_weather_notified_at if self.last_weather_notified_at else None
+                if delta and delta.seconds > 5 * 60:
+                    wfcasts = self.current_session.weather_forecast
+                    rows = []
+                    for wfcast in wfcasts:
+                        if wfcast.session_type == self.current_session.session_type:
+                            rows.append([
+                                f'+{wfcast.time_offset}min',
+                                str(wfcast.weather),
+                                f'{wfcast.rain_percentage}% pluie',
+                                f'Circuit: {wfcast.track_temperature}°C',
+                                f'Air: {wfcast.air_temperature}°C',
+                            ])
+                    msg = tabulate(rows, tablefmt='simple_grid')
+                    self._send_discord_message(f"```\n{msg}\n```")
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
                 if actual_status == SafetyCarStatus.virtual:
@@ -162,6 +168,8 @@ class Brain:
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
                     damages = self.current_session.damages[i]
                     has_damage_changes = any(key in changes for key in damage_keys.keys()) or 100 in damages.tyres_damage
+                    is_increase = True
+                    is_decrease = False
                     if changes and has_damage_changes:
                         changed_parts = []
                         status_parts = []
@@ -176,12 +184,21 @@ class Brain:
                         for key in damage_keys.keys():
                             if key in changes:
                                 changed_parts.append(damage_keys[key].strip())
+                                if changes[key].old < changes[key].actual:
+                                    is_increase = True
+                                else:
+                                    is_decrease = False
                             damage_value = getattr(damages, key)
                             damage_value_str = self._padded_percent(damage_value)
                             status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
 
+                        verb = (
+                            f"{'a subi' if is_increase else ''}"
+                            "/" if is_increase and is_decrease else ''
+                            f"{'a réparé' if is_decrease else ''}"
+                        )
                         msg_parts = [
-                            f'**{participant.name}** a subi/réparé des dégats concernant : {", ".join(changed_parts)}',
+                            f'**{participant}** {verb} des dégats concernant : {", ".join(changed_parts)}',
                             '```',
                             '\n'.join(status_parts),
                             f'[{str(damages.tyres_damage[2]).rjust(3)}% ] --- [{str(damages.tyres_damage[3]).rjust(3)}% ]',
@@ -280,9 +297,28 @@ class Brain:
                 car_laps = self.current_session.laps[i]
                 car_last_lap = car_laps[-1] if car_laps else None
                 if not car_last_lap or car_last_lap.current_lap_num != packet_data.current_lap_num:
-                    car_laps.append(LapManager.create(packet_data, len(car_laps)))
+                    new_lap = LapManager.create(packet_data, len(car_laps))
+                    car_laps.append(new_lap)
                     if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
                         self._send_discord_message(f'--- Tour {car_laps[-1].current_lap_num} ---')
+                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i] if i < self.current_session.lap_state_last_start_of_lap else None
+                    pilot = self.current_session.participants[i]
+
+                    # POS CHANGE
+                    # TODO essayer d'inclure une notion de durée pour éviter d'avoir 45 changements quand y'a une bataille
+                    # Ex : afficher le premier puis attendre 10 secondes, si a rechangé on remet un message
+                    # Ne pas envoyer les messages si le gars pit, on envoit un message à la fin du pit avec le nombre
+                    # total de position perdue par ex ? (moyen de stocker sur le lap précédent à priori ou sur le pilot directement)
+                    if old_lap_state and old_lap_state.car_position != new_lap.car_position:
+                        delta = new_lap.car_position - old_lap_state.car_position
+                        actual = new_lap.car_position
+                        actual_str = f'P{actual}'.ljust('3')
+                        if delta >= 1:
+                            msg = f'**{pilot}**`{actual_str}` (🔻 {delta})'
+                        else:
+                            msg = f'**{pilot}**`{actual_str}` (🔼 {-delta})'
+                        self._send_discord_message(msg)
+                    self.current_session.lap_state_last_start_of_lap[i] = new_lap
                 else:
                     pilot = self.current_session.participants[i].name
                     changes = LapManager.update(car_last_lap, packet_data)
@@ -291,16 +327,6 @@ class Brain:
                     # Ex : afficher le premier puis attendre 10 secondes, si a rechangé on remet un message
                     # Ne pas envoyer les messages si le gars pit, on envoit un message à la fin du pit avec le nombre
                     # total de position perdue par ex ? (moyen de stocker sur le lap précédent à priori ou sur le pilot directement)
-                    if 'car_position' in changes:
-                        change = changes['car_position']
-                        delta = change.actual - change.old
-                        actual_str = f' P{change.actual}' if change.actual < 10 else f'P{change.actual}'
-                        if delta >= 1:
-                            msg = f'`{actual_str}` (🔻 {delta}) **{pilot}**'
-                        else:
-                            msg = f'`{actual_str}` (🔼 {-delta}) **{pilot}**'
-                        print(msg)
-                        # self._send_discord_message(msg)
 
                     if 'result_status' in changes:
                         if changes['result_status'].actual == ResultStatus.finished:

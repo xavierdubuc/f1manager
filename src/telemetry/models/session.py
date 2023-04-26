@@ -73,6 +73,7 @@ class Session:
     damages: List[Damage] = None
     telemetries: List[Telemetry] = None
     laps: List[List[Lap]] = None
+    lap_state_last_start_of_lap: List[Lap] = None
 
     def __eq__(self, other):
         if type(self) != type(other):
@@ -114,7 +115,7 @@ class Session:
 
     def _get_formatted_final_ranking_row(self, classification:Classification, participant:Participant):
         best_lap_time = timedelta(seconds=classification.best_lap_time_in_ms/1000)
-        driver = participant.name.decode('utf-8') if isinstance(participant.name, bytes) else participant.name
+        driver = str(participant)
         if self.session_type.is_race():
             current_tyres = ''.join([str(t) for t in classification.tyre_stints_visual])
             if classification.result_status in (ResultStatus.retired, ResultStatus.dnf, ResultStatus.not_classified):
