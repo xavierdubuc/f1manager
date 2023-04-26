@@ -30,8 +30,8 @@ from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
-DAMAGE_GUILD_ID = 923505034778509342
-DAMAGE_CHANNEL_ID = 1098673162310397982
+DAMAGE_GUILD_ID = 988526522614833222
+DAMAGE_CHANNEL_ID = 1098533636283834408
 
 class Brain:
     def __init__(self, bot:commands.InteractionBot=None):
@@ -287,6 +287,10 @@ class Brain:
                 [LapManager.create(packet.lap_data[i], 0)]
                 for i in range(amount_of_pertinent_lap)
             ]
+            self.current_session.lap_state_last_start_of_lap = [
+                [LapManager.create(packet.lap_data[i], 0)]
+                for i in range(amount_of_pertinent_lap)
+            ]
         else:
             current_amount_of_lap = len(self.current_session.laps)
             for i in range(amount_of_pertinent_lap):
@@ -301,7 +305,7 @@ class Brain:
                     car_laps.append(new_lap)
                     if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
                         self._send_discord_message(f'--- Tour {car_laps[-1].current_lap_num} ---')
-                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i] if i < self.current_session.lap_state_last_start_of_lap else None
+                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i] if i < self.current_session.lap_state_last_start_of_lap.length else None
                     pilot = self.current_session.participants[i]
 
                     # POS CHANGE
