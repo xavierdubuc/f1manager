@@ -305,7 +305,7 @@ class Brain:
                     car_laps.append(new_lap)
                     if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
                         self._send_discord_message(f'--- Tour {car_laps[-1].current_lap_num} ---')
-                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i] if i < self.current_session.lap_state_last_start_of_lap.length else None
+                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i] if i < len(self.current_session.lap_state_last_start_of_lap) else None
                     pilot = self.current_session.participants[i]
 
                     # POS CHANGE
