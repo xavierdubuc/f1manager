@@ -17,7 +17,10 @@ class Participant:
     telemetry_is_public: bool = None
 
     def __str__(self):
-        return f'"{self.name}" #{self.race_number} {self.nationality.name} {self.team.name}'
+        name = self.name.decode('utf-8') if isinstance(self.name, bytes) else self.name
+        if name and name != 'Joueur':
+            return name
+        return f'#{self.race_number} ({self.nationality.name}) {self.team.name}'
 
     def __eq__(self, other):
         if type(self) != type(other):
