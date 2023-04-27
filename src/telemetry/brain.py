@@ -281,70 +281,70 @@ class Brain:
             return # this should not happen
         if not self.current_session.participants:
             return # this should not happen neither
+
         amount_of_pertinent_lap = len(self.current_session.participants)
+        # NO LAPS yet, create for all participants
         if not self.current_session.laps:
-            self.current_session.laps = [
-                [LapManager.create(packet.lap_data[i], 0)]
-                for i in range(amount_of_pertinent_lap)
-            ]
-            self.current_session.lap_state_last_start_of_lap = [
-                [LapManager.create(packet.lap_data[i], 0)]
-                for i in range(amount_of_pertinent_lap)
-            ]
+            self.current_session.laps = []
+            self.current_session.lap_state_last_start_of_lap = []
+            for i in range(amount_of_pertinent_lap):
+                self.current_session.laps.append([
+                    LapManager.create(packet.lap_data[i], 0)
+                ])
+                self.current_session.lap_state_last_start_of_lap.append(
+                    LapManager.create(packet.lap_data[i], 0)
+                )
         else:
             current_amount_of_lap = len(self.current_session.laps)
             for i in range(amount_of_pertinent_lap):
                 packet_data = packet.lap_data[i]
+
+                # We had no laps yet for this one
                 if i > current_amount_of_lap - 1:
                     self.current_session.laps.append([])
+                    self.current_session.lap_state_last_start_of_lap.append(None)
 
                 car_laps = self.current_session.laps[i]
                 car_last_lap = car_laps[-1] if car_laps else None
-                if not car_last_lap or car_last_lap.current_lap_num != packet_data.current_lap_num:
-                    new_lap = LapManager.create(packet_data, len(car_laps))
-                    car_laps.append(new_lap)
-                    if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
-                        self._send_discord_message(f'--- Tour {car_laps[-1].current_lap_num} ---')
-                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i] if i < len(self.current_session.lap_state_last_start_of_lap) else None
-                    pilot = self.current_session.participants[i]
+                pilot = self.current_session.participants[i]
 
-                    # POS CHANGE
-                    # TODO essayer d'inclure une notion de durée pour éviter d'avoir 45 changements quand y'a une bataille
-                    # Ex : afficher le premier puis attendre 10 secondes, si a rechangé on remet un message
-                    # Ne pas envoyer les messages si le gars pit, on envoit un message à la fin du pit avec le nombre
-                    # total de position perdue par ex ? (moyen de stocker sur le lap précédent à priori ou sur le pilot directement)
-                    if old_lap_state and old_lap_state.car_position != new_lap.car_position:
-                        delta = new_lap.car_position - old_lap_state.car_position
-                        actual = new_lap.car_position
-                        actual_str = f'P{actual}'.ljust('3')
-                        if delta >= 1:
-                            msg = f'**{pilot}**`{actual_str}` (🔻 {delta})'
-                        else:
-                            msg = f'**{pilot}**`{actual_str}` (🔼 {-delta})'
-                        self._send_discord_message(msg)
-                    self.current_session.lap_state_last_start_of_lap[i] = new_lap
-                else:
-                    pilot = self.current_session.participants[i].name
+                # Same lap
+                if car_last_lap and car_last_lap.current_lap_num == packet_data.current_lap_num:
                     changes = LapManager.update(car_last_lap, packet_data)
 
-                    # TODO essayer d'inclure une notion de durée pour éviter d'avoir 45 changements quand y'a une bataille
-                    # Ex : afficher le premier puis attendre 10 secondes, si a rechangé on remet un message
-                    # Ne pas envoyer les messages si le gars pit, on envoit un message à la fin du pit avec le nombre
-                    # total de position perdue par ex ? (moyen de stocker sur le lap précédent à priori ou sur le pilot directement)
-
                     if 'result_status' in changes:
-                        if changes['result_status'].actual == ResultStatus.finished:
-                            msg = f'🏁 **{pilot}**'
+                        result_status = changes['result_status'].actual
+                        msg = result_status.get_pilot_result_str(pilot)
+                        if msg:
                             self._send_discord_message(msg)
-                        if changes['result_status'].actual == ResultStatus.dnf:
-                            msg = f'🟥 **{pilot}** a NT'
-                            self._send_discord_message(msg)
-                        if changes['result_status'].actual == ResultStatus.dsq:
-                            msg = f'🟥 **{pilot}** a été disqualifié'
-                            self._send_discord_message(msg)
-                        if changes['result_status'].actual == ResultStatus.retired:
-                            msg = f'🟥 **{pilot}** a abandonné'
-                            self._send_discord_message(msg)
+                # Pilot just crossed the line
+                else:
+                    # Add the new lap to the car's list of lap
+                    new_lap = LapManager.create(packet_data, len(car_laps))
+                    car_laps.append(new_lap)
+
+                    # If it's the lap of the race leader and session is a race
+                    # then notify new lap
+                    if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
+                        msg = (
+                            '━━━━━━━━━━━━━━',
+                            new_lap.get_lap_num_title(),
+                            '━━━━━━━━━━━━━━',
+                        )
+                        self._send_discord_message(msg)
+
+                    # Compare with lap state last time pilot crossed the line...
+                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i]
+
+                    # Notify position change if any
+                    if old_lap_state and old_lap_state.car_position != new_lap.car_position:
+                        position_change = new_lap.get_position_evolution(old_lap_state)
+                        if position_change:
+                            msg = f'**{pilot}** {position_change}'
+                        self._send_discord_message(msg)
+
+                    # .. and update it
+                    self.current_session.lap_state_last_start_of_lap[i] = new_lap
 
     def _padded_percent(self, percent):
         if 100 > percent > 9:
