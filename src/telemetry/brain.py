@@ -120,18 +120,16 @@ class Brain:
             self._send_discord_message(msg)
 
     def _handle_received_participants_packet(self, packet:PacketParticipantsData):
-        print(packet.num_active_cars)
         if not self.current_session:
             return # we could store in a tmp self. variable and store info at session creation if needed
         if not self.current_session.participants:
             self.current_session.participants = [
-                ParticipantManager.create(packet.participants[i])
-                for i in range(packet.num_active_cars)
+                ParticipantManager.create(packet_data)
+                for packet_data in packet.participants
             ]
         else:
             current_amount_of_participants = len(self.current_session.participants)
-            for i in range(packet.num_active_cars):
-                packet_data = packet.participants[i]
+            for i, packet_data in enumerate(packet.participants):
                 if i > current_amount_of_participants - 1:
                     self.current_session.participants.append(ParticipantManager.create(packet_data))
                 else:
