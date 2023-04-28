@@ -1,6 +1,6 @@
 from enum import Enum
 
-from src.media_generation.models.pilot import Pilot
+from src.telemetry.models.participant import Participant
 
 
 class ResultStatus(Enum):
@@ -13,7 +13,7 @@ class ResultStatus(Enum):
     not_classified = 6
     retired = 7
 
-    def get_pilot_result_str(self, pilot:Pilot):
+    def get_pilot_result_str(self, pilot:Participant):
         if self == ResultStatus.finished:
             return f'🏁 **{pilot}**'
         if self == ResultStatus.dnf:
