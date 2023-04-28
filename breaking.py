@@ -44,11 +44,11 @@ class Renderer:
         _logger.info(f'padding_top will be {self.padding_top}')
 
     def render(self):
-        with Image.open('assets/breaking/bg.png') as bg:
-            final = bg.copy().convert('RGB')
+        width = 1080
+        height = 1350
 
         line_color = self.team.breaking_line_color if self.team else (159, 159, 159)
-        final = Image.new('RGB', (final.width, final.height), self.bg_color)
+        final = Image.new('RGB', (width, height), self.bg_color)
         draw_lines_all(final, line_color, space_between_lines=4, line_width=2)
         top_breaking_height = 155
         bottom_message_height = 215
@@ -56,13 +56,13 @@ class Renderer:
         space_bottom_middle = 45
         middle_img_height = final.height - top_breaking_height - bottom_message_height - space_top_middle - space_bottom_middle
 
-        top_img = self._get_top_breaking_img(bg.width, top_breaking_height)
+        top_img = self._get_top_breaking_img(width, top_breaking_height)
         top_dim = paste(top_img, final, left=0, top=0, use_obj=True)
 
-        middle_img = self._get_middle_picture_img(bg.width, middle_img_height)
+        middle_img = self._get_middle_picture_img(width, middle_img_height)
         middle_dim = paste(middle_img, final, left=0, top=top_dim.bottom+space_top_middle, use_obj=True)
 
-        bottom_img = self._get_bottom_message_img(bg.width, bottom_message_height)
+        bottom_img = self._get_bottom_message_img(width, bottom_message_height)
         paste(bottom_img, final, left=0, top=middle_dim.bottom+space_bottom_middle)
 
         final.save(self.output or 'breaking.png', quality=95)

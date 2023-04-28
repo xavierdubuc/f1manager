@@ -17,8 +17,8 @@ class TeamsRankingGenerator(AbstractGenerator):
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         height = 300
-        with Image.open('assets/rankings/bg_top.png') as img:
-            img = resize(img.copy().convert('RGB'), base_img.width, height, keep_ratio=False)
+        img = Image.new('RGB', (base_img.width,height), (255,255,255))
+        draw_lines_all(img, (150,150,150))
 
         with Visual.get_fbrt_logo() as logo:
             logo = resize(logo, logo.width, img.height//2)
