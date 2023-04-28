@@ -30,8 +30,8 @@ from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
-DAMAGE_GUILD_ID = 988526522614833222
-DAMAGE_CHANNEL_ID = 1098533636283834408
+DAMAGE_GUILD_ID = 1074380392154533958
+DAMAGE_CHANNEL_ID = 1096169137589461082
 
 class Brain:
     def __init__(self, bot:commands.InteractionBot=None):
