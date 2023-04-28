@@ -88,8 +88,7 @@ class Brain:
             if 'weather_forecast' in changes:
                 now = datetime.now()
                 delta = now - self.last_weather_notified_at if self.last_weather_notified_at else None
-                print(delta)
-                if delta and delta.seconds > 5 * 60:
+                if not delta or delta.seconds > 5 * 60:
                     wfcasts = self.current_session.weather_forecast
                     rows = []
                     for wfcast in wfcasts:
@@ -103,6 +102,7 @@ class Brain:
                             ])
                     msg = tabulate(rows, tablefmt='simple_grid')
                     self._send_discord_message(f"```\n{msg}\n```")
+                    self.last_weather_notified_at = now
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
                 if actual_status == SafetyCarStatus.virtual:
