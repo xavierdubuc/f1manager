@@ -34,6 +34,9 @@ class Lap:
     # data not from packets
     index: int = None
 
+    def __str__(self):
+        return f'Lap {self.current_lap_num}'
+
     def get_lap_num_title(self):
         return f'` TOUR {str(self.current_lap_num).ljust(2)} `'
 

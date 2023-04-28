@@ -310,6 +310,7 @@ class Brain:
                 pilot = self.current_session.participants[i]
 
                 # Same lap
+                print(i, pilot, car_last_lap, packet_data.current_lap_num)
                 if car_last_lap and car_last_lap.current_lap_num == packet_data.current_lap_num:
                     changes = LapManager.update(car_last_lap, packet_data)
 
