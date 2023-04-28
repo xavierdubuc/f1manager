@@ -188,7 +188,7 @@ class Brain:
                                 if changes[key].old < changes[key].actual:
                                     is_increase = True
                                 else:
-                                    is_decrease = False
+                                    is_decrease = True
                             damage_value = getattr(damages, key)
                             damage_value_str = self._padded_percent(damage_value)
                             status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
