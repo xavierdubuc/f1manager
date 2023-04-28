@@ -327,9 +327,9 @@ class Brain:
                     # then notify new lap
                     if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
                         msg = (
-                            '━━━━━━━━━━━━━━',
-                            new_lap.get_lap_num_title(),
-                            '━━━━━━━━━━━━━━',
+                            '━━━━━━━━━━━━━━'
+                            f'{new_lap.get_lap_num_title()}'
+                            '━━━━━━━━━━━━━━'
                         )
                         self._send_discord_message(msg)
 
