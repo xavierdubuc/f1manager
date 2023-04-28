@@ -88,6 +88,7 @@ class Brain:
             if 'weather_forecast' in changes:
                 now = datetime.now()
                 delta = now - self.last_weather_notified_at if self.last_weather_notified_at else None
+                print(delta)
                 if delta and delta.seconds > 5 * 60:
                     wfcasts = self.current_session.weather_forecast
                     rows = []
@@ -337,6 +338,7 @@ class Brain:
                     old_lap_state = self.current_session.lap_state_last_start_of_lap[i]
 
                     # Notify position change if any
+                    print(pilot, old_lap_state.car_position, new_lap.car_position)
                     if old_lap_state and old_lap_state.car_position != new_lap.car_position:
                         position_change = new_lap.get_position_evolution(old_lap_state)
                         if position_change:
