@@ -346,7 +346,7 @@ class Brain:
                         self._send_discord_message(msg)
 
                     # .. and update it
-                    self.current_session.lap_state_last_start_of_lap[i] = new_lap
+                    self.current_session.lap_state_last_start_of_lap[i] = LapManager.create(packet_data, len(car_laps))
 
     def _padded_percent(self, percent):
         if 100 > percent > 9:
