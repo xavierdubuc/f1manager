@@ -90,3 +90,4 @@ class Nationality(Enum):
     barbadian = 85
     welsh = 86
     vietnamese = 87
+    not_defined=255
