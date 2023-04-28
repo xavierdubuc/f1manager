@@ -125,18 +125,19 @@ class Brain:
         if not self.current_session.participants:
             self.current_session.participants = [
                 ParticipantManager.create(packet_data)
-                for packet_data in packet.participants
+                for packet_data in packet.participants if packet_data.race_number != 0 # (0 means no participant)
             ]
         else:
             current_amount_of_participants = len(self.current_session.participants)
             for i, packet_data in enumerate(packet.participants):
-                if i > current_amount_of_participants - 1:
-                    self.current_session.participants.append(ParticipantManager.create(packet_data))
-                else:
-                    changes = ParticipantManager.update(self.current_session.participants[i], packet_data)
-                    if 'network_id' in changes or 'name' in changes:
-                        _logger.warning('!? A participant changed !?')
-                        _logger.warning(changes)
+                if packet_data.race_number != 0:
+                    if i > current_amount_of_participants - 1:
+                        self.current_session.participants.append(ParticipantManager.create(packet_data))
+                    else:
+                        changes = ParticipantManager.update(self.current_session.participants[i], packet_data)
+                        if 'network_id' in changes or 'name' in changes:
+                            _logger.warning('!? A participant changed !?')
+                            _logger.warning(changes)
 
     def _handle_received_damage_packet(self, packet:PacketCarDamageData):
         if not self.current_session:
