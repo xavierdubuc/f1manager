@@ -1,9 +1,12 @@
 from dataclasses import dataclass
-import os
+
 from PIL import Image, ImageDraw
+from PIL.PngImagePlugin import PngImageFile
+from psd_tools import PSDImage
+
 from ..font_factory import FontFactory
+from ..helpers.transform import paste, text
 from .team import Team
-from ..helpers.transform import text, paste
 
 
 @dataclass
@@ -14,20 +17,53 @@ class Pilot:
     title: str = None
     reservist: bool = False
 
-    def get_celebrating_image(self):
-        possible_img_paths = [
-            f'assets/pole/celebrating/{self.name}.png',
-            f'assets/pole/celebrating/{self.team.name}_default.png',
-            f'assets/pilots/1080x1080/{self.name}.png',
-            f'assets/pilots/real_no_bg/{self.name}.png',
-            f'assets/pilots/real/{self.name}.png',
-            f'assets/pilots/1080x1080/{self.team.name}_default.png',
-            f'assets/team_pilots/{self.team.name}.png'
-        ]
-        for img_path in possible_img_paths:
-            if os.path.exists(img_path):
-                return img_path
-        return None
+    @classmethod
+    def get_close_up_psd(cls) -> PSDImage:
+        return PSDImage.open('assets/pilots/closeup.psd')
+
+    @classmethod
+    def get_long_range_psd(cls) -> PSDImage:
+        return PSDImage.open('assets/pilots/longrange.psd')
+
+    def get_close_up_image(self) -> PngImageFile:
+        psd = self.get_close_up_psd()
+        return self._get_image_from_psd(psd, 2, 3)
+
+    def get_long_range_image(self):
+        psd = self.get_long_range_psd()
+        return self._get_image_from_psd(psd, 1, 2)
+
+    def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2):
+        faces = psd[faces_index]
+        clothes = psd[clothes_index]
+        for v in faces:
+            v.visible = v.name == self.name
+        for t in clothes:
+            t.visible = t.name == self.team.name if self.team else None
+        return psd.composite(layer_filter=lambda x:x.is_visible())
+
+    @classmethod
+    def rename_psd_layers(cls, psd, faces_index=1, clothes_index=2):
+        faces = psd[faces_index]
+        clothes = psd[clothes_index]
+        rename_map = {
+            "x_Kayyzor":"xKayysor",
+            "?":"x0-STEWEN_26-0x",
+            "!":"VRA-RedAym62",
+            "majforti":"majforti-07",
+            "gregy":"WSC_Gregy21",
+            "FBRT_Seb":"FBRT_Seb07",
+            "Iceman":"Iceman7301",
+            "FBRT_CID":"FBRT_CiD16",
+        }
+        for v in faces:
+            v.name = v.name.replace(' détouré', '')
+            v.name = rename_map.get(v.name, v.name)
+
+        for t in clothes:
+            t.name = t.name.replace(' ', '')
+
+        psd.save('assets/pilots/renamed.psd')
 
     def get_team_image(self):
         return self.team.get_image() if self.team else ''

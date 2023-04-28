@@ -19,16 +19,13 @@ class PoleGenerator(AbstractGenerator):
 
     def _generate_basic_image(self) -> PngImageFile:
         pole_pilot = self._get_pole_pilot()
-        with Image.open('assets/pole/bg.png') as img:
-            base = Image.new('RGB', (img.width, img.height), color=pole_pilot.team.get_pole_colors()['bg'])
-        return base
+        return Image.new('RGB', (1080, 1650), color=pole_pilot.team.get_pole_colors()['bg'])
 
     def _get_pilot_image(self, pilot: Pilot, width, height):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        img_path = pilot.get_celebrating_image()
-        with Image.open(img_path) as team_pilot_img:
-            img = resize(team_pilot_img, width, height)
-            return img.copy()
+        team_pilot_img = pilot.get_long_range_image()
+        img = resize(team_pilot_img, width, height)
+        return img
 
     def _get_podium_img(self):
         first = self._get_pole_pilot()

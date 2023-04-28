@@ -204,27 +204,16 @@ class FastestGenerator(AbstractGenerator):
         img.paste(lap_time_img, (0, lap_time_top))
 
         return img
-
-    def _get_team_image(self, width, height, pilot_result, position):
+    
+    def _get_team_image(self, width:int, height:int, pilot_result:PilotResult, position:int):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         pilot = pilot_result.pilot
         team = pilot.team
-        possible_img_paths = [
-            f'assets/pilots/1080x1080/{pilot.name}.png',
-            f'assets/pilots/real_no_bg/{pilot.name}.png',
-            f'assets/pilots/real/{pilot.name}.png',
-            f'assets/pilots/1080x1080/{team.name}_default.png',
-            f'assets/team_pilots/{team.name}.png'
-        ]
-        for img_path in possible_img_paths:
-            if os.path.exists(img_path):
-                break
 
-        with Image.open(img_path) as team_pilot_img:
-            team_pilot_img.thumbnail((width, height), Image.Resampling.LANCZOS)
-            paste(team_pilot_img, img, left=0, use_obj=True)
+        team_pilot_img = resize(pilot.get_close_up_image(), width, height)
+        paste(team_pilot_img, img, left=0, use_obj=True)
 
         team_font = FontFactory.bold(50 if position == 1 else 30)
-        team_img = pilot_result.pilot.team.get_team_image(width, team_font)
+        team_img = team.get_team_image(width, team_font)
         paste(team_img, img, left=0, top=height-team_img.height)
         return img

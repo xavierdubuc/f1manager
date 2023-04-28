@@ -36,7 +36,7 @@ FBRT_BOT_CHAN_ID = 1074632856443289610
 @bot.event
 async def on_ready():
     msg = f'Mesdames messieurs {"bonjour" if 5 < datetime.now().hour < 17 else "bonsoir"} !'
-    # await bot.get_guild(FBRT_GUILD_ID).get_channel(FBRT_BOT_CHAN_ID).send(msg)
+    await bot.get_guild(FBRT_GUILD_ID).get_channel(FBRT_BOT_CHAN_ID).send(msg)
     _logger.info('Connected !')
 
 
