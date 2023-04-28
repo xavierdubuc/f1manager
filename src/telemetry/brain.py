@@ -310,7 +310,6 @@ class Brain:
                 pilot = self.current_session.participants[i]
 
                 # Same lap
-                print(i, pilot, car_last_lap, packet_data.current_lap_num)
                 if car_last_lap and car_last_lap.current_lap_num == packet_data.current_lap_num:
                     changes = LapManager.update(car_last_lap, packet_data)
 
@@ -339,7 +338,6 @@ class Brain:
                     old_lap_state = self.current_session.lap_state_last_start_of_lap[i]
 
                     # Notify position change if any
-                    print(pilot, old_lap_state.car_position, new_lap.car_position)
                     if old_lap_state and old_lap_state.car_position != new_lap.car_position:
                         position_change = new_lap.get_position_evolution(old_lap_state)
                         if position_change:
