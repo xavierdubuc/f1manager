@@ -120,6 +120,7 @@ class Brain:
             self._send_discord_message(msg)
 
     def _handle_received_participants_packet(self, packet:PacketParticipantsData):
+        print(packet.num_active_cars)
         if not self.current_session:
             return # we could store in a tmp self. variable and store info at session creation if needed
         if not self.current_session.participants:
@@ -284,7 +285,6 @@ class Brain:
             return # this should not happen neither
 
         amount_of_pertinent_lap = len(self.current_session.participants)
-        print(self.current_session.participants)
         # NO LAPS yet, create for all participants
         if not self.current_session.laps:
             self.current_session.laps = []
