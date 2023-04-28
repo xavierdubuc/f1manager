@@ -338,6 +338,7 @@ class Brain:
                     old_lap_state = self.current_session.lap_state_last_start_of_lap[i]
 
                     # Notify position change if any
+                    print(pilot, old_lap_state.car_position, new_lap.car_position)
                     if old_lap_state and old_lap_state.car_position != new_lap.car_position:
                         position_change = new_lap.get_position_evolution(old_lap_state)
                         if position_change:
