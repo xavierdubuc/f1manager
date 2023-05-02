@@ -92,14 +92,17 @@ class Brain:
                     wfcasts = self.current_session.weather_forecast
                     rows = []
                     for wfcast in wfcasts:
+                        wf_values = [
+                            f'+{wfcast.time_offset}min',
+                            str(wfcast.weather),
+                            f'{wfcast.rain_percentage}% pluie',
+                            f'Circuit: {wfcast.track_temperature}°C',
+                            f'Air: {wfcast.air_temperature}°C',
+                        ]
                         if wfcast.session_type == self.current_session.session_type:
-                            rows.append([
-                                f'+{wfcast.time_offset}min',
-                                str(wfcast.weather),
-                                f'{wfcast.rain_percentage}% pluie',
-                                f'Circuit: {wfcast.track_temperature}°C',
-                                f'Air: {wfcast.air_temperature}°C',
-                            ])
+                            rows.append(wf_values)
+                        else:
+                            print(wfcast.session_type, wf_values)
                     msg = tabulate(rows, tablefmt='simple_grid')
                     self._send_discord_message(f"```\n{msg}\n```")
                     self.last_weather_notified_at = now
