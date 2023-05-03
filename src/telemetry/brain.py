@@ -208,11 +208,12 @@ class Brain:
                             damage_value_str = self._padded_percent(damage_value)
                             status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
 
-                        verb = (
-                            (f"{'a subi' if is_increase else ''}")
-                            ("/" if is_increase and is_decrease else '')
-                            (f"{'a réparé' if is_decrease else ''}")
-                        )
+                        verb_parts = [
+                            'a subi' if is_increase else '',
+                            "/" if is_increase and is_decrease else '',
+                            'a réparé' if is_decrease else ''
+                        ]
+                        verb = "".join(verb_parts)
                         msg_parts = [
                             f'**{participant}** {verb} des dégats concernant : {", ".join(changed_parts)}',
                             '```',
