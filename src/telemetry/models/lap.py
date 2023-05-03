@@ -49,4 +49,4 @@ class Lap:
         if delta >= 1:
             return f'`{actual_str}` (🔻 {str(delta).ljust(2)})'
         else:
-            return f'`{actual_str}` (🔺 {str(-delta).ljust(2)})'
+            return f'`{actual_str}` (⬆️ {str(-delta).ljust(2)})'

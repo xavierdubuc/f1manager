@@ -357,7 +357,7 @@ class Brain:
                     if old_lap_state and old_lap_state.car_position != new_lap.car_position:
                         position_change = new_lap.get_position_evolution(old_lap_state)
                         if position_change:
-                            msg = f'**{pilot}** {position_change}'
+                            msg = f'{position_change} **{pilot}**'
                         self._send_discord_message(msg)
 
                     # .. and update it
