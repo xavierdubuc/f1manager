@@ -109,11 +109,23 @@ class Brain:
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
                 if actual_status == SafetyCarStatus.virtual:
-                    msg = '⚠️ 🟡 VIRTUAL SAFETY CAR 🟡 ⚠️'
+                    msg = (
+                        '🟡🟡🟡\n'
+                        '⚠️🟡 VIRTUAL SAFETY CAR 🟡⚠️\n'
+                        '🟡🟡🟡'
+                    )
                 elif actual_status == SafetyCarStatus.full:
-                    msg = '⛔ 🔴 FULL SAFETY CAR 🔴 ⛔'
+                    msg = (
+                        '🔴🔴🔴\n'
+                        '⛔🔴 FULL SAFETY CAR 🔴⛔ \n'
+                        '🔴🔴🔴'
+                    )
                 elif actual_status == SafetyCarStatus.no:
-                    msg = '🟢 DRAPEAU VERT 🟢'
+                    msg = (
+                        '🟢🟢🟢\n'
+                        '🟢 DRAPEAU VERT 🟢\n'
+                        '🟢🟢🟢'
+                    )
                 self._send_discord_message(msg)
         else:
             _logger.info('A new session has started, previous one has been backuped')
@@ -172,7 +184,7 @@ class Brain:
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
                     damages = self.current_session.damages[i]
                     has_damage_changes = any(key in changes for key in damage_keys.keys()) or 100 in damages.tyres_damage
-                    is_increase = True
+                    is_increase = False
                     is_decrease = False
                     if changes and has_damage_changes:
                         changed_parts = []
@@ -197,9 +209,9 @@ class Brain:
                             status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
 
                         verb = (
-                            f"{'a subi' if is_increase else ''}"
-                            "/" if is_increase and is_decrease else ''
-                            f"{'a réparé' if is_decrease else ''}"
+                            (f"{'a subi' if is_increase else ''}")
+                            ("/" if is_increase and is_decrease else '')
+                            (f"{'a réparé' if is_decrease else ''}")
                         )
                         msg_parts = [
                             f'**{participant}** {verb} des dégats concernant : {", ".join(changed_parts)}',
@@ -245,7 +257,7 @@ class Brain:
                 ClassificationManager.create(packet.classification_data[i])
                 for i in range(packet.num_cars)
             ]
-            self._send_discord_message("Fin de la session voici le classement final :")
+            self._send_discord_message(f'Fin de la session "{self.current_session.session_type}" voici le classement final :')
             for part in self._get_final_classification_as_string():
                 self._send_discord_message(f"```\n{part}\n```")
         else:
