@@ -106,7 +106,8 @@ class Session:
             if row[0] == 1:
                 row[delta_column_index] = self._format_time(row[delta_column_index])
             elif type(row[delta_column_index]) == int:
-                row[delta_column_index] = f'{delta_char} {row[delta_column_index]} tours'
+                lap_str = 'tour' if row[delta_column_index] == 1 else 'tours'
+                row[delta_column_index] = f'{delta_char} {row[delta_column_index]} {lap_str}'
             elif type(row[delta_column_index]) != str:
                 if row[delta_column_index]:
                     row[delta_column_index] = f'{delta_char} {self._format_time(row[delta_column_index] - first_pos_time)}'
