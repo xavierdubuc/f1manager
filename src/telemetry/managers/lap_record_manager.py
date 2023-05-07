@@ -40,18 +40,18 @@ class LapRecordManager(AbstractManager):
             changes['best_lap_time'] = Change(actual=best_lap_data.lap_time_in_ms, old=lap_record.best_lap_time)
             lap_record.best_lap_time = best_lap_data.lap_time_in_ms
 
-        if 'best_sector1_time_lap_num' in changes:
-            best_sector1_data = packet.lap_history_data[packet.best_sector1_time_lap_num-1]
+        if 'best_sector1_lap_num' in changes:
+            best_sector1_data = packet.lap_history_data[packet.best_sector1_lap_num-1]
             changes['best_sector1_time'] = Change(actual=best_sector1_data.lap_time_in_ms, old=lap_record.best_sector1_time)
             lap_record.best_sector1_time = best_sector1_data.lap_time_in_ms
 
-        if 'best_sector2_time_lap_num' in changes:
-            best_sector2_data = packet.lap_history_data[packet.best_sector2_time_lap_num-1]
+        if 'best_sector2_lap_num' in changes:
+            best_sector2_data = packet.lap_history_data[packet.best_sector2_lap_num-1]
             changes['best_sector2_time'] = Change(actual=best_sector2_data.lap_time_in_ms, old=lap_record.best_sector2_time)
             lap_record.best_sector2_time = best_sector2_data.lap_time_in_ms
 
-        if 'best_sector3_time_lap_num' in changes:
-            best_sector3_data = packet.lap_history_data[packet.best_sector3_time_lap_num-1]
+        if 'best_sector3_lap_num' in changes:
+            best_sector3_data = packet.lap_history_data[packet.best_sector3_lap_num-1]
             changes['best_sector3_time'] = Change(actual=best_sector3_data.lap_time_in_ms, old=lap_record.best_sector3_time)
             lap_record.best_sector3_time = best_sector3_data.lap_time_in_ms
         return changes
