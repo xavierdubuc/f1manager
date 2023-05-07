@@ -105,6 +105,8 @@ class Session:
         for row in data:
             if row[0] == 1:
                 row[delta_column_index] = self._format_time(row[delta_column_index])
+            elif type(row[delta_column_index]) == int:
+                row[delta_column_index] = f'{delta_char} {row[delta_column_index]} tours'
             elif type(row[delta_column_index]) != str:
                 if row[delta_column_index]:
                     row[delta_column_index] = f'{delta_char} {self._format_time(row[delta_column_index] - first_pos_time)}'
@@ -123,6 +125,8 @@ class Session:
                 race_time = 'NT'
             elif classification.result_status == ResultStatus.dsq:
                 race_time = 'DSQ'
+            elif classification.num_laps != self.total_laps:
+                race_time = self.total_laps - classification.num_laps
             else:
                 race_time = timedelta(seconds=classification.get_race_time())
             return [
