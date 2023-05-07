@@ -88,7 +88,7 @@ class Session:
             return False
         return True
 
-    def get_formatted_final_ranking(self):
+    def get_formatted_final_ranking(self, delta_char='+'):
         if not self.final_classification:
             return []
         data = []
@@ -106,7 +106,7 @@ class Session:
                 row[delta_column_index] = self._format_time(row[delta_column_index])
             elif type(row[delta_column_index]) != str:
                 if row[delta_column_index]:
-                    row[delta_column_index] = f'+ {self._format_time(row[delta_column_index] - first_pos_time)}'
+                    row[delta_column_index] = f'{delta_char} {self._format_time(row[delta_column_index] - first_pos_time)}'
                 else:
                     row[delta_column_index] = '-' if self.session_type.is_race() else '--:--.---'
 

@@ -49,7 +49,7 @@ except KeyboardInterrupt:
             pickle.dump(thread_telemetry.brain.current_session, out_file)
         if thread_telemetry.brain.current_session and thread_telemetry.brain.current_session.final_classification:
             _logger.info('final ranking found, will be sent to google sheet !')
-            final_ranking = thread_telemetry.brain.current_session.get_formatted_final_ranking()
+            final_ranking = thread_telemetry.brain.current_session.get_formatted_final_ranking(delta_char='')
             for row in final_ranking:
                 print('\t'.join(map(str, row)))
             if thread_telemetry.sheet_name:
