@@ -99,7 +99,6 @@ class Session:
             if classification.position == 1:
                 first_pos_time = row[delta_column_index]
             data.append(row)
-            print(row, classification.num_laps)
 
         # transform race time or fastest laps in delta
         for row in data:
