@@ -41,6 +41,10 @@ except KeyboardInterrupt:
     _logger.info('Stopping telemetry...')
     with open(f"session{datetime.now().isoformat()}.pickle", "wb") as out_file:
         try:
+            dmp = {
+                'current_session': thread_telemetry.brain.current_session,
+                'previous_sessions': thread_telemetry.brain.previous_sessions
+            }
             pickle.dump(thread_telemetry.brain, out_file)
         except Exception as e:
             _logger.error('Could not pickle the brain because of following exception')
