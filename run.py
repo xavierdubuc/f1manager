@@ -28,7 +28,7 @@ logging.basicConfig(
 )
 _logger = logging.getLogger(__name__)
 
-thread_telemetry = TelemetryThread(args.ip, args.sheet_name, bot)
+thread_telemetry = TelemetryThread(args.ip, args.sheet_name, bot, args.discord_guild, args.discord_channel)
 thread_telemetry.daemon = True  # this is a problem for pickle and send to gsheet
 thread_telemetry.start()
 

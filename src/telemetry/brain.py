@@ -30,15 +30,17 @@ from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
-DAMAGE_GUILD_ID = 1074380392154533958
-DAMAGE_CHANNEL_ID = 1096169137589461082
+DEFAULT_GUILD_ID = 1074380392154533958
+DEFAULT_CHANNEL_ID = 1096169137589461082
 
 class Brain:
-    def __init__(self, bot:commands.InteractionBot=None):
+    def __init__(self, bot:commands.InteractionBot=None, discord_guild=DEFAULT_GUILD_ID, discord_channel=DEFAULT_CHANNEL_ID):
         self.current_session = None
         self.previous_sessions = []
         self.bot = bot
         self.last_weather_notified_at = None
+        self.discord_guild = discord_guild if discord_guild is not None else DEFAULT_GUILD_ID
+        self.discord_channel = discord_channel if discord_channel is not None else DEFAULT_CHANNEL_ID
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
@@ -63,15 +65,29 @@ class Brain:
             self._handle_received_lap_packet(packet)
 
     def _send_discord_message(self, msg):
-        _logger.info('Following msg to be sent to Discord')
+        if not self.bot:
+            return
+        if not self.bot.loop:
+            return 
+        if not self.discord_guild:
+            return
+        if not self.discord_channel:
+            return
+
+        _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord')
         _logger.info(msg)
-        _logger.info(f'{len(msg)} chars')
-        if self.bot and self.bot.loop:
-            guild = self.bot.get_guild(DAMAGE_GUILD_ID)
-            if guild:
-                channel = guild.get_channel(DAMAGE_CHANNEL_ID)
-                if channel:
-                    self.bot.loop.create_task(channel.send(msg))
+
+        guild = self.bot.get_guild(self.discord_guild)
+        if not guild:
+            _logger.error(f'Guild "{self.discord_guild}" not found, message not sent')
+            return
+
+        channel = guild.get_channel(self.discord_channel)
+        if not channel:
+            _logger.error(f'Channel "{self.discord_channel}" not found, message not sent')
+            return
+
+        self.bot.loop.create_task(channel.send(msg))
 
     def _handle_received_session_packet(self, packet: PacketSessionData):
         tmp_session = SessionManager.create(packet)

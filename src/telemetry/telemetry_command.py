@@ -7,4 +7,6 @@ class Command(argparse.ArgumentParser):
         self.add_argument("ip", help="Ip address")
         self.add_argument("--log-level", help="Log level", dest='log_level', default='info')
         self.add_argument('--final-sheet', help='Sheet to use to store final classification of last session', dest='sheet_name', default=None)
+        self.add_argument('--discord-guild', help='Discord guild id', dest='discord_guild', default=None)
+        self.add_argument('--discord-channel', help='Discord channel id', dest='discord_channel', default=None)
 
