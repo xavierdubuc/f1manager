@@ -17,7 +17,7 @@ from f1_22_telemetry.packets import (
 )
 from tabulate import tabulate
 from .managers.lap_record_manager import LapRecordManager
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from src.telemetry.models.enums.safety_car_status import SafetyCarStatus
 from .managers.classification_manager import ClassificationManager
@@ -320,7 +320,8 @@ class Brain:
             driver = self.current_session.participants[packet.car_idx]
             if changes:
                 if 'best_lap_time' in changes:
-                    msg = f'🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(changes["best_lap_time"].actual)}`) 🟩'
+                    lap_time = timedelta(seconds=changes["best_lap_time"].actual/1000)
+                    msg = f'🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(lap_time)}`) 🟩'
                     self._send_discord_message(msg)
                     return
                 if not self.current_session.session_type.is_race():
@@ -335,7 +336,8 @@ class Brain:
                             'best_sector3_time': 'Secteur 3'
                         }
                         for key in present_keys:
-                            msg = f'🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(changes[key].actual)}`) 🟩'
+                            sector_time = timedelta(seconds=changes[key].actual/1000)
+                            msg = f'🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`) 🟩'
 
 
     def _get_final_classification_as_string(self):
