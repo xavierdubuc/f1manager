@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import List
 
+from src.telemetry.models.lap_record import LapRecord
+
 from .classification import Classification
 from .damage import Damage
 from .enums.result_status import ResultStatus
@@ -74,6 +76,7 @@ class Session:
     telemetries: List[Telemetry] = None
     laps: List[List[Lap]] = None
     lap_state_last_start_of_lap: List[Lap] = None
+    lap_records: List[LapRecord] = None
 
     def __eq__(self, other):
         if type(self) != type(other):

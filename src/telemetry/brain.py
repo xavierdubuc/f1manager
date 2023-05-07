@@ -16,7 +16,7 @@ from f1_22_telemetry.packets import (
     PacketLobbyInfoData
 )
 from tabulate import tabulate
-from src.telemetry.models.enums.result_status import ResultStatus
+from .managers.lap_record_manager import LapRecordManager
 from datetime import datetime
 
 from src.telemetry.models.enums.safety_car_status import SafetyCarStatus
@@ -64,6 +64,9 @@ class Brain:
 
         elif packet_type == PacketLapData:
             self._handle_received_lap_packet(packet)
+
+        elif packet_type == PacketSessionHistoryData:
+            self._handle_received_session_history_packet(packet)
 
     def _send_discord_message(self, msg):
         if not self.bot:
@@ -295,6 +298,34 @@ class Brain:
                 self._send_discord_message('Le classement a changé !? Voici la nouvelle version:')
                 for part in self._get_final_classification_as_string():
                     self._send_discord_message(f"```\n{part}\n```")
+
+    def _handle_received_session_history_packet(self, packet: PacketSessionHistoryData):
+        if not self.current_session:
+            return # this should not happen
+        if not self.current_session.participants:
+            return # this should not happen neither
+        if not self.current_session.lap_records:
+            self.current_session.lap_records = [None] * 20
+        if not self.current_session.lap_records[packet.car_idx]:
+            self.current_session.lap_records[packet.car_idx] = LapRecordManager.create(packet)
+        else:
+            lap_record_so_far = self.current_session.lap_records[packet.car_idx]
+            changes = LapRecordManager.update(lap_record_so_far, packet)
+            keys = (
+                'best_lap_time',
+                'best_sector1_time',
+                'best_sector2_time',
+                'best_sector3_time'
+            )
+            if changes:
+                present_keys = list(filter(lambda x: x in changes, keys))
+                if present_keys:
+                    amount_of_participants = len(self.current_session.participants)
+                    if packet.car_idx < amount_of_participants:
+                        driver = self.current_session.participants[packet.car_idx]
+                        print(f'{driver} improved following times: ')
+                        print(','.join([f'{key}: {getattr(lap_record_so_far, key)}' for key in present_keys]))
+
 
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
