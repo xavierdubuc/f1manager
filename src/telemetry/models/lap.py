@@ -38,15 +38,15 @@ class Lap:
         return f'Lap {self.current_lap_num}'
 
     def get_lap_num_title(self):
-        return f'` TOUR {str(self.current_lap_num).ljust(2)} `'
+        return f'` TOUR {str(self.current_lap_num).rjust(2)} `'
 
     def get_position_evolution(self, previous_lap:'Lap'):
         delta = self.car_position - previous_lap.car_position
         if delta == 0:
             return None
         actual = self.car_position
-        actual_str = f'P{str(actual).ljust(2)}'
+        actual_str = f'P{str(actual).rjust(2)}'
         if delta >= 1:
-            return f'`{actual_str}` (🔻 {str(delta).ljust(2)})'
+            return f'`{actual_str}` (🔻 {str(delta).rjust(2)})'
         else:
-            return f'`{actual_str}` (⬆️ {str(-delta).ljust(2)})'
+            return f'`{actual_str}` (⬆️ {str(-delta).rjust(2)})'
