@@ -306,9 +306,8 @@ class Brain:
             return # this should not happen neither
         if not self.current_session.lap_records:
             self.current_session.lap_records = [None] * 20
+        print(self.current_session.lap_records)
         if not self.current_session.lap_records[packet.car_idx]:
-            print('Create data')
-            print(packet.car_idx, packet.best_lap_time_lap_num, packet.best_sector1_lap_num, packet.best_sector2_lap_num, packet.best_sector3_lap_num)
             self.current_session.lap_records[packet.car_idx] = LapRecordManager.create(packet)
         else:
             lap_record_so_far = self.current_session.lap_records[packet.car_idx]
