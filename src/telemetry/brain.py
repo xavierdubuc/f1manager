@@ -307,6 +307,7 @@ class Brain:
         if not self.current_session.lap_records:
             self.current_session.lap_records = [None] * 20
         if not self.current_session.lap_records[packet.car_idx]:
+            print(f'Create data for {packet.car_idx}')
             self.current_session.lap_records[packet.car_idx] = LapRecordManager.create(packet)
         else:
             lap_record_so_far = self.current_session.lap_records[packet.car_idx]
@@ -327,7 +328,7 @@ class Brain:
                 present_keys = list(filter(lambda x: x in changes, keys))
                 if present_keys:
                     print(f'{driver} improved following times: ')
-                    print(','.join([f'{key}: {getattr(lap_record_so_far, key)}' for key in present_keys]))
+                    print(','.join([f'{key}: {changes[key].old} -> {changes[key].actual}' for key in present_keys]))
 
 
     def _get_final_classification_as_string(self):
