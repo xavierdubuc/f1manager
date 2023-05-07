@@ -45,12 +45,13 @@ except KeyboardInterrupt:
                 'current_session': thread_telemetry.brain.current_session,
                 'previous_sessions': thread_telemetry.brain.previous_sessions
             }
-            pickle.dump(thread_telemetry.brain, out_file)
+            pickle.dump(dmp, out_file)
         except Exception as e:
             _logger.error('Could not pickle the brain because of following exception')
             _logger.error(e)
             _logger.info('Pickling current session instead...')
             pickle.dump(thread_telemetry.brain.current_session, out_file)
+        # PRINT TO GSHEET
         if thread_telemetry.brain.current_session and thread_telemetry.brain.current_session.final_classification:
             _logger.info('final ranking found, will be sent to google sheet !')
             final_ranking = thread_telemetry.brain.current_session.get_formatted_final_ranking(delta_char='')
