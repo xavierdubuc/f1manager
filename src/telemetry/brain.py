@@ -310,8 +310,8 @@ class Brain:
             print(f'Create data for {packet.car_idx}')
             self.current_session.lap_records[packet.car_idx] = LapRecordManager.create(packet)
         else:
-            lap_record_so_far = self.current_session.lap_records[packet.car_idx]
-            changes = LapRecordManager.update(lap_record_so_far, packet)
+            lap_record = self.current_session.lap_records[packet.car_idx]
+            changes = LapRecordManager.update(lap_record, packet)
             amount_of_participants = len(self.current_session.participants)
             if packet.car_idx >= amount_of_participants:
                 print(f'{packet.car_idx} is too big !')
@@ -320,7 +320,7 @@ class Brain:
             driver = self.current_session.participants[packet.car_idx]
             if changes:
                 if 'best_lap_time' in changes:
-                    msg = f'🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(changes.actual)}`) 🟩'
+                    msg = f'🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(changes["best_lap_time"].actual)}`) 🟩'
                     self._send_discord_message(msg)
                     return
                 if not self.current_session.session_type.is_race():
@@ -335,7 +335,7 @@ class Brain:
                             'best_sector3_time': 'Secteur 3'
                         }
                         for key in present_keys:
-                            msg = f'🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(changes.actual)}`) 🟩'
+                            msg = f'🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(changes[key].actual)}`) 🟩'
 
 
     def _get_final_classification_as_string(self):
