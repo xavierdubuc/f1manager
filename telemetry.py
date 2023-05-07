@@ -14,12 +14,12 @@ from config.config import DEFAULT_SPREADSHEET_ID, RACE_RANKING_RANGE
 _logger = logging.getLogger(__name__)
 
 class TelemetryThread(Thread):
-    def __init__(self, ip:str, sheet_name:str=None, bot:commands.InteractionBot=None):
+    def __init__(self, ip:str, sheet_name:str=None, bot:commands.InteractionBot=None, discord_guild:str=None, discord_channel:str=None):
         super().__init__()
         self.ip = ip
         self.sheet_name = sheet_name
         self.bot = bot
-        self.brain = Brain(bot)
+        self.brain = Brain(bot, discord_guild, discord_channel)
 
     def run(self) -> None:
         _logger.info(f'Starting listening on {self.ip}:20777')
