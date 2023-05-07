@@ -41,6 +41,7 @@ class Brain:
         self.last_weather_notified_at = None
         self.discord_guild = discord_guild if discord_guild is not None else DEFAULT_GUILD_ID
         self.discord_channel = discord_channel if discord_channel is not None else DEFAULT_CHANNEL_ID
+        _logger.info(f'Will use {self.discord_guild}:{self.discord_channel} to send Discord messages')
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
