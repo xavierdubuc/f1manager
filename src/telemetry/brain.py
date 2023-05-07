@@ -312,23 +312,30 @@ class Brain:
         else:
             lap_record_so_far = self.current_session.lap_records[packet.car_idx]
             changes = LapRecordManager.update(lap_record_so_far, packet)
-            keys = (
-                'best_lap_time',
-                'best_sector1_time',
-                'best_sector2_time',
-                'best_sector3_time'
-            )
+            amount_of_participants = len(self.current_session.participants)
+            if packet.car_idx >= amount_of_participants:
+                print(f'{packet.car_idx} is too big !')
+                return
+
+            driver = self.current_session.participants[packet.car_idx]
             if changes:
-                print(changes)
-                amount_of_participants = len(self.current_session.participants)
-                if packet.car_idx >= amount_of_participants:
-                    print(f'{packet.car_idx} is too big !')
+                if 'best_lap_time' in changes:
+                    msg = f'🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(changes.actual)}`) 🟩'
+                    self._send_discord_message(msg)
                     return
-                driver = self.current_session.participants[packet.car_idx]
-                present_keys = list(filter(lambda x: x in changes, keys))
-                if present_keys:
-                    print(f'{driver} improved following times: ')
-                    print(','.join([f'{key}: {changes[key].old} -> {changes[key].actual}' for key in present_keys]))
+                if not self.current_session.session_type.is_race():
+                    keys = (
+                        'best_sector1_time', 'best_sector2_time', 'best_sector3_time'
+                    )
+                    present_keys = list(filter(lambda x: x in changes, keys))
+                    if present_keys:
+                        txts = {
+                            'best_sector1_time': 'Secteur 1',
+                            'best_sector2_time': 'Secteur 2',
+                            'best_sector3_time': 'Secteur 3'
+                        }
+                        for key in present_keys:
+                            msg = f'🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(changes.actual)}`) 🟩'
 
 
     def _get_final_classification_as_string(self):
