@@ -307,6 +307,8 @@ class Brain:
         if not self.current_session.lap_records:
             self.current_session.lap_records = [None] * 20
         if not self.current_session.lap_records[packet.car_idx]:
+            print('Create data')
+            print(packet)
             self.current_session.lap_records[packet.car_idx] = LapRecordManager.create(packet)
         else:
             lap_record_so_far = self.current_session.lap_records[packet.car_idx]
@@ -318,13 +320,16 @@ class Brain:
                 'best_sector3_time'
             )
             if changes:
+                print(changes)
+                amount_of_participants = len(self.current_session.participants)
+                if packet.car_idx >= amount_of_participants:
+                    print(f'{packet.car_idx} is too big !')
+                    return
+                driver = self.current_session.participants[packet.car_idx]
                 present_keys = list(filter(lambda x: x in changes, keys))
                 if present_keys:
-                    amount_of_participants = len(self.current_session.participants)
-                    if packet.car_idx < amount_of_participants:
-                        driver = self.current_session.participants[packet.car_idx]
-                        print(f'{driver} improved following times: ')
-                        print(','.join([f'{key}: {getattr(lap_record_so_far, key)}' for key in present_keys]))
+                    print(f'{driver} improved following times: ')
+                    print(','.join([f'{key}: {getattr(lap_record_so_far, key)}' for key in present_keys]))
 
 
     def _get_final_classification_as_string(self):
