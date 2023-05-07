@@ -304,6 +304,8 @@ class Brain:
             return # this should not happen
         if not self.current_session.participants:
             return # this should not happen neither
+        print(self.current_session.lap_records)
+        print('-->')
         if not self.current_session.lap_records:
             self.current_session.lap_records = [None] * 20
         print(self.current_session.lap_records)
