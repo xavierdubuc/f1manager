@@ -30,6 +30,7 @@ class LapRecordManager(AbstractManager):
 
         best_sector3_data = packet.lap_history_data[packet.best_sector3_lap_num]
         self.best_sector3_time = best_sector3_data.lap_time_in_ms
+        return self
 
     @classmethod
     def update(cls, lap_record, packet: PacketSessionHistoryData) -> Dict[str, Change]:
