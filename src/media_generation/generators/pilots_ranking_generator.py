@@ -32,8 +32,8 @@ class PilotsRankingGenerator(AbstractGenerator):
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         height = self._get_visual_title_height()
-        with Image.open('assets/rankings/bg_top.png') as img:
-            img = resize(img.copy().convert('RGB'), base_img.width, height, keep_ratio=False)
+        img = Image.new('RGB', (base_img.width,height), (255,255,255))
+        draw_lines_all(img, (150,150,150))
 
         left_img = self._generate_left_title_image(base_img.width // 3, height)
         left_img_pos = paste(left_img, img, use_obj=True, left=0)
