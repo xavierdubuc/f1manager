@@ -111,11 +111,12 @@ class DamageManager(AbstractManager):
         changed_parts = []
         for key, text in damage_keys.items():
             if key in changes:
-                changed_parts.append(f'{text} {cls.get_component_status(key)}')
+                actual_value = changes[key].actual
+                changed_parts.append(f'{text} {cls.get_component_status(actual_value)}')
 
                 # detect if overall there has been only decrease or increase values or both
                 # to determine the verb to use in the message
-                if changes[key].old < changes[key].actual:
+                if changes[key].old < actual_value:
                     is_increase = True
                 else:
                     is_decrease = True
