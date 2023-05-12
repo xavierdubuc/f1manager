@@ -46,7 +46,7 @@ class Damage:
             label = text.rjust(max_damage_area_label_size)
             damage_value = getattr(self, key)
             circle = self.get_component_status(damage_value)
-            damage_value_str = str(damage_value).rjust(3)
+            damage_value_str = f'{str(damage_value).rjust(3)}%'
             statuses.append(
                 f"`{label}: {damage_value_str}`  {circle}"
             )
@@ -63,7 +63,7 @@ class Damage:
         rear_right = f'{self.get_component_status(self.tyres_damage[1], "🛞")}  `{str(self.tyres_damage[1]).rjust(3)}%`'
         statuses += [
             f'{front_left} ━━━━ {front_right}',
-            '`         |          `',
+            '`           |          `',
             f'{rear_left} ━━━━ {rear_right}',
         ]
         return '\n'.join(statuses)
