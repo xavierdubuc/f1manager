@@ -58,9 +58,9 @@ class Damage:
 
 
         front_left = f'`{str(self.tyres_damage[2]).rjust(3)}%`  {self.get_component_status(self.tyres_damage[2], "🛞")}'
-        front_right = f'{self.get_component_status(self.tyres_damage[3]), "🛞"}  `{str(self.tyres_damage[3]).rjust(3)}%`'
-        rear_left = f'`{str(self.tyres_damage[0]).rjust(3)}%`  {self.get_component_status(self.tyres_damage[0]), "🛞"}'
-        rear_right = f'{self.get_component_status(self.tyres_damage[1]), "🛞"}  `{str(self.tyres_damage[1]).rjust(3)}%`'
+        front_right = f'{self.get_component_status(self.tyres_damage[3], "🛞")}  `{str(self.tyres_damage[3]).rjust(3)}%`'
+        rear_left = f'`{str(self.tyres_damage[0]).rjust(3)}%`  {self.get_component_status(self.tyres_damage[0], "🛞")}'
+        rear_right = f'{self.get_component_status(self.tyres_damage[1], "🛞")}  `{str(self.tyres_damage[1]).rjust(3)}%`'
         statuses += [
             f'{front_left} ━━━━ {front_right}',
             '`         |          `',
