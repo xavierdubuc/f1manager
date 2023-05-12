@@ -91,3 +91,12 @@ class Nationality(Enum):
     welsh = 86
     vietnamese = 87
     not_defined=255
+
+    def __str__(self):
+        if self == Nationality.belgian:
+            return '🇧🇪'
+        if self == Nationality.french:
+            return '🇫🇷'
+        if self == Nationality.italian:
+            return '🇮🇹'
+        return super().__str__()
