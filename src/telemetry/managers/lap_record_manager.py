@@ -19,6 +19,7 @@ class LapRecordManager(AbstractManager):
     @classmethod
     def create(cls, packet: PacketSessionHistoryData) -> LapRecord:
         self = super().create(packet)
+        print(packet.best_lap_time_lap_num)
         if packet.best_lap_time_lap_num > 1:
             best_lap_data = packet.lap_history_data[packet.best_lap_time_lap_num-1]
             self.best_lap_time = best_lap_data.lap_time_in_ms
