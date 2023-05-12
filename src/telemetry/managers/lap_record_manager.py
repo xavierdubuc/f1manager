@@ -19,17 +19,21 @@ class LapRecordManager(AbstractManager):
     @classmethod
     def create(cls, packet: PacketSessionHistoryData) -> LapRecord:
         self = super().create(packet)
-        best_lap_data = packet.lap_history_data[packet.best_lap_time_lap_num-1]
-        self.best_lap_time = best_lap_data.lap_time_in_ms
+        if packet.best_lap_time_lap_num > 1:
+            best_lap_data = packet.lap_history_data[packet.best_lap_time_lap_num-1]
+            self.best_lap_time = best_lap_data.lap_time_in_ms
 
-        best_sector1_data = packet.lap_history_data[packet.best_sector1_lap_num-1]
-        self.best_sector1_time = best_sector1_data.sector1_time_in_ms
+        if packet.best_sector1_lap_num > 1:
+            best_sector1_data = packet.lap_history_data[packet.best_sector1_lap_num-1]
+            self.best_sector1_time = best_sector1_data.sector1_time_in_ms
 
-        best_sector2_data = packet.lap_history_data[packet.best_sector2_lap_num-1]
-        self.best_sector2_time = best_sector2_data.sector2_time_in_ms
+        if packet.best_sector2_lap_num > 1:
+            best_sector2_data = packet.lap_history_data[packet.best_sector2_lap_num-1]
+            self.best_sector2_time = best_sector2_data.sector2_time_in_ms
 
-        best_sector3_data = packet.lap_history_data[packet.best_sector3_lap_num-1]
-        self.best_sector3_time = best_sector3_data.sector3_time_in_ms
+        if packet.best_sector3_lap_num > 1:
+            best_sector3_data = packet.lap_history_data[packet.best_sector3_lap_num-1]
+            self.best_sector3_time = best_sector3_data.sector3_time_in_ms
         return self
 
     @classmethod
