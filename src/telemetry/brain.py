@@ -192,58 +192,12 @@ class Brain:
                 if i > current_amount_of_damage - 1:
                     self.current_session.damages.append(DamageManager.create(packet_data))
                 else:
-                    participant = self.current_session.participants[i]
-                    damage_keys = {
-                        'front_left_wing_damage':  'Aileron avant gauche',
-                        'front_right_wing_damage': ' Aileron avant droit',
-                        'rear_wing_damage':        '     Aileron arrière',
-                        'floor_damage':            '           Fond plat',
-                        'diffuser_damage':         '           Diffuseur',
-                        'sidepod_damage':          '            Sidepods',
-                    }
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
-                    damages = self.current_session.damages[i]
-                    has_damage_changes = any(key in changes for key in damage_keys.keys()) or 100 in damages.tyres_damage
-                    is_increase = False
-                    is_decrease = False
-                    if changes and has_damage_changes:
-                        changed_parts = []
-                        status_parts = []
-                        if damages.tyres_damage[0] == 100:
-                            changed_parts.append('Crevaison/Roue arrière gauche arrachée')
-                        if damages.tyres_damage[1] == 100:
-                            changed_parts.append('Crevaison/Roue arrière droite arrachée')
-                        if damages.tyres_damage[2] == 100:
-                            changed_parts.append('Crevaison/Roue avant gauche arrachée')
-                        if damages.tyres_damage[3] == 100:
-                            changed_parts.append('Crevaison/Roue avant droite arrachée')
-                        for key in damage_keys.keys():
-                            if key in changes:
-                                changed_parts.append(damage_keys[key].strip())
-                                if changes[key].old < changes[key].actual:
-                                    is_increase = True
-                                else:
-                                    is_decrease = True
-                            damage_value = getattr(damages, key)
-                            damage_value_str = self._padded_percent(damage_value)
-                            status_parts.append(f'{damage_keys[key]}: {damage_value_str} {self._get_status_bar(damage_value)}')
-
-                        verb_parts = [
-                            'a subi' if is_increase else '',
-                            "/" if is_increase and is_decrease else '',
-                            'a réparé' if is_decrease else ''
-                        ]
-                        verb = "".join(verb_parts)
-                        msg_parts = [
-                            f'**{participant}** {verb} des dégats concernant : {", ".join(changed_parts)}',
-                            '```',
-                            '\n'.join(status_parts),
-                            f'[{str(damages.tyres_damage[2]).rjust(3)}% ] --- [{str(damages.tyres_damage[3]).rjust(3)}% ]',
-                            f'         |         ',
-                            f'[{str(damages.tyres_damage[0]).rjust(3)}% ] --- [{str(damages.tyres_damage[1]).rjust(3)}% ]',
-                            '```',
-                        ]
-                        msg = '\n'.join(msg_parts)
+                    participant = self.current_session.participants[i]
+                    if DamageManager.has_noticeable_damage_changes(changes):
+                        main_msg = f'**{participant}** → {DamageManager.get_changes_description(changes)}'
+                        car_status = self.current_session.damages[i].get_current_status()
+                        msg = '\n'.join([main_msg, car_status])
                         self._send_discord_message(msg)
 
     def _handle_received_telemetry_packet(self, packet:PacketCarTelemetryData):
@@ -328,6 +282,7 @@ class Brain:
                     keys = (
                         'best_sector1_time', 'best_sector2_time', 'best_sector3_time'
                     )
+                    # TODO Voir si possible d'afficher tout le tour (style TV 🟩🟪🟩 (ou 🟥))
                     present_keys = list(filter(lambda x: x in changes, keys))
                     if present_keys:
                         txts = {
@@ -338,7 +293,6 @@ class Brain:
                         for key in present_keys:
                             sector_time = timedelta(seconds=changes[key].actual/1000)
                             msg = f'🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`) 🟩'
-
 
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
@@ -423,15 +377,3 @@ class Brain:
 
                     # .. and update it
                     self.current_session.lap_state_last_start_of_lap[i] = LapManager.create(packet_data, len(car_laps))
-
-    def _padded_percent(self, percent):
-        if 100 > percent > 9:
-            return f' {percent}%'
-        if percent <= 9:
-            return f'  {percent}%'
-        return f'{percent}%'
-
-    def _get_status_bar(self, value, max_value=100):
-        percent = 100 * (value/max_value)
-        amount_of_char = int(percent // 10) # (ex 87% --> 8 chars)
-        return f'[{"="*amount_of_char}{" "*(10-amount_of_char)}]'
