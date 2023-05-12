@@ -46,3 +46,26 @@ class Team(Enum):
     trident_21=116
     mercedes_amg_gt_black_series=117
     none=255
+
+    def __str__(self) -> str:
+        if self in (Team.mercedes, Team.mercedes_2020):
+            return 'Mercedes'
+        if self in (Team.ferrari, Team.ferrari_2020):
+            return 'Ferrari'
+        if self in (Team.red_bull_racing, Team.red_bull_2020):
+            return 'Red Bull'
+        if self in (Team.williams, Team.williams_2020):
+            return 'Williams'
+        if self in (Team.mclaren, Team.mclaren_2020):
+            return 'McLaren'
+        if self in (Team.haas, Team.haas_2020):
+            return 'Haas'
+        if self in (Team.alpha_tauri, Team.alpha_tauri_2020):
+            return 'AlphaTauri'
+        if self in (Team.alfa_romeo, Team.alfa_romeo_2020):
+            return 'Alfa Romeo'
+        if self in (Team.alpine, Team.renault_2020):
+            return 'Alpine'
+        if self in (Team.aston_martin, Team.racing_point_2020):
+            return 'Aston Martin'
+        return super().__str__()
