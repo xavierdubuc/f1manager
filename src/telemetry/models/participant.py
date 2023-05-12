@@ -20,7 +20,7 @@ class Participant:
         name = self.name.decode('utf-8') if isinstance(self.name, bytes) else self.name
         if name and name != 'Joueur':
             return name
-        return f'#{self.race_number} ({self.nationality.name}) {self.team.name}'
+        return f'Pilote #{self.race_number} ({self.nationality.name}) {self.team.name}'
 
     def __eq__(self, other):
         if type(self) != type(other):
