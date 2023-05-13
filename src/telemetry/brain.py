@@ -126,7 +126,7 @@ class Brain:
                         print(tabulate([wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts)))
 
                     msg = tabulate([str_wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts))
-                    self._send_discord_message(f"```{msg}```")
+                    self._send_discord_message(f"```\n{msg}\n```")
                     self.last_weather_notified_at = now
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
