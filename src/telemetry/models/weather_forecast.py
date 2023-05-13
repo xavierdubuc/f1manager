@@ -48,10 +48,17 @@ class WeatherForecast:
             rain_percentage_str = '🌂'
         elif self.rain_percentage < 65:
             rain_percentage_str = '☂️'
+        max_length = 12
+
+        time_offset = f'+ {str(self.time_offset).rjust(3)}min'.rjust(max_length)
+        weather = str(self.weather)
+        rain = f'{rain_percentage_str} `{self.rain_percentage.rjust(3)}%'.rjust(max_length-5)+'`'
+        track = f'Piste: {self.track_temperature}°C'.rjust(max_length)
+        air = f'Air: {self.air_temperature}°C'.rjust(max_length),
         return [
-            f'+{self.time_offset}min',
-            str(self.weather),
-            f"{rain_percentage_str} {self.rain_percentage}%",
-            f'Piste: {self.track_temperature}°C',
-            f'Air: {self.air_temperature}°C',
+            f'`{time_offset}`',
+            f'{weather}`{" "* (max_length-1)}`',
+            rain,
+            f'`{track}`',
+            f'`{air}`',
         ]
