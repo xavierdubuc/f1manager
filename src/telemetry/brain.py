@@ -123,7 +123,7 @@ class Brain:
                     for sess_type, wfcasts in other_wfcasts.items():
                         print('───────────────')
                         print(sess_type)
-                        print(tabulate(wfcasts, tablefmt='simple_grid', colalign=['center']*len(str_wfcasts)))
+                        print(tabulate([wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts)))
 
                     msg = tabulate([str_wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts))
                     self._send_discord_message(f"```{msg}```")
