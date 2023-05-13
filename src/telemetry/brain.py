@@ -280,7 +280,7 @@ class Brain:
 
                             session_attr = session_mapping[key]
                             current_best = getattr(self.current_session, session_attr)
-                            if not current_best or best_lap_time > current_best:
+                            if not current_best or current_time > current_best:
                                 setattr(self.current_session, session_attr, current_time)
                                 msg = f'🕒🟪 {driver} : nouveau meilleur tour ! (`{self.current_session._format_time(sector_time)}`)'
                             else:
