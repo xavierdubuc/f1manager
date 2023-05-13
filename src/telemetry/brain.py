@@ -357,9 +357,9 @@ class Brain:
                             best_pilot_sector1_time = lap_records.best_sector1_time
                             best_session_sector1_time = self.current_session.current_fastest_sector1
 
-                            if current_sector1_time < best_session_sector1_time:
+                            if not best_session_sector1_time or current_sector1_time < best_session_sector1_time:
                                 sector1_square = '🟪'
-                            elif current_sector1_time < best_pilot_sector1_time:
+                            elif not best_pilot_sector1_time or current_sector1_time < best_pilot_sector1_time:
                                 sector1_square = '🟩'
                             else:
                                 sector1_square = '🟨'
@@ -369,9 +369,9 @@ class Brain:
                                 best_pilot_sector2_time = lap_records.best_sector2_time
                                 best_session_sector2_time = self.current_session.current_fastest_sector2
 
-                                if current_sector2_time < best_session_sector2_time:
+                                if not best_session_sector2_time or current_sector2_time < best_session_sector2_time:
                                     sector2_square = '🟪'
-                                elif current_sector2_time < best_pilot_sector2_time:
+                                elif not best_pilot_sector2_time or current_sector2_time < best_pilot_sector2_time:
                                     sector2_square = '🟩'
                                 else:
                                     sector2_square = '🟨'
