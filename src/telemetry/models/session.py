@@ -77,6 +77,10 @@ class Session:
     laps: List[List[Lap]] = None
     lap_state_last_start_of_lap: List[Lap] = None
     lap_records: List[LapRecord] = None
+    current_fastest_lap: int = None # in ms
+    current_fastest_sector1: int = None # in ms
+    current_fastest_sector2: int = None # in ms
+    current_fastest_sector3: int = None # in ms
 
     def __eq__(self, other):
         if type(self) != type(other):

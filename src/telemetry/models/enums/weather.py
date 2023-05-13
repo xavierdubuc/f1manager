@@ -12,15 +12,15 @@ class Weather(Enum):
 
     def __str__(self):
         if self == Weather.clear:
-            return 'Ensoleillé'
+            return '☀️'
         elif self == Weather.light_cloud:
-            return 'Légérement nuageux'
+            return '🌤️'
         elif self == Weather.overcast:
-            return 'Couvert'
+            return '🌥️'
         elif self == Weather.light_rain:
-            return 'Pluie fine'
+            return '🌦️'
         elif self == Weather.heavy_rain:
-            return 'Pluie forte'
+            return '🌧️'
         elif self == Weather.storm:
-            return 'Tempête'
+            return '⛈️'
         return '?'

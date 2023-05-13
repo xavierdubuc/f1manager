@@ -32,6 +32,7 @@ _logger = logging.getLogger(__name__)
 
 DEFAULT_GUILD_ID = 1074380392154533958
 DEFAULT_CHANNEL_ID = 1096169137589461082
+WEATHER_NOTIFICATION_DELAY = 4 * 60 # 4 minutes
 
 class Brain:
     def __init__(self, bot: commands.InteractionBot = None, discord_guild: str = DEFAULT_GUILD_ID, discord_channel: str = DEFAULT_CHANNEL_ID):
@@ -108,45 +109,21 @@ class Brain:
             if 'weather_forecast' in changes:
                 now = datetime.now()
                 delta = now - self.last_weather_notified_at if self.last_weather_notified_at else None
-                if not delta or delta.seconds > 5 * 60:
+                if not delta or delta.seconds > WEATHER_NOTIFICATION_DELAY:
                     wfcasts = self.current_session.weather_forecast
-                    rows = []
+                    str_wfcasts = []
                     for wfcast in wfcasts:
-                        wf_values = [
-                            f'+{wfcast.time_offset}min',
-                            str(wfcast.weather),
-                            f'{wfcast.rain_percentage}% pluie',
-                            f'Circuit: {wfcast.track_temperature}°C',
-                            f'Air: {wfcast.air_temperature}°C',
-                        ]
+                        wf_values = str(wfcast)
                         if wfcast.session_type == self.current_session.session_type:
-                            rows.append(wf_values)
+                            str_wfcasts.append(wf_values)
                         else:
                             print(wfcast.session_type, wf_values)
-                    msg = tabulate(rows, tablefmt='simple_grid')
+                    msg = tabulate([str_wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts))
                     self._send_discord_message(f"```\n{msg}\n```")
                     self.last_weather_notified_at = now
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
-                if actual_status == SafetyCarStatus.virtual:
-                    msg = (
-                        '🟡🟡🟡\n'
-                        '⚠️🟡 VIRTUAL SAFETY CAR 🟡⚠️\n'
-                        '🟡🟡🟡'
-                    )
-                elif actual_status == SafetyCarStatus.full:
-                    msg = (
-                        '🔴🔴🔴\n'
-                        '⛔🔴 FULL SAFETY CAR 🔴⛔ \n'
-                        '🔴🔴🔴'
-                    )
-                elif actual_status == SafetyCarStatus.no:
-                    msg = (
-                        '🟢🟢🟢\n'
-                        '🟢 DRAPEAU VERT 🟢\n'
-                        '🟢🟢🟢'
-                    )
-                self._send_discord_message(msg)
+                self._send_discord_message(str(actual_status))
         else:
             _logger.info('A new session has started, previous one has been backuped')
             self.previous_sessions.append(self.current_session)
@@ -261,28 +238,30 @@ class Brain:
         if not self.current_session.lap_records:
             self.current_session.lap_records = [None] * 20
         if not self.current_session.lap_records[packet.car_idx]:
-            print(f'Create data for {packet.car_idx}')
             self.current_session.lap_records[packet.car_idx] = LapRecordManager.create(packet)
         else:
             lap_record = self.current_session.lap_records[packet.car_idx]
             changes = LapRecordManager.update(lap_record, packet)
             amount_of_participants = len(self.current_session.participants)
             if packet.car_idx >= amount_of_participants:
-                print(f'{packet.car_idx} is too big !')
                 return
 
             driver = self.current_session.participants[packet.car_idx]
             if changes:
                 if 'best_lap_time' in changes:
-                    lap_time = timedelta(seconds=changes["best_lap_time"].actual/1000)
-                    msg = f'🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(lap_time)}`) 🟩'
+                    best_lap_time = changes["best_lap_time"].actual
+                    lap_time = timedelta(seconds=best_lap_time/1000)
+                    if not self.current_session.current_fastest_lap or best_lap_time > self.current_session.current_fastest_lap:
+                        self.current_session.current_fastest_lap = best_lap_time
+                        msg = f'🕒🟪 {driver} : nouveau meilleur tour ! (`{self.current_session._format_time(lap_time)}`)'
+                    else:
+                        msg = f'🕒🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(lap_time)}`)'
                     self._send_discord_message(msg)
                     return
                 if not self.current_session.session_type.is_race():
                     keys = (
                         'best_sector1_time', 'best_sector2_time', 'best_sector3_time'
                     )
-                    # TODO Voir si possible d'afficher tout le tour (style TV 🟩🟪🟩 (ou 🟥))
                     present_keys = list(filter(lambda x: x in changes, keys))
                     if present_keys:
                         txts = {
@@ -290,9 +269,22 @@ class Brain:
                             'best_sector2_time': 'Secteur 2',
                             'best_sector3_time': 'Secteur 3'
                         }
+                        session_mapping = {
+                            'best_sector1_time': 'current_fastest_sector1',
+                            'best_sector2_time': 'current_fastest_sector2',
+                            'best_sector3_time': 'current_fastest_sector3'
+                        }
                         for key in present_keys:
-                            sector_time = timedelta(seconds=changes[key].actual/1000)
-                            msg = f'🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`) 🟩'
+                            current_time = changes[key].actual
+                            sector_time = timedelta(seconds=current_time/1000)
+
+                            session_attr = session_mapping[key]
+                            current_best = getattr(self.current_session, session_attr)
+                            if not current_best or best_lap_time > current_best:
+                                setattr(self.current_session, session_attr, current_time)
+                                msg = f'🕒🟪 {driver} : nouveau meilleur tour ! (`{self.current_session._format_time(sector_time)}`)'
+                            else:
+                                msg = f'🕒🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`)'
 
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
@@ -349,6 +341,7 @@ class Brain:
                         msg = result_status.get_pilot_result_str(pilot)
                         if msg:
                             self._send_discord_message(msg)
+                    # TODO Voir si possible d'afficher tout le tour (style TV 🟩🟪🟩 (ou 🟥))
                 # Pilot just crossed the line
                 else:
                     # Add the new lap to the car's list of lap
@@ -360,7 +353,7 @@ class Brain:
                     if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
                         msg = (
                             '━━━━━━━━━━━━━━'
-                            f'{new_lap.get_lap_num_title()}'
+                            f'{new_lap.get_lap_num_title(self.current_session.total_laps)}'
                             '━━━━━━━━━━━━━━'
                         )
                         self._send_discord_message(msg)

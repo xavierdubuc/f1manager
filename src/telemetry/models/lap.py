@@ -37,8 +37,10 @@ class Lap:
     def __str__(self):
         return f'Lap {self.current_lap_num}'
 
-    def get_lap_num_title(self):
-        return f'` TOUR {str(self.current_lap_num).rjust(2)} `'
+    def get_lap_num_title(self, total_amount_of_laps):
+        if not total_amount_of_laps:
+            return f'` TOUR {str(self.current_lap_num).rjust(2)} `'
+        return f'` TOUR {str(self.current_lap_num).rjust(2)}/{total_amount_of_laps} `'
 
     def get_position_evolution(self, previous_lap:'Lap'):
         delta = self.car_position - previous_lap.car_position
