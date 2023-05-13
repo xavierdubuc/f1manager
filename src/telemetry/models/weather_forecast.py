@@ -52,9 +52,9 @@ class WeatherForecast:
 
         time_offset = f'+ {str(self.time_offset).rjust(3)}min'.rjust(max_length)
         weather = str(self.weather)
-        rain = f'{rain_percentage_str} `{str(self.rain_percentage).rjust(3)}%'.rjust(max_length-5)+'`'
+        rain = f'{rain_percentage_str} `{str(self.rain_percentage).rjust(3)}%'.rjust(max_length)+'`'
         track = f'Piste: {self.track_temperature}°C'.rjust(max_length)
-        air = f'Air: {self.air_temperature}°C'.rjust(max_length),
+        air = (f'Air: {self.air_temperature}°C').rjust(max_length),
         return [
             f'`{time_offset}`',
             f'{weather}`{" "* (max_length-1)}`',
