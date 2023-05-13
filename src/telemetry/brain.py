@@ -117,9 +117,12 @@ class Brain:
                         if wfcast.session_type == self.current_session.session_type:
                             str_wfcasts.append(wf_values)
                         else:
-                            print(wfcast.session_type, wf_values)
+                            print('───────────────')
+                            print(wfcast.session_type)
+                            print(tabulate([str_wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts)))
+                            print('───────────────')
                     msg = tabulate([str_wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts))
-                    self._send_discord_message(f"```\n{msg}\n```")
+                    self._send_discord_message(f"{msg}")
                     self.last_weather_notified_at = now
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
