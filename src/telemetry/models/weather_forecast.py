@@ -38,6 +38,9 @@ class WeatherForecast:
         return True
 
     def __str__(self):
+        return '\n'.join(self.as_list())
+
+    def as_list(self):
         rain_percentage_str = '☔'
         if self.rain_percentage < 20:
             rain_percentage_str = '⛱️'
@@ -45,10 +48,10 @@ class WeatherForecast:
             rain_percentage_str = '🌂'
         elif self.rain_percentage < 65:
             rain_percentage_str = '☂️'
-        return '\n'.join([
+        return [
             f'+{self.time_offset}min',
             str(self.weather),
             f"{rain_percentage_str} {self.rain_percentage}%",
             f'Piste: {self.track_temperature}°C',
             f'Air: {self.air_temperature}°C',
-        ])
+        ]
