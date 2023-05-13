@@ -43,7 +43,7 @@ class WeatherForecast:
     def as_list(self):
         rain_percentage_str = '☔'
         if self.rain_percentage < 20:
-            rain_percentage_str = '⛱️'
+            rain_percentage_str = '🏖️'
         elif self.rain_percentage < 40:
             rain_percentage_str = '🌂'
         elif self.rain_percentage < 65:
