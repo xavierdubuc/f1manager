@@ -251,11 +251,12 @@ class Brain:
                 if 'best_lap_time' in changes:
                     best_lap_time = changes["best_lap_time"].actual
                     lap_time = timedelta(seconds=best_lap_time/1000)
-                    if not self.current_session.current_fastest_lap or best_lap_time > self.current_session.current_fastest_lap:
+                    # FIXME condition
+                    if not self.current_session.current_fastest_lap or best_lap_time < self.current_session.current_fastest_lap:
                         self.current_session.current_fastest_lap = best_lap_time
-                        msg = f'🕒🟪 {driver} : nouveau meilleur tour ! (`{self.current_session._format_time(lap_time)}`)'
+                        msg = f'🕒 🟪 **{driver}** : nouveau meilleur tour ! (`{self.current_session._format_time(lap_time)}`)'
                     else:
-                        msg = f'🕒🟩 {driver} : nouveau meilleur tour personnel ! (`{self.current_session._format_time(lap_time)}`)'
+                        msg = f'🕒 🟩 **{driver}** : nouveau meilleur tour personnel ! (`{self.current_session._format_time(lap_time)}`)'
                     self._send_discord_message(msg)
                     return
                 if not self.current_session.session_type.is_race():
@@ -280,11 +281,11 @@ class Brain:
 
                             session_attr = session_mapping[key]
                             current_best = getattr(self.current_session, session_attr)
-                            if not current_best or current_time > current_best:
+                            if not current_best or current_time < current_best:
                                 setattr(self.current_session, session_attr, current_time)
-                                msg = f'🕒🟪 {driver} : nouveau meilleur tour ! (`{self.current_session._format_time(sector_time)}`)'
+                                msg = f'🕒 🟪 **{driver}**: nouveau meilleur {txts[key]} ! (`{self.current_session._format_time(sector_time)}`)'
                             else:
-                                msg = f'🕒🟩 {driver}: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`)'
+                                msg = f'🕒 🟩 **{driver}**: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`)'
 
     def _get_final_classification_as_string(self):
         _logger.info('Final ranking of previous session below.')
@@ -346,18 +347,33 @@ class Brain:
                             all_lap_records = self.current_session.lap_records
                         else:
                             all_lap_records = None
-                        
+
+                        sector1_square = sector2_square = sector3_square = '🔳'
                         lap_records = all_lap_records[i] if i < len(all_lap_records) else None
-                        if 'sector1_time_in_ms' in changes:
-                            print(f'Sector 1: {car_last_lap.sector1_time_in_ms}')
-                            if lap_records:
-                                print(f'Best sector 1: {lap_records.best_sector1_time}')
+                        if 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes:
+                            current_sector1_time = car_last_lap.sector1_time_in_ms
+                            best_pilot_sector1_time = lap_records.best_sector1_time
+                            best_session_sector1_time = self.current_session.current_fastest_sector1
+
+                            if current_sector1_time < best_session_sector1_time:
+                                sector1_square = '🟪'
+                            elif current_sector1_time < best_pilot_sector1_time:
+                                sector1_square = '🟩'
+                            else:
+                                sector1_square = '🟨'
 
                         if 'sector2_time_in_ms' in changes:
-                            print(f'Sector 2: {car_last_lap.sector2_time_in_ms}')
-                            if lap_records:
-                                print(f'Best sector 2: {lap_records.best_sector2_time}')
-                    # TODO Voir si possible d'afficher tout le tour (style TV 🟩🟪🟩 (ou 🟥))
+                            current_sector2_time = car_last_lap.sector2_time_in_ms
+                            best_pilot_sector2_time = lap_records.best_sector2_time
+                            best_session_sector2_time = self.current_session.current_fastest_sector2
+
+                            if current_sector2_time < best_session_sector2_time:
+                                sector2_square = '🟪'
+                            elif current_sector2_time < best_pilot_sector2_time:
+                                sector2_square = '🟩'
+                            else:
+                                sector2_square = '🟨'
+                        print(f'**{pilot}** : {sector1_square}{sector2_square}{sector3_square}')
                 # Pilot just crossed the line
                 else:
                     # Add the new lap to the car's list of lap
