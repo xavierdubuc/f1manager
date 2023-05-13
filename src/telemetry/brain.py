@@ -341,6 +341,17 @@ class Brain:
                         msg = result_status.get_pilot_result_str(pilot)
                         if msg:
                             self._send_discord_message(msg)
+                    if not self.current_session.session_type.is_race():
+                        lap_records = self.current_session.lap_records[i] if i < len(self.current_session.lap_records) else None
+                        if 'sector1_time_in_ms' in changes:
+                            print(f'Sector 1: {car_last_lap.sector1_time_in_ms}')
+                            if lap_records:
+                                print(f'Best sector 1: {lap_records.best_sector1_time}')
+
+                        if 'sector2_time_in_ms' in changes:
+                            print(f'Sector 2: {car_last_lap.sector2_time_in_ms}')
+                            if lap_records:
+                                print(f'Best sector 2: {lap_records.best_sector2_time}')
                     # TODO Voir si possible d'afficher tout le tour (style TV 🟩🟪🟩 (ou 🟥))
                 # Pilot just crossed the line
                 else:
