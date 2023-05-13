@@ -112,17 +112,21 @@ class Brain:
                 if not delta or delta.seconds > WEATHER_NOTIFICATION_DELAY:
                     wfcasts = self.current_session.weather_forecast
                     str_wfcasts = []
+                    other_wfcasts = {}
                     for wfcast in wfcasts:
                         wf_values = str(wfcast)
                         if wfcast.session_type == self.current_session.session_type:
                             str_wfcasts.append(wf_values)
                         else:
-                            print('───────────────')
-                            print(wfcast.session_type)
-                            print(tabulate([str_wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts)))
-                            print('───────────────')
+                            other_wfcasts.setdefault(wfcast.session_type, [])
+                            other_wfcasts[wfcast.session_type].append(wf_values)
+                    for sess_type, wfcasts in other_wfcasts.items():
+                        print('───────────────')
+                        print(sess_type)
+                        print(tabulate(wfcasts, tablefmt='simple_grid', colalign=['center']*len(str_wfcasts)))
+
                     msg = tabulate([str_wfcasts], tablefmt='simple_grid', colalign=['center']*len(str_wfcasts))
-                    self._send_discord_message(f"{msg}")
+                    self._send_discord_message(f"```{msg}```")
                     self.last_weather_notified_at = now
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
