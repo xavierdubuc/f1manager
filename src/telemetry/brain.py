@@ -254,6 +254,8 @@ class Brain:
                 if 'best_lap_time' in changes:
                     best_lap_time = changes["best_lap_time"].actual
                     lap_time = timedelta(seconds=best_lap_time/1000)
+                    print(f'self.current_session.current_fastest_lap {self.current_session.current_fastest_lap}')
+                    print(f'best_lap_time {best_lap_time}')
                     if not self.current_session.current_fastest_lap or best_lap_time < self.current_session.current_fastest_lap:
                         self.current_session.current_fastest_lap = best_lap_time
                         msg = f'🕒 🟪 **{driver}** : nouveau meilleur tour ! (`{self.current_session._format_time(lap_time)}`)'
