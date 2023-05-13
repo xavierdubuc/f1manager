@@ -349,36 +349,37 @@ class Brain:
                             all_lap_records = None
 
                         sector1_square = sector2_square = sector3_square = '🔳'
-                        lap_records = all_lap_records[i] if i < len(all_lap_records) else None
-                        if 'current_lap_invalid' in changes and changes['current_lap_invalid'].actual:
-                            sector1_square = sector2_square = sector3_square = '🟥'
-                        if 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes:
-                            current_sector1_time = car_last_lap.sector1_time_in_ms
-                            best_pilot_sector1_time = lap_records.best_sector1_time
-                            best_session_sector1_time = self.current_session.current_fastest_sector1
+                        lap_records = all_lap_records[i] if all_lap_records and i < len(all_lap_records) else None
+                        if lap_records:
+                            if 'current_lap_invalid' in changes and changes['current_lap_invalid'].actual:
+                                sector1_square = sector2_square = sector3_square = '🟥'
+                            if 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes:
+                                current_sector1_time = car_last_lap.sector1_time_in_ms
+                                best_pilot_sector1_time = lap_records.best_sector1_time
+                                best_session_sector1_time = self.current_session.current_fastest_sector1
 
-                            if not best_session_sector1_time or current_sector1_time < best_session_sector1_time:
-                                sector1_square = '🟪'
-                            elif not best_pilot_sector1_time or current_sector1_time < best_pilot_sector1_time:
-                                sector1_square = '🟩'
-                            else:
-                                sector1_square = '🟨'
-
-                            if 'sector2_time_in_ms' in changes:
-                                current_sector2_time = (car_last_lap.sector2_time_in_ms - current_sector1_time)
-                                best_pilot_sector2_time = lap_records.best_sector2_time
-                                best_session_sector2_time = self.current_session.current_fastest_sector2
-
-                                if not best_session_sector2_time or current_sector2_time < best_session_sector2_time:
-                                    sector2_square = '🟪'
-                                elif not best_pilot_sector2_time or current_sector2_time < best_pilot_sector2_time:
-                                    sector2_square = '🟩'
+                                if not best_session_sector1_time or current_sector1_time < best_session_sector1_time:
+                                    sector1_square = '🟪'
+                                elif not best_pilot_sector1_time or current_sector1_time < best_pilot_sector1_time:
+                                    sector1_square = '🟩'
                                 else:
-                                    sector2_square = '🟨'
+                                    sector1_square = '🟨'
 
-                            print(f'**{pilot}** : {sector1_square}{sector2_square}{sector3_square}')
+                                if 'sector2_time_in_ms' in changes:
+                                    current_sector2_time = (car_last_lap.sector2_time_in_ms - current_sector1_time)
+                                    best_pilot_sector2_time = lap_records.best_sector2_time
+                                    best_session_sector2_time = self.current_session.current_fastest_sector2
+
+                                    if not best_session_sector2_time or current_sector2_time < best_session_sector2_time:
+                                        sector2_square = '🟪'
+                                    elif not best_pilot_sector2_time or current_sector2_time < best_pilot_sector2_time:
+                                        sector2_square = '🟩'
+                                    else:
+                                        sector2_square = '🟨'
+
+                                print(f'**{pilot}** : {sector1_square}{sector2_square}{sector3_square}')
                         if 'last_lap_time_in_ms' in changes:
-                            print(changes['last_lap_time_in_ms'])
+                            print(f"{pilot} : {changes['last_lap_time_in_ms']}")
 
                 # Pilot just crossed the line
                 else:
