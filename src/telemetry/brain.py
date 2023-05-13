@@ -342,7 +342,12 @@ class Brain:
                         if msg:
                             self._send_discord_message(msg)
                     if not self.current_session.session_type.is_race():
-                        lap_records = self.current_session.lap_records[i] if i < len(self.current_session.lap_records) else None
+                        if self.current_session.lap_records:
+                            all_lap_records = self.current_session.lap_records
+                        else:
+                            all_lap_records = None
+                        
+                        lap_records = all_lap_records[i] if i < len(all_lap_records) else None
                         if 'sector1_time_in_ms' in changes:
                             print(f'Sector 1: {car_last_lap.sector1_time_in_ms}')
                             if lap_records:
