@@ -114,10 +114,11 @@ class Brain:
                     str_wfcasts = []
                     other_wfcasts = {}
                     for wfcast in wfcasts:
-                        wf_values = str(wfcast)
                         if wfcast.session_type == self.current_session.session_type:
+                            wf_values = str(wfcast)
                             str_wfcasts.append(wf_values)
                         else:
+                            wf_values = wfcast.as_list()
                             other_wfcasts.setdefault(wfcast.session_type, [])
                             other_wfcasts[wfcast.session_type].append(wf_values)
                     for sess_type, wfcasts in other_wfcasts.items():
