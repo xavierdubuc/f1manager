@@ -127,13 +127,13 @@ class Brain:
                         for w in wfcasts:
                             for i in range(5):
                                 x[i].append(w[i])
-                        print(tabulate(x, tablefmt='simple_outline', colalign=['center']*len(str_wfcasts)))
+                        print(tabulate(x, tablefmt='simple_outline'))
 
                     x = [[],[],[],[],[]]
                     for w in str_wfcasts:
                         for i in range(5):
                             x[i].append(w[i])
-                    msg = tabulate(x, tablefmt='simple_outline', colalign=['center']*len(str_wfcasts))
+                    msg = tabulate(x, tablefmt='simple_outline')
                     self._send_discord_message(f"```\n{msg}\n```")
                     self.last_weather_notified_at = now
             if 'safety_car_status' in changes:
