@@ -124,10 +124,9 @@ class Brain:
                         print('───────────────')
                         print(sess_type)
                         x = [[],[],[],[],[]]
-                        for w in wfcasts:
-                            for i in range(5):
-                                x[i].append(w[i])
-                        print(tabulate(x, tablefmt='simple_outline', colalign=['center']*len(str_wfcasts)))
+                        for i in range(5):
+                            msg_parts = [w[i] for w in wfcasts]
+                            print(''.join(msg_parts))
 
                     x = [[],[],[],[],[]]
                     for w in str_wfcasts:
