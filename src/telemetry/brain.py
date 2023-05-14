@@ -389,7 +389,7 @@ class Brain:
                             self._send_discord_message(msg)
                     # -- QUALIFS
                     else:
-                        if lap_records and ('current_lap_invalid' in changes or 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes):
+                        if lap_records:
                             pb_sector1 = lap_records.best_sector1_time
                             ob_sector1 = self.current_session.current_fastest_sector1
 
