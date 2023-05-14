@@ -114,7 +114,7 @@ class Brain:
                     str_wfcasts = []
                     other_wfcasts = {}
                     for wfcast in wfcasts:
-                        wf_values = wfcast.as_list()
+                        wf_values = str(wfcast)
                         if wfcast.session_type == self.current_session.session_type:
                             str_wfcasts.append(wf_values)
                         else:
@@ -126,12 +126,8 @@ class Brain:
                         for w in wfcasts:
                             print(' '.join(w))
 
-                    x = [[],[],[],[],[]]
-                    for w in str_wfcasts:
-                        for i in range(5):
-                            x[i].append(w[i])
-                    msg = tabulate([str_wfcasts], tablefmt='simple_outline', colalign=['center']*len(str_wfcasts))
-                    self._send_discord_message(f"```\n{msg}\n```")
+                    msg = '\n'.join(str_wfcasts)
+                    self._send_discord_message(msg)
                     self.last_weather_notified_at = now
             if 'safety_car_status' in changes:
                 actual_status = changes['safety_car_status'].actual
