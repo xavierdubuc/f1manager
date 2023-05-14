@@ -11,11 +11,11 @@ class SafetyCarStatus(Enum):
         circle = self._get_circle()
         txt = self._get_text()
         length = len(txt) + 2
-        return '\n'.join(
+        return '\n'.join([
             circle * length,
             f'{circle}{txt}{circle}',
             circle * length
-        )
+        ])
 
     def _get_circle(self):
         if self == SafetyCarStatus.no:
