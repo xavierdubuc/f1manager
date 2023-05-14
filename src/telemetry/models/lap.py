@@ -52,3 +52,38 @@ class Lap:
             return f'`{actual_str}` (🔻 {str(delta).rjust(2)})'
         else:
             return f'`{actual_str}` (⬆️ {str(-delta).rjust(2)})'
+
+    def get_squared_repr(self, pb_sector1, ob_sector1, pb_sector2, ob_sector2, total_lap_time, pb_sector3, ob_sector3):
+        if self.current_lap_invalid:
+        s1 = self.get_first_sector_square(pb_sector1, ob_sector1)
+        s2 = self.get_second_sector_square(pb_sector2, ob_sector2)
+        s3 = self.get_third_sector_square(total_lap_time, pb_sector3, ob_sector3)
+        return f'{s1}{s2}{s3}'
+
+    def get_first_sector_square(self, personal_best, overall_best):
+        return self._get_square(self.sector1_time_in_ms, personal_best, overall_best)
+
+    def get_second_sector_square(self, personal_best, overall_best):
+        if not self.sector1_time_in_ms or not self.sector2_time_in_ms:
+            sector2_time = None
+        else:
+            sector2_time = (self.sector2_time_in_ms - self.sector1_time_in_ms)
+        return self._get_square(sector2_time, personal_best, overall_best)
+
+    def get_third_sector_square(self, total_lap_time, personal_best, overall_best):
+        if not self.sector2_time_in_ms or not total_lap_time:
+            sector3_time = None
+        else:
+            sector3_time = (total_lap_time - self.sector2_time_in_ms)
+        return self._get_square(sector3_time, personal_best, overall_best)
+
+    def _get_square(self, current_time, personal_best, overall_best):
+        if self.current_lap_invalid:
+            return '🟥'
+        if not current_time:
+            return '🔳'
+        if not overall_best or current_time < overall_best:
+            return '🟪'
+        elif not personal_best or current_time < personal_best:
+            return '🟩'
+        return '🟨'

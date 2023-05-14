@@ -341,6 +341,13 @@ class Brain:
                 car_last_lap = car_laps[-1] if car_laps else None
                 pilot = self.current_session.participants[i]
 
+                # pilot lap records (best sectors & lap)
+                if self.current_session.lap_records:
+                    all_lap_records = self.current_session.lap_records
+                else:
+                    all_lap_records = None
+                lap_records = all_lap_records[i] if all_lap_records and i < len(all_lap_records) else None
+
                 # Same lap
                 if car_last_lap and car_last_lap.current_lap_num == packet_data.current_lap_num:
                     changes = LapManager.update(car_last_lap, packet_data)
@@ -351,66 +358,52 @@ class Brain:
                         if msg:
                             self._send_discord_message(msg)
                     if not self.current_session.session_type.is_race():
-                        if self.current_session.lap_records:
-                            all_lap_records = self.current_session.lap_records
-                        else:
-                            all_lap_records = None
+                        if lap_records and ('current_lap_invalid' in changes or 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes):
+                            pb_sector1 = lap_records.best_sector1_time
+                            ob_sector1 = self.current_session.current_fastest_sector1
 
-                        sector1_square = sector2_square = sector3_square = '🔳'
-                        lap_records = all_lap_records[i] if all_lap_records and i < len(all_lap_records) else None
-                        if lap_records:
-                            if 'current_lap_invalid' in changes and changes['current_lap_invalid'].actual:
-                                sector1_square = sector2_square = sector3_square = '🟥'
-                                print(f'**{pilot}** : {sector1_square}{sector2_square}{sector3_square}')
-                            elif 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes:
-                                current_sector1_time = car_last_lap.sector1_time_in_ms
-                                if current_sector1_time != 0:
-                                    best_pilot_sector1_time = lap_records.best_sector1_time
-                                    best_session_sector1_time = self.current_session.current_fastest_sector1
-                                    print(f'best_session_sector1_time {best_session_sector1_time}')
-                                    print(f'current_sector1_time {current_sector1_time}')
+                            pb_sector2 = lap_records.best_sector2_time
+                            ob_sector2 = self.current_session.current_fastest_sector2
 
-                                    if not best_session_sector1_time or current_sector1_time < best_session_sector1_time:
-                                        sector1_square = '🟪'
-                                    elif not best_pilot_sector1_time or current_sector1_time < best_pilot_sector1_time:
-                                        sector1_square = '🟩'
-                                    else:
-                                        sector1_square = '🟨'
+                            square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, None, None, None)
 
-                                if 'sector2_time_in_ms' in changes:
-                                    current_sector2_time = (car_last_lap.sector2_time_in_ms - current_sector1_time)
-                                    if current_sector2_time != 0:
-                                        best_pilot_sector2_time = lap_records.best_sector2_time
-                                        best_session_sector2_time = self.current_session.current_fastest_sector2
-                                        print(f'best_session_sector2_time {best_session_sector2_time}')
-                                        print(f'current_sector2_time {current_sector2_time}')
-
-                                        if not best_session_sector2_time or current_sector2_time < best_session_sector2_time:
-                                            sector2_square = '🟪'
-                                        elif not best_pilot_sector2_time or current_sector2_time < best_pilot_sector2_time:
-                                            sector2_square = '🟩'
-                                        else:
-                                            sector2_square = '🟨'
-
-                                print(f'**{pilot}** : {sector1_square}{sector2_square}{sector3_square}')
-                        if 'last_lap_time_in_ms' in changes:
-                            print(f"{pilot} : {changes['last_lap_time_in_ms']}")
+                            msg = f'**{pilot}** : {square_repr}'
+                            self._send_discord_message(msg)
 
                 # Pilot just crossed the line
                 else:
                     # Add the new lap to the car's list of lap
+                    previous_lap = car_laps[-1]
                     new_lap = LapManager.create(packet_data, len(car_laps))
                     car_laps.append(new_lap)
 
-                    # If it's the lap of the race leader and session is a race
-                    # then notify new lap
-                    if self.current_session.session_type.is_race() and car_laps[-1].car_position == 1:
-                        msg = (
-                            '━━━━━━━━━━━━━━'
-                            f'{new_lap.get_lap_num_title(self.current_session.total_laps)}'
-                            '━━━━━━━━━━━━━━'
-                        )
-                        self._send_discord_message(msg)
+                    # -- RACE
+                    if self.current_session.session_type.is_race():
+                        # If it's the lap of the race leader, notify new lap
+                        if new_lap.car_position == 1:
+                            msg = (
+                                '━━━━━━━━━━━━━━'
+                                f'{new_lap.get_lap_num_title(self.current_session.total_laps)}'
+                                '━━━━━━━━━━━━━━'
+                            )
+                            self._send_discord_message(msg)
+                    # -- QUALIFS
+                    else:
+                        if lap_records and ('current_lap_invalid' in changes or 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes):
+                            pb_sector1 = lap_records.best_sector1_time
+                            ob_sector1 = self.current_session.current_fastest_sector1
+
+                            pb_sector2 = lap_records.best_sector2_time
+                            ob_sector2 = self.current_session.current_fastest_sector2
+
+                            pb_sector3 = lap_records.best_sector3_time
+                            ob_sector3 = self.current_session.current_fastest_sector3
+
+                            print(car_last_lap.current_lap_time_in_ms, '//', new_lap.last_lap_time_in_ms)
+                            square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, new_lap.last_lap_time_in_ms, pb_sector3, ob_sector3)
+
+                            msg = f'**{pilot}** : {square_repr}'
+                            self._send_discord_message(msg)
 
                     # Compare with lap state last time pilot crossed the line...
                     old_lap_state = self.current_session.lap_state_last_start_of_lap[i]
