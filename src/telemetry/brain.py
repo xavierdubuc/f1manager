@@ -124,7 +124,7 @@ class Brain:
                         print('───────────────')
                         print(sess_type)
                         for w in wfcasts:
-                            print(''.join(w))
+                            print(' '.join(w))
 
                     x = [[],[],[],[],[]]
                     for w in str_wfcasts:
