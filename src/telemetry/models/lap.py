@@ -54,7 +54,6 @@ class Lap:
             return f'`{actual_str}` (⬆️ {str(-delta).rjust(2)})'
 
     def get_squared_repr(self, pb_sector1, ob_sector1, pb_sector2, ob_sector2, total_lap_time, pb_sector3, ob_sector3):
-        if self.current_lap_invalid:
         s1 = self.get_first_sector_square(pb_sector1, ob_sector1)
         s2 = self.get_second_sector_square(pb_sector2, ob_sector2)
         s3 = self.get_third_sector_square(total_lap_time, pb_sector3, ob_sector3)
