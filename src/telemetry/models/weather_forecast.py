@@ -57,7 +57,7 @@ class WeatherForecast:
         air = (f'Air: {self.air_temperature}°C').rjust(max_length)
         return [
             f'{time_offset}',
-            f'{weather}{" "* (max_length-1)}',#FIXME
+            f'{weather}{" "* (max_length-1-self.weather.get_space_delta())}',#FIXME
             rain,#FIXME
             f'{track}',
             f'{air}',

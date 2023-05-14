@@ -24,3 +24,8 @@ class Weather(Enum):
         elif self == Weather.storm:
             return '⛈️'
         return '?'
+
+    def get_space_delta(self):
+        if self == Weather.light_cloud:
+            return 1
+        return 0
