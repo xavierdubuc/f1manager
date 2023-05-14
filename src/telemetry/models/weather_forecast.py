@@ -54,11 +54,11 @@ class WeatherForecast:
         weather = str(self.weather)
         rain = f'{rain_percentage_str} {str(self.rain_percentage).rjust(3)}%'.rjust(max_length)+''
         track = f'Piste: {self.track_temperature}°C'.rjust(max_length)
-        air = (f'Air: {self.air_temperature}°C').rjust(max_length),
+        air = (f'Air: {self.air_temperature}°C').rjust(max_length)
         return [
             f'{time_offset}',
-            f'{weather}{" "* (max_length-1)}',
-            rain,
+            f'{weather}{" "* (max_length-1)}',#FIXME
+            rain,#FIXME
             f'{track}',
             f'{air}',
         ]
