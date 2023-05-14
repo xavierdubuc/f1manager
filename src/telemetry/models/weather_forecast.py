@@ -48,4 +48,4 @@ class WeatherForecast:
         rain = f'{rain_percentage_str}{str(self.rain_percentage).rjust(3)}%'
         track = f'Piste: {self.track_temperature}°C'
         air = f'Air: {self.air_temperature}°C'
-        return f'`{time_offset}` → {weather} ← [{rain}] `{track}` ({air})'
+        return f'`{time_offset}` {weather} [{rain}] `{track} ({air})`'

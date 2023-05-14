@@ -123,8 +123,7 @@ class Brain:
                     for sess_type, wfcasts in other_wfcasts.items():
                         print('───────────────')
                         print(sess_type)
-                        for w in wfcasts:
-                            print(' '.join(w))
+                        print('\n'.join(wfcasts))
 
                     msg = '\n'.join(str_wfcasts)
                     self._send_discord_message(msg)
