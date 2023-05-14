@@ -359,14 +359,17 @@ class Brain:
                             self._send_discord_message(msg)
                     # DON'T DO THE FOLLOWING IN RACE
                     if not self.current_session.session_type.is_race() and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
-                        if lap_records and ('current_lap_invalid' in changes or 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes):
+                        if 'current_lap_invalid' in changes and car_last_lap.current_lap_invalid:
+                            square_repr = '🟥🟥🟥'
+                            msg = f'**{pilot}** : {square_repr}'
+                            self._send_discord_message(msg)
+                        if lap_records and ('sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes) and not car_last_lap.current_lap_invalid:
                             pb_sector1 = lap_records.best_sector1_time
                             ob_sector1 = self.current_session.current_fastest_sector1
 
                             pb_sector2 = lap_records.best_sector2_time
                             ob_sector2 = self.current_session.current_fastest_sector2
 
-                            print(car_last_lap.driver_status)
                             square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, None, None, None)
 
                             msg = f'**{pilot}** : {square_repr}'
@@ -377,7 +380,6 @@ class Brain:
                     # Add the new lap to the car's list of lap
                     new_lap = LapManager.create(packet_data, len(car_laps))
                     car_laps.append(new_lap)
-                    print(car_last_lap.current_lap_time_in_ms, '//', new_lap.last_lap_time_in_ms)
 
                     # -- RACE
                     if self.current_session.session_type.is_race():
@@ -391,7 +393,7 @@ class Brain:
                             self._send_discord_message(msg)
                     # -- QUALIFS
                     else:
-                        if lap_records and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
+                        if lap_records and not car_last_lap.current_lap_invalid and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
                             pb_sector1 = lap_records.best_sector1_time
                             ob_sector1 = self.current_session.current_fastest_sector1
 
