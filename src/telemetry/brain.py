@@ -123,10 +123,8 @@ class Brain:
                     for sess_type, wfcasts in other_wfcasts.items():
                         print('───────────────')
                         print(sess_type)
-                        x = [[],[],[],[],[]]
-                        for i in range(5):
-                            msg_parts = [w[i] for w in wfcasts]
-                            print(''.join(msg_parts))
+                        for w in wfcasts:
+                            print(''.join(w))
 
                     x = [[],[],[],[],[]]
                     for w in str_wfcasts:
