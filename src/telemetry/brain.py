@@ -357,6 +357,7 @@ class Brain:
                         msg = result_status.get_pilot_result_str(pilot)
                         if msg:
                             self._send_discord_message(msg)
+                    # DON'T DO THE FOLLOWING IN RACE
                     if not self.current_session.session_type.is_race():
                         if lap_records and ('current_lap_invalid' in changes or 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes):
                             pb_sector1 = lap_records.best_sector1_time
@@ -373,9 +374,9 @@ class Brain:
                 # Pilot just crossed the line
                 else:
                     # Add the new lap to the car's list of lap
-                    previous_lap = car_laps[-1]
                     new_lap = LapManager.create(packet_data, len(car_laps))
                     car_laps.append(new_lap)
+                    print(car_last_lap.current_lap_time_in_ms, '//', new_lap.last_lap_time_in_ms)
 
                     # -- RACE
                     if self.current_session.session_type.is_race():
@@ -399,7 +400,6 @@ class Brain:
                             pb_sector3 = lap_records.best_sector3_time
                             ob_sector3 = self.current_session.current_fastest_sector3
 
-                            print(car_last_lap.current_lap_time_in_ms, '//', new_lap.last_lap_time_in_ms)
                             square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, new_lap.last_lap_time_in_ms, pb_sector3, ob_sector3)
 
                             msg = f'**{pilot}** : {square_repr}'
