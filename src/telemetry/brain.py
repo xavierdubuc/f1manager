@@ -16,6 +16,8 @@ from f1_22_telemetry.packets import (
     PacketLobbyInfoData
 )
 from tabulate import tabulate
+
+from src.telemetry.models.enums.driver_status import DriverStatus
 from .managers.lap_record_manager import LapRecordManager
 from datetime import datetime, timedelta
 
@@ -258,8 +260,6 @@ class Brain:
                 if 'best_lap_time' in changes:
                     best_lap_time = changes["best_lap_time"].actual
                     lap_time = timedelta(seconds=best_lap_time/1000)
-                    print(f'self.current_session.current_fastest_lap {self.current_session.current_fastest_lap}')
-                    print(f'best_lap_time {best_lap_time}')
                     if not self.current_session.current_fastest_lap or best_lap_time < self.current_session.current_fastest_lap:
                         self.current_session.current_fastest_lap = best_lap_time
                         msg = f'🕒 🟪 **{driver}** : nouveau meilleur tour ! (`{self.current_session._format_time(lap_time)}`)'
@@ -358,7 +358,7 @@ class Brain:
                         if msg:
                             self._send_discord_message(msg)
                     # DON'T DO THE FOLLOWING IN RACE
-                    if not self.current_session.session_type.is_race():
+                    if not self.current_session.session_type.is_race() and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
                         if lap_records and ('current_lap_invalid' in changes or 'sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes):
                             pb_sector1 = lap_records.best_sector1_time
                             ob_sector1 = self.current_session.current_fastest_sector1
@@ -366,6 +366,7 @@ class Brain:
                             pb_sector2 = lap_records.best_sector2_time
                             ob_sector2 = self.current_session.current_fastest_sector2
 
+                            print(car_last_lap.driver_status)
                             square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, None, None, None)
 
                             msg = f'**{pilot}** : {square_repr}'
@@ -390,7 +391,7 @@ class Brain:
                             self._send_discord_message(msg)
                     # -- QUALIFS
                     else:
-                        if lap_records:
+                        if lap_records and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
                             pb_sector1 = lap_records.best_sector1_time
                             ob_sector1 = self.current_session.current_fastest_sector1
 
