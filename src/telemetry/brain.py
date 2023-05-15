@@ -85,6 +85,7 @@ class Brain:
         _logger.info(msg)
 
         guild = self.bot.get_guild(self.discord_guild)
+        print(guild)
         if not guild:
             _logger.error(f'Guild "{self.discord_guild}" not found, message not sent')
             return
