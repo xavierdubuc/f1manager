@@ -1,8 +1,11 @@
 from dataclasses import dataclass
 from PIL import Image, ImageDraw
 
+from src.media_generation.font_factory import FontFactory
+
 from .circuit import Circuit
 from .pilot import Pilot
+from ..helpers.transform import *
 
 
 @dataclass
@@ -31,27 +34,6 @@ class Race:
             return 10
         return None
 
-    def get_title_image_simple(self, width:int, height:int, date_font, circuit_font):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        day_left = 10
-        _,_,day_width,day_height = draw.textbbox((0,0), f'{self.day}.', date_font)
-        _,_,month_width, month_height = draw.textbbox((0,0), self.month, date_font)
-        day_top = (height-day_height) // 2
-        month_top = (height-month_height) // 2
-        month_left = day_left+day_width + 10
-
-        # day
-        draw.text((day_left, day_top), f'{self.day}.', 'white', date_font)
-        # month
-        draw.text((month_left,month_top), self.month, 'grey', date_font)
-
-        circuit_img = self.circuit.get_title_image(height, circuit_font)
-        circuit_top = (height-circuit_img.height) // 2
-        circuit_left = month_left + month_width + 20
-        img.paste(circuit_img, (circuit_left, circuit_top), circuit_img)
-        return img
-
     def get_pilots(self, team):
         main_pilots = [pilot for pilot in self.pilots.values() if pilot.team == team]
         if not self.swappings or len(self.swappings) == 0:
@@ -76,3 +58,53 @@ class Race:
             team = replaces.team
             pilot = Pilot(name=pilot_name, team=team)
         return pilot
+
+    def get_circuit_and_date_img(
+        self,
+        width: int, height: int,
+        name_font=FontFactory.black(24),
+        city_font=FontFactory.black(20),
+        date_font=FontFactory.regular(18),
+        name_color=(230, 0, 0),
+        city_color=(255, 255, 255),
+        date_color=(255, 255, 255)
+    ):
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+
+        # DATE
+        month_txt = date_fr(self.month).upper()
+        month_img = text(month_txt, date_color, date_font)
+
+        day_txt = str(self.day)
+        day_img = text(day_txt, date_color, date_font)
+
+        date_img = Image.new(
+            'RGBA',
+            (month_img.width, month_img.height+day_img.height+10),
+            (0, 0, 0, 0)
+        )
+        day_pos = paste(day_img, date_img, top=0, use_obj=True)
+        month_pos = paste(month_img, date_img, top=day_pos.bottom+10, use_obj=True)
+
+        paste(date_img, img, left=0)
+        full_date_width = max(day_pos.right, month_pos.right) + 20
+
+        # FLAG
+        with self.circuit.get_flag() as flag:
+            flag = resize(flag, height, height)
+            flag_pos = paste(flag, img, left=full_date_width, use_obj=True)
+
+        circuit_left = flag_pos.right+20
+
+        # CIRCUIT
+        circuit_img = self.circuit.get_full_name_img(
+            width-circuit_left,
+            height,
+            name_font=name_font,
+            city_font=city_font,
+            name_color=name_color,
+            city_color=city_color
+        )
+        paste(circuit_img, img, left=circuit_left)
+        
+        return img

@@ -14,6 +14,10 @@ class Visual:
         return Image.open(f'assets/fbrt{"_no_border" if no_border else ""}.png')
 
     @staticmethod
+    def get_fbrt_round_logo():
+        return Image.open(f'assets/fbrt_round.png')
+
+    @staticmethod
     def get_fbrt_logo_50gp():
         return Image.open(f'assets/fbrt50gp.png')
 

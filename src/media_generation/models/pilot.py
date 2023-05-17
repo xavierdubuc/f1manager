@@ -5,7 +5,7 @@ from PIL.PngImagePlugin import PngImageFile
 from psd_tools import PSDImage
 
 from ..font_factory import FontFactory
-from ..helpers.transform import paste, text
+from ..helpers.transform import *
 from .team import Team
 
 
@@ -68,63 +68,68 @@ class Pilot:
     def get_team_image(self):
         return self.team.get_image() if self.team else ''
 
-    def get_image(self, width: int, height: int, number_font, pilot_font):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-        draw_canvas = ImageDraw.Draw(img)
-        # NUMBER
-        pos_left = 2 if len(self.number) == 2 else 12
-        draw_canvas.text(
-            (pos_left, 14),
-            self.number,
-            fill=self.team.secondary_color,
-            stroke_fill=self.team.main_color,
-            stroke_width=3,
-            font=number_font
-        )
-
-        # NAME
-        left_name = 70
-        draw_canvas.text(
-            (left_name, 14),
-            self.name,
-            (255, 255, 255),
-            pilot_font
-        )
-
+    def get_image(self, width: int, height: int, pilot_font):
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         # TEAM
         with Image.open(self.get_team_image()) as team_image:
-            padding = 4
+            padding = 8
             image_size = height - padding
-            team_image.thumbnail((image_size, image_size), Image.Resampling.LANCZOS)
-            img.paste(team_image, ((width - team_image.width) - padding, padding//2), team_image)
+            team_image = resize(team_image, image_size, image_size)
+            team_pos = paste(team_image, img, left=0, use_obj=True)
+
+        # NUMBER
+        # pos_left = 10 if len(self.number) == 2 else 20
+        # number_img = text(
+        #     self.number,
+        #     self.team.secondary_color,
+        #     number_font,
+        #     stroke_fill=self.team.main_color,
+        #     stroke_width=3
+        # )
+        # number_pos = paste(number_img, img, left=team_pos.right + pos_left, use_obj=True)
+
+        # NAME
+        name_img = text(
+            self.name.upper(),
+            (255,255,255),
+            font=pilot_font
+        )
+        paste(name_img, img, left = team_pos.right + 20, top=14, use_obj=True)
 
         return img
 
-    def get_ranking_image(self, position: int, width: int, height: int, number_font, pilot_font, has_fastest_lap: bool = False, with_fastest_img: bool = True):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
+    def get_ranking_image(self, position: int, width: int, height: int, pilot_font, has_fastest_lap: bool = False):
 
         if has_fastest_lap:
-            bg_color = (180, 60, 220)
+            bg_color = (160, 25, 190, 255)
         else:
-            bg_color = (0, 0, 0)
-        grid_position_bg = Image.new('RGB', (width, height), bg_color)
-        alpha = Image.linear_gradient('L').rotate(-90).resize((width, height))
-        grid_position_bg.putalpha(alpha)
-        img.paste(grid_position_bg, (5, 0))
+            bg_color = (30, 30, 30, 235)
+        img = Image.new('RGBA', (width, height), bg_color)
 
-        white_box_width = height
-        with Image.open(f'assets/position.png') as tmp:
-            grid_position_number = tmp.copy().convert('RGBA')
-            grid_position_number.thumbnail((white_box_width, height), Image.Resampling.LANCZOS)
-            txt = text(str(position), (0,0,0), FontFactory.regular(20))
-            paste(txt, grid_position_number)
-            paste(grid_position_number, img, left=0)
+        left_padding = 10
+        pos_img = self._get_position_image(position, height, height)
+        left = left_padding + (height-pos_img.width) // 2
+        paste(pos_img, img, left=left, use_obj=True)
+        position_right = left_padding + height
 
-        pilot_image = self.get_image(width - (white_box_width+15), height, number_font, pilot_font)
-        img.paste(pilot_image, (white_box_width+15, 0), pilot_image)
-        if has_fastest_lap and with_fastest_img:
-            with Image.open(f'assets/fastest_lap.png') as fstst_img:
-                fstst_img.thumbnail((height, height), Image.Resampling.LANCZOS)
-                img.paste(fstst_img, (width-fstst_img.width * 2, 0))
+        # box
+        space = 10
+        box_width = 5
+        box_height = int(0.75 * height)
+        draw = ImageDraw.Draw(img)
+        box_top_left = (position_right + space, (height-box_height)//2)
+        box_bot_right = (box_top_left[0] + box_width, box_top_left[1] + box_height)
+        if not has_fastest_lap:
+            draw.rectangle((box_top_left, box_bot_right), fill=self.team.box_color)
+
+        space_with_pos = space + box_width + 2*space
+        pilot_image = self.get_image(width - (position_right + space_with_pos), height, pilot_font)
+        img.paste(pilot_image, (position_right+space_with_pos, 0), pilot_image)
 
         return img
+
+    def _get_position_image(self, position: int, width:int, height:int,
+                            font:ImageFont.FreeTypeFont=FontFactory.regular(30),
+                            color=(255,255,255)):
+        return text(str(position), color, font)
+

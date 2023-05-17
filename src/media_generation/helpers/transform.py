@@ -184,3 +184,18 @@ def draw_horizontal_dotted_line(img, xy, color, width=3, step=10, space=10):
         end = (min(current+step, x2), y)
         draw.line((origin, end),color,width)
         current = current+step+space
+
+def date_fr(date_str:str):
+    mapping = {
+        'Feb': 'Fév',
+        'Apr': 'Avr',
+        'May': 'Mai',
+        'Jun': 'Juin',
+        'Jul': 'Jui',
+        'Aug': 'Août',
+        'Dec': 'Déc'
+    }
+    res = date_str
+    for old, new in mapping.items():
+        res = res.replace(old, new)
+    return res

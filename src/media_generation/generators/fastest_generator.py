@@ -88,7 +88,7 @@ class FastestGenerator(AbstractGenerator):
 
         circuit_name_top = 20
         circuit_name_color = (255, 255, 255)
-        circuit_name_font = FontFactory.regular(60)
+        circuit_name_font = FontFactory.regular(40)
         circuit_name_img = text(self.config.race.circuit.name, circuit_name_color, circuit_name_font)
 
         with Image.open(f'assets/circuits/flags/{self.config.race.circuit.id}.png') as flag_img:

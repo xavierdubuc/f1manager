@@ -31,15 +31,20 @@ class DetailsGenerator(AbstractGenerator):
     def _get_subtitle_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0 ,0))
         padding = 20
-        race_title_width = int(0.3 * width - padding)
-        date_font = FontFactory.regular(30)
-        race_title_font = FontFactory.regular(50)
+        race_title_width = int(0.32 * width - padding)
 
-        race_title_image = self.config.race.get_title_image_simple(race_title_width, height, date_font, race_title_font)
-        race_dimension = paste(race_title_image, img, left=0, use_obj=True)
+        # race_title_image = self.config.race.get_title_image_simple(race_title_width, height, date_font, race_title_font)
+        race_title_image = self.config.race.get_circuit_and_date_img(
+            race_title_width,
+            height,
+            name_font=FontFactory.black(36),
+            city_font=FontFactory.black(32),
+            date_font=FontFactory.regular(28)
+        )
+        race_dimension = paste(race_title_image, img, left=padding, use_obj=True)
 
-        fastest_lap_left = race_dimension.right + 20
-        fastest_lap_width = width - padding - race_title_image.width
+        fastest_lap_left = race_dimension.right + padding
+        fastest_lap_width = width - padding - fastest_lap_left
         fastest_lap_img = self._get_fastest_lap_image(fastest_lap_width, height)
         paste(fastest_lap_img, img, fastest_lap_left)
         return img
@@ -55,7 +60,7 @@ class DetailsGenerator(AbstractGenerator):
         text_content = 'FASTEST LAP'
         _, _, text_width, text_height = draw.textbbox((0, 0), text_content, text_font)
 
-        text_padding = 60
+        text_padding = 40
         black_box_width = text_width + 2 * text_padding
         black_box_left = fstst_img.width
         black_bg = Image.new('RGB', (black_box_width, height), (0, 0, 0))
@@ -87,7 +92,7 @@ class DetailsGenerator(AbstractGenerator):
         draw.text((pilot_and_lap_left, pilot_top), self.config.fastest_lap.pilot.name, (255, 255, 255), pilot_font)
         draw.text((pilot_and_lap_left + (pilot_width-lap_width), lap_top), lap_content, (255, 255, 255), lap_font)
 
-        time_font = FontFactory.bold(60)
+        time_font = FontFactory.bold(55)
         time_left = pilot_and_lap_left + max(pilot_width, lap_width) + 40
         _, _, time_width, time_height = draw.textbbox((0, 0), self.config.fastest_lap.time, time_font)
         time_top = (height-time_height) // 2
@@ -101,10 +106,10 @@ class DetailsGenerator(AbstractGenerator):
         return img
 
     def _get_ranking_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
+        img = Image.new('RGBA', (width, height), (30, 30, 30, 235))
         top = 0
         hop_between_position = 38
-        row_height = 60
+        row_height = 62
         padding_left = 20
         padding_between = 40
         padding_right = 40
@@ -113,11 +118,16 @@ class DetailsGenerator(AbstractGenerator):
         second_col_left = padding_left + col_width + padding_between
 
         maximum_split_size = 0
+        maximum_tyre_amount = 0
         for _, pilot_data in self.config.ranking.iterrows():
             if pilot_data[1] is not None:
-                _, _, w, h = ImageDraw.Draw(img).textbbox((0, 0), pilot_data[1], small_font)
+                w,_ = text_size(pilot_data[1], small_font)
                 if w > maximum_split_size:
                     maximum_split_size = w
+            if pilot_data[2] is not None:
+                tyre_amount = len(pilot_data[2])
+                if tyre_amount > maximum_tyre_amount:
+                    maximum_tyre_amount = tyre_amount
         for index, pilot_data in self.config.ranking.iterrows():
             # Get pilot
             pilot_name = pilot_data[0]
@@ -130,7 +140,7 @@ class DetailsGenerator(AbstractGenerator):
                 pilot_result = PilotResult(pilot, pos, pilot_data[1], tyres)
 
                 left = first_col_left if index % 2 == 0 else second_col_left
-                pilot_result_image = pilot_result.get_details_image(col_width, row_height, maximum_split_size, has_fastest_lap, with_fastest_img=False)
+                pilot_result_image = pilot_result.get_details_image(col_width, row_height, maximum_split_size, maximum_tyre_amount, has_fastest_lap)
                 img.paste(pilot_result_image, (left, top))
             top += hop_between_position
         return img
