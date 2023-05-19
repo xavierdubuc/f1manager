@@ -72,8 +72,8 @@ class Renderer:
         author_position = paste(author_img, final, top=main_height-author_img.height-author_padding_bottom, use_obj=True)
 
         # quote_font_size = math.ceil(1.1 * author_font_size)
-        quote_font_size = 51
-        text_lines = textwrap.wrap(self.quote, width=29)
+        quote_font_size = 40
+        text_lines = textwrap.wrap(self.quote, width=32)
         padding_between = 15
         bottom = author_position.top - padding_between * 4
         text_lines.reverse()
