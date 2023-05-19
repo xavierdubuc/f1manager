@@ -59,7 +59,7 @@ class DetailsGenerator(AbstractGenerator):
         # TEAM LOGO
         pilot = self.config.race.get_pilot(self.config.fastest_lap.pilot.name)
         team = pilot.team
-        with team.get_results_image() as team_img:
+        with team.get_results_logo() as team_img:
             team_img = resize(team_img, height, height)
             team_pos = paste(team_img, img, left=logo_pos.right+20, use_obj=True)
 
@@ -84,7 +84,7 @@ class DetailsGenerator(AbstractGenerator):
 
     def _get_ranking_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (30, 30, 30, 235))
-        top = 0
+        top = 20
         hop_between_position = 38
         row_height = 62
         padding_left = 20
@@ -113,11 +113,12 @@ class DetailsGenerator(AbstractGenerator):
             pos = index + 1
             if pilot:
                 has_fastest_lap = pilot_name == self.config.fastest_lap.pilot.name
+                is_pilot_of_the_day = pos == 4
                 tyres = pilot_data[2] if isinstance(pilot_data[2], str) else ''
                 pilot_result = PilotResult(pilot, pos, pilot_data[1], tyres)
 
                 left = first_col_left if index % 2 == 0 else second_col_left
-                pilot_result_image = pilot_result.get_details_image(col_width, row_height, maximum_split_size, maximum_tyre_amount, has_fastest_lap)
+                pilot_result_image = pilot_result.get_details_image(col_width, row_height, maximum_split_size, maximum_tyre_amount, has_fastest_lap, is_pilot_of_the_day)
                 img.paste(pilot_result_image, (left, top))
             top += hop_between_position
         return img

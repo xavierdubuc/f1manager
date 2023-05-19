@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from PIL.PngImagePlugin import PngImageFile
 from psd_tools import PSDImage
 
@@ -33,15 +33,6 @@ class Pilot:
         psd = self.get_long_range_psd()
         return self._get_image_from_psd(psd, 1, 2)
 
-    def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2):
-        faces = psd[faces_index]
-        clothes = psd[clothes_index]
-        for v in faces:
-            v.visible = v.name == self.name
-        for t in clothes:
-            t.visible = t.name == self.team.name if self.team else None
-        return psd.composite(layer_filter=lambda x:x.is_visible())
-
     @classmethod
     def rename_psd_layers(cls, psd, faces_index=1, clothes_index=2):
         faces = psd[faces_index]
@@ -65,71 +56,62 @@ class Pilot:
 
         psd.save('assets/pilots/renamed.psd')
 
-    def get_team_image(self):
-        return self.team.get_image() if self.team else ''
-
-    def get_image(self, width: int, height: int, pilot_font):
+    def get_image(self, width: int, height: int, pilot_font, pilot_color=(255,255,255), show_box:bool=False, box_width:int=0, box_height:int=0):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        # TEAM
-        with self.team.get_results_image() as team_image:
-            padding = 8
-            image_size = height - padding
-            team_image = resize(team_image, image_size, image_size)
-            team_pos = paste(team_image, img, left=0, use_obj=True)
 
-        # NUMBER
-        # pos_left = 10 if len(self.number) == 2 else 20
-        # number_img = text(
-        #     self.number,
-        #     self.team.secondary_color,
-        #     number_font,
-        #     stroke_fill=self.team.main_color,
-        #     stroke_width=3
-        # )
-        # number_pos = paste(number_img, img, left=team_pos.right + pos_left, use_obj=True)
+        # BOX (if applicable)
+        if show_box:
+            box_img = self.team.get_box_image(box_width, box_height)
+            paste(box_img, img, left=0, use_obj=True)
+
+        # TEAM
+        padding = 8
+        image_size = height - padding
+        team_logo = self._get_team_logo_image(image_size, image_size)
+        team_pos = paste(team_logo, img, left=box_width + 20, use_obj=True)
 
         # NAME
-        name_img = text(
-            self.name.upper(),
-            (255,255,255),
-            font=pilot_font
-        )
+        name_img = self._get_name_image(pilot_font, pilot_color)
         paste(name_img, img, left = team_pos.right + 20, top=14, use_obj=True)
 
         return img
 
-    def get_ranking_image(self, position: int, width: int, height: int, pilot_font, has_fastest_lap: bool = False):
-
-        if has_fastest_lap:
-            bg_color = (160, 25, 190, 255)
-        else:
-            bg_color = (30, 30, 30, 235)
+    def get_ranking_image(self, width: int, height: int, pilot_font,
+                          show_box: bool = False,
+                          fg_color: tuple = (255,255,255,255),
+                          bg_color: tuple=(0,0,0,0)) -> PngImageFile:
         img = Image.new('RGBA', (width, height), bg_color)
 
-        left_padding = 10
-        pos_img = self._get_position_image(position, height, height)
-        left = left_padding + (height-pos_img.width) // 2
-        paste(pos_img, img, left=left, use_obj=True)
-        position_right = left_padding + height
-
-        # box
-        space = 10
+        # [BOX] [LOGO] [PILOT NAME]
         box_width = 5
         box_height = int(0.75 * height)
-        draw = ImageDraw.Draw(img)
-        box_top_left = (position_right + space, (height-box_height)//2)
-        box_bot_right = (box_top_left[0] + box_width, box_top_left[1] + box_height)
-        if not has_fastest_lap:
-            draw.rectangle((box_top_left, box_bot_right), fill=self.team.box_color)
 
-        space_with_pos = space + box_width + 2*space
-        pilot_image = self.get_image(width - (position_right + space_with_pos), height, pilot_font)
-        img.paste(pilot_image, (position_right+space_with_pos, 0), pilot_image)
-
+        pilot_image = self.get_image(width, height, pilot_font, fg_color, show_box, box_width, box_height)
+        paste(pilot_image, img, left=0, top=0)
         return img
 
-    def _get_position_image(self, position: int, width:int, height:int,
-                            font:ImageFont.FreeTypeFont=FontFactory.regular(30),
-                            color=(255,255,255)):
-        return text(str(position), color, font)
+    def _get_team_logo_image(self, width: int, height: int) -> PngImageFile:
+        with self.team.get_results_logo() as team_logo:
+            team_logo = resize(team_logo, width, height)
+        return team_logo
 
+    def _get_name_image(self, font: ImageFont.FreeTypeFont, color: tuple = (255, 255, 255)) -> PngImageFile:
+        return text(self.name.upper(), color, font)
+
+    def _get_number_image(self, font: ImageFont.FreeTypeFont) -> PngImageFile:
+        return text(
+            self.number,
+            self.team.secondary_color,
+            font,
+            stroke_fill=self.team.main_color,
+            stroke_width=3
+        )
+
+    def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2) -> PngImageFile:
+        faces = psd[faces_index]
+        clothes = psd[clothes_index]
+        for v in faces:
+            v.visible = v.name == self.name
+        for t in clothes:
+            t.visible = t.name == self.team.name if self.team else None
+        return psd.composite(layer_filter=lambda x:x.is_visible())

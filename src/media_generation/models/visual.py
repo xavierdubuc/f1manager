@@ -9,21 +9,33 @@ class Visual:
     type: str
     race: Race
 
-    @staticmethod
-    def get_fbrt_logo(no_border=False):
-        return Image.open(f'assets/fbrt{"_no_border" if no_border else ""}.png')
+    @classmethod
+    def get_fbrt_logo(cls, no_border=False):
+        return cls._get_logo('fbrt', f'wide{"_no_border" if no_border else ""}')
 
-    @staticmethod
-    def get_fbrt_round_logo():
-        return Image.open(f'assets/fbrt_round.png')
+    @classmethod
+    def get_fbrt_round_logo(cls, color:str=None):
+        color_part = f'_{color}' if color is not None else ''
+        logo_name = f'round{color_part}'
+        return cls._get_logo('fbrt', logo_name)
 
-    @staticmethod
-    def get_fbrt_logo_50gp():
-        return Image.open(f'assets/fbrt50gp.png')
+    @classmethod
+    def get_fbrt_logo_50gp(cls):
+        return cls._get_logo('fbrt', 'wide_50gp')
 
-    @staticmethod
-    def get_f1_logo(black=False):
-        return Image.open(f'assets/f122{"_white" if black else ""}.png')
+    @classmethod
+    def get_f1_logo(cls, white=False):
+        return cls._get_logo('f1', f'22{"_white" if white else ""}')
+
+    @classmethod
+    def get_fif_logo(cls, type='round', color=None):
+        color_part = f'_{color}' if color is not None else ''
+        logo_name = f'{type}{color_part}'
+        return cls._get_logo('fif', logo_name)
+
+    @classmethod
+    def _get_logo(cls, logo, logo_type='wide'):
+        return Image.open(f'assets/logos/{logo}/{logo_type}.png')
 
     def get_title_image(self, width:int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
@@ -41,11 +53,16 @@ class Visual:
         draw.line(((1343, 168), (width-538, 0)), fill=line_color, width=10)
 
         # FBRT logo
-        with Visual.get_fbrt_logo() as fbrt:
-            fbrt.thumbnail((width//3, height), Image.Resampling.LANCZOS)
-            left = (width//3 - fbrt.width) // 2 # centered in the left cell
-            top = (height-fbrt.height)//2 # centered
-            img.paste(fbrt, (left, top), fbrt)
+        left_img = Image.new('RGBA', (width//3, height), (0,0,0,0))
+        with Visual.get_fbrt_round_logo(color='grey') as fbrt:
+            fbrt = resize(fbrt, left_img.width // 2, int(0.8 * height))
+        with Visual.get_fif_logo(type='wide', color='white') as fif:
+            fif = resize(fif, left_img.width // 2, height)
+
+        both_logo_size = fif.width + fbrt.width + 40
+        both_left = -50 + (left_img.width-both_logo_size)//2
+        paste(fbrt, img, left=both_left,with_alpha=False)
+        paste(fif, img, left=both_left + fbrt.width + 40)
 
         # Title
         if self.type == 'details':

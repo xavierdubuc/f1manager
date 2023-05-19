@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from PIL import Image, ImageDraw
+from PIL.PngImagePlugin import PngImageFile
 from ..font_factory import FontFactory
 from ..helpers.transform import GradientDirection, gradient, resize, text_size, paste
 
@@ -29,7 +30,7 @@ class Team:
             'line': self.pole_line_color if self.pole_line_color else self.breaking_line_color
         }
 
-    def get_results_image(self):
+    def get_results_logo(self):
         if self.name == 'AlphaTauri':
             return Image.open(self.get_white_logo())
         return Image.open(self.get_image())
@@ -85,9 +86,6 @@ class Team:
             paste(team_image, img, left=width - team_image.width - 10)
 
         return img
-
-    def get_pilots_image(self, width, height, pilots):
-        pass
 
     def get_lineup_image(self, width, height, pilots):
         # team
@@ -165,3 +163,6 @@ class Team:
             )
             left = int(2 * (width / 3)) + 20 * 2
         return img
+
+    def get_box_image(self, width:int=5, height:int=30) ->PngImageFile:
+        return Image.new('RGB', (width, height), self.box_color)
