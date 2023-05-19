@@ -29,6 +29,11 @@ class Team:
             'line': self.pole_line_color if self.pole_line_color else self.breaking_line_color
         }
 
+    def get_results_image(self):
+        if self.name == 'AlphaTauri':
+            return Image.open(self.get_white_logo())
+        return Image.open(self.get_image())
+
     def get_image(self):
         return f'assets/teams/{self.name}.png'
 

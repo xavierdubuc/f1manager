@@ -71,7 +71,7 @@ class Pilot:
     def get_image(self, width: int, height: int, pilot_font):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         # TEAM
-        with Image.open(self.get_team_image()) as team_image:
+        with self.team.get_results_image() as team_image:
             padding = 8
             image_size = height - padding
             team_image = resize(team_image, image_size, image_size)

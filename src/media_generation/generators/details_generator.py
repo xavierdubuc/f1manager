@@ -31,9 +31,8 @@ class DetailsGenerator(AbstractGenerator):
     def _get_subtitle_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0 ,0))
         padding = 20
-        race_title_width = int(0.32 * width - padding)
+        race_title_width = int(0.35 * width - padding)
 
-        # race_title_image = self.config.race.get_title_image_simple(race_title_width, height, date_font, race_title_font)
         race_title_image = self.config.race.get_circuit_and_date_img(
             race_title_width,
             height,
@@ -50,59 +49,37 @@ class DetailsGenerator(AbstractGenerator):
         return img
 
     def _get_fastest_lap_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        img = Image.new('RGBA', (width, height), (30, 30, 30, 235))
+
+        # FASTEST LAP IMG
         with Image.open(f'assets/fastest_lap.png') as fstst_img:
             fstst_img = resize(fstst_img, height, height)
-            paste(fstst_img, img, 0)
+            logo_pos = paste(fstst_img, img, left=0, use_obj=True)
 
-        draw = ImageDraw.Draw(img)
-        text_font = FontFactory.bold(40)
-        text_content = 'FASTEST LAP'
-        _, _, text_width, text_height = draw.textbbox((0, 0), text_content, text_font)
-
-        text_padding = 40
-        black_box_width = text_width + 2 * text_padding
-        black_box_left = fstst_img.width
-        black_bg = Image.new('RGB', (black_box_width, height), (0, 0, 0))
-        img.paste(black_bg, (black_box_left, 0))
-
-        text_left = black_box_left + text_padding
-        text_top = (height-text_height)//2
-        draw.text((text_left, text_top), text_content, (180, 60, 220), text_font)
-
-        pilot_bg_left = (black_box_left + black_box_width)
-        pilot_bg_width = width - pilot_bg_left
-        pilot_bg = Image.new('RGB', (pilot_bg_width, height), (20, 20, 20))
-        alpha = Image.linear_gradient('L').rotate(-90).resize((pilot_bg_width, height))
-        pilot_bg.putalpha(alpha)
-        img.paste(pilot_bg, (pilot_bg_left, 0))
-
-        pilot_and_lap_padding = 20
-        pilot_and_lap_left = pilot_bg_left+pilot_and_lap_padding
-        pilot_font = FontFactory.bold(45)
-        lap_font = FontFactory.regular(25)
-        lap_content = f'Lap {self.config.fastest_lap.lap}'
-        _, _, pilot_width, pilot_height = draw.textbbox((0, 0), self.config.fastest_lap.pilot.name, pilot_font)
-        _, _, lap_width, lap_height = draw.textbbox((0, 0), lap_content, lap_font)
-        space_between_pilot_and_lap = 10
-        pilot_and_lap_height = pilot_height + lap_height + space_between_pilot_and_lap
-        pilot_top = (height - pilot_and_lap_height) // 2
-        lap_top = pilot_top + pilot_height + space_between_pilot_and_lap
-
-        draw.text((pilot_and_lap_left, pilot_top), self.config.fastest_lap.pilot.name, (255, 255, 255), pilot_font)
-        draw.text((pilot_and_lap_left + (pilot_width-lap_width), lap_top), lap_content, (255, 255, 255), lap_font)
-
-        time_font = FontFactory.bold(55)
-        time_left = pilot_and_lap_left + max(pilot_width, lap_width) + 40
-        _, _, time_width, time_height = draw.textbbox((0, 0), self.config.fastest_lap.time, time_font)
-        time_top = (height-time_height) // 2
-        draw.text((time_left, time_top), self.config.fastest_lap.time, (255, 255, 255), time_font)
-
-        team_left = time_left + time_width + 40
+        # TEAM LOGO
         pilot = self.config.race.get_pilot(self.config.fastest_lap.pilot.name)
-        with Image.open(pilot.get_team_image()) as team_img:
-            team_img.thumbnail((height, height), Image.Resampling.LANCZOS)
-            img.paste(team_img, (team_left, 0), team_img)
+        team = pilot.team
+        with team.get_results_image() as team_img:
+            team_img = resize(team_img, height, height)
+            team_pos = paste(team_img, img, left=logo_pos.right+20, use_obj=True)
+
+        # PILOT NAME
+        pilot_font = FontFactory.bold(45)
+        pilot_content = self.config.fastest_lap.pilot.name.upper()
+        pilot_txt = text(pilot_content, (255,255,255), pilot_font)
+        pilot_pos = paste(pilot_txt, img, left=team_pos.right + 30, use_obj=True)
+
+        # LAP #
+        lap_font = FontFactory.regular(30)
+        lap_content = f'LAP {self.config.fastest_lap.lap}'
+        lap_txt = text(lap_content, (255,255,255), lap_font)
+        lap_pos = paste(lap_txt, img, left=pilot_pos.right+30, use_obj=True)
+
+        # LAP TIME
+        time_font = FontFactory.bold(45)
+        time_txt = text(self.config.fastest_lap.time, (255, 255, 255), time_font)
+        time_pos = paste(time_txt, img, left=width-time_txt.width-15, use_obj=True)
+
         return img
 
     def _get_ranking_image(self, width: int, height: int):

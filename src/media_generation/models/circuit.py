@@ -44,7 +44,6 @@ class Circuit:
         paste(city_img, img, left=0, top=name_position.bottom+padding)
         return img
 
-    
     def get_title_image(self, height: int, font):
         tmp = Image.new('RGBA', (5000, height), (255, 0, 0, 0))
         tmp_draw = ImageDraw.Draw(tmp)
