@@ -63,6 +63,7 @@ class Reader:
         if self.type in ('details', 'fastest', 'grid'):
             config.ranking = self._get_ranking()
         if self.type == 'details':
+            config.driver_of_the_day = self._get_driver_of_the_day()
             config.fastest_lap = self._get_fastest_lap(race)
         return config
 
@@ -134,6 +135,9 @@ class Reader:
     def _get_ranking(self):
         ranking_cols = ['I', 'J', 'K', 'L']
         return self.data[ranking_cols][:20]
+
+    def _get_driver_of_the_day(self):
+        return self.data['I'][22]
 
     def _get_fastest_lap(self, race: Race):
         vals = {'pilot_name': self.data['G'][22]}

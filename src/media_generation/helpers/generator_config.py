@@ -32,4 +32,5 @@ class GeneratorConfig:
     ranking_title: str = None
     ranking_subtitle: str = None
     metric: str = 'Total'
+    driver_of_the_day: str = None
 
