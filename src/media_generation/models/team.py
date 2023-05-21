@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw
 from PIL.PngImagePlugin import PngImageFile
 from ..font_factory import FontFactory
-from ..helpers.transform import GradientDirection, gradient, resize, text_size, paste
+from ..helpers.transform import *
 
 
 @dataclass
@@ -89,20 +89,15 @@ class Team:
 
     def get_lineup_image(self, width, height, pilots):
         # team
-
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        bg_color = (30, 30, 30, 235)
+        img = Image.new('RGBA', (width, height), bg_color)
 
         font_size = 28
         small_font_size = font_size - 8
         line_separation = font_size + 4
         box_width = 10
         box_height = font_size+line_separation
-        # Build an alpha/transparency channel
-        bg = Image.new('RGB', (width, box_height))
-        alpha = Image.linear_gradient('L').rotate(90).resize((width, box_height))
-        bg.putalpha(alpha)
 
-        img.paste(bg)
         draw = ImageDraw.Draw(img)
 
         big_font = FontFactory.regular(font_size+10)
@@ -110,32 +105,29 @@ class Team:
         small_font = FontFactory.regular(small_font_size)
 
         # box
-        draw.rectangle(((0, 0), (box_width, box_height)), fill=self.box_color)
-
-        # Name
-        padding_top = 4
-        padding_after_box = box_width + 20
-        draw.text(
-            (padding_after_box, padding_top),
-            self.title.upper(),
-            fill=(255, 255, 255),
-            font=font
-        )
-        draw.text(
-            (padding_after_box, padding_top+line_separation),
-            self.subtitle,
-            fill=(255, 255, 255),
-            font=small_font
-        )
+        box_height = int(.75*height)
+        box = self.get_box_image(height=box_height)
+        box_pos = paste(box, img, left=0, use_obj=True)
 
         # logo
-        with Image.open(self.get_image()) as team_image:
-            padding = 4
-            image_size = box_height - padding
-            left = width // 3 - team_image.width - 10
-            top = 0
-            team_image.thumbnail((image_size, image_size), Image.Resampling.LANCZOS)
-            img.paste(team_image, (left, top), team_image)
+        image_size = int(.75*height)
+        with self.get_results_logo() as team_image:
+            team_image = resize(team_image, image_size, image_size)
+            logo_pos = paste(team_image, img, box_pos.right + 20, use_obj=True)
+
+        title = text(self.title.upper(), (255,255,255), font)
+        subtitle = text(self.subtitle, (255,255,255), small_font)
+        text_height = title.height + subtitle.height
+        paste(
+            title, img, left=logo_pos.right + 20,
+            top=(height-text_height)//2-10,
+            use_obj=True
+        )
+        paste(
+            subtitle, img, left=logo_pos.right + 20,
+            top=(height-text_height)//2 + title.height,
+            use_obj=True
+        )
 
         left = width // 3 + 20
         draw = ImageDraw.Draw(img)
@@ -157,7 +149,7 @@ class Team:
             left_name = 70
             draw.text(
                 (left+left_name, padding_top),
-                pilot.name,
+                pilot.name.upper(),
                 fill=(255, 255, 255),
                 font=big_font
             )
