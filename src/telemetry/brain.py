@@ -94,7 +94,12 @@ class Brain:
             _logger.error(f'Channel "{self.discord_channel}" not found, message not sent')
             return
 
-        self.bot.loop.create_task(channel.send(msg))
+        if channel.threads and len(channel.threads):
+            where = channel.threads[-1]
+        else:
+            where = channel
+
+        self.bot.loop.create_task(where.send(msg))
 
     def _handle_received_session_packet(self, packet: PacketSessionData):
         tmp_session = SessionManager.create(packet)
