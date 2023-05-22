@@ -34,7 +34,7 @@ _logger = logging.getLogger(__name__)
 
 DEFAULT_GUILD_ID = 1074380392154533958
 DEFAULT_CHANNEL_ID = 1096169137589461082
-WEATHER_NOTIFICATION_DELAY = 1 * 60 # 4 minutes
+WEATHER_NOTIFICATION_DELAY = 4 * 60 # 4 minutes
 
 class Brain:
     def __init__(self, bot: commands.InteractionBot = None, discord_guild: str = DEFAULT_GUILD_ID, discord_channel: str = DEFAULT_CHANNEL_ID):
