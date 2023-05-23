@@ -1,7 +1,8 @@
 from dataclasses import dataclass
+from typing import Dict, List
 from PIL import Image, ImageDraw
 
-from src.media_generation.font_factory import FontFactory
+from src.media_generation.models.team import Team
 
 from .circuit import Circuit
 from .pilot import Pilot
@@ -17,9 +18,9 @@ class Race:
     hour: str
     circuit: Circuit
     pilots: dict
-    teams: list
+    teams: List[Team]
     type: str
-    swappings: dict = None
+    swappings: Dict[str,Pilot] = None
 
     def get_total_length(self):
         return '{:.3f}'.format(self.laps * self.circuit.lap_length)

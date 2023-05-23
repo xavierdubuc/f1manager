@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Union
 from PIL import Image, ImageDraw
 from PIL.PngImagePlugin import PngImageFile
 from ..font_factory import FontFactory
@@ -10,18 +11,19 @@ class Team:
     name: str
     title: str
     subtitle: str
-    main_color: str = 'white'
-    secondary_color: str = 'black'
-    box_color: str = 'black'
-    standing_bg: str = 'black'
-    standing_fg: str = 'white'
-    breaking_fg_color: tuple = (255, 255, 255)
-    breaking_bg_color: tuple = (255, 255, 255)
-    breaking_line_color: tuple = (0, 0, 0)
+    main_color: Union[str,tuple] = 'white'
+    secondary_color: Union[str,tuple] = 'black'
+    box_color: Union[str,tuple] = 'black'
+    lineup_bg_color: Union[str,tuple] = 'black'
+    standing_bg: Union[str,tuple] = 'black'
+    standing_fg: Union[str,tuple] = 'white'
+    breaking_fg_color: Union[str,tuple] = (255, 255, 255)
+    breaking_bg_color: Union[str,tuple] = (255, 255, 255)
+    breaking_line_color: Union[str,tuple] = (0, 0, 0)
     breaking_use_white_logo: bool = False
-    pole_fg_color: tuple = None
-    pole_bg_color: tuple = None
-    pole_line_color: tuple = None
+    pole_fg_color: Union[str,tuple] = None
+    pole_bg_color: Union[str,tuple] = None
+    pole_line_color: Union[str,tuple] = None
 
     def get_pole_colors(self):
         return {
@@ -35,6 +37,11 @@ class Team:
             return Image.open(self.get_white_logo())
         return Image.open(self.get_image())
 
+    def get_lineup_logo(self):
+        if self.name in ('Alpine', 'AlfaRomeo', 'AlphaTauri', 'RedBull', 'AstonMartin', 'McLaren', 'Williams', 'Ferrari'):
+            return Image.open(self.get_alt_logo())
+        return Image.open(self.get_image())
+
     def get_image(self):
         return f'assets/teams/{self.name}.png'
 
@@ -43,6 +50,9 @@ class Team:
 
     def get_white_logo(self):
         return f'assets/teams/white/{self.name}.png'
+
+    def get_alt_logo(self):
+        return f'assets/teams/alt/{self.name}.png'
 
     def get_team_image(self, width, title_font):
         line_separation = 10
@@ -87,73 +97,40 @@ class Team:
 
         return img
 
+    def get_parallelogram(self, width, height):
+        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        draw = ImageDraw.Draw(img)
+        draw.polygon(
+            ((0, height),
+            (height, 0),
+            (width, 0),
+            (width-height, height)),
+            self.lineup_bg_color
+        )
+        return img
+
     def get_lineup_image(self, width, height, pilots):
-        # team
-        bg_color = (30, 30, 30, 235)
-        img = Image.new('RGBA', (width, height), bg_color)
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
 
-        font_size = 28
-        small_font_size = font_size - 8
-        line_separation = font_size + 4
-        box_width = 10
-        box_height = font_size+line_separation
-
-        draw = ImageDraw.Draw(img)
-
-        big_font = FontFactory.regular(font_size+10)
-        font = FontFactory.bold(font_size)
-        small_font = FontFactory.regular(small_font_size)
-
-        # box
-        box_height = int(.75*height)
-        box = self.get_box_image(height=box_height)
-        box_pos = paste(box, img, left=0, use_obj=True)
-
-        # logo
-        image_size = int(.75*height)
-        with self.get_results_logo() as team_image:
-            team_image = resize(team_image, image_size, image_size)
-            logo_pos = paste(team_image, img, box_pos.right + 20, use_obj=True)
-
-        title = text(self.title.upper(), (255,255,255), font)
-        subtitle = text(self.subtitle, (255,255,255), small_font)
-        text_height = title.height + subtitle.height
-        paste(
-            title, img, left=logo_pos.right + 20,
-            top=(height-text_height)//2-10,
-            use_obj=True
-        )
-        paste(
-            subtitle, img, left=logo_pos.right + 20,
-            top=(height-text_height)//2 + title.height,
+        # Parallelogram
+        parallelogram_bottom_margin = 5
+        parallelogram_height = int(.32 * height) # should be ~ 67
+        parallelogram_img = self.get_parallelogram(width, parallelogram_height)
+        parallelogram_pos = paste(
+            parallelogram_img,
+            img,
+            top=height-parallelogram_height - parallelogram_bottom_margin,
             use_obj=True
         )
 
-        left = width // 3 + 20
-        draw = ImageDraw.Draw(img)
-        padding_top = 12
-        for pilot in pilots:
+        remaining_height = height - parallelogram_height
+        max_logo_width = int(.3 * width) # ~240
+        max_logo_height = int(.675 * remaining_height) # ~96
+        # Logo
+        with self.get_lineup_logo() as logo_img:
+            logo_img = resize(logo_img, max_logo_width, max_logo_height)
+            paste(logo_img, img, top=(remaining_height-max_logo_height)//2)
 
-            # NUMBER
-            pos_left = left + (0 if len(pilot.number) == 2 else 10)
-            draw.text(
-                (pos_left, padding_top),
-                pilot.number,
-                fill=self.secondary_color,
-                stroke_fill=self.main_color,
-                stroke_width=2,
-                font=big_font
-            )
-
-            # NAME
-            left_name = 70
-            draw.text(
-                (left+left_name, padding_top),
-                pilot.name.upper(),
-                fill=(255, 255, 255),
-                font=big_font
-            )
-            left = int(2 * (width / 3)) + 20 * 2
         return img
 
     def get_box_image(self, width:int=5, height:int=30) ->PngImageFile:
