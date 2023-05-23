@@ -75,7 +75,11 @@ class PilotResult:
     def _get_tyres_image(self, width:int, height:int, size_by_tyre:int):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         current_left = 0
-        padding = 5 if len(self.tyres) <= 5 else -10
+        padding = -10
+        if len(self.tyres) == 5:
+            padding = -5
+        elif len(self.tyres) <= 4:
+            padding = 0
         for tyre in self.tyres:
             with Image.open(f'./assets/tyres/{tyre}.png') as tyre_img:
                 tyre_img = resize(tyre_img, size_by_tyre, size_by_tyre)
