@@ -19,7 +19,6 @@ class LineupGenerator(AbstractGenerator):
         amount_of_teams_by_column = 5
         teams_width = int(.38 * base_img.width) #should be near 730
         teams_height = int(.195 * base_img.height)  # should be near 210
-        print(f'{teams_width}x{teams_height}')
         teams_left = 5
         teams_top = teams_initial_top = 2
         teams_margin = 5

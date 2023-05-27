@@ -29,9 +29,17 @@ class Pilot:
         psd = self.get_close_up_psd()
         return self._get_image_from_psd(psd, 2, 3)
 
-    def get_long_range_image(self):
+    def get_long_range_image(self) -> PngImageFile:
         psd = self.get_long_range_psd()
         return self._get_image_from_psd(psd, 1, 2)
+
+    def has_image_in_close_up_psd(self) -> PngImageFile:
+        psd = self.get_close_up_psd()
+        return self._has_image_in_psd(psd, 2, 3)
+
+    def has_image_in_long_range_psd(self) -> PngImageFile:
+        psd = self.get_long_range_psd()
+        return self._has_image_in_psd(psd, 2, 3)
 
     @classmethod
     def rename_psd_layers(cls, psd, faces_index=1, clothes_index=2):
@@ -71,7 +79,7 @@ class Pilot:
         team_pos = paste(team_logo, img, left=box_width + 20, use_obj=True)
 
         # NAME
-        name_img = self._get_name_image(pilot_font, pilot_color)
+        name_img = self.get_name_image(pilot_font, pilot_color)
         paste(name_img, img, left = team_pos.right + 20, top=14, use_obj=True)
 
         return img
@@ -95,7 +103,11 @@ class Pilot:
             team_logo = resize(team_logo, width, height)
         return team_logo
 
-    def _get_name_image(self, font: ImageFont.FreeTypeFont, color: tuple = (255, 255, 255)) -> PngImageFile:
+    @staticmethod
+    def get_default_image() -> PngImageFile:
+        return Image.open('assets/pilots/default.png')
+
+    def get_name_image(self, font: ImageFont.FreeTypeFont, color: tuple = (255, 255, 255)) -> PngImageFile:
         return text(self.name.upper(), color, font)
 
     def _get_number_image(self, font: ImageFont.FreeTypeFont) -> PngImageFile:
@@ -115,3 +127,10 @@ class Pilot:
         for t in clothes:
             t.visible = t.name == self.team.name if self.team else None
         return psd.composite(layer_filter=lambda x:x.is_visible())
+
+    def _has_image_in_psd(self, psd:PSDImage, faces_index=1, clothes_index=2) -> PngImageFile:
+        faces = psd[faces_index]
+        for v in faces:
+            if v.name == self.name:
+                return True
+        return False

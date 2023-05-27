@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Union
+from typing import List, Union
 from PIL import Image, ImageDraw
 from PIL.PngImagePlugin import PngImageFile
 from ..font_factory import FontFactory
@@ -109,7 +109,7 @@ class Team:
         )
         return img
 
-    def get_lineup_image(self, width, height, pilots):
+    def get_lineup_image(self, width, height, pilots:List["Pilot"]):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
 
         # Parallelogram
@@ -123,13 +123,51 @@ class Team:
             use_obj=True
         )
 
-        remaining_height = height - parallelogram_height
+        remaining_height = height - parallelogram_height - parallelogram_bottom_margin
         max_logo_width = int(.3 * width) # ~240
         max_logo_height = int(.675 * remaining_height) # ~96
         # Logo
         with self.get_lineup_logo() as logo_img:
             logo_img = resize(logo_img, max_logo_width, max_logo_height)
-            paste(logo_img, img, top=(remaining_height-max_logo_height)//2)
+            logo_pos = paste(logo_img, img, top=(remaining_height-max_logo_height)//2, use_obj=True)
+
+        # FIXME refactor below + try to open only once the psd
+
+        # Pilots
+        pilot_font = FontFactory.black(30)
+        # name
+        left_pilot_name_img = pilots[0].get_name_image(pilot_font)
+        left_pilot_name_left = parallelogram_pos.left + parallelogram_img.height + 10
+        shift = 2 if '_' in pilots[0].name else 5
+        left_pilot_name_top = (parallelogram_pos.top) + left_pilot_name_img.height//2 + shift
+        paste(left_pilot_name_img, img, top=left_pilot_name_top, left=left_pilot_name_left)
+
+        # img
+        left_pilot_img = pilots[0].get_close_up_image()
+        left_pilot_img = resize(left_pilot_img, remaining_height, remaining_height)
+        left_pilot_img_left = int(((width / 2) - left_pilot_img.width) / 2)
+        if not pilots[0].has_image_in_close_up_psd():
+            default_img = resize(pilots[0].get_default_image(), remaining_height, remaining_height)
+            default_img = default_img.crop((0,0,default_img.width,default_img.height-10))
+            paste(default_img, img, top=10, left=left_pilot_img_left)
+        paste(left_pilot_img, img, top=0, left=left_pilot_img_left)
+
+        # name
+        right_pilot_name_img = pilots[1].get_name_image(pilot_font)
+        right_pilot_name_left = parallelogram_pos.right - parallelogram_img.height - right_pilot_name_img.width - 10
+        shift = 2 if '_' in pilots[1].name else 5
+        right_pilot_name_top = (parallelogram_pos.top) + right_pilot_name_img.height//2 + shift
+        paste(right_pilot_name_img, img, top=right_pilot_name_top, left=right_pilot_name_left)
+
+        # img
+        right_pilot_img = pilots[1].get_close_up_image()
+        right_pilot_img = resize(right_pilot_img, remaining_height, remaining_height)
+        right_pilot_img_left = int((width / 2) + ((width / 2) - right_pilot_img.width) / 2)
+        if not pilots[1].has_image_in_close_up_psd():
+            default_img = resize(pilots[1].get_default_image(), remaining_height, remaining_height)
+            default_img = default_img.crop((0,0,default_img.width,default_img.height-10))
+            paste(default_img, img, top=10, left=right_pilot_img_left)
+        paste(right_pilot_img, img, top=0, left=right_pilot_img_left)
 
         return img
 
