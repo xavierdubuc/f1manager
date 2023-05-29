@@ -34,11 +34,21 @@ def paste_rounded(bg: PngImageFile, img: PngImageFile, xy: tuple = (0, 0), radiu
     mask = get_round_corner_mask(img, radius)
     bg.paste(img, xy, mask)
 
-def resize(img: PngImageFile, width, height, keep_ratio=True):
+def resize(img: PngImageFile, width:int = None, height: int = None, keep_ratio=True):
+    if width is None and height is None:
+        raise Exception('Please give at least width or height!')
     if keep_ratio:
+        if width is None:
+            width = int((height / img.height) * img.width)
+        if height is None:
+            height = int((width / img.width) * img.height)
         img.thumbnail((width, height), Image.Resampling.LANCZOS)
         return img.copy()
     else:
+        if width is None:
+            width = height
+        if height is None:
+            height = width
         return img.resize((width, height))
 
 def text_size(text:str, font:ImageFont.FreeTypeFont, img:PngImageFile=None, **kwargs):

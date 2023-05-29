@@ -99,7 +99,7 @@ class Race:
 
         # CIRCUIT
         circuit_img = self.circuit.get_full_name_img(
-            width-circuit_left,
+            max(0,width-circuit_left),
             height,
             name_font=name_font,
             city_font=city_font,
@@ -107,5 +107,44 @@ class Race:
             city_color=city_color
         )
         paste(circuit_img, img, left=circuit_left)
-        
+
+        return img
+
+    def get_type_image(
+        self,
+        width: int,
+        height: int,
+        expand_round: bool = False,
+        round_font: ImageFont.FreeTypeFont = FontFactory.black(36),
+        text_font: ImageFont.FreeTypeFont = FontFactory.regular(16)
+    ) -> PngImageFile:
+        color = (220,0,0, 240)
+        if self.type in ('Sprint (2)', 'Double Grid (1)', '100 %'):
+            if self.type == 'Sprint (2)':
+                type_txt = 'SPRINT'
+                color = (0,200,200,240)
+            elif self.type == 'Double Grid (1)':
+                type_txt = 'DOUBLE GRID'
+                color = (200, 200, 0, 240)
+            else:
+                type_txt = '100%'
+                color = (200, 100, 200, 240)
+        else:
+            type_txt = None
+        img = Image.new('RGBA', (width, height), color)
+
+        # left_part
+        round_text = f"{'Course ' if expand_round else 'R'}{self.round}"
+        round_img = text(round_text, (255, 255, 255), round_font)
+        paste(round_img, img, top=(height-round_img.height)//2-3,use_obj=True)
+
+        if type_txt in ('SPRINT', '100%') :
+            type_txt_img = text(type_txt, (255,255,255), text_font)
+            paste(type_txt_img, img, top=height-type_txt_img.height - 10)
+        elif type_txt == 'DOUBLE GRID':
+            type_txt_img = text('DOUBLE', (255,255,255), text_font)
+            paste(type_txt_img, img, top=10)
+            type_txt_img = text('GRID', (255,255,255), text_font)
+            paste(type_txt_img, img, top=height-type_txt_img.height - 10)
+
         return img

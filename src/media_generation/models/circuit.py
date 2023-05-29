@@ -30,19 +30,25 @@ class Circuit:
                           name_font=FontFactory.black(24),
                           city_font=FontFactory.black(20),
                           name_color=(230,0,0),
-                          city_color=(255,255,255)
+                          city_color=(255,255,255),
+                          padding=10
         ) -> PngImageFile:
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         name_img = text(self.name.upper(), name_color, name_font)
         city_img = text(self.city.upper(), city_color, city_font)
 
-        padding = 10
         full_height = name_img.height + city_img.height
         top = (height-(full_height+2*padding))//2
         name_position = paste(name_img, img, left=0, top=top, use_obj=True)
 
         paste(city_img, img, left=0, top=name_position.bottom+padding)
         return img
+
+    def get_name_img(self, font=FontFactory.black(24), color=(230, 0, 0)):
+        return text(self.name.upper(), color, font)
+
+    def get_city_img(self, font=FontFactory.black(20), color=(255,255,255)):
+        return text(self.city.upper(), color, font)
 
     def get_title_image(self, height: int, font):
         tmp = Image.new('RGBA', (5000, height), (255, 0, 0, 0))

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 import pandas
+
+from src.media_generation.models.race import Race
 from .reader import Reader
 from ..data import circuits as CIRCUITS
 
@@ -41,7 +43,18 @@ class CalendarReader(Reader):
                     'circuit': CIRCUITS.get(df['B'][1], None),
                     'type': df['B'][20],
                     'date': datetime.strptime(f"{df['B'][3]}/{datetime.now().year}", '%d/%m/%Y').date(),
-                    'hour': df['B'][4]
+                    'hour': df['B'][4],
+                    'obj': Race(
+                        round=df['B'][0],
+                        laps=int(df['B'][2]),
+                        circuit=CIRCUITS[df['B'][1]],
+                        day='dummy',
+                        month='value',
+                        hour=df['B'][4],
+                        pilots={},
+                        teams=[],
+                        type=df['B'][20]
+                    )
                 }
                 races.append(race)
 

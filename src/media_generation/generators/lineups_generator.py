@@ -1,5 +1,7 @@
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
+
+from src.media_generation.models.visual import Visual
 from ..generators.abstract_generator import AbstractGenerator
 from ..helpers.transform import *
 
@@ -33,3 +35,84 @@ class LineupGenerator(AbstractGenerator):
                 teams_left += teams_width + center_width - 10
             else:
                 teams_top = teams_pos.bottom + teams_margin
+
+        padding = 25
+        center_img = self._get_center_image(center_width-2*padding, base_img.height)
+        paste(center_img, base_img, left=teams_width + padding)
+
+    def _get_center_image(self, width:int, height:int) -> PngImageFile:
+        race = self.config.race
+        circuit = race.circuit
+        img = Image.new('RGB', (width, height), (255,255,255))
+
+        # FBRT
+        fbrt_logo_size = int(0.8 * width)
+        fbrt_logo = resize(Visual.get_fbrt_round_logo(), fbrt_logo_size)
+        fbrt_logo_pos = paste(fbrt_logo, img, top=0, use_obj=True)
+
+        # COURSE X + TITLE 'LINE-UP'
+        type_title_top = fbrt_logo_pos.bottom+50
+        type_size = int(0.35 * width)
+        padding_type_title = 20
+        type_img = race.get_type_image(
+            type_size, type_size, text_font=FontFactory.regular(20)
+        )
+        title_line1_text = 'LINE'
+        title_line2_text = '   UP'
+        title_line1_img = text(title_line1_text, (0,0,0), FontFactory.black(60))
+        title_line2_img = text(title_line2_text, (0,0,0), FontFactory.black(60))
+        whole_line_width = type_img.width + title_line1_img.width+padding_type_title
+        type_pos = paste(type_img, img, left=(width-whole_line_width)//2, top=type_title_top, use_obj=True)
+        # TITLE "LINE-UP"
+        space_between_lines = 10
+        title_height = title_line1_img.height+title_line2_img.height+space_between_lines
+        title_line1_pos = paste(title_line1_img, img, left=type_pos.right+padding_type_title, top=type_pos.top + (type_img.height-title_height)//2, use_obj=True)
+        paste(title_line2_img, img, left=type_pos.right+padding_type_title, top=title_line1_pos.bottom+space_between_lines, use_obj=True)
+
+        # CIRCUIT FLAG
+        flag_top = type_pos.bottom + 50
+        flag_height = 100
+        with circuit.get_flag() as flag_img:
+            flag_img = resize(flag_img, height=flag_height)
+            flag_pos = paste(flag_img, img, top=flag_top, use_obj=True)
+
+        # CIRCUIT INFO (NAME + CITY + DATE)
+        circuit_top = flag_pos.bottom + 20
+        circuit_padding = 15
+
+        # Create image so we can have the needed size for black BG
+        circuit_name_img = circuit.get_name_img(FontFactory.black(34))
+        padding_name_city = 5
+        padding_city_date = 20
+        circuit_city_img = circuit.get_city_img(FontFactory.black(28))
+        date_txt = f'{race.day} {date_fr(race.month).upper()}'
+        date_img = text(date_txt, (255, 255, 255), FontFactory.regular(30))
+        circuit_height = (
+            circuit_name_img.height
+            + padding_name_city
+            + circuit_city_img.height
+            + padding_city_date
+            + date_img.height
+            + (circuit_padding * 2)
+        )
+        # --- BLACK BG
+        circuit_bg = Image.new('RGB', (width, circuit_height), (0,0,0))
+        circuit_bg_pos = paste(circuit_bg, img, top=circuit_top, use_obj=True)
+
+        circuit_name_pos = paste(circuit_name_img, img, top=circuit_bg_pos.top+circuit_padding, use_obj=True)
+        city_pos = paste(circuit_city_img, img, top=circuit_name_pos.bottom+padding_name_city, use_obj=True)
+        paste(date_img, img, top=city_pos.bottom+padding_city_date)
+
+        # F1
+        f1_logo_size = int(0.7 * width)
+        with Visual.get_f1_logo() as f1_logo_img:
+            f1_logo_img = resize(f1_logo_img, f1_logo_size, f1_logo_size)
+            f1_logo_pos = paste(f1_logo_img, img, top=img.height - f1_logo_img.height - 40, use_obj=True)
+
+        # FIF
+        fif_logo_size = int(0.7 * width)
+        with Visual.get_fif_logo('wide') as fif_logo_img:
+            fif_logo_img = resize(fif_logo_img, fif_logo_size, fif_logo_size)
+            paste(fif_logo_img, img, top=f1_logo_pos.top - fif_logo_img.height)
+        return img
+    

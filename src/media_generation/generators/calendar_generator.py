@@ -49,36 +49,12 @@ class CalendarGenerator(AbstractGenerator):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         left_width = int(0.20 * width)
         right_width = width - left_width
-        color = (220,0,0, 240)
-        if race['type'] in ('Sprint (2)', 'Double Grid (1)', '100 %'):
-            if race['type'] == 'Sprint (2)':
-                type_txt = 'SPRINT'
-                color = (0,200,200,240)
-            elif race['type'] == 'Double Grid (1)':
-                type_txt = 'DOUBLE GRID'
-                color = (200, 200, 0, 240)
-            else:
-                type_txt = '100%'
-                color = (200, 100, 200, 240)
-        else:
-            type_txt = None
-        left_img = Image.new('RGBA', (left_width, height), color)
-        right_img = Image.new('RGB', (right_width, height), (31,31,31))
 
         # left_part
-        round_text = text(f"R{race['index']}", (255, 255, 255), FontFactory.black(36))
-        paste(round_text, left_img, top=(height-round_text.height)//2-3,use_obj=True)
-
-        if type_txt in ('SPRINT', '100%') :
-            type_txt_img = text(type_txt, (255,255,255), FontFactory.regular(16))
-            paste(type_txt_img, left_img, top=height-type_txt_img.height - 10)
-        elif type_txt == 'DOUBLE GRID':
-            type_txt_img = text('DOUBLE', (255,255,255), FontFactory.regular(16))
-            paste(type_txt_img, left_img, top=10)
-            type_txt_img = text('GRID', (255,255,255), FontFactory.regular(16))
-            paste(type_txt_img, left_img, top=height-type_txt_img.height - 10)
+        left_img = race['obj'].get_type_image(left_width, height)
 
         # right part
+        right_img = Image.new('RGB', (right_width, height), (31,31,31))
         circuit = race['circuit']
         if circuit:
             with circuit.get_flag() as circuit_flag:
@@ -94,11 +70,8 @@ class CalendarGenerator(AbstractGenerator):
         date_position = paste(date_img, right_img, left=info_left, top=info_top, use_obj=True)
 
         if circuit:
-            name_img = text(circuit.name.upper(), (230,0,0), FontFactory.black(24))
-            name_position = paste(name_img, right_img, left=info_left, top = date_position.bottom+4, use_obj=True)
-
-            city_img = text(circuit.city.upper(), (255,255,255), FontFactory.black(20))
-            city_position = paste(city_img, right_img, left=info_left, top = name_position.bottom+6, use_obj=True)
+            circuit_img = circuit.get_full_name_img(right_width, height-date_position.bottom-8, padding=5)
+            paste(circuit_img, right_img, left=info_left, top = date_position.bottom)
 
         # paste parts
         left_img_position = paste(left_img, img, left=0, use_obj=True)

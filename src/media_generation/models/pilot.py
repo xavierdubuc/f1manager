@@ -25,9 +25,9 @@ class Pilot:
     def get_long_range_psd(cls) -> PSDImage:
         return PSDImage.open('assets/pilots/longrange.psd')
 
-    def get_close_up_image(self) -> PngImageFile:
+    def get_close_up_image(self, width=None, height=None, force_default=False) -> PngImageFile:
         psd = self.get_close_up_psd()
-        return self._get_image_from_psd(psd, 2, 3)
+        return self._get_image_from_psd(psd, 2, 3, width, height, force_default)
 
     def get_long_range_image(self) -> PngImageFile:
         psd = self.get_long_range_psd()
@@ -119,14 +119,37 @@ class Pilot:
             stroke_width=3
         )
 
-    def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2) -> PngImageFile:
+    def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2, width:int=None, height:int=None, force_default:bool=False) -> PngImageFile:
         faces = psd[faces_index]
         clothes = psd[clothes_index]
+        image_found = False
         for v in faces:
             v.visible = v.name == self.name
+            if v.name == self.name:
+                image_found = True
         for t in clothes:
             t.visible = t.name == self.team.name if self.team else None
-        return psd.composite(layer_filter=lambda x:x.is_visible())
+        base = psd.composite(layer_filter=lambda x:x.is_visible())
+
+        # resizing
+        if width and not height:
+            height = width
+        if height and not width:
+            width = height
+        if width and height:
+            base = resize(base, width, height)
+
+        # default img
+        if image_found or not force_default:
+            return base
+
+        with self.get_default_image() as out:
+            out = out.copy()
+            if width and height:
+                out = resize(out, width, height)
+            paste(base, out)
+
+        return out
 
     def _has_image_in_psd(self, psd:PSDImage, faces_index=1, clothes_index=2) -> PngImageFile:
         faces = psd[faces_index]
