@@ -25,6 +25,7 @@ class TelemetryThread(Thread):
         _logger.info(f'Starting listening on {self.ip}:20777')
         listener = TelemetryListener(host=self.ip)
         i = 0
+        datetimecode = datetime.now().strftime('%Y%d%m_%H:%M:%S')
         try:
             while True:
                 _logger.debug('Waiting for packets...')
@@ -39,7 +40,10 @@ class TelemetryThread(Thread):
                 i += 1
         except KeyboardInterrupt:
             _logger.info('Stopping telemetry...')
-            with open(f"session{datetime.now().isoformat()}.pickle", "wb") as out_file:
+            if not self.brain.current_session:
+                sys.exit(130)
+            session_name = f'{self.brain.current_session.session_type}_{self.brain.current_session.track}'
+            with open(f"dumped_sessions/{session_name}_{datetimecode}.pickle", "wb") as out_file:
                 pickle.dump(self.brain, out_file)
                 if self.brain.current_session and self.brain.current_session.final_classification:
                     final_ranking = self.brain.current_session.get_formatted_final_ranking()
@@ -53,6 +57,6 @@ class TelemetryThread(Thread):
             sys.exit(130)
         except:
             _logger.info('Stopping telemetry because of huge fail...')
-            with open(f"session{datetime.now().isoformat()}.pickle", "wb") as out_file:
+            with open(f"dumped_sessions/session_{datetimecode}.pickle", "wb") as out_file:
                 pickle.dump(self.brain, out_file)
             raise
