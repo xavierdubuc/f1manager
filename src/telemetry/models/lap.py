@@ -68,6 +68,8 @@ class Lap:
             sector2_time = None
         else:
             sector2_time = (self.sector2_time_in_ms - self.sector1_time_in_ms)
+        print(self.sector1_time_in_ms)
+        print(self.sector2_time_in_ms)
         print('S2')
         return self._get_square(sector2_time, personal_best, overall_best)
 
@@ -76,6 +78,10 @@ class Lap:
             sector3_time = None
         else:
             sector3_time = (total_lap_time - self.sector2_time_in_ms)
+        print(total_lap_time)
+        print(self.sector1_time_in_ms)
+        print(self.sector2_time_in_ms)
+        print(sector3_time)
         print('S3')
         return self._get_square(sector3_time, personal_best, overall_best)
 
@@ -85,8 +91,8 @@ class Lap:
             return '🟥'
         if not current_time:
             return '🔳'
-        if not overall_best or current_time < overall_best:
+        if not overall_best or current_time <= overall_best:
             return '🟪'
-        elif not personal_best or current_time < personal_best:
+        elif not personal_best or current_time <= personal_best:
             return '🟩'
         return '🟨'
