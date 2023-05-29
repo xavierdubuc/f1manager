@@ -294,7 +294,7 @@ class Brain:
 
                             session_attr = session_mapping[key]
                             current_best = getattr(self.current_session, session_attr)
-                            print(f'{driver} {key}: {sector_time} // PB = {changes[key].old} -- Overall Best : {current_best}')
+                            print(f'{driver} {key}: {current_time} // PB = {changes[key].old} -- Overall Best : {current_best}')
                             if not current_best or current_time < current_best:
                                 setattr(self.current_session, session_attr, current_time)
                                 msg = f'🕒 🟪 **{driver}**: nouveau meilleur {txts[key]} ! (`{self.current_session._format_time(sector_time)}`)'
@@ -408,6 +408,8 @@ class Brain:
 
                             pb_sector3 = lap_records.best_sector3_time
                             ob_sector3 = self.current_session.current_fastest_sector3
+
+                            print(f'PILOT {pilot}')
 
                             square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, new_lap.last_lap_time_in_ms, pb_sector3, ob_sector3)
 
