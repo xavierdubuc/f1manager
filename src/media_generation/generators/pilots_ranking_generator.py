@@ -33,24 +33,21 @@ class PilotsRankingGenerator(AbstractGenerator):
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         height = self._get_visual_title_height()
         img = Image.new('RGB', (base_img.width,height), (255,255,255))
-        draw_lines_all(img, (150,150,150))
 
-        left_img = self._generate_left_title_image(base_img.width // 3, height)
-        left_img_pos = paste(left_img, img, use_obj=True, left=0)
+        title_img, title_pos = self._generate_ranking_title_image(base_img.width, height)
+        paste(title_img, img, use_obj=True)
 
-        right_img = self._generate_right_title_image(int(2 * base_img.width / 3), height)
-        paste(right_img, img, left=left_img_pos.right)
+        h_border = 20
+        with Visual.get_fbrt_round_logo('white') as logo:
+            logo = resize(logo, logo.width, img.height-h_border)
+            paste(logo, img, left=(title_pos.left - logo.width) // 2, use_obj=True)
 
+        with Visual.get_fif_logo('wide') as logo:
+            logo = resize(logo, height=int(0.6*img.height))
+            paste(logo, img, left=img.width-logo.width, top=height-logo.height-h_border)
         return img
 
-    def _generate_left_title_image(self, width:int, height:int) -> PngImageFile:
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
-        with Visual.get_fbrt_logo() as logo:
-            logo = resize(logo, logo.width, img.height)
-            paste(logo, img)
-        return img
-
-    def _generate_right_title_image(self, width:int, height:int) -> PngImageFile:
+    def _generate_ranking_title_image(self, width:int, height:int) -> PngImageFile:
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         big_txt_content = self.config.ranking_title
         small_txt_content = self.config.ranking_subtitle
@@ -63,10 +60,10 @@ class PilotsRankingGenerator(AbstractGenerator):
         all_txt_height = big_txt_expected_height + small_txt_expected_height
 
         big_txt = text(big_txt_content, (0,0,0), big_txt_font)
-        _, _, _, big_txt_bottom = paste(big_txt, img, top=(height-all_txt_height)//2)
+        big_txt_pos = paste(big_txt, img, top=(height-all_txt_height)//2, use_obj=True)
         small_txt = text(small_txt_content, (0,0,0), small_txt_font)
-        paste(small_txt, img, top=big_txt_bottom+20)
-        return img
+        paste(small_txt, img, top=big_txt_pos.bottom+20)
+        return img, big_txt_pos
 
     def _add_content(self, base_img: PngImageFile):
         #                 base_img.width

@@ -26,12 +26,12 @@ class GeneralRankingReader(Reader):
             max_size = max_size if max_size > r.size else r.size
         if self.type == GeneratorType.PilotsRanking.value:
             if self.metric == 'Total':
-                ranking_title = f'season {self.season} pilots standings'.upper()
+                ranking_title = f'Saison {self.season} classement pilotes'.upper()
             else:
-                ranking_title = f'season {self.season} pilots points/race'.upper()
+                ranking_title = f'Saison {self.season} pilotes points/course'.upper()
         elif self.type == GeneratorType.TeamsRanking.value:
-            ranking_title = f'season {self.season} teams standings'.upper()
-        ranking_subtitle = f'after {self.data.columns[max_size-1]}'.upper()
+            ranking_title = f'Saison {self.season} classement équipes'.upper()
+        ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper()
             
         config = GeneratorConfig(
             type=self.type,

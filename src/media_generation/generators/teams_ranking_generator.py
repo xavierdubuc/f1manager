@@ -18,22 +18,32 @@ class TeamsRankingGenerator(AbstractGenerator):
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         height = 300
         img = Image.new('RGB', (base_img.width,height), (255,255,255))
-        draw_lines_all(img, (150,150,150))
 
-        with Visual.get_fbrt_logo() as logo:
-            logo = resize(logo, logo.width, img.height//2)
-            _, _, _, logo_bottom = paste(logo, img, top=10)
+        with Visual.get_fbrt_round_logo('white') as logo:
+            logo = resize(logo, logo.width, img.height-40)
+            logo_pos = paste(logo, img, left=40, use_obj=True)
 
+        with Visual.get_fif_logo('wide') as logo:
+            logo = resize(logo, height=int(0.4*img.height))
+            paste(logo, img, left=img.width-logo.width, top=height-logo.height)
+
+        parts = self.config.ranking_title.split(' ')
+        title_parts = [' '.join(parts[:2])] + parts[2:]
+
+        txt_left = logo_pos.right + 50
+        txt_top = 30
         big_txt_font = FontFactory.black(60)
-        big_txt = text(self.config.ranking_title, (0,0,0), big_txt_font)
-        _, _, _, big_txt_bottom = paste(big_txt, img, top=logo_bottom+10)
+
+        for title_part in title_parts:
+            big_txt = text(title_part, (0,0,0), big_txt_font)
+            big_txt_pos = paste(big_txt, img, left=txt_left, top=txt_top, use_obj=True)
+            txt_top = big_txt_pos.bottom+10
 
         small_txt_font = FontFactory.regular(30)
         small_txt = text(self.config.ranking_subtitle, (0,0,0), small_txt_font)
-        paste(small_txt, img, top=big_txt_bottom+20)
+        paste(small_txt, img, left=txt_left, top=big_txt_pos.bottom+20)
 
         return img
-
 
     def _add_content(self, base_img: PngImageFile):
         title_height = 300
