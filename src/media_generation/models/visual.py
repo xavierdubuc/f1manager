@@ -24,8 +24,9 @@ class Visual:
         return cls._get_logo('fbrt', 'wide_50gp')
 
     @classmethod
-    def get_f1_logo(cls, white=False):
-        return cls._get_logo('f1', f'22{"_white" if white else ""}')
+    def get_f1_logo(cls, color=None):
+        color_part = f'_{color}' if color is not None else ''
+        return cls._get_logo('f1', f'23{color_part}')
 
     @classmethod
     def get_fif_logo(cls, type='round', color=None):
@@ -77,12 +78,12 @@ class Visual:
         left = (width - title.width) // 2 # centered
         img.paste(title, (left, top), title)
 
-        # F1 22
-        with Visual.get_f1_logo(self.type == 'presentation') as f122:
-            f122.thumbnail((width//4, height), Image.Resampling.LANCZOS)
-            left = (width - f122.width) - 40 # right aligned, with a small padding
-            top = (height-f122.height)//2 # centered
-            img.paste(f122, (left, top), f122)
+        # F1 23
+        with Visual.get_f1_logo('white' if self.type == 'presentation' else None) as f1:
+            f1.thumbnail((width//4, height), Image.Resampling.LANCZOS)
+            left = (width - f1.width) - 40 # right aligned, with a small padding
+            top = (height-f1.height)//2 # centered
+            img.paste(f1, (left, top), f1)
         return img
 
     def _get_race_result_title(self, width, height):

@@ -105,7 +105,7 @@ class LineupGenerator(AbstractGenerator):
 
         # F1
         f1_logo_size = int(0.7 * width)
-        with Visual.get_f1_logo() as f1_logo_img:
+        with Visual.get_f1_logo('black') as f1_logo_img:
             f1_logo_img = resize(f1_logo_img, f1_logo_size, f1_logo_size)
             f1_logo_pos = paste(f1_logo_img, img, top=img.height - f1_logo_img.height - 40, use_obj=True)
 
