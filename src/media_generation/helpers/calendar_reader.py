@@ -47,7 +47,7 @@ class CalendarReader(Reader):
                     'obj': Race(
                         round=df['B'][0],
                         laps=int(df['B'][2]),
-                        circuit=CIRCUITS[df['B'][1]],
+                        circuit=CIRCUITS.get(df['B'][1]),
                         day='dummy',
                         month='value',
                         hour=df['B'][4],

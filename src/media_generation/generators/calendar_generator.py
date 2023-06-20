@@ -16,7 +16,7 @@ class CalendarGenerator(AbstractGenerator):
         width = 1080 
         height = 1080
         img = Image.new('RGB', (width, height), (255, 255, 255))
-        draw_lines_all(img, (159, 159, 159), space_between_lines=5, line_width=1)
+        # draw_lines_all(img, (159, 159, 159), space_between_lines=5, line_width=1)
         return img
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
