@@ -54,13 +54,13 @@ class Reader:
         )
         if self.type == 'presentation':
             config.description = self.data['A'][6]
-        if self.type in ('pole', 'grid'):
+        if self.type in ('pole', 'grid_ribbon'):
             config.qualif_ranking = [
                 race.get_pilot(self.data['G'][29]),
                 race.get_pilot(self.data['G'][30]),
                 race.get_pilot(self.data['G'][31]),
             ]
-        if self.type in ('details', 'fastest', 'grid'):
+        if self.type in ('details', 'fastest', 'grid_ribbon'):
             config.ranking = self._get_ranking()
         if self.type == 'details':
             config.driver_of_the_day = self._get_driver_of_the_day()
