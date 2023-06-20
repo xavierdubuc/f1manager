@@ -9,7 +9,7 @@ from src.media_generation.models.team import Team
 class GeneratorType(enum.Enum):
     Presentation = 'presentation'
     Lineup ='lineup'
-    Details = 'details'
+    Results = 'results'
     Fastest = 'fastest'
     TeamsRanking = 'teams_ranking'
     PilotsRanking = 'pilots_ranking'

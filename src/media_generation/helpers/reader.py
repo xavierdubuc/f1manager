@@ -60,9 +60,9 @@ class Reader:
                 race.get_pilot(self.data['G'][30]),
                 race.get_pilot(self.data['G'][31]),
             ]
-        if self.type in ('details', 'fastest', 'grid_ribbon'):
+        if self.type in ('results', 'fastest', 'grid_ribbon'):
             config.ranking = self._get_ranking()
-        if self.type == 'details':
+        if self.type == 'results':
             config.driver_of_the_day = self._get_driver_of_the_day()
             config.fastest_lap = self._get_fastest_lap(race)
         return config
@@ -141,7 +141,7 @@ class Reader:
 
     def _get_fastest_lap(self, race: Race):
         vals = {'pilot_name': self.data['G'][22]}
-        if self.type == 'details':
+        if self.type == 'results':
             vals.update({
                 'lap': self.data['G'][24],
                 'time': self.data['G'][26]}
@@ -190,6 +190,6 @@ class Reader:
 
     def _get_sheet_columns(self) -> list:
         all_columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
-        if self.type in ('details', 'fastest'):
+        if self.type in ('results', 'fastest'):
             return all_columns
         return all_columns[:8]  # -> H

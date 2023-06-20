@@ -12,9 +12,9 @@ big_font = FontFactory.regular(56)
 pilot_font = FontFactory.bold(30)
 
 
-class DetailsGenerator(AbstractGenerator):
+class ResultsGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
-        return 'details'
+        return 'results'
 
     def _add_content(self, final: PngImageFile):
         title_height = self._get_visual_title_height()

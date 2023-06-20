@@ -2,7 +2,7 @@ from src.media_generation.generators.grid_ribbon_generator import GridRibbonGene
 from .generator_config import GeneratorConfig
 
 from ..generators.pole_generator import PoleGenerator
-from ..generators.details_generator import DetailsGenerator
+from ..generators.results_generator import ResultsGenerator
 from ..generators.fastest_generator import FastestGenerator
 from ..generators.lineups_generator import LineupGenerator
 from ..generators.presentation_generator import PresentationGenerator
@@ -17,7 +17,7 @@ class Renderer:
     generators = {
         'lineup': LineupGenerator,
         'presentation': PresentationGenerator,
-        'details': DetailsGenerator,
+        'results': ResultsGenerator,
         'fastest': FastestGenerator,
         'pole': PoleGenerator,
         'teams_ranking': TeamsRankingGenerator,

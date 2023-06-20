@@ -65,7 +65,7 @@ class Visual:
         paste(fif, img, left=both_left + fbrt.width + 40)
 
         # Title
-        if self.type == 'details':
+        if self.type == 'results':
             title = self._get_race_result_title(width//3, height)
         elif self.type == 'fastest':
             title = self._get_race_fastest_title(width//3, height)
