@@ -5,13 +5,10 @@ import pandas
 from src.gsheet.gsheet import GSheet
 from src.media_generation.helpers.generator_config import FastestLap, GeneratorConfig
 from src.media_generation.models import Pilot, Race
+from src.media_generation.models.team import Team
 from ..data import circuits, teams_idx
-from ..data import (
-    teams as DEFAULT_TEAMS_LIST,
-    pilots as DEFAULT_PILOTS_LIST,
-    DEFAULT_TEAM,
-    RESERVIST_TEAM
-)
+from ..data import teams as DEFAULT_TEAMS_LIST
+
 
 
 _logger = logging.getLogger(__name__)
@@ -28,18 +25,15 @@ class Reader:
     VALUES_SHEET_NAME = '_values'
     DEFAULT_SPREADSHEET_ID = '1JJw3YnVUXYCyjhH4J5MIbVg5OtjTIDLptx0pF2M9KV4'
 
-    def __init__(self, type: str,
-                 filepath: str = 'gsheet:1JJw3YnVUXYCyjhH4J5MIbVg5OtjTIDLptx0pF2M9KV4',
-                 sheet_name: str = None, out_filepath: str = None):
-        self.filepath = filepath
-        if self.filepath.startswith('gsheet'):
-            parts = self.filepath.split(':')
-            self.spreadsheet_id = parts[1] if len(parts) > 1 else self.DEFAULT_SPREADSHEET_ID
-        else:
-            self.spreadsheet_id = None
-        self.sheet_name = sheet_name
+    def __init__(self, type: str, championship_config: dict, season: int,
+                 out_filepath: str = None, sheet_name: str = None, *args, **kwargs):
         self.type = type
+        self.championship_config = championship_config
+        self.season = season
         self.out_filepath = out_filepath
+        self.sheet_name = sheet_name
+        self.season_config = championship_config['seasons'][self.season]
+        self.spreadsheet_id = self.season_config['sheet']
         self.google_sheet_service = GSheet()
 
     def read(self):
@@ -78,10 +72,12 @@ class Reader:
         return out
 
     def _build_pilots_list(self, values: pandas.DataFrame):
+        default_team = Team(**self.championship_config['settings']['default_team'])
+        reservist_team = Team(**self.championship_config['settings']['reservist_team'])
         return {
             row['Pilotes']: Pilot(
                 name=row['Pilotes'],
-                team=teams_idx.get(row['Ecurie'], RESERVIST_TEAM if row['Ecurie'] == 'R' else DEFAULT_TEAM),
+                team=teams_idx.get(row['Ecurie'], reservist_team if row['Ecurie'] == 'R' else default_team),
                 reservist=row['Ecurie'] == 'R',
                 number=row['Numéro']
             ) for _, row in values[values['Pilotes'].notnull()].iterrows()
@@ -109,7 +105,7 @@ class Reader:
             teams_values = sheet_values[['Ecuries']]
             teams = self._build_teams_list(teams_values)
         else:
-            pilots = DEFAULT_PILOTS_LIST
+            pilots = []
             teams = DEFAULT_TEAMS_LIST
         return pilots, teams
 
@@ -157,7 +153,7 @@ class Reader:
         sheet_names = self.google_sheet_service.get_sheet_names(self.spreadsheet_id)
 
         if self.VALUES_SHEET_NAME in sheet_names:
-            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, '_values!A1:G30')
+            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, '_values!A1:G50')
             sheet_values = pandas.DataFrame(vals[1:], columns=vals[0])
         else:
             sheet_values = None

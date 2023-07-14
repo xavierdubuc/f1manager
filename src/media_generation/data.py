@@ -246,38 +246,3 @@ teams = [
     aston_martin,
     alpha_tauri
 ]
-
-# --- DEFAULT PILOTS
-pilots = {
-    # REDBULL
-    'majforti-07': Pilot(name='Majforti07', team=redbull, number='37', title='majforti-07'),
-    'VRA-RedAym62': Pilot(name='VRA-RedAym62', team=redbull, number='62'),
-    # MERCEDES'
-    'FBRT_CiD16': Pilot(name='FBRT_CiD16', team=mercedes, number='61'),
-    # 'FBRT_Naax': Pilot(name='FBRT_Naax', team=mercedes, number='30'),
-    'xJuzooo': Pilot(name='xJuzooo', team=mercedes, number='89'),
-    # MCLAREN
-    'ewocflo': Pilot(name='ewocflo', team=mclaren, number='66'),
-    'FBRT_JCDARCH9': Pilot(name='FBRT_JCDARCH9', team=mclaren, number='90'),
-    # HAAS
-    'Gros-Nain-Vert': Pilot(name='Gros-Nain-Vert', team=haas, number='72'),
-    'Xionhearts': Pilot(name='Xionhearts', team=haas, number='2'),
-    # ALPINE
-    'Juraptors': Pilot(name='Juraptors', team=alpine, number='19'),
-    'APX_Maxeagle': Pilot(name='APX_Maxeagle', team=alpine, number='45'),
-    # FERRARI
-    'xKayysor': Pilot(name='xKayysor', team=ferrari, number='15'),
-    'Prolactron': Pilot(name='Prolactron', team=ferrari, number='95'),
-    # WILLIAMS
-    'DimDim_91270': Pilot(name='DimDim_91270', team=williams, number='91'),
-    'FBRT_Seb07': Pilot(name='FBRT_Seb07', team=williams, number='7'),
-    # ALFA ROMEO
-    'WSC_Gregy21': Pilot(name='WSC_Gregy21', team=alfa_romeo, number='21'),
-    'TheLoulou29': Pilot(name='TheLoulou29', team=alfa_romeo, number='68'),
-    # ASTON MARTIN
-    'FBRT_REMBRO': Pilot(name='FBRT_REMBRO', team=aston_martin, number='78'),
-    'FBRT_Nico': Pilot(name='FBRT_Nico', team=aston_martin, number='29'),
-    # ALPHA TAURI
-    'Iceman7301': Pilot(name='Iceman7301', team=alpha_tauri, number='69'),
-    'MoonLight_RR': Pilot(name='MoonLight_RR', team=alpha_tauri, number='98')
-}

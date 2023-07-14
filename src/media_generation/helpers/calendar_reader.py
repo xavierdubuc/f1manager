@@ -15,10 +15,6 @@ class CalendarGeneratorConfig:
 
 
 class CalendarReader(Reader):
-    def __init__(self, type: str, filepath: str = './data.xlsx', out_filepath: str = None, season: int = 4):
-        super().__init__(type, filepath, None, out_filepath)
-        self.season = season
-
     def read(self):
         races = self._get_races_details()
             

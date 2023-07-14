@@ -29,9 +29,9 @@ class Renderer:
     }
 
     @classmethod
-    def render(cls, config: GeneratorConfig):
+    def render(cls, config: GeneratorConfig, championship_config: dict, season:int):
         if not config.type in cls.generators:
             raise Exception(f'Please specify a valid visual type ({", ".join(cls.generators.keys())})')
 
-        generator = cls.generators[config.type](config)
+        generator = cls.generators[config.type](championship_config, config, season)
         return generator.generate()

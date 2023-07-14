@@ -5,10 +5,9 @@ from .reader import Reader
 
 class GeneralRankingReader(Reader):
 
-    def __init__(self, type: str, filepath: str = './data.xlsx', out_filepath: str = None, season: int = 5, metric: str = 'Total'):
-        super().__init__(type, filepath, None, out_filepath)
-        self.season = season
-        self.metric = metric
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.metric = kwargs['metric']
         if type == GeneratorType.PilotsRanking.value:
             self.sheet_name = 'Pilots Ranking'
         if type == GeneratorType.TeamsRanking.value:

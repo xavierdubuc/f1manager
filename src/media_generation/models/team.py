@@ -1,3 +1,4 @@
+import os.path
 from dataclasses import dataclass
 from typing import List, Union
 from PIL import Image, ImageDraw
@@ -6,6 +7,8 @@ from PIL.PngImagePlugin import PngImageFile
 from ..font_factory import FontFactory
 from ..helpers.transform import *
 
+
+ASSETS_PATH = 'assets/teams'
 
 @dataclass
 class Team:
@@ -25,6 +28,15 @@ class Team:
     pole_fg_color: Union[str,tuple] = None
     pole_bg_color: Union[str,tuple] = None
     pole_line_color: Union[str,tuple] = None
+    card_image_path: str= None
+
+    def get_card_image(self):
+        basepath = os.path.join(ASSETS_PATH, 'empty_cards')
+        if self.card_image_path:
+            path = os.path.join(basepath, self.card_image_path)
+        else:
+            path = os.path.join(basepath, f'{self.name}.png')
+        return Image.open(path)
 
     def get_pole_colors(self):
         return {
@@ -35,25 +47,25 @@ class Team:
 
     def get_results_logo(self):
         if self.name == 'AlphaTauri':
-            return Image.open(self.get_white_logo())
+            return Image.open(self._get_white_logo_path())
         return Image.open(self.get_image())
 
     def get_lineup_logo(self):
         if self.name in ('Alpine', 'AlfaRomeo', 'AlphaTauri', 'RedBull', 'AstonMartin', 'McLaren', 'Williams', 'Ferrari'):
-            return Image.open(self.get_alt_logo())
+            return Image.open(self._get_alt_logo_path())
         return Image.open(self.get_image())
 
     def get_image(self):
-        return f'assets/teams/{self.name}.png'
+        return os.path.join(ASSETS_PATH, f'{self.name}.png')
 
     def get_breaking_logo(self):
-        return self.get_white_logo() if self.breaking_use_white_logo else self.get_image()
+        return self._get_white_logo_path() if self.breaking_use_white_logo else self.get_image()
 
-    def get_white_logo(self):
-        return f'assets/teams/white/{self.name}.png'
+    def _get_white_logo_path(self):
+        return os.path.join(ASSETS_PATH, f'white/{self.name}.png')
 
-    def get_alt_logo(self):
-        return f'assets/teams/alt/{self.name}.png'
+    def _get_alt_logo_path(self):
+        return os.path.join(ASSETS_PATH, f'alt/{self.name}.png')
 
     def get_team_image(self, width, title_font):
         line_separation = 10

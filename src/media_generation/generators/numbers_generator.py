@@ -1,3 +1,5 @@
+
+import os.path
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 from ..models import Pilot
@@ -8,10 +10,8 @@ MAX_NUMBER = 99
 
 OFFICIAL_PILOTS_NUMBERS = {
     '1': '-',
-    '3': 'Ricciardo',
+    '2': 'Sargeant',
     '4': 'Norris',
-    '5': 'Vettel',
-    '6': 'Latifi',
     '10': 'Gasly',
     '11': 'Perez',
     '14': 'Alonso',
@@ -19,6 +19,7 @@ OFFICIAL_PILOTS_NUMBERS = {
     '17': '/',
     '18': 'Stroll',
     '20': 'Magnussen',
+    '21': 'de Vries',
     '22': 'Tsunoda',
     '23': 'Albon',
     '24': 'Zhou',
@@ -26,11 +27,10 @@ OFFICIAL_PILOTS_NUMBERS = {
     '31': 'Ocon',
     '33': 'Verstappen',
     '44': 'Hamilton',
-    '47': 'Schumacher',
     '55': 'Sainz',
     '63': 'Russell',
     '77': 'Bottas',
-
+    '81': 'Piastri'
 }
 
 
@@ -41,15 +41,31 @@ class NumbersGenerator(AbstractGenerator):
     def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
         return 200
 
+    def _get_background_image(self) -> PngImageFile:
+        path = os.path.join('assets/backgrounds', self.championship_config['name'], 'numbers.png')
+        return Image.open(path)
+
     def _generate_basic_image(self) -> PngImageFile:
         width = (1080 * 2) + 60
         height = 1440
         img = Image.new('RGB', (width, height), (255, 255, 255))
-        draw_lines_all(img, (159, 159, 159), space_between_lines=10, line_width=2)
+        with self._get_background_image() as bg:
+            paste(bg.convert('RGB'),img)
+
+        lines_config = self.visual_config.get('lines', {})
+        if lines_config.get('enabled', False):
+            draw_lines_all(img, lines_config['color'], space_between_lines=lines_config['space'], line_width=lines_config['width'])
         return img
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         return None
+
+    def _get_pilot_font_size(self, name):
+        if len(name) > 15:
+            return 16
+        if len(name) > 13:
+            return 18
+        return 20
 
     def _add_content(self, base_img: PngImageFile):
         left_padding = 50
@@ -97,13 +113,13 @@ class NumbersGenerator(AbstractGenerator):
         number_img = text(print_number, fill_color, FontFactory.regular(font_size), 3, stroke_color, security_padding=2)
         number_pos = paste(number_img, img, left=0, use_obj=True)
         space_between = 20
-        pilot_font = FontFactory.black(20)
         if pilot_name:
+            pilot_font = FontFactory.black(self._get_pilot_font_size(pilot_name))
             name_left = number_pos.right + space_between
             if not is_official_pilot:
                 pilot_img = self._get_pilot_card_img(width-name_left, height, pilot, pilot_font)
             else:
-                pilot_img = Image.new('RGB', (width-name_left, height), (150,150,150))
+                pilot_img = Image.new('RGB', (width-name_left, height), (180,180,180))
                 name_txt = text(pilot_name.upper(), (100,100,100), pilot_font)
                 paste(name_txt, pilot_img, left=125)
             paste(pilot_img, img, left=name_left, with_alpha=False)
@@ -111,8 +127,8 @@ class NumbersGenerator(AbstractGenerator):
 
     def _get_pilot_card_img(self, width: int, height: int, pilot: Pilot, font):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        with Image.open(f'assets/teams/empty_cards/{pilot.team.name}.png') as i:
-            team_card_img = resize(i.copy(), width, height)
+        with pilot.team.get_card_image() as x:
+            team_card_img = resize(x, width, height)
         # pilot name
         paste(team_card_img, img, left=0, with_alpha=False)
         name_txt = text(pilot.name.upper(), pilot.team.standing_fg, font)
