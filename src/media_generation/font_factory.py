@@ -14,20 +14,25 @@ class FontFactory:
 
     @staticmethod
     def polebg(size=32, **kwargs) -> ImageFont.FreeTypeFont:
-        return ImageFont.truetype(FontFactory._get_font_path(POLEBG_FONT_NAME), size, encoding="unic", **kwargs)
+        return FontFactory.font(POLEBG_FONT_NAME, size)
 
     @staticmethod
     def regular(size=32, **kwargs) -> ImageFont.FreeTypeFont:
-        return ImageFont.truetype(FontFactory._get_font_path(REGULAR_FONT_NAME), size, encoding="unic", **kwargs)
+        return FontFactory.font(REGULAR_FONT_NAME, size)
 
     @staticmethod
     def bold(size=32, **kwargs) -> ImageFont.FreeTypeFont:
-        return ImageFont.truetype(FontFactory._get_font_path(BOLD_FONT_NAME), size, encoding="unic", **kwargs)
+        return FontFactory.font(BOLD_FONT_NAME, size)
 
     @staticmethod
     def black(size=32, **kwargs) -> ImageFont.FreeTypeFont:
-        return ImageFont.truetype(FontFactory._get_font_path(BLACK_FONT_NAME), size, encoding="unic", **kwargs)
+        return FontFactory.font(BLACK_FONT_NAME, size)
 
     @staticmethod
     def wide(size=32, **kwargs) -> ImageFont.FreeTypeFont:
-        return ImageFont.truetype(FontFactory._get_font_path(WIDE_FONT_NAME), size, encoding="unic", **kwargs)
+        return FontFactory.font(WIDE_FONT_NAME, size)
+
+    @staticmethod
+    def font(name:str, size=32, **kwargs) -> ImageFont.FreeTypeFont:
+        name = name if name.endswith('ttf') else f'{name}.ttf'
+        return ImageFont.truetype(FontFactory._get_font_path(name), size, encoding="unic", **kwargs)

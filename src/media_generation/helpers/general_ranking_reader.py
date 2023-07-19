@@ -7,10 +7,10 @@ class GeneralRankingReader(Reader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.metric = kwargs['metric']
-        if type == GeneratorType.PilotsRanking.value:
+        self.metric = kwargs.get('metric', 'Total')
+        if self.type == GeneratorType.PilotsRanking.value:
             self.sheet_name = 'Pilots Ranking'
-        if type == GeneratorType.TeamsRanking.value:
+        if self.type == GeneratorType.TeamsRanking.value:
             self.sheet_name = 'Teams Ranking'
 
     def read(self):
@@ -45,7 +45,7 @@ class GeneralRankingReader(Reader):
         return config
 
     def _get_data_sheet_from_gsheet(self):
-        range_str = f"'{self.sheet_name}'!A1:S50"
+        range_str = f"'{self.sheet_name}'!A1:T50"
         vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, range_str)
         columns = vals[0] 
         values = [

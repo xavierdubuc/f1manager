@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from ..models import Visual
 from ..helpers.generator_config import GeneratorConfig
@@ -37,6 +38,11 @@ class AbstractGenerator(ABC):
         gray_filter.putalpha(150)
         base.paste(gray_filter, gray_filter)
         return base
+
+    def _get_background_image(self) -> PngImageFile:
+        path = os.path.join('assets/backgrounds', self.championship_config['name'], f'{self._get_visual_type()}.png')
+        if os.path.exists(path):
+            return Image.open(path)
 
     @abstractmethod
     def _get_visual_type(self) -> str:

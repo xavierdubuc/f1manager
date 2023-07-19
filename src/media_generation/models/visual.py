@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 from PIL import Image, ImageDraw
 from .race import Race
 from ..font_factory import FontFactory
@@ -11,17 +12,17 @@ class Visual:
 
     @classmethod
     def get_fbrt_logo(cls, no_border=False):
-        return cls._get_logo('fbrt', f'wide{"_no_border" if no_border else ""}')
+        return cls._get_logo('FBRT', f'wide{"_no_border" if no_border else ""}')
 
     @classmethod
     def get_fbrt_round_logo(cls, color:str=None):
         color_part = f'_{color}' if color is not None else ''
         logo_name = f'round{color_part}'
-        return cls._get_logo('fbrt', logo_name)
+        return cls._get_logo('FBRT', logo_name)
 
     @classmethod
     def get_fbrt_logo_50gp(cls):
-        return cls._get_logo('fbrt', 'wide_50gp')
+        return cls._get_logo('FBRT', 'wide_50gp')
 
     @classmethod
     def get_f1_logo(cls, color=None):
