@@ -38,6 +38,19 @@ class Team:
             path = os.path.join(basepath, f'{self.name}.png')
         return Image.open(path)
 
+    def build_card_image(self, width, height):
+        basepath = os.path.join(ASSETS_PATH, 'card_logos')
+        if self.card_image_path:
+            path = os.path.join(basepath, self.card_image_path)
+        else:
+            path = os.path.join(basepath, f'{self.name}.png')
+
+        img = Image.new('RGB', (width, height), self.standing_bg)
+        with Image.open(path) as card_logo:
+            card_logo = resize(card_logo, height=height)
+        paste(card_logo, img, left=0, with_alpha=False)
+        return img
+
     def get_pole_colors(self):
         return {
             'fg': self.pole_fg_color if self.pole_fg_color else self.breaking_fg_color,

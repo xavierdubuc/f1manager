@@ -42,8 +42,6 @@ class NumbersGenerator(AbstractGenerator):
         return 200
 
     def _generate_basic_image(self) -> PngImageFile:
-        # width = 2220
-        # height = 1440
         width = self.visual_config['width']
         height = self.visual_config['height']
         img = Image.new('RGB', (width, height), (255, 255, 255))
@@ -62,9 +60,9 @@ class NumbersGenerator(AbstractGenerator):
 
     def _get_pilot_font(self, name):
         size = self.visual_config['rows']['pilot_name']['font_size']
-        if len(name) > 13:
+        if len(name) >= 12:
             size = int(size - size/10)
-        if len(name) > 15:
+        if len(name) >= 15:
             size = int(size - size/10)
 
         font_name = self.visual_config['rows']['number'].get('font')
@@ -126,7 +124,7 @@ class NumbersGenerator(AbstractGenerator):
         left_img = Image.new('RGBA', (number_width, height), (0,0,0,0))
         number_img = text(str(number), fill_color, number_font, 3, stroke_color, security_padding=2)
         paste(number_img, left_img)
-        number_pos = paste(left_img, img, left=0, use_obj=True)
+        number_pos = paste(left_img, img, left=0)
 
         # Pilot card
         space_between = 20
@@ -138,16 +136,17 @@ class NumbersGenerator(AbstractGenerator):
             else:
                 pilot_img = Image.new('RGB', (width-name_left, height), (180,180,180))
                 name_txt = text(pilot_name.upper(), (100,100,100), pilot_font)
-                paste(name_txt, pilot_img, left=125)
+                left = self.visual_config['rows']['pilot_name']['left']
+                paste(name_txt, pilot_img, left=left)
             paste(pilot_img, img, left=name_left, with_alpha=False)
         return img
 
     def _get_pilot_card_img(self, width: int, height: int, pilot: Pilot, font):
         img = Image.new('RGBA', (width, height), pilot.team.standing_bg)
-        with pilot.team.get_card_image() as x:
-            team_card_img = resize(x, width, height)
+        team_card_img = pilot.team.build_card_image(width, height)
         # pilot name
         paste(team_card_img, img, left=0, with_alpha=False)
         name_txt = text(pilot.name.upper(), pilot.team.standing_fg, font)
-        paste(name_txt, img, left=125)
+        left = self.visual_config['rows']['pilot_name']['left']
+        paste(name_txt, img, left=left)
         return img

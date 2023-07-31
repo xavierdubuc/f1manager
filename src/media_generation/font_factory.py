@@ -36,3 +36,9 @@ class FontFactory:
     def font(name:str, size=32, **kwargs) -> ImageFont.FreeTypeFont:
         name = name if name.endswith('ttf') else f'{name}.ttf'
         return ImageFont.truetype(FontFactory._get_font_path(name), size, encoding="unic", **kwargs)
+
+    @staticmethod
+    def get_font(name:str=None, size=32, DefaultFont=None, **kwargs) -> ImageFont.FreeTypeFont:
+        if name:
+            return FontFactory.font(name, size, **kwargs)
+        return DefaultFont(size, **kwargs)
