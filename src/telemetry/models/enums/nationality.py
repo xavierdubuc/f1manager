@@ -90,6 +90,7 @@ class Nationality(Enum):
     barbadian = 85
     welsh = 86
     vietnamese = 87
+    algerian=88
     not_defined=255
 
     def __str__(self):
