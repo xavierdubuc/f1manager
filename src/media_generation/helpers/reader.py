@@ -116,6 +116,7 @@ class Reader:
         hour = self.data['B'][4]
 
         return Race(
+            full_date=race_day,
             round=self.data['B'][0],
             laps=int(self.data['B'][2]),
             circuit=circuits[self.data['B'][1]],

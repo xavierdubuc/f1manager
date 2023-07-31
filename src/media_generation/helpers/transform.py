@@ -207,3 +207,19 @@ def date_fr(date_str:str):
     for old, new in mapping.items():
         res = res.replace(old, new)
     return res
+
+def month_fr(month:int):
+    return [
+        'Janvier',
+        'Février',
+        'Mars',
+        'Avril',
+        'Mai',
+        'Juin',
+        'Juillet',
+        'Août',
+        'Septembre',
+        'Octobre',
+        'Novembre',
+        'Décembre'
+    ][month]

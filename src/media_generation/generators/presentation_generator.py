@@ -11,8 +11,16 @@ class PresentationGenerator(AbstractGenerator):
         return 'presentation'
 
     def _generate_basic_image(self) -> PngImageFile:
-        with Image.open('assets/bgred.png') as original_bg:
-            return original_bg.copy().convert('RGB')
+        width = self.visual_config['width']
+        height = self.visual_config['height']
+        img = Image.new('RGB', (width, height), (255, 255, 255))
+
+        bg = self._get_background_image()
+        if bg:
+            with bg:
+                paste(bg.convert('RGB'),img)
+
+        return img
 
     def _add_content(self, final: PngImageFile):
         vertical_padding = 20
@@ -20,7 +28,7 @@ class PresentationGenerator(AbstractGenerator):
         race_title = self._get_race_title_image(int(0.67 * final.width), 180)
         race_title_pos = paste(
             race_title, final, left=0,
-            top=initial_top, use_obj=True
+            top=initial_top
         )
 
         left_height = final.height - race_title_pos.bottom + vertical_padding
@@ -28,7 +36,7 @@ class PresentationGenerator(AbstractGenerator):
         left_width = int(0.67 * final.width)
         left_img = self._get_left_content_image(left_width, left_height)
         left_pos = paste(
-            left_img, final, left=0, top=race_title_pos.bottom+vertical_padding, use_obj=True
+            left_img, final, left=0, top=race_title_pos.bottom+vertical_padding
         )
 
         right_width = final.width - h_padding - left_width
@@ -74,13 +82,13 @@ class PresentationGenerator(AbstractGenerator):
         day = text(str(race.day), day_color, day_font)
         month = text(race.month, month_color, month_font)
 
-        day_pos = paste(day, img, left = (280 - day.width) // 2, top=35, use_obj=True)
-        paste(month, img, left = (280 - month.width) // 2, top=day_pos.bottom+10, use_obj=True)
+        day_pos = paste(day, img, left = (280 - day.width) // 2, top=35)
+        paste(month, img, left = (280 - month.width) // 2, top=day_pos.bottom+10)
 
         circuit = self.config.race.circuit
         with self.config.race.circuit.get_flag() as flag:
             flag = resize(flag, 200, 200)
-            flag_pos = paste(flag, img, left=300, use_obj=True)
+            flag_pos = paste(flag, img, left=300)
         circuit_img = circuit.get_full_name_img(
             width-flag_pos.right,
             height,
@@ -128,12 +136,12 @@ class PresentationGenerator(AbstractGenerator):
         with Image.open('assets/twitch.png') as twitch_logo :
             twitch_name = text('FBRT_ECHAMP', (255,255,255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
             left = width-twitch_name.width-40
-            tw_name_pos = paste(twitch_name, img, left=left, top=25, use_obj=True)
+            tw_name_pos = paste(twitch_name, img, left=left, top=25)
             hour_img = text(self.config.race.hour, (255, 255, 255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
             paste(hour_img, img, left=left, top=tw_name_pos.bottom + 10)
 
             twitch_logo = resize(twitch_logo, width, int(2*(height/3)))
-            paste(twitch_logo, img, left=tw_name_pos.left - 20 - twitch_logo.width, use_obj=True)
+            paste(twitch_logo, img, left=tw_name_pos.left - 20 - twitch_logo.width)
         return img
 
     def _get_right_content_image(self, width: int, height: int):
@@ -146,7 +154,7 @@ class PresentationGenerator(AbstractGenerator):
 
         with self.config.race.circuit.get_map() as map:
             map = resize(map, width, height)
-            prev_pos = paste(map, img, top=0, left=0, use_obj=True)
+            prev_pos = paste(map, img, top=0, left=0)
 
         race_length_label = text('Distance totale', title_color, title_font)
         race_length_value = text(f'{self.config.race.get_total_length()} Km', value_color, value_font)
@@ -170,25 +178,25 @@ class PresentationGenerator(AbstractGenerator):
         line_height_offset = 5
 
         top = prev_pos.bottom+vertical_padding//2
-        prev_pos = paste(race_length_label, img, top=top, left = left, use_obj=True)
+        prev_pos = paste(race_length_label, img, top=top, left = left)
         paste(race_length_value, img, top=top, left = right - race_length_value.width)
         line_top = top + race_length_label.height - line_height_offset - (race_length_label.height - race_length_value.height)
         draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - race_length_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
 
         top = prev_pos.bottom+vertical_padding
-        prev_pos = paste(lap_amount_label, img, top=top, left = left, use_obj=True)
-        paste(lap_amount_value, img, top=top, left = right - lap_amount_value.width, use_obj=True)
+        prev_pos = paste(lap_amount_label, img, top=top, left = left)
+        paste(lap_amount_value, img, top=top, left = right - lap_amount_value.width)
         line_top = top + lap_amount_label.height - line_height_offset - (lap_amount_label.height - lap_amount_value.height)
         draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - lap_amount_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
 
         top = prev_pos.bottom+vertical_padding
-        prev_pos = paste(lap_length_label, img, top=top, left = left, use_obj=True)
+        prev_pos = paste(lap_length_label, img, top=top, left = left)
         paste(lap_length_value, img, top=top, left = right - lap_length_value.width)
         line_top = top + lap_length_label.height - line_height_offset - (lap_length_label.height - lap_length_value.height)
         draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - lap_length_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
 
         top = prev_pos.bottom+vertical_padding
-        prev_pos = paste(best_lap_label, img, top=top, left = left, use_obj=True)
+        prev_pos = paste(best_lap_label, img, top=top, left = left)
         paste(best_lap_value, img, top=top, left = right - best_lap_value.width)
         line_top = top + best_lap_label.height - line_height_offset - (best_lap_label.height - best_lap_value.height)
         draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - best_lap_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)

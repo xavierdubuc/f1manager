@@ -1,3 +1,4 @@
+import importlib
 from src.media_generation.generators.grid_ribbon_generator import GridRibbonGenerator
 from .generator_config import GeneratorConfig
 
@@ -30,8 +31,14 @@ class Renderer:
 
     @classmethod
     def render(cls, config: GeneratorConfig, championship_config: dict, season:int):
-        if not config.type in cls.generators:
-            raise Exception(f'Please specify a valid visual type ({", ".join(cls.generators.keys())})')
-
-        generator = cls.generators[config.type](championship_config, config, season)
+        visuals_config = championship_config['settings']['visuals']
+        custom_generator = visuals_config.get(config.type, {}).get('generator')
+        if custom_generator:
+            generator_module = importlib.import_module(custom_generator['package'])
+            generator_cls = getattr(generator_module, custom_generator['name'])
+        else:
+            if not config.type in cls.generators:
+                raise Exception(f'Please specify a valid visual type ({", ".join(cls.generators.keys())})')
+            generator_cls = cls.generators[config.type]
+        generator = generator_cls(championship_config, config, season)
         return generator.generate()

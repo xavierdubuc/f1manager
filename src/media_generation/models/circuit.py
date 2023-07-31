@@ -39,7 +39,7 @@ class Circuit:
 
         full_height = name_img.height + city_img.height
         top = (height-(full_height+2*padding))//2
-        name_position = paste(name_img, img, left=0, top=top, use_obj=True)
+        name_position = paste(name_img, img, left=0, top=top)
 
         paste(city_img, img, left=0, top=name_position.bottom+padding)
         return img

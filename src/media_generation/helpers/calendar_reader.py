@@ -34,13 +34,15 @@ class CalendarReader(Reader):
             if sheet_name[:4] == 'Race':
                 race_vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f"'{sheet_name}'!A1:B22")
                 df = pandas.DataFrame(race_vals[1:], columns=['A','B'])
+                date_obj = datetime.strptime(f"{df['B'][3]}/{datetime.now().year}", '%d/%m/%Y').date()
                 race = {
                     'index': df['B'][0],
                     'circuit': CIRCUITS.get(df['B'][1], None),
                     'type': df['B'][20],
-                    'date': datetime.strptime(f"{df['B'][3]}/{datetime.now().year}", '%d/%m/%Y').date(),
+                    'date': date_obj,
                     'hour': df['B'][4],
                     'obj': Race(
+                        full_date = date_obj,
                         round=df['B'][0],
                         laps=int(df['B'][2]),
                         circuit=CIRCUITS.get(df['B'][1]),

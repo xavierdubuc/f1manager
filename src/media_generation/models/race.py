@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import date
 from typing import Dict, List
 from PIL import Image, ImageDraw
 
@@ -11,6 +12,7 @@ from ..helpers.transform import *
 
 @dataclass
 class Race:
+    full_date: date
     round: int
     laps: int
     day: str
