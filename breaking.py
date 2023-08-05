@@ -57,10 +57,10 @@ class Renderer:
         middle_img_height = final.height - top_breaking_height - bottom_message_height - space_top_middle - space_bottom_middle
 
         top_img = self._get_top_breaking_img(width, top_breaking_height)
-        top_dim = paste(top_img, final, left=0, top=0, use_obj=True)
+        top_dim = paste(top_img, final, left=0, top=0)
 
         middle_img = self._get_middle_picture_img(width, middle_img_height)
-        middle_dim = paste(middle_img, final, left=0, top=top_dim.bottom+space_top_middle, use_obj=True)
+        middle_dim = paste(middle_img, final, left=0, top=top_dim.bottom+space_top_middle)
 
         bottom_img = self._get_bottom_message_img(width, bottom_message_height)
         paste(bottom_img, final, left=0, top=middle_dim.bottom+space_bottom_middle)
@@ -74,11 +74,11 @@ class Renderer:
         between_padding = 40
         with Visual.get_fbrt_logo(no_border=True) as logo:
             logo = resize(logo, int(0.15 * width), height)
-            logo_dim = paste(logo, img, left_padding, use_obj=True, with_alpha=True)
+            logo_dim = paste(logo, img, left_padding, with_alpha=True)
 
         font = FontFactory.black(131)
         txt = text('BREAKING', self.fg_color, font)
-        paste(txt, img, logo_dim.right + between_padding, use_obj=True)
+        paste(txt, img, logo_dim.right + between_padding)
 
         return img
 
@@ -132,7 +132,7 @@ class Renderer:
         main_font = FontFactory.black(main_font_size) # TODO compute auto
         main_txt = text(self.main, self.fg_color, main_font)
         main_left = width - main_txt.width - h_padding
-        main_dim = paste(main_txt, img, top=0, left=main_left, use_obj=True)
+        main_dim = paste(main_txt, img, top=0, left=main_left)
 
         max_size_for_second_font_size = int(0.75 * main_font_size)
         second_font_size = get_max_font_size(self.second, text_width,
@@ -142,7 +142,7 @@ class Renderer:
         second_font = FontFactory.regular(second_font_size)
         second_txt = text(self.second, self.fg_color, second_font)
         second_left = width - second_txt.width - h_padding
-        paste(second_txt, img, left=second_left, top=main_dim.bottom+between_padding, use_obj=True)
+        paste(second_txt, img, left=second_left, top=main_dim.bottom+between_padding)
 
         return img
 

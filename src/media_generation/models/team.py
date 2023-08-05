@@ -145,8 +145,7 @@ class Team:
         parallelogram_pos = paste(
             parallelogram_img,
             img,
-            top=height-parallelogram_height - parallelogram_bottom_margin,
-            use_obj=True
+            top=height-parallelogram_height - parallelogram_bottom_margin
         )
 
         remaining_height = height - parallelogram_height - parallelogram_bottom_margin
@@ -155,7 +154,7 @@ class Team:
         # Logo
         with self.get_lineup_logo() as logo_img:
             logo_img = resize(logo_img, max_logo_width, max_logo_height)
-            logo_pos = paste(logo_img, img, top=(remaining_height-max_logo_height)//2, use_obj=True)
+            logo_pos = paste(logo_img, img, top=(remaining_height-max_logo_height)//2)
 
         # FIXME refactor below + try to open only once the psd
 

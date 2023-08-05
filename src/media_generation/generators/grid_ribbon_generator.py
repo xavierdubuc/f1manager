@@ -75,7 +75,7 @@ class GridRibbonGenerator:
             width = estimated_logo_width + estimated_name_width + pos_img.width + padding * 2
             pilot_img = pilot.get_ranking_image(width, self.height, font, True, fg_color)
             img = Image.new('RGBA', (pos_img.width+pilot_img.width+padding, self.height))
-            pos_pos = paste(pos_img, img, left=0, use_obj=True)
+            pos_pos = paste(pos_img, img, left=0)
             paste(pilot_img, img, pos_pos.right+padding)
             return img
         return self._get_image_or_generate(f'grid_{pos}.png', _generate)

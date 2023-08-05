@@ -26,7 +26,7 @@ class CalendarGenerator(AbstractGenerator):
         title_width = base_img.width
         title_height = self._get_visual_title_height(base_img)
         title = self._get_title_image(title_width, title_height)
-        title_position = paste(title, base_img, top=0, use_obj=True)
+        title_position = paste(title, base_img, top=0)
 
         left = 40
         initial_top = title_position.bottom + 20
@@ -38,7 +38,7 @@ class CalendarGenerator(AbstractGenerator):
         halfway = math.ceil(amount_of_races / 2)
         for i, race in enumerate(races):
             race_img = self._get_race_image(race, width, height)
-            race_position = paste(race_img, base_img, left, top, use_obj=True)
+            race_position = paste(race_img, base_img, left, top)
             if i == halfway - 1:
                 left = 560
                 top = initial_top
@@ -59,7 +59,7 @@ class CalendarGenerator(AbstractGenerator):
         if circuit:
             with circuit.get_flag() as circuit_flag:
                 flag = resize(circuit_flag, 65, 65, keep_ratio=True)
-                flag_position = paste(flag, right_img, left=15, use_obj=True)
+                flag_position = paste(flag, right_img, left=15)
             info_left = flag_position.right + 15
         else:
             info_left = 95
@@ -67,14 +67,14 @@ class CalendarGenerator(AbstractGenerator):
         info_top = 15
         date_txt = race['date'].strftime('%d %b').upper()
         date_img = text(date_txt, (255, 255, 255), FontFactory.regular(18))
-        date_position = paste(date_img, right_img, left=info_left, top=info_top, use_obj=True)
+        date_position = paste(date_img, right_img, left=info_left, top=info_top)
 
         if circuit:
             circuit_img = circuit.get_full_name_img(right_width, height-date_position.bottom-8, padding=5)
             paste(circuit_img, right_img, left=info_left, top = date_position.bottom)
 
         # paste parts
-        left_img_position = paste(left_img, img, left=0, use_obj=True)
+        left_img_position = paste(left_img, img, left=0)
         right_img_position = paste(right_img, img, left=left_img_position.right)
         return img
 
@@ -87,11 +87,11 @@ class CalendarGenerator(AbstractGenerator):
         # logo
         with Visual.get_fbrt_logo(no_border=True) as logo_fbrt:
             logo = resize(logo_fbrt, width=width, height=100, keep_ratio=True)
-            logo_position = paste(logo, img, left=left, top=35, use_obj=True)
+            logo_position = paste(logo, img, left=left, top=35)
 
         # "Season X"
         season_txt = text(f'SEASON {self.config.season}', color, font)
-        season_position = paste(season_txt, img, left=left, top=logo_position.bottom + 5, use_obj=True)
+        season_position = paste(season_txt, img, left=left, top=logo_position.bottom + 5)
 
         # "Calendar"
         calendar_txt = text('CALENDAR', color, font)

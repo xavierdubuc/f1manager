@@ -70,17 +70,17 @@ class Pilot:
         # BOX (if applicable)
         if show_box:
             box_img = self.team.get_box_image(box_width, box_height)
-            paste(box_img, img, left=0, use_obj=True)
+            paste(box_img, img, left=0)
 
         # TEAM
         padding = 8
         image_size = height - padding
         team_logo = self._get_team_logo_image(image_size, image_size)
-        team_pos = paste(team_logo, img, left=box_width + 20, use_obj=True)
+        team_pos = paste(team_logo, img, left=box_width + 20)
 
         # NAME
         name_img = self.get_name_image(pilot_font, pilot_color)
-        paste(name_img, img, left = team_pos.right + 20, top=14, use_obj=True)
+        paste(name_img, img, left = team_pos.right + 20, top=14)
 
         return img
 

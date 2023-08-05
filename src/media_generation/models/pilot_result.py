@@ -56,12 +56,12 @@ class PilotResult:
         pilot_image = self.pilot.get_ranking_image(
             pilot_width, height, pilot_font, show_box, fg_color
         )
-        paste(pilot_image, img, left=pos_right+10, use_obj=True)
+        paste(pilot_image, img, left=pos_right+10)
 
         # SPLIT
         split = self.split if (self.position == 1 or has_NT_or_DSQ) else f'+{self.split}'
         split_img = text(split, fg_color, small_font)
-        paste(split_img, img, left=width-split_img.width-20, use_obj=True)
+        paste(split_img, img, left=width-split_img.width-20)
 
         # TYRES
         size_by_tyre = int(.75 * height)

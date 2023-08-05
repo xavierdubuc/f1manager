@@ -40,17 +40,17 @@ class PoleGenerator(AbstractGenerator):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
 
         first_pos_img = get_ordinal_img(1, color=color, Font=Font)
-        first_pos_pos = paste(first_pos_img, img, left=0, use_obj=True)
+        first_pos_pos = paste(first_pos_img, img, left=0)
         first_name_img = text(f'{first.name}{separator}'.upper(), color, font)
-        first_name_pos = paste(first_name_img, img, first_pos_pos.right, use_obj=True)
+        first_name_pos = paste(first_name_img, img, first_pos_pos.right)
 
         second_pos_img = get_ordinal_img(2, color=color, Font=Font)
-        second_pos_pos = paste(second_pos_img, img, left=first_name_pos.right, use_obj=True)
+        second_pos_pos = paste(second_pos_img, img, left=first_name_pos.right)
         second_name_img = text(f'{second.name}{separator}'.upper(), color, font)
-        second_name_pos = paste(second_name_img, img, second_pos_pos.right, use_obj=True)
+        second_name_pos = paste(second_name_img, img, second_pos_pos.right)
 
         third_pos_img = get_ordinal_img(3, color=color, Font=Font)
-        third_pos_pos = paste(third_pos_img, img, left=second_name_pos.right, use_obj=True)
+        third_pos_pos = paste(third_pos_img, img, left=second_name_pos.right)
         third_name_img = text(f'{third.name}'.upper(), color, font)
         paste(third_name_img, img, third_pos_pos.right)
         return img

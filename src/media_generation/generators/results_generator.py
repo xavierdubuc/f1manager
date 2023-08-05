@@ -21,7 +21,7 @@ class ResultsGenerator(AbstractGenerator):
         top_h_padding = 20
         available_width = final.width - 2 * top_h_padding
         subtitle_image = self._get_subtitle_image(available_width, 90)
-        subt_dimension = paste(subtitle_image, final, 10, title_height + top_h_padding, use_obj=True)
+        subt_dimension = paste(subtitle_image, final, 10, title_height + top_h_padding)
 
         rankings_top = subt_dimension.bottom + 30
         rankings_height = final.height - rankings_top
@@ -40,7 +40,7 @@ class ResultsGenerator(AbstractGenerator):
             city_font=FontFactory.black(32),
             date_font=FontFactory.regular(28)
         )
-        race_dimension = paste(race_title_image, img, left=padding, use_obj=True)
+        race_dimension = paste(race_title_image, img, left=padding)
 
         fastest_lap_left = race_dimension.right + padding
         fastest_lap_width = width - padding - fastest_lap_left
@@ -54,31 +54,31 @@ class ResultsGenerator(AbstractGenerator):
         # FASTEST LAP IMG
         with Image.open(f'assets/fastest_lap.png') as fstst_img:
             fstst_img = resize(fstst_img, height, height)
-            logo_pos = paste(fstst_img, img, left=0, use_obj=True)
+            logo_pos = paste(fstst_img, img, left=0)
 
         # TEAM LOGO
         pilot = self.config.race.get_pilot(self.config.fastest_lap.pilot.name)
         team = pilot.team
         with team.get_results_logo() as team_img:
             team_img = resize(team_img, height, height)
-            team_pos = paste(team_img, img, left=logo_pos.right+20, use_obj=True)
+            team_pos = paste(team_img, img, left=logo_pos.right+20)
 
         # PILOT NAME
         pilot_font = FontFactory.bold(45)
         pilot_content = self.config.fastest_lap.pilot.name.upper()
         pilot_txt = text(pilot_content, (255,255,255), pilot_font)
-        pilot_pos = paste(pilot_txt, img, left=team_pos.right + 30, use_obj=True)
+        pilot_pos = paste(pilot_txt, img, left=team_pos.right + 30)
 
         # LAP #
         lap_font = FontFactory.regular(30)
         lap_content = f'LAP {self.config.fastest_lap.lap}'
         lap_txt = text(lap_content, (255,255,255), lap_font)
-        lap_pos = paste(lap_txt, img, left=pilot_pos.right+30, use_obj=True)
+        lap_pos = paste(lap_txt, img, left=pilot_pos.right+30)
 
         # LAP TIME
         time_font = FontFactory.bold(45)
         time_txt = text(self.config.fastest_lap.time, (255, 255, 255), time_font)
-        time_pos = paste(time_txt, img, left=width-time_txt.width-15, use_obj=True)
+        time_pos = paste(time_txt, img, left=width-time_txt.width-15)
 
         return img
 

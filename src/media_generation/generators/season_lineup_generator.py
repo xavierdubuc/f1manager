@@ -44,7 +44,7 @@ class SeasonLineupGenerator(AbstractGenerator):
         amount_of_pilots = len(pilots)
         title_height = self._get_visual_title_height()
         title_img = self._get_title_img(base_img.width, title_height)
-        title_position = paste(title_img, base_img, top=0, use_obj=True)
+        title_position = paste(title_img, base_img, top=0)
 
         left_padding = self.visual_config['padding']['left']
         top_padding = self.visual_config['padding']['top']
@@ -63,7 +63,7 @@ class SeasonLineupGenerator(AbstractGenerator):
             top = even_top if i % 2 == 0 else odd_top
             left = even_left if i % 2 == 0 else odd_left
             pilot_img = self._get_pilot_img(pilot, pilot_width, row_height)
-            pilot_pos = paste(pilot_img, base_img, left=left, top=top, use_obj=True)
+            pilot_pos = paste(pilot_img, base_img, left=left, top=top)
             if i % 2 == 0:
                 even_top = pilot_pos.bottom + padding_v
             else:
@@ -94,7 +94,7 @@ class SeasonLineupGenerator(AbstractGenerator):
         title_text = text(f'SEASON {self.season}', font_color, font)
         title2_text = text('RESERVISTS' if RESERVISTS_MODE else 'DRIVERS', font_color, font)
         title_top = (height-(title_text.height+title2_text.height)) // 2
-        title_pos = paste(title_text, img, top=title_top, use_obj=True)
+        title_pos = paste(title_text, img, top=title_top)
         paste(title2_text, img, top=title_pos.bottom+20)
         return img
 
@@ -137,6 +137,6 @@ class SeasonLineupGenerator(AbstractGenerator):
         paste(name_text, name_bg)
         paste(name_bg, right_img, left=0)
 
-        left_position = paste(left_img, img, left=0, use_obj=True)
+        left_position = paste(left_img, img, left=0)
         paste(right_img, img, left=left_position.right)
         return img

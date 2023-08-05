@@ -149,7 +149,7 @@ def repeat_text(base: PngImageFile, color:tuple, txt: str, Font=FontFactory.regu
     for i in range(vertical_amount):
         randomized_txt = f'{current_txt[i%4:]}{current_txt[:i%4]}'
         current_txt_img = text(randomized_txt, color, font)
-        current_txt_pos = paste(current_txt_img, img, top=top, left=0, use_obj=True)
+        current_txt_pos = paste(current_txt_img, img, top=top, left=0)
         top = current_txt_pos.bottom + space_between_rows
     img = img.rotate(angle, expand=True)
     paste(img, base)
@@ -165,7 +165,7 @@ def get_ordinal_img(i: int, Font=FontFactory.regular, font_size=24, color=(255, 
 
     # print number
     number_img = text(str(i), color, font)
-    position_pos = paste(number_img, img, left=0, use_obj=True)
+    position_pos = paste(number_img, img, left=0)
 
     # print ordinal
     ordinal_img = text(_pos_to_ordinal_suffix(i), color, sup_font)

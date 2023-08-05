@@ -21,7 +21,7 @@ class TeamsRankingGenerator(AbstractGenerator):
 
         with Visual.get_fbrt_round_logo('white') as logo:
             logo = resize(logo, logo.width, img.height-40)
-            logo_pos = paste(logo, img, left=40, use_obj=True)
+            logo_pos = paste(logo, img, left=40)
 
         with Visual.get_fif_logo('wide') as logo:
             logo = resize(logo, height=int(0.4*img.height))
@@ -36,7 +36,7 @@ class TeamsRankingGenerator(AbstractGenerator):
 
         for title_part in title_parts:
             big_txt = text(title_part, (0,0,0), big_txt_font)
-            big_txt_pos = paste(big_txt, img, left=txt_left, top=txt_top, use_obj=True)
+            big_txt_pos = paste(big_txt, img, left=txt_left, top=txt_top)
             txt_top = big_txt_pos.bottom+10
 
         small_txt_font = FontFactory.regular(30)
@@ -55,8 +55,8 @@ class TeamsRankingGenerator(AbstractGenerator):
         current_top = title_height+padding_top
         for _, row in self.config.ranking.iterrows():
             team_ranking_img = self._get_team_ranking_img(width, row_height, row['Ecurie'], row['Total'])
-            _, _, _, r_bottom = paste(team_ranking_img, base_img, top=current_top)
-            current_top = r_bottom + padding_between_rows
+            pos = paste(team_ranking_img, base_img, top=current_top)
+            current_top = pos.bottom + padding_between_rows
 
     def _get_team_ranking_img(self, width:int, height:int, team_name, points):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
@@ -64,11 +64,11 @@ class TeamsRankingGenerator(AbstractGenerator):
         # TEAM
         team = teams_idx[team_name]
         team_img = self._get_team_img((2 * width) // 3, height, team)
-        _, _, team_name_right, _ = paste(team_img, img, left=0)
+        pos = paste(team_img, img, left=0)
 
         # POINTS
         points_txt = self._get_points_img(width // 3, height, points)
-        paste(points_txt, img, left=team_name_right + 25)
+        paste(points_txt, img, left=pos.right + 25)
 
         return img
 

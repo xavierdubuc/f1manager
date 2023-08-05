@@ -69,7 +69,7 @@ class Renderer:
         author_font_size = 30
         author_img = self._get_author_img(author_font_size)
         author_padding_bottom = 60
-        author_position = paste(author_img, final, top=main_height-author_img.height-author_padding_bottom, use_obj=True)
+        author_position = paste(author_img, final, top=main_height-author_img.height-author_padding_bottom)
 
         # quote_font_size = math.ceil(1.1 * author_font_size)
         quote_font_size = 33
@@ -79,7 +79,7 @@ class Renderer:
         text_lines.reverse()
         for text_line in text_lines:
             img = text(text_line, self.fg_color, FontFactory.bold(quote_font_size))
-            pos = paste(img, final, top = bottom - img.height, use_obj=True)
+            pos = paste(img, final, top = bottom - img.height)
             bottom = pos.top - padding_between
 
         final.save(self.output or 'output/quote.png', quality=95)

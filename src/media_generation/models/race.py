@@ -86,8 +86,8 @@ class Race:
             (month_img.width, month_img.height+day_img.height+10),
             (0, 0, 0, 0)
         )
-        day_pos = paste(day_img, date_img, top=0, use_obj=True)
-        month_pos = paste(month_img, date_img, top=day_pos.bottom+10, use_obj=True)
+        day_pos = paste(day_img, date_img, top=0)
+        month_pos = paste(month_img, date_img, top=day_pos.bottom+10)
 
         paste(date_img, img, left=0)
         full_date_width = max(day_pos.right, month_pos.right) + 20
@@ -95,7 +95,7 @@ class Race:
         # FLAG
         with self.circuit.get_flag() as flag:
             flag = resize(flag, height, height)
-            flag_pos = paste(flag, img, left=full_date_width, use_obj=True)
+            flag_pos = paste(flag, img, left=full_date_width)
 
         circuit_left = flag_pos.right+20
 
@@ -138,7 +138,7 @@ class Race:
         # left_part
         round_text = f"{'Course ' if expand_round else 'R'}{self.round}"
         round_img = text(round_text, (255, 255, 255), round_font)
-        paste(round_img, img, top=(height-round_img.height)//2-3,use_obj=True)
+        paste(round_img, img, top=(height-round_img.height)//2-3)
 
         if type_txt in ('SPRINT', '100%') :
             type_txt_img = text(type_txt, (255,255,255), text_font)

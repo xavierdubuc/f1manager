@@ -41,7 +41,7 @@ class FastestGenerator(AbstractGenerator):
         race_width = elements_width // 4
         first_width = elements_width - race_width
         race_image = self._get_race_img(race_width, height)
-        race_pos = paste(race_image, img, left=0, use_obj=True)
+        race_pos = paste(race_image, img, left=0)
 
         # FIRST
         first = self.ranking[0]
@@ -59,7 +59,7 @@ class FastestGenerator(AbstractGenerator):
         second_width = elements_width // 2
         second = self.ranking[1]
         second_image = self._get_fastest_lap_img(2, second_width, height, second['time'], second['pilot_result'])
-        second_pos = paste(second_image, img, left=0, top=0, use_obj=True)
+        second_pos = paste(second_image, img, left=0, top=0)
 
         # 3rd
         third_width = elements_width - second_width
@@ -127,7 +127,7 @@ class FastestGenerator(AbstractGenerator):
 
         left_part_width = int(0.4 * width)
         left_part_img = self._get_left_fastest_lap_img(position, left_part_width, height, lap_time, pilot_result)
-        left_part_pos = paste(left_part_img, img, left=0, use_obj=True)
+        left_part_pos = paste(left_part_img, img, left=0)
 
         right_part_width = width - left_part_width - h_padding
         team_img = self._get_team_image(right_part_width, height, pilot_result, position)
@@ -141,8 +141,7 @@ class FastestGenerator(AbstractGenerator):
         font_size = 150 if position == 1 else 100
         font = FontFactory.bold(font_size)
         pos_img = self._get_position_image(position, font)
-        paste(pos_img, img, left=0, top=0, use_obj=True)
-
+        paste(pos_img, img, left=0, top=0)
         txt_img = self._get_textual_image(position, lap_time, pilot_result, font)
         paste(txt_img, img, left=0, top=height-txt_img.height-v_padding)
         return img
@@ -211,7 +210,7 @@ class FastestGenerator(AbstractGenerator):
         team = pilot.team
 
         team_pilot_img = resize(pilot.get_close_up_image(), width, height)
-        paste(team_pilot_img, img, left=0, use_obj=True)
+        paste(team_pilot_img, img, left=0)
 
         team_font = FontFactory.bold(50 if position == 1 else 30)
         team_img = team.get_team_image(width, team_font)
