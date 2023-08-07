@@ -82,18 +82,23 @@ class CalendarGenerator(AbstractGenerator):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         left = 50
         color = (31, 31, 31)
-        font = FontFactory.black(114)
+        font = FontFactory.black(100)
 
         # logo
-        with Visual.get_fbrt_logo(no_border=True) as logo_fbrt:
-            logo = resize(logo_fbrt, width=width, height=100, keep_ratio=True)
-            logo_position = paste(logo, img, left=left, top=35)
+        top = 10
+        with Visual.get_fbrt_round_logo() as logo_fbrt:
+            logo = resize(logo_fbrt, height=150)
+            logo_position = paste(logo, img, left=left, top=top)
+
+        with Visual.get_fif_logo('wide') as fif_logo_img:
+            fif_logo_img = resize(fif_logo_img, height=80)
+            paste(fif_logo_img, img, top=height-fif_logo_img.height,  left=width - fif_logo_img.width - 10)
 
         # "Season X"
-        season_txt = text(f'SEASON {self.config.season}', color, font)
+        season_txt = text(f'SAISON {self.config.season}', color, font)
         season_position = paste(season_txt, img, left=left, top=logo_position.bottom + 5)
 
         # "Calendar"
-        calendar_txt = text('CALENDAR', color, font)
+        calendar_txt = text('CALENDRIER', color, font)
         paste(calendar_txt, img, left=left, top=season_position.bottom - 5)
         return img
