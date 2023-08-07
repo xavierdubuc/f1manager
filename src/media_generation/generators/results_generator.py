@@ -16,29 +16,71 @@ class ResultsGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
         return 'results'
 
+    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
+        if self.visual_config.get('title_height', 0) == 0:
+            return
+        return super()._generate_title_image(base_img)
+
+    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
+        return self.visual_config['title_height']
+
+    def _generate_basic_image(self) -> PngImageFile:
+        width = self.visual_config['width']
+        height = self.visual_config['height']
+        img = Image.new('RGB', (width, height), (255, 255, 255))
+        bg = self._get_background_image()
+        if bg:
+            with bg:
+                bg = resize(bg, width, height)
+                paste(bg.convert('RGB'),img)
+        return img
+
     def _add_content(self, final: PngImageFile):
         title_height = self._get_visual_title_height()
-        top_h_padding = 20
-        available_width = final.width - 2 * top_h_padding
-        subtitle_image = self._get_subtitle_image(available_width, 90)
-        subt_dimension = paste(subtitle_image, final, 10, title_height + top_h_padding)
+        paddings = self.visual_config['padding']
+        top_h_padding = paddings['top']
+        available_width = final.width - paddings['left']
+        subtitle_image = self._get_subtitle_image(available_width, self.visual_config['subtitle']['height'])
+        pos = paste(subtitle_image, final, paddings['left'], title_height + top_h_padding)
 
-        rankings_top = subt_dimension.bottom + 30
+        rankings_top = pos.bottom + self.visual_config['content_padding_top']
         rankings_height = final.height - rankings_top
         rankings_img = self._get_ranking_image(final.width, rankings_height)
-        final.paste(rankings_img, (0, rankings_top), rankings_img)
+        paste(rankings_img, final, left=0, top=rankings_top)
 
     def _get_subtitle_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0 ,0))
-        padding = 20
-        race_title_width = int(0.35 * width - padding)
+        subtitle_config = self.visual_config['subtitle']
+        padding = subtitle_config['padding']
+        race_title_width = int(0.35 * width)
+
+        name_font_size = subtitle_config['circuit_name']['font_size']
+        name_font_name = subtitle_config['circuit_name'].get('font')
+        if name_font_name:
+            name_font = FontFactory.font(name_font_name, name_font_size)
+        else:
+            name_font = FontFactory.black(name_font_size)
+
+        city_font_size = subtitle_config['circuit_city']['font_size']
+        city_font_name = subtitle_config['circuit_city'].get('font')
+        if city_font_name:
+            city_font = FontFactory.font(city_font_name, city_font_size)
+        else:
+            city_font = FontFactory.black(city_font_size)
+
+        race_date_font_size = subtitle_config['race_date']['font_size']
+        race_date_font_name = subtitle_config['race_date'].get('font')
+        if race_date_font_name:
+            race_date_font = FontFactory.font(race_date_font_name, race_date_font_size)
+        else:
+            race_date_font = FontFactory.regular(race_date_font_size)
 
         race_title_image = self.config.race.get_circuit_and_date_img(
             race_title_width,
             height,
-            name_font=FontFactory.black(36),
-            city_font=FontFactory.black(32),
-            date_font=FontFactory.regular(28)
+            name_font=name_font,
+            city_font=city_font,
+            date_font=race_date_font
         )
         race_dimension = paste(race_title_image, img, left=padding)
 
@@ -83,10 +125,11 @@ class ResultsGenerator(AbstractGenerator):
         return img
 
     def _get_ranking_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (30, 30, 30, 235))
-        top = 20
-        hop_between_position = 38
-        row_height = 62
+        content_config = self.visual_config['content']
+        img = Image.new('RGBA', (width, height), content_config['background'])
+        top = content_config['top']
+        hop_between_position = content_config['hop_between']
+        row_height = content_config['row_height']
         padding_left = 20
         padding_between = 40
         padding_right = 40
