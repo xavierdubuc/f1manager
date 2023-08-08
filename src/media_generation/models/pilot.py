@@ -64,7 +64,7 @@ class Pilot:
 
         psd.save('assets/pilots/renamed.psd')
 
-    def get_image(self, width: int, height: int, pilot_font, pilot_color=(255,255,255), show_box:bool=False, box_width:int=0, box_height:int=0):
+    def get_image(self, width: int, height: int, pilot_font, pilot_color=(255,255,255), show_box:bool=False, box_width:int=0, box_height:int=0, name_top:int=False):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
 
         # BOX (if applicable)
@@ -80,21 +80,22 @@ class Pilot:
 
         # NAME
         name_img = self.get_name_image(pilot_font, pilot_color)
-        paste(name_img, img, left = team_pos.right + 20, top=14)
+        paste(name_img, img, left = team_pos.right + 20, top=name_top)
 
         return img
 
     def get_ranking_image(self, width: int, height: int, pilot_font,
                           show_box: bool = False,
                           fg_color: tuple = (255,255,255,255),
-                          bg_color: tuple=(0,0,0,0)) -> PngImageFile:
+                          bg_color: tuple=(0,0,0,0),
+                          name_top: int = False) -> PngImageFile:
         img = Image.new('RGBA', (width, height), bg_color)
 
         # [BOX] [LOGO] [PILOT NAME]
         box_width = 5
         box_height = int(0.75 * height)
 
-        pilot_image = self.get_image(width, height, pilot_font, fg_color, show_box, box_width, box_height)
+        pilot_image = self.get_image(width, height, pilot_font, fg_color, show_box, box_width, box_height, name_top)
         paste(pilot_image, img, left=0, top=0)
         return img
 

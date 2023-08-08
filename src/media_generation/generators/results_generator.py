@@ -43,7 +43,7 @@ class ResultsGenerator(AbstractGenerator):
         subtitle_image = self._get_subtitle_image(available_width, self.visual_config['subtitle']['height'])
         pos = paste(subtitle_image, final, paddings['left'], title_height + top_h_padding)
 
-        rankings_top = pos.bottom + self.visual_config['content_padding_top']
+        rankings_top = pos.bottom + self.visual_config['content']['padding']['top']
         rankings_height = final.height - rankings_top
         rankings_img = self._get_ranking_image(final.width, rankings_height)
         paste(rankings_img, final, left=0, top=rankings_top)
@@ -106,21 +106,38 @@ class ResultsGenerator(AbstractGenerator):
             team_pos = paste(team_img, img, left=logo_pos.right+20)
 
         # PILOT NAME
-        pilot_font = FontFactory.bold(45)
+        pilot_font = FontFactory.get_font(
+            self.visual_config['fastest_lap']['pilot'].get('font'),
+            self.visual_config['fastest_lap']['pilot']['font_size'],
+            FontFactory.bold
+        )
+        pilot_font_color = self.visual_config['fastest_lap']['pilot']['font_color']
         pilot_content = self.config.fastest_lap.pilot.name.upper()
-        pilot_txt = text(pilot_content, (255,255,255), pilot_font)
+        pilot_txt = text(pilot_content, pilot_font_color, pilot_font)
         pilot_pos = paste(pilot_txt, img, left=team_pos.right + 30)
 
         # LAP #
-        lap_font = FontFactory.regular(30)
-        lap_content = f'LAP {self.config.fastest_lap.lap}'
-        lap_txt = text(lap_content, (255,255,255), lap_font)
-        lap_pos = paste(lap_txt, img, left=pilot_pos.right+30)
+        lap_font = FontFactory.get_font(
+            self.visual_config['fastest_lap']['lap'].get('font'),
+            self.visual_config['fastest_lap']['lap']['font_size'],
+            FontFactory.regular
+        )
+        lap_font_color = self.visual_config['fastest_lap']['lap']['font_color']
+        lap_txt_content = self.visual_config['fastest_lap']['lap']['text']
+        lap_content = f'{lap_txt_content} {self.config.fastest_lap.lap}'
+        lap_txt = text(lap_content, lap_font_color, lap_font)
+        lap_left_space = self.visual_config['fastest_lap']['lap']['left']
+        paste(lap_txt, img, left=pilot_pos.right + lap_left_space)
 
         # LAP TIME
-        time_font = FontFactory.bold(45)
-        time_txt = text(self.config.fastest_lap.time, (255, 255, 255), time_font)
-        time_pos = paste(time_txt, img, left=width-time_txt.width-15)
+        time_font = FontFactory.get_font(
+            self.visual_config['fastest_lap']['time'].get('font'),
+            self.visual_config['fastest_lap']['time']['font_size'],
+            FontFactory.bold
+        )
+        time_font_color = self.visual_config['fastest_lap']['time']['font_color']
+        time_txt = text(self.config.fastest_lap.time, time_font_color, time_font)
+        paste(time_txt, img, left=width-time_txt.width-15)
 
         return img
 
@@ -130,13 +147,43 @@ class ResultsGenerator(AbstractGenerator):
         top = content_config['top']
         hop_between_position = content_config['hop_between']
         row_height = content_config['row_height']
-        padding_left = 20
-        padding_between = 40
-        padding_right = 40
+        padding_left = self.visual_config['content']['padding']['left']
+        padding_between = self.visual_config['content']['padding']['between_cols']
+        padding_right = self.visual_config['content']['padding']['right']
         col_width = (width - (padding_left+padding_between+padding_right)) // 2
         first_col_left = padding_left
         second_col_left = padding_left + col_width + padding_between
 
+        maximum_split_size, maximum_tyre_amount = self._compute_max_split_size_and_tyre_amount()
+
+        for index, pilot_data in self.config.ranking.iterrows():
+            # Get pilot
+            pilot_name = pilot_data[0]
+            pilot = self.config.race.get_pilot(pilot_name)
+            if not pilot:
+                continue
+
+            pos = index + 1
+            has_fastest_lap = pilot_name == self.config.fastest_lap.pilot.name
+            is_pilot_of_the_day = pilot_name == self.config.driver_of_the_day
+            tyres = pilot_data[2] if isinstance(pilot_data[2], str) else ''
+            pilot_result = PilotResult(pilot, pos, pilot_data[1], tyres,
+                                       self.championship_config['settings']['components']['pilot_results'])
+
+            left = first_col_left if index % 2 == 0 else second_col_left
+            pilot_result_image = pilot_result.get_details_image(
+                col_width,
+                row_height,
+                maximum_split_size,
+                maximum_tyre_amount,
+                has_fastest_lap,
+                is_pilot_of_the_day
+            )
+            paste(pilot_result_image, img, left, top)
+            top += hop_between_position
+        return img
+
+    def _compute_max_split_size_and_tyre_amount(self):
         maximum_split_size = 0
         maximum_tyre_amount = 0
         for _, pilot_data in self.config.ranking.iterrows():
@@ -150,22 +197,4 @@ class ResultsGenerator(AbstractGenerator):
                 tyre_amount = len(pilot_data[2])
                 if tyre_amount > maximum_tyre_amount:
                     maximum_tyre_amount = tyre_amount
-
-        for index, pilot_data in self.config.ranking.iterrows():
-            # Get pilot
-            pilot_name = pilot_data[0]
-            pilot = self.config.race.get_pilot(pilot_name)
-            if not pilot:
-                continue
-
-            pos = index + 1
-            has_fastest_lap = pilot_name == self.config.fastest_lap.pilot.name
-            is_pilot_of_the_day = pilot_name == self.config.driver_of_the_day
-            tyres = pilot_data[2] if isinstance(pilot_data[2], str) else ''
-            pilot_result = PilotResult(pilot, pos, pilot_data[1], tyres)
-
-            left = first_col_left if index % 2 == 0 else second_col_left
-            pilot_result_image = pilot_result.get_details_image(col_width, row_height, maximum_split_size, maximum_tyre_amount, has_fastest_lap, is_pilot_of_the_day)
-            paste(pilot_result_image, img, left, top)
-            top += hop_between_position
-        return img
+        return maximum_split_size, maximum_tyre_amount
