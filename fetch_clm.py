@@ -22,7 +22,9 @@ def print_clm(l: list):
         (i+1, l[i][0], l[i][1])
         for i in range(len(l))
     ]
+    print('```')
     print(tabulate.tabulate(ranking, tablefmt='simple_grid'))
+    print('```')
 
 listener = TelemetryListener(port=20777, host='192.168.1.52')
 
@@ -47,16 +49,19 @@ try:
                 best_laps[pb_key] = format_time(perso_time)
                 print(f'Added {pb_key}: {best_laps[pb_key]}')
                 last_insertion_datetime = datetime.now()
+                notified = False
             if current_rival_name and current_rival_name in best_laps and not best_laps[current_rival_name]:
                 rival_time = timedelta(seconds=packet.lap_data[packet.time_trial_rival_car_idx].last_lap_time_in_ms/1000)
                 best_laps[current_rival_name] = format_time(rival_time)
                 print(f'Added {current_rival_name}: {best_laps[current_rival_name]}, move to another rival')
                 last_insertion_datetime = datetime.now()
+                notified = False
         delta = datetime.now() - last_insertion_datetime
-        if delta.seconds > 10:
+        if delta.seconds > 6:
             break
-        elif delta.seconds > 5:
-            print('Make sure to select a new rival in maximum 5 seconds or program will exit')
+        elif delta.seconds > 3 and not notified:
+            notified = True
+            print('Make sure to select a new rival in maximum 3 seconds or program will exit')
 
     print_clm([(key,value) for key,value in best_laps.items() if key != pb_key] + [(pb_key, best_laps[pb_key])])
 
