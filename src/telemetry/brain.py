@@ -148,10 +148,11 @@ class Brain:
                 for packet_data in packet.participants if packet_data.race_number != 0 # (0 means no participant)
             ]
         else:
+            # TODO FOR CLM this could be used to keep track of every selected opponent instead of erasing always the same
             current_amount_of_participants = len(self.current_session.participants)
             for i, packet_data in enumerate(packet.participants):
                 if packet_data.race_number != 0:
-                    if i > current_amount_of_participants - 1 or self.current_session.session_type == SessionType.clm:
+                    if i > current_amount_of_participants - 1:
                         self.current_session.participants.append(ParticipantManager.create(packet_data))
                     else:
                         changes = ParticipantManager.update(self.current_session.participants[i], packet_data)
@@ -317,7 +318,6 @@ class Brain:
             return # this should not happen neither
 
         amount_of_pertinent_lap = len(self.current_session.participants)
-        print(self.current_session.participants)
         # NO LAPS yet, create for all participants
         if not self.current_session.laps:
             self.current_session.laps = []
