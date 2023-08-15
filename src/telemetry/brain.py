@@ -55,7 +55,7 @@ class Brain:
         self.discord_guild = int(discord_guild) if discord_guild is not None else DEFAULT_GUILD_ID
         self.discord_channel = int(discord_channel) if discord_channel is not None else DEFAULT_CHANNEL_ID
         _logger.info(f'Will use {self.discord_guild}:{self.discord_channel} to send Discord messages')
-        self.listeners_by_event = {event.name: [] for event in Event}
+        self.listeners_by_event = {event: [] for event in Event}
         for Listener in LISTENER_CLASSES:
             listener = Listener()
             for event in Listener.SUBSCRIBED_EVENTS:
@@ -119,7 +119,7 @@ class Brain:
 
     def _emit(self, event:Event, *args, **kwargs):
         _logger.info(f'{event.name} emitted !')
-        for listener in self.listeners_by_event[event.name]:
+        for listener in self.listeners_by_event[event]:
             print(event)
             print(listener)
             msg = listener.on(event, *args, **kwargs)
