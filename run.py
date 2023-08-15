@@ -20,7 +20,7 @@ levels = {
     'critical': logging.CRITICAL
 }
 log_level = levels[args.log_level]
-print(f'Using log level : "{args.log_level}"')
+print(f'Using log level : "{log_level}"')
 logging.basicConfig(
     level=log_level,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
