@@ -317,6 +317,7 @@ class Brain:
             return # this should not happen neither
 
         amount_of_pertinent_lap = len(self.current_session.participants)
+        print(self.current_session.participants)
         # NO LAPS yet, create for all participants
         if not self.current_session.laps:
             self.current_session.laps = []
