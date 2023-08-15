@@ -56,6 +56,7 @@ class Brain:
             listener = Listener()
             for event in Listener.SUBSCRIBED_EVENTS:
                 self.listeners_by_event[event].append(listener)
+        print(self.listeners_by_event)
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
@@ -115,6 +116,8 @@ class Brain:
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')
         for listener in self.listeners_by_event[event.name]:
+            print(event)
+            print(listener)
             msg = listener.on(event, *args, **kwargs)
             if msg:
                 self._send_discord_message(msg)
