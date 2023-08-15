@@ -124,9 +124,9 @@ class Brain:
 
         if self.current_session == tmp_session:
             changes = SessionManager.update(self.current_session, packet)
-            self.emit(Event.SESSION_UPDATED, self.current_session, changes)
+            self._emit(Event.SESSION_UPDATED, self.current_session, changes)
         else:
-            self.emit(Event.SESSION_CREATED, old=self.current_session, current=tmp_session)
+            self._emit(Event.SESSION_CREATED, old=self.current_session, current=tmp_session)
             if not self.current_session:
                 self.current_session = tmp_session
             else:
