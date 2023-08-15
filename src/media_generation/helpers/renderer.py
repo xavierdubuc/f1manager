@@ -1,5 +1,5 @@
 import importlib
-from src.media_generation.generators.grid_ribbon_generator import GridRibbonGenerator
+# from src.media_generation.generators.grid_ribbon_generator import GridRibbonGenerator
 from .generator_config import GeneratorConfig
 
 from ..generators.pole_generator import PoleGenerator
@@ -26,7 +26,7 @@ class Renderer:
         'numbers': NumbersGenerator,
         'season_lineup': SeasonLineupGenerator,
         'calendar': CalendarGenerator,
-        'grid_ribbon': GridRibbonGenerator
+        # 'grid_ribbon': GridRibbonGenerator
     }
 
     @classmethod
