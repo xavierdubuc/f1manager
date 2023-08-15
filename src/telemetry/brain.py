@@ -16,6 +16,7 @@ from f1_22_telemetry.packets import (
     PacketLobbyInfoData
 )
 from tabulate import tabulate
+from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 
 from src.telemetry.models.enums.driver_status import DriverStatus
 from .managers.lap_record_manager import LapRecordManager
@@ -32,6 +33,12 @@ from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
+from event import Event
+
+LISTENER_CLASSES = [
+    SessionCreationListener,
+]
+
 DEFAULT_GUILD_ID = 1074380392154533958
 DEFAULT_CHANNEL_ID = 1096169137589461082
 WEATHER_NOTIFICATION_DELAY = 4 * 60 # 4 minutes
@@ -45,6 +52,11 @@ class Brain:
         self.discord_guild = int(discord_guild) if discord_guild is not None else DEFAULT_GUILD_ID
         self.discord_channel = int(discord_channel) if discord_channel is not None else DEFAULT_CHANNEL_ID
         _logger.info(f'Will use {self.discord_guild}:{self.discord_channel} to send Discord messages')
+        self.listeners_by_event = {event: [] for event.name in Event}
+        for Listener in LISTENER_CLASSES:
+            listener = Listener()
+            for event in Listener.SUBSCRIBED_EVENTS:
+                self.listeners_by_event[event].append(listener)
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
@@ -101,49 +113,27 @@ class Brain:
 
         self.bot.loop.create_task(where.send(msg))
 
+    def _emit(self, event:str):
+        _logger.debug(f'{event} emitted !')
+        for listener in self.listeners_by_event:
+            msg = listener.on(event)
+            if msg:
+                self._send_discord_message(msg)
+
     def _handle_received_session_packet(self, packet: PacketSessionData):
         tmp_session = SessionManager.create(packet)
-        if not self.current_session:
-            _logger.info('A new session has started')
-            self.current_session = tmp_session
-            msg = f'Début de la session "{self.current_session.session_type}" à {self.current_session.track}'
-            self._send_discord_message(msg)
-            return
 
         if self.current_session == tmp_session:
             changes = SessionManager.update(self.current_session, packet)
-
-            if 'weather_forecast' in changes:
-                now = datetime.now()
-                delta = now - self.last_weather_notified_at if self.last_weather_notified_at else None
-                if not delta or delta.seconds > WEATHER_NOTIFICATION_DELAY:
-                    wfcasts = self.current_session.weather_forecast
-                    str_wfcasts = []
-                    other_wfcasts = {}
-                    for wfcast in wfcasts:
-                        wf_values = str(wfcast)
-                        if wfcast.session_type == self.current_session.session_type:
-                            str_wfcasts.append(wf_values)
-                        else:
-                            other_wfcasts.setdefault(wfcast.session_type, [])
-                            other_wfcasts[wfcast.session_type].append(wf_values)
-                    for sess_type, wfcasts in other_wfcasts.items():
-                        print('───────────────')
-                        print(sess_type)
-                        print('\n'.join(wfcasts))
-
-                    msg = '\n'.join(str_wfcasts)
-                    self._send_discord_message(msg)
-                    self.last_weather_notified_at = now
-            if 'safety_car_status' in changes:
-                actual_status = changes['safety_car_status'].actual
-                self._send_discord_message(str(actual_status))
+            self.emit(Event.SESSION_UPDATED, self.current_session, changes)
         else:
-            _logger.info('A new session has started, previous one has been backuped')
-            self.previous_sessions.append(self.current_session)
-            self.current_session = tmp_session
-            msg = f'Début de la session "{self.current_session.session_type}" à {self.current_session.track}'
-            self._send_discord_message(msg)
+            self.emit(Event.SESSION_CREATED, old=self.current_session, current=tmp_session)
+            if not self.current_session:
+                self.current_session = tmp_session
+            else:
+                _logger.info('A new session has started, previous one has been backuped')
+                self.previous_sessions.append(self.current_session)
+                self.current_session = tmp_session
 
     def _handle_received_participants_packet(self, packet:PacketParticipantsData):
         if not self.current_session:
