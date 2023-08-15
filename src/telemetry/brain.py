@@ -112,10 +112,10 @@ class Brain:
 
         self.bot.loop.create_task(where.send(msg))
 
-    def _emit(self, event:str):
+    def _emit(self, event:str, *args, **kwargs):
         _logger.debug(f'{event} emitted !')
         for listener in self.listeners_by_event:
-            msg = listener.on(event)
+            msg = listener.on(event, *args, **kwargs)
             if msg:
                 self._send_discord_message(msg)
 
@@ -124,7 +124,7 @@ class Brain:
 
         if self.current_session == tmp_session:
             changes = SessionManager.update(self.current_session, packet)
-            self._emit(Event.SESSION_UPDATED, self.current_session, changes)
+            self._emit(Event.SESSION_UPDATED, session=self.current_session, changes=changes)
         else:
             self._emit(Event.SESSION_CREATED, old=self.current_session, current=tmp_session)
             if not self.current_session:
