@@ -10,11 +10,6 @@ from src.telemetry.brain import Brain
 from src.gsheet.gsheet import GSheet
 from config.config import DEFAULT_SPREADSHEET_ID, RACE_RANKING_RANGE
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[logging.StreamHandler()]
-)
 
 _logger = logging.getLogger(__name__)
 
