@@ -125,6 +125,8 @@ class Brain:
     def _handle_received_session_packet(self, packet: PacketSessionData):
         tmp_session = SessionManager.create(packet)
 
+        print(tmp_session)
+        print(self.current_session)
         if self.current_session == tmp_session:
             changes = SessionManager.update(self.current_session, packet)
             self._emit(Event.SESSION_UPDATED, session=self.current_session, changes=changes)
