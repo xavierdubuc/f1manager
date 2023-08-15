@@ -60,7 +60,6 @@ class Brain:
             listener = Listener()
             for event in Listener.SUBSCRIBED_EVENTS:
                 self.listeners_by_event[event].append(listener)
-        print(self.listeners_by_event)
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
@@ -120,8 +119,6 @@ class Brain:
     def _emit(self, event:Event, *args, **kwargs):
         _logger.info(f'{event.name} emitted !')
         for listener in self.listeners_by_event[event]:
-            print(event)
-            print(listener)
             msg = listener.on(event, *args, **kwargs)
             if msg:
                 self._send_discord_message(msg)
@@ -133,7 +130,7 @@ class Brain:
             changes = SessionManager.update(self.current_session, packet)
             self._emit(Event.SESSION_UPDATED, session=self.current_session, changes=changes)
         else:
-            self._emit(Event.SESSION_CREATED, old=self.current_session, current=tmp_session)
+            self._emit(Event.SESSION_CREATED, current=tmp_session, old=self.current_session)
             if not self.current_session:
                 self.current_session = tmp_session
             else:
