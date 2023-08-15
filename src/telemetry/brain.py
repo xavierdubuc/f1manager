@@ -16,6 +16,7 @@ from f1_22_telemetry.packets import (
     PacketLobbyInfoData
 )
 from tabulate import tabulate
+from src.telemetry.event import Event
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 
 from src.telemetry.models.enums.driver_status import DriverStatus
@@ -32,8 +33,6 @@ from .managers.session_manager import SessionManager
 from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
-
-from event import Event
 
 LISTENER_CLASSES = [
     SessionCreationListener,
