@@ -4,6 +4,7 @@ from enum import Enum
 class GameMode(Enum):
     event_mode = 0
     grand_prix = 3
+    new_grand_prix = 4
     time_trial = 5
     splitscreen = 6
     online_custom = 7
