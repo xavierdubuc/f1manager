@@ -28,7 +28,7 @@ class WeatherForecastListener(AbstractListener):
     def _on_session_created(self, current: Session, old: Session) -> str:
         now = datetime.now()
         wfcasts = current.weather_forecast
-        current_forecasts = self._log_forecasts(wfcasts)
+        current_forecasts = self._log_forecasts(current, wfcasts)
         self.last_logged_at = now
         self.last_notified_at = now
         return current_forecasts
@@ -40,7 +40,7 @@ class WeatherForecastListener(AbstractListener):
         log_delta = now - self.last_logged_at if self.last_logged_at else None
         if not log_delta or log_delta.seconds > self.log_delay:
             wfcasts = changes['weather_forecast'].actual
-            current_forecasts = self._log_forecasts(wfcasts)
+            current_forecasts = self._log_forecasts(session, wfcasts)
             self.last_logged_at = now
         
             notification_delta = now - self.last_notified_at if self.last_notified_at else None
