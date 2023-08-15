@@ -17,6 +17,8 @@ from f1_22_telemetry.packets import (
 )
 from tabulate import tabulate
 from src.telemetry.event import Event
+from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
+from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 
 from src.telemetry.models.enums.driver_status import DriverStatus
@@ -36,6 +38,8 @@ _logger = logging.getLogger(__name__)
 
 LISTENER_CLASSES = [
     SessionCreationListener,
+    SafetyCarListener,
+    WeatherForecastListener,
 ]
 
 DEFAULT_GUILD_ID = 1074380392154533958

@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 DEFAULT_NOTIFICATION_DELAY = 4 * 60 # 5 minutes
 DEFAULT_LOG_DELAY          = 1 * 60 # 1 minute
 
-class SafetyCarListener(AbstractListener):
+class WeatherForecastListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.SESSION_UPDATED
     ]
