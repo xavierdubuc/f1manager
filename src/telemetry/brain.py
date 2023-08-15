@@ -22,6 +22,7 @@ from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 
 from src.telemetry.models.enums.driver_status import DriverStatus
+from src.telemetry.models.enums.session_type import SessionType
 from .managers.lap_record_manager import LapRecordManager
 from datetime import datetime, timedelta
 
@@ -117,7 +118,7 @@ class Brain:
         self.bot.loop.create_task(where.send(msg))
 
     def _emit(self, event:Event, *args, **kwargs):
-        _logger.info(f'{event.name} emitted !')
+        _logger.debug(f'{event.name} emitted !')
         for listener in self.listeners_by_event[event]:
             msg = listener.on(event, *args, **kwargs)
             if msg:
@@ -150,7 +151,7 @@ class Brain:
             current_amount_of_participants = len(self.current_session.participants)
             for i, packet_data in enumerate(packet.participants):
                 if packet_data.race_number != 0:
-                    if i > current_amount_of_participants - 1:
+                    if i > current_amount_of_participants - 1 or self.current_session.session_type == SessionType.clm:
                         self.current_session.participants.append(ParticipantManager.create(packet_data))
                     else:
                         changes = ParticipantManager.update(self.current_session.participants[i], packet_data)
