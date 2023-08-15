@@ -11,4 +11,4 @@ class SafetyCarListener(AbstractListener):
     def _on_session_updated(self, session, changes:Dict[str, Change]) -> str:
         if 'safety_car_status' in changes:
             actual_status = changes['safety_car_status'].actual
-            self._send_discord_message(str(actual_status))
+            return str(actual_status)
