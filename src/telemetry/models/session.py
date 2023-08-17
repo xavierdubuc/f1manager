@@ -95,6 +95,14 @@ class Session:
             return False
         return True
 
+    def get_current_lap(self, participant:Participant) -> Lap:
+        index = self.participants.index(participant)
+        return self.laps[index]
+
+    def get_participant_status(self, participant:Participant) -> ResultStatus:
+        lap = self.get_current_lap(participant)
+        return lap.result_status
+
     def get_formatted_final_ranking(self, delta_char='+'):
         if not self.final_classification:
             return []

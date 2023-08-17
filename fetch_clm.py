@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import tabulate
 
 # FIXME reorder to add PB at the right place ?
-# FIXME make "max_expected_amount" a parameter or use timeout
 # Also provide circuit country/name and format the Discord messages directly
 # TODO Maybe filter based on google sheet to only print pilots from current champ
 
@@ -59,9 +58,9 @@ try:
         delta = datetime.now() - last_insertion_datetime
         if delta.seconds > 6:
             break
-        elif delta.seconds > 3 and not notified:
+        elif delta.seconds > 4 and not notified:
             notified = True
-            print('Make sure to select a new rival in maximum 3 seconds or program will exit')
+            print('Make sure to select a new rival in maximum 2 seconds or program will exit')
 
     print_clm([(key,value) for key,value in best_laps.items() if key != pb_key] + [(pb_key, best_laps[pb_key])])
 

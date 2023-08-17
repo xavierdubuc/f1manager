@@ -17,6 +17,7 @@ from f1_22_telemetry.packets import (
 )
 from tabulate import tabulate
 from src.telemetry.event import Event
+from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
 from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
@@ -38,6 +39,7 @@ from .managers.telemetry_manager import TelemetryManager
 _logger = logging.getLogger(__name__)
 
 LISTENER_CLASSES = [
+    NoticeableDamageListener,
     SessionCreationListener,
     SafetyCarListener,
     WeatherForecastListener,
@@ -124,6 +126,10 @@ class Brain:
             if msg:
                 self._send_discord_message(msg)
 
+    """
+    @emits SESSION_CREATED
+    @emits SESSION_UPDATED
+    """
     def _handle_received_session_packet(self, packet: PacketSessionData):
         tmp_session = SessionManager.create(packet)
 
@@ -139,6 +145,11 @@ class Brain:
                 self.previous_sessions.append(self.current_session)
                 self.current_session = tmp_session
 
+    """
+    @emits PARTICIPANT_CREATED
+    @emits PARTICIPANT_LIST_INITIALIZED
+    @emits PARTICIPANT_UPDATED
+    """
     def _handle_received_participants_packet(self, packet:PacketParticipantsData):
         if not self.current_session:
             return # we could store in a tmp self. variable and store info at session creation if needed
@@ -147,19 +158,27 @@ class Brain:
                 ParticipantManager.create(packet_data)
                 for packet_data in packet.participants if packet_data.race_number != 0 # (0 means no participant)
             ]
+            self._emit(Event.PARTICIPANT_LIST_INITIALIZED, session=self.current_session, participants=self.current_session.participants)
         else:
-            # TODO FOR CLM this could be used to keep track of every selected opponent instead of erasing always the same
             current_amount_of_participants = len(self.current_session.participants)
             for i, packet_data in enumerate(packet.participants):
                 if packet_data.race_number != 0:
                     if i > current_amount_of_participants - 1:
-                        self.current_session.participants.append(ParticipantManager.create(packet_data))
+                        new_participant = ParticipantManager.create(packet_data)
+                        self._emit(Event.PARTICIPANT_CREATED, session=self.current_session, participant=new_participant)
+                        self.current_session.participants.append(new_participant)
                     else:
                         changes = ParticipantManager.update(self.current_session.participants[i], packet_data)
+                        self._emit(Event.PARTICIPANT_UPDATED, self.current_session.participants[i], changes, self.current_session)
                         if 'network_id' in changes or 'name' in changes:
                             _logger.warning('!? A participant changed !?')
                             _logger.warning(changes)
 
+    """
+    @emits DAMAGE_CREATED
+    @emits DAMAGE_LIST_INITIALIZED
+    @emits DAMAGE_UPDATED
+    """
     def _handle_received_damage_packet(self, packet:PacketCarDamageData):
         if not self.current_session:
             return # this should not happen
@@ -173,21 +192,25 @@ class Brain:
                 DamageManager.create(packet.car_damage_data[i])
                 for i in range(amount_of_pertinent_damages)
             ]
+            self._emit(Event.DAMAGE_LIST_INITIALIZED, session=self.current_session, damages=self.current_session.damages)
         else:
             current_amount_of_damage = len(self.current_session.damages)
             for i in range(amount_of_pertinent_damages):
                 packet_data = packet.car_damage_data[i]
                 if i > current_amount_of_damage - 1:
-                    self.current_session.damages.append(DamageManager.create(packet_data))
+                    new_damage = DamageManager.create(packet_data)
+                    self.current_session.damages.append(new_damage)
+                    self._emit(Event.DAMAGE_CREATED, session=self.current_session, damage=new_damage)
                 else:
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
                     participant = self.current_session.participants[i]
-                    if DamageManager.has_noticeable_damage_changes(changes):
-                        main_msg = f'**{participant}** → {DamageManager.get_changes_description(changes)}'
-                        car_status = self.current_session.damages[i].get_current_status()
-                        msg = '\n'.join([main_msg, car_status])
-                        self._send_discord_message(msg)
+                    self._emit(Event.DAMAGE_UPDATED, self.current_session.damages[i], changes, participant, self.current_session)
 
+    """
+    @emits TELEMETRY_CREATED
+    @emits TELEMETRY_LIST_INITIALIZED
+    @emits TELEMETRY_UPDATED
+    """
     def _handle_received_telemetry_packet(self, packet:PacketCarTelemetryData):
         if not self.current_session:
             return # this should not happen
@@ -199,19 +222,25 @@ class Brain:
                 TelemetryManager.create(packet.car_telemetry_data[i])
                 for i in range(amount_of_pertinent_telemetry)
             ]
+            self._emit(Event.TELEMETRY_LIST_INITIALIZED, session=self.current_session, telemetries=self.current_session.telemetries)
         else:
             current_amount_of_telemetry = len(self.current_session.telemetries)
             for i in range(amount_of_pertinent_telemetry):
                 packet_data = packet.car_telemetry_data[i]
                 if i > current_amount_of_telemetry - 1:
-                    self.current_session.telemetries.append(TelemetryManager.create(packet_data))
+                    new_telemetry = TelemetryManager.create(packet_data)
+                    self.current_session.telemetries.append(new_telemetry)
+                    self._emit(Event.TELEMETRY_CREATED, session=self.current_session, telemetry=new_telemetry)
                 else:
                     changes = TelemetryManager.update(self.current_session.telemetries[i], packet_data)
-                    # if changes:
-                        # pilot = self.current_session.participants[i].name
-                        # _logger.info(f'{pilot} had a change in his telemetry !')
-                        # _logger.info(changes)
+                    participant = self.current_session.participants[i]
+                    self._emit(Event.TELEMETRY_UPDATED, self.current_session.telemetries[i], changes, participant, self.current_session)
 
+    """
+    @emits CLASSIFICATION_CREATED
+    @emits CLASSIFICATION_LIST_INITIALIZED
+    @emits CLASSIFICATION_UPDATED
+    """
     def _handle_received_final_classification_packet(self, packet:PacketFinalClassificationData):
         if not self.current_session:
             return # this should not happen
@@ -220,6 +249,7 @@ class Brain:
                 ClassificationManager.create(packet.classification_data[i])
                 for i in range(packet.num_cars)
             ]
+            self._emit(Event.CLASSIFICATION_LIST_INITIALIZED, session=self.current_session, final_classification=self.current_session.final_classification)
             self._send_discord_message(f'Fin de la session "{self.current_session.session_type}" voici le classement final :')
             for part in self._get_final_classification_as_string():
                 self._send_discord_message(f"```\n{part}\n```")

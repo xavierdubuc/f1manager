@@ -10,12 +10,7 @@ class SafetyCarStatus(Enum):
     def __str__(self):
         circle = self._get_circle()
         txt = self._get_text()
-        length = len(txt) + 2
-        return '\n'.join([
-            circle * length,
-            f'{circle}{txt}{circle}',
-            circle * length
-        ])
+        return f'# {circle} {txt} {circle}'
 
     def _get_circle(self):
         if self == SafetyCarStatus.no:
@@ -28,9 +23,9 @@ class SafetyCarStatus(Enum):
 
     def _get_text(self):
         if self == SafetyCarStatus.no:
-            return '🟢 `DRAPEAU VERT` 🟢'
+            return '🟢  `DRAPEAU VERT`  🟢'
         if self == SafetyCarStatus.full:
-            return '⛔ `FULL SAFETY CAR` ⛔'
+            return '⛔  `FULL SAFETY CAR`  ⛔'
         if self == SafetyCarStatus.virtual:
-            return '⚠️ `VIRTUAL SAFETY CAR` ⚠️'
-        return '🟡 `FORMATION LAP` 🟡'
+            return '⚠️  `VIRTUAL SAFETY CAR`  ⚠️'
+        return '🟡  `FORMATION LAP`  🟡'
