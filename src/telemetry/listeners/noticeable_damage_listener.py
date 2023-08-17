@@ -19,7 +19,7 @@ class NoticeableDamageListener(AbstractListener):
             return
         if not self._has_noticeable_damage_changes(changes):
             return
-        main_msg = f'**{participant}** → {self._get_changes_description(changes)}'
+        main_msg = f'## {participant} → {self._get_changes_description(changes)}'
         car_status = damage.get_current_status()
         msg = '\n'.join([main_msg, car_status])
         return msg
@@ -59,7 +59,7 @@ class NoticeableDamageListener(AbstractListener):
                 pos = 'avant gauche'
             else:
                 pos = 'avant droite'
-            return f'🔴 🛞 Crevaison ou roue {pos} arrachée !'
+            return f'## 🔴 🛞 Crevaison ou roue {pos} arrachée !'
 
         damage_keys = {
             'front_left_wing_damage':  'Aileron avant gauche',
