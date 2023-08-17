@@ -97,7 +97,7 @@ class Session:
 
     def get_current_lap(self, participant:Participant) -> Lap:
         index = self.participants.index(participant)
-        return self.laps[index]
+        return self.laps[index][-1]
 
     def get_participant_status(self, participant:Participant) -> ResultStatus:
         lap = self.get_current_lap(participant)
