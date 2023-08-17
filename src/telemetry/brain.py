@@ -120,7 +120,7 @@ class Brain:
         self.bot.loop.create_task(where.send(msg))
 
     def _emit(self, event:Event, *args, **kwargs):
-        _logger.info(f'{event.name} emitted !')
+        _logger.debug(f'{event.name} emitted !')
         for listener in self.listeners_by_event[event]:
             msg = listener.on(event, *args, **kwargs)
             if msg:
