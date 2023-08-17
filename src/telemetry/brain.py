@@ -334,7 +334,7 @@ class Brain:
             colalign = ('right','left','right', 'left', 'right')
         else:
             colalign = ('right','left','right', 'right')
-        if len(self.current_session.final_classification) > 15:
+        if len(self.current_session.final_classification) > 12:
             return [
                 tabulate(final_ranking[:10], tablefmt='simple_grid', colalign=colalign),
                 tabulate(final_ranking[10:], tablefmt='simple_grid', colalign=colalign)
