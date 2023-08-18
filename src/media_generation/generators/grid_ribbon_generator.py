@@ -36,10 +36,10 @@ class GridRibbonGenerator:
         base_img_path, _ = self._get_base_image()
         title_img_path, _ = self._get_title_image(title_width)
         title_mask_path, _ = self._get_title_mask(title_width)
-        ranking = self.config.ranking #FIXME should be qualif_ranking or ranking should contain the right ranking
+        ranking = self.config.qualif_ranking
         race = self.config.race
-        grid_images = [self._get_grid_image(i+1, race.get_pilot(line['I'])) for i, line in ranking.iterrows()]
-
+        i = 0
+        grid_images = [self._get_grid_image(i:=i+1, race.get_pilot(line['B'])) for _, line in ranking.iterrows()]
         bg_clip = ImageClip(base_img_path)
         bg_clip = bg_clip.set_duration(120)
         title_clip = ImageClip(title_img_path)

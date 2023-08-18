@@ -49,11 +49,7 @@ class Reader:
         if self.type == 'presentation':
             config.description = self.data['A'][6]
         if self.type in ('pole', 'grid_ribbon'):
-            config.qualif_ranking = [
-                race.get_pilot(self.data['G'][29]),
-                race.get_pilot(self.data['G'][30]),
-                race.get_pilot(self.data['G'][31]),
-            ]
+            config.qualif_ranking = self.data[['B','C']][24:]
         if self.type in ('results', 'fastest', 'grid_ribbon'):
             config.ranking = self._get_ranking()
         if self.type == 'results':
@@ -161,7 +157,7 @@ class Reader:
         return sheet_values
 
     def _get_data_sheet_from_gsheet(self):
-        race_vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f"'{self.sheet_name}'!A1:L33")
+        race_vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f"'{self.sheet_name}'!A1:L45")
         max_len = max([len(race_val) for race_val in race_vals[1:]])
         columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][:max_len]
         return pandas.DataFrame(race_vals[1:], columns=columns)
