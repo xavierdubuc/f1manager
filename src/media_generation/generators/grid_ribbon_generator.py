@@ -16,8 +16,11 @@ _logger = logging.getLogger(__name__)
 
 
 class GridRibbonGenerator:
-    def __init__(self, config: GeneratorConfig) -> None:
+    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int):
+        self.championship_config = championship_config
         self.config = config
+        self.season = season
+        self.visual_config = self.championship_config['settings']['visuals'].get('grid_ribbon', {})
         self.width = 1920
         self.height = 60
         self.font_size = 30
@@ -33,7 +36,7 @@ class GridRibbonGenerator:
         base_img_path, _ = self._get_base_image()
         title_img_path, _ = self._get_title_image(title_width)
         title_mask_path, _ = self._get_title_mask(title_width)
-        ranking = self.config.ranking
+        ranking = self.config.ranking #FIXME should be qualif_ranking or ranking should contain the right ranking
         race = self.config.race
         grid_images = [self._get_grid_image(i+1, race.get_pilot(line['I'])) for i, line in ranking.iterrows()]
 

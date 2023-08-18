@@ -1,5 +1,4 @@
 import importlib
-# from src.media_generation.generators.grid_ribbon_generator import GridRibbonGenerator
 from .generator_config import GeneratorConfig
 
 from ..generators.pole_generator import PoleGenerator
@@ -26,7 +25,10 @@ class Renderer:
         'numbers': NumbersGenerator,
         'season_lineup': SeasonLineupGenerator,
         'calendar': CalendarGenerator,
-        # 'grid_ribbon': GridRibbonGenerator
+        'grid_ribbon': {
+            'package': 'src.media_generation.generators.grid_ribbon_generator',
+            'name': 'GridRibbonGenerator'
+        }, # it cannot be included directly as it will make things fail if moviepy is not available
     }
 
     @classmethod
@@ -40,5 +42,8 @@ class Renderer:
             if not config.type in cls.generators:
                 raise Exception(f'Please specify a valid visual type ({", ".join(cls.generators.keys())})')
             generator_cls = cls.generators[config.type]
+            if isinstance(generator_cls,dict):
+                generator_module = importlib.import_module(generator_cls['package'])
+                generator_cls = getattr(generator_module, generator_cls['name'])
         generator = generator_cls(championship_config, config, season)
         return generator.generate()
