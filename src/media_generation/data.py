@@ -27,6 +27,8 @@ brazil = Circuit(id='brazil', name='Brésil', city='Sao Paulo', lap_length=4.309
 abudhabi = Circuit(id='abudhabi', name='Abu Dhabi', city='Yas Marina', lap_length=5.281, best_lap="1' 26'' 103")
 portugal = Circuit(id='portugal', name='Portugal', city='Portimao', lap_length=4.653, best_lap="1' 18'' 750")
 china = Circuit(id='china', name='Chine', city='Shanghai', lap_length=5.451, best_lap="1' 32'' 238")
+qatar = Circuit(id='qatar', name='Qatar', city='Losail', lap_length=5.380, best_lap="1' 23'' 196")
+lasvegas = Circuit(id='lasvegas', name='Las Vegas', city='Las Vegas', lap_length=6.120, best_lap="/")
 
 circuits = {
     'Bahrein': bahrein,
@@ -52,7 +54,9 @@ circuits = {
     'Brésil': brazil,
     'Abu Dhabi': abudhabi,
     'Portugal': portugal,
-    'Chine': china
+    'Chine': china,
+    'Qatar': qatar,
+    'Las Vegas': lasvegas,
 }
 
 # --- TEAMS
