@@ -1,3 +1,4 @@
+import logging
 import os.path
 from dataclasses import dataclass
 from typing import List, Union
@@ -9,6 +10,7 @@ from ..helpers.transform import *
 
 
 ASSETS_PATH = 'assets/teams'
+_logger = logging.getLogger(__name__)
 
 @dataclass
 class Team:
@@ -158,34 +160,49 @@ class Team:
 
         # FIXME refactor below + try to open only once the psd
 
-        horizontal_shift = 10
+        ########
         # Pilots
-        pilot_font = FontFactory.black(30)
-        # name
-        left_pilot_name_img = pilots[0].get_name_image(pilot_font)
-        left_pilot_name_left = parallelogram_pos.left + parallelogram_img.height + horizontal_shift
-        vertical_shift = 2 if '_' in pilots[0].name else 5
-        left_pilot_name_top = parallelogram_pos.top + left_pilot_name_img.height//2 + vertical_shift
-        paste(left_pilot_name_img, img, top=left_pilot_name_top, left=left_pilot_name_left)
+        ########
 
-        # img
-        left_pilot_img = pilots[0].get_close_up_image(width=remaining_height, force_default=True)
-        left_pilot_img_left = int(((width / 2) - left_pilot_img.width) / 2)
-        paste(left_pilot_img, img, top=0, left=left_pilot_img_left)
+        if len(pilots) == 0:
+            _logger.warning(f'Team {self.name} has no pilots !')
+            return img
 
-        # name
-        right_pilot_name_img = pilots[1].get_name_image(pilot_font)
-        right_pilot_name_left = parallelogram_pos.right - parallelogram_img.height - right_pilot_name_img.width - horizontal_shift
-        vertical_shift = 2 if '_' in pilots[1].name else 5
-        right_pilot_name_top = parallelogram_pos.top + right_pilot_name_img.height//2 + vertical_shift
-        paste(right_pilot_name_img, img, top=right_pilot_name_top, left=right_pilot_name_left)
+        max_pilot_name_length = max([len(p.name) for p in pilots])
+        has_long_pseudo =  max_pilot_name_length >= 15
+        pilot_font = FontFactory.black(24 if has_long_pseudo else 30)
+        h_padding = 10
 
-        # img
-        right_pilot_img = pilots[1].get_close_up_image(width=remaining_height, force_default=True)
-        right_pilot_img_left = int((width / 2) + ((width / 2) - right_pilot_img.width) / 2)
+        # PILOT #1
+        left_pilot_img = self._get_lineup_pilot_image(pilots[0], pilot_font, width // 2, height, remaining_height, has_long_pseudo, text_left_padding=5)
+        paste(left_pilot_img, img, top=0, left=h_padding)
+
+        if len(pilots) == 1:
+            _logger.warning(f'Team {self.name} has only one pilot !')
+            return img
+
+        # PILOT #2
+        right_pilot_img = self._get_lineup_pilot_image(pilots[1], pilot_font, width // 2, height, remaining_height, has_long_pseudo)
+        right_pilot_img_left = width - right_pilot_img.width - h_padding
         paste(right_pilot_img, img, top=0, left=right_pilot_img_left)
 
         return img
 
     def get_box_image(self, width:int=5, height:int=30) ->PngImageFile:
         return Image.new('RGB', (width, height), self.box_color)
+
+    def _get_lineup_pilot_image(self, pilot:"Pilot", font: ImageFont.FreeTypeFont, width:int, height:int, img_height:int, has_long_pseudo:bool=False, text_left_padding:int=0):
+        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        pilot_name_img = pilot.get_name_image(font)
+        vertical_shift = 26
+        if not has_long_pseudo and '_' in pilot.name:
+            vertical_shift = 21
+        pilot_name_top = height - pilot_name_img.height - vertical_shift
+        pilot_name_left = int((width-pilot_name_img.width) / 2 + text_left_padding)
+        paste(pilot_name_img, img, top=pilot_name_top, left=pilot_name_left)
+
+        # img
+        left_pilot_img = pilot.get_close_up_image(height=img_height)
+        paste(left_pilot_img, img, top=0)
+
+        return img
