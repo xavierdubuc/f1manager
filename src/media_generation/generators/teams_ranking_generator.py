@@ -75,21 +75,10 @@ class TeamsRankingGenerator(AbstractGenerator):
     def _get_team_img(self, width:int, height: int, team:Team):
         with Image.open(f'assets/teams/cards/{team.name}.png') as img:
             return img.copy()
-        img = Image.new('RGB', (width, height), team.standing_bg)
-        # logo
-        with Image.open(team.get_image()) as logo:
-            logo = resize(logo.copy(), width//3, height-10)
-            _, _, logo_right, _ = paste(logo, img, left=10)
-
-        #text
-        team_font = FontFactory.black(54)
-        team_txt = text(team.title.upper(), team.standing_fg, team_font)
-        paste(team_txt, img, logo_right+40)
-        return img
 
     def _get_points_img(self, width:int, height: int, points:str):
         img = Image.new('RGB', (width, height), (255, 255, 255))
         points_font = FontFactory.black(80)
         points_txt = text(points, (0,0,0), points_font)
-        paste(points_txt, img)
+        paste(points_txt, img, top=2)
         return img

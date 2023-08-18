@@ -1,11 +1,14 @@
+import logging
+
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-from ..models import Pilot, Visual
 
 from ..font_factory import FontFactory
 from ..generators.abstract_generator import AbstractGenerator
 from ..helpers.transform import *
+from ..models import Pilot, Visual
 
+_logger = logging.getLogger(__name__)
 
 class PoleGenerator(AbstractGenerator):
     def _get_pole_pilot(self) -> Pilot:
@@ -19,7 +22,12 @@ class PoleGenerator(AbstractGenerator):
 
     def _generate_basic_image(self) -> PngImageFile:
         pole_pilot = self._get_pole_pilot()
-        return Image.new('RGB', (1080, 1650), color=pole_pilot.team.get_pole_colors()['bg'])
+        if not pole_pilot:
+            _logger.error('No pilot in pole, using default bg color')
+            color = (255,255,255)
+        else:
+            pole_pilot.team.get_pole_colors()['bg']
+        return Image.new('RGB', (1080, 1650), color=color)
 
     def _get_pilot_image(self, pilot: Pilot, width, height):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
@@ -57,6 +65,8 @@ class PoleGenerator(AbstractGenerator):
 
     def _add_content(self, final: PngImageFile):
         pole_pilot = self._get_pole_pilot()
+        if not pole_pilot:
+            raise Exception('There is not pilot in pole !?')
         colors = pole_pilot.team.get_pole_colors()
         draw_lines(final, colors['line'], space_between_lines=10, line_width=2)
         repeat_text(final, (0, 0, 0, 177), pole_pilot.name.upper(), Font=FontFactory.polebg, font_size=200)

@@ -71,8 +71,6 @@ class Visual:
             title = self._get_race_result_title(width//3, height)
         elif self.type == 'fastest':
             title = self._get_race_fastest_title(width//3, height)
-        elif self.type == 'lineups':
-            title = self._get_race_lineup_title(width//3, height)
         elif self.type == 'presentation':
             title = self._get_race_presentation_title(width//3, height)
         top = height // 3
@@ -106,30 +104,16 @@ class Visual:
         draw_img.text((fastest_left,0), ' Result', (255, 255, 255), font)
         return img
 
-    def _get_race_lineup_title(self, width, height):
-        if len(str(self.race.round)) == 1:
-            font_size = 68
-            padding_right = 60
-        else:
-            font_size = 64
-            padding_right = 90
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-        font = FontFactory.bold(font_size)
-        draw_img = ImageDraw.Draw(img)
-        draw_img.text((0,0), 'LINE UP - RACE', (255, 255, 255), font)
-        draw_img.text((width-padding_right,0), f'{self.race.round}', (255, 0, 0), font)
-        return img
-
     def _get_race_presentation_title(self, width, height):
         font_size = 68
         img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
         font = FontFactory.bold(font_size)
         draw_img = ImageDraw.Draw(img)
-        _, _, whole_width, _ = draw_img.textbbox((0, 0), f'RACE {self.race.round}', font)
-        _, _, race_width, _ = draw_img.textbbox((0, 0), f'RACE', font)
+        _, _, whole_width, _ = draw_img.textbbox((0, 0), f'COURSE {self.race.round}', font)
+        _, _, race_width, _ = draw_img.textbbox((0, 0), f'COURSE', font)
         race_left = (width-whole_width) // 2
         number_left = race_left + race_width + 20
-        draw_img.text((race_left,0), 'RACE', (255, 255, 255), font)
+        draw_img.text((race_left,0), 'COURSE', (255, 255, 255), font)
         draw_img.text((number_left,0), f'{self.race.round}', (255, 0, 0), font)
         return img
 

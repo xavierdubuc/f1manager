@@ -91,8 +91,8 @@ class SeasonLineupGenerator(AbstractGenerator):
             font = FontFactory.font(font_name, font_size)
         else:
             font = FontFactory.black(font_size)
-        title_text = text(f'SEASON {self.season}', font_color, font)
-        title2_text = text('RESERVISTS' if RESERVISTS_MODE else 'DRIVERS', font_color, font)
+        title_text = text(f'SAISON {self.season}', font_color, font)
+        title2_text = text('RÉSERVISTES' if RESERVISTS_MODE else 'PILOTES', font_color, font)
         title_top = (height-(title_text.height+title2_text.height)) // 2
         title_pos = paste(title_text, img, top=title_top)
         paste(title2_text, img, top=title_pos.bottom+20)

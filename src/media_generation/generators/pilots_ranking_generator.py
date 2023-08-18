@@ -152,6 +152,10 @@ class PilotsRankingGenerator(AbstractGenerator):
         # pilot name
         pilot_font_name = self.visual_config['rows']['pilot'].get('font')
         pilot_font_size = self.visual_config['rows']['pilot']['font_size']
+        small_font_size_config = self.visual_config['rows']['pilot'].get('small_font')
+        if small_font_size_config:
+            if len(pilot.name) >= small_font_size_config['if']:
+                pilot_font_size = small_font_size_config['size']
         pilot_font = FontFactory.get_font(pilot_font_name, pilot_font_size, FontFactory.black)
         team_txt = text(pilot.name.upper(), pilot.team.standing_fg, pilot_font)
         paste(team_txt, img, team_name_pos.left+225)
