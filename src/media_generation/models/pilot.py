@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 
 from PIL import Image, ImageDraw, ImageFont
@@ -8,6 +9,7 @@ from ..font_factory import FontFactory
 from ..helpers.transform import *
 from .team import Team
 
+_logger = logging.getLogger(__name__)
 
 @dataclass
 class Pilot:
@@ -17,52 +19,33 @@ class Pilot:
     title: str = None
     reservist: bool = False
 
+    # IMAGES FROM PSD
+
     @classmethod
     def get_close_up_psd(cls) -> PSDImage:
-        return PSDImage.open('assets/pilots/closeup.psd')
+        return PSDImage.open('assets/pilots/all.psd')
 
     @classmethod
     def get_long_range_psd(cls) -> PSDImage:
-        return PSDImage.open('assets/pilots/longrange.psd')
+        return PSDImage.open('assets/pilots/all.psd')
 
-    def get_close_up_image(self, width=None, height=None, force_default=False) -> PngImageFile:
+    def get_close_up_image(self, width=None, height=None) -> PngImageFile:
         psd = self.get_close_up_psd()
-        return self._get_image_from_psd(psd, 2, 3, width, height, force_default)
+        return self._get_image_from_psd(psd, 0, 1, width, height, cropping_zone=(70, 0, 246, 176))
 
     def get_long_range_image(self) -> PngImageFile:
         psd = self.get_long_range_psd()
-        return self._get_image_from_psd(psd, 1, 2)
+        return self._get_image_from_psd(psd, 0, 1)
 
     def has_image_in_close_up_psd(self) -> PngImageFile:
         psd = self.get_close_up_psd()
-        return self._has_image_in_psd(psd, 2, 3)
+        return self._has_image_in_psd(psd, 0, 1)
 
     def has_image_in_long_range_psd(self) -> PngImageFile:
         psd = self.get_long_range_psd()
-        return self._has_image_in_psd(psd, 2, 3)
+        return self._has_image_in_psd(psd, 0, 1)
 
-    @classmethod
-    def rename_psd_layers(cls, psd, faces_index=1, clothes_index=2):
-        faces = psd[faces_index]
-        clothes = psd[clothes_index]
-        rename_map = {
-            "x_Kayyzor":"xKayysor",
-            "?":"x0-STEWEN_26-0x",
-            "!":"VRA-RedAym62",
-            "majforti":"majforti-07",
-            "gregy":"WSC_Gregy21",
-            "FBRT_Seb":"FBRT_Seb07",
-            "Iceman":"Iceman7301",
-            "FBRT_CID":"FBRT_CiD16",
-        }
-        for v in faces:
-            v.name = v.name.replace(' détouré', '')
-            v.name = rename_map.get(v.name, v.name)
-
-        for t in clothes:
-            t.name = t.name.replace(' ', '')
-
-        psd.save('assets/pilots/renamed.psd')
+    # GENERATED IMAGES
 
     def get_image(self, width: int, height: int, pilot_font, pilot_color=(255,255,255), show_box:bool=False, box_width:int=0, box_height:int=0, name_top:int=False):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
@@ -111,6 +94,8 @@ class Pilot:
     def get_name_image(self, font: ImageFont.FreeTypeFont, color: tuple = (255, 255, 255)) -> PngImageFile:
         return text(self.name.upper(), color, font)
 
+    # PRIVATE
+
     def _get_number_image(self, font: ImageFont.FreeTypeFont) -> PngImageFile:
         return text(
             self.number,
@@ -120,16 +105,30 @@ class Pilot:
             stroke_width=3
         )
 
-    def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2, width:int=None, height:int=None, force_default:bool=False) -> PngImageFile:
-        faces = psd[faces_index]
-        clothes = psd[clothes_index]
+    def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2, width:int=None, height:int=None, cropping_zone:tuple=False) -> PngImageFile:
+        try:
+            faces = psd[faces_index]
+        except IndexError:
+            _logger.error(f'There is no "{faces_index}" in following psd, face calc index is probably wrong')
+            _logger.error(psd)
+            faces = []
+
+        try:
+            clothes = psd[clothes_index]
+        except IndexError:
+            _logger.error(f'There is no "{clothes_index}" in following psd, face calc index is probably wrong')
+            _logger.error(psd)
+            clothes = []
+
         image_found = False
         for v in faces:
             v.visible = v.name == self.name
             if v.name == self.name:
                 image_found = True
+        if not image_found: # enable 'default' layer
+            faces[0].visible = True
         for t in clothes:
-            t.visible = t.name == self.team.name if self.team else None
+            t.visible = t.name.replace(' ','') == self.team.name if self.team else None
         base = psd.composite(layer_filter=lambda x:x.is_visible())
 
         # resizing
@@ -138,19 +137,11 @@ class Pilot:
         if height and not width:
             width = height
         if width and height:
+            if cropping_zone:
+                base = base.crop(cropping_zone)
             base = resize(base, width, height)
 
-        # default img
-        if image_found or not force_default:
-            return base
-
-        with self.get_default_image() as out:
-            out = out.copy()
-            if width and height:
-                out = resize(out, width, height)
-            paste(base, out)
-
-        return out
+        return base
 
     def _has_image_in_psd(self, psd:PSDImage, faces_index=1, clothes_index=2) -> PngImageFile:
         faces = psd[faces_index]
