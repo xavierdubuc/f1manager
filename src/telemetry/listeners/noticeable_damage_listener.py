@@ -62,7 +62,7 @@ class NoticeableDamageListener(AbstractListener):
                 pos = 'avant gauche'
             else:
                 pos = 'avant droite'
-            return f'## 🔴 🛞 Crevaison ou roue {pos} arrachée !'
+            return f'🔴 🛞 Crevaison ou roue {pos} arrachée !'
 
         damage_keys = {
             'front_left_wing_damage':  'Aileron avant gauche',
