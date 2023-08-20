@@ -97,8 +97,8 @@ class Brain:
             for channel in channels:
                 self._send_discord_message(Message(content=msg.content, channel=channel), msg)
 
-        _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord (channel: {msg.channel})')
-        _logger.info(msg)
+        _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord ({msg.channel})')
+        _logger.info(msg.content)
 
         discord_config = self.championship_config['discord'].get(msg.channel)
         if not discord_config:
@@ -106,7 +106,7 @@ class Brain:
                 _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no specific config for it')
                 return
 
-            _logger.info(f'No discord config for channel type "{msg.channel}, will use default')
+            _logger.info(f'No discord config for {msg.channel}, will use default')
             discord_config = self.championship_config['discord']['default']
 
         guild = self.bot.get_guild(discord_config['guild'])
@@ -123,7 +123,7 @@ class Brain:
         if discord_config.get('use_thread', False) and channel.threads and len(channel.threads):
             where = channel.threads[-1]
 
-        self.bot.loop.create_task(where.send(msg))
+        self.bot.loop.create_task(where.send(msg.get_content()))
 
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')
