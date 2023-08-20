@@ -35,6 +35,7 @@ class Track(Enum):
     jeddah = 29
     miami = 30
     las_vegas = 31
+    qatar = 32
 
     def __str__(self):
         return self.name.replace('_', ' ').capitalize()
