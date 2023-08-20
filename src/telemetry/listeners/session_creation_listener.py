@@ -10,4 +10,4 @@ class SessionCreationListener(AbstractListener):
         Event.SESSION_CREATED
     ]
     def _on_session_created(self, current: Session, old: Session)  -> List[Message]:
-        return [Message(content=f'Début de la session "{current.session_type}" à {current.track}', channel=Channel.BROADCAST)]
+        return [Message(content=f'# Début de la session "{current.session_type}" à {current.track}', channel=Channel.BROADCAST)]
