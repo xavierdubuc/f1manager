@@ -1,4 +1,5 @@
-import logging, tabulate
+import logging
+from tabulate import tabulate
 from typing import Dict, List
 
 from src.telemetry.event import Event
