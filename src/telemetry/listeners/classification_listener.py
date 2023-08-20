@@ -20,7 +20,7 @@ class ClassificationListener(AbstractListener):
 
     def _on_classification_list_initialized(self, session: Session, final_classification: Classification) -> List[Message]:
         if session.session_type.is_clm():
-            return
+            return []
         end_content = f'Fin de la session "{session.session_type}" voici le classement final'
         session_end_msg = Message(content=end_content, channel=Channel.CLASSIFICATION)
         return [session_end_msg] + [
@@ -29,7 +29,7 @@ class ClassificationListener(AbstractListener):
 
     def _on_classification_updated(self, session: Session, changes:Dict[str, Change])  -> List[Message]:
         if session.session_type.is_clm():
-            return
+            return []
         end_content = f'Le classement de la session "{session.session_type}" a changé !? Nouvelle version ci-dessous.'
         return [Message(content=end_content, channel=Channel.CLASSIFICATION)] + [
             Message(content=f"```\n{m}\n```", channel=Channel.CLASSIFICATION) for m in self._classification_to_messages(session)

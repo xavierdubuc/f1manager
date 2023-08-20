@@ -17,9 +17,9 @@ class NoticeableDamageListener(AbstractListener):
     def _on_damage_updated(self, damage:Damage, changes:Dict[str, Change], participant:Participant, session:Session) -> List[Message]:
         # don't mention anything about not running pilots
         if session.get_participant_status(participant) not in (ResultStatus.active, ResultStatus.invalid, ResultStatus.inactive):
-            return
+            return []
         if not self._has_noticeable_damage_changes(changes):
-            return
+            return []
         main_msg = f'## {participant} → {self._get_changes_description(changes)}'
         car_status = damage.get_current_status()
         msg = '\n'.join([main_msg, car_status])
