@@ -101,7 +101,7 @@ class Brain:
         _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord ({msg.channel})')
         _logger.info(msg.content)
 
-        discord_config = self.championship_config['discord'].get(msg.channel)
+        discord_config = self.championship_config['discord'].get(msg.channel.value)
         if not discord_config:
             if parent_msg:
                 _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no specific config for it')
