@@ -29,8 +29,8 @@ class BestLapTimeListener(AbstractListener):
 
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
             session.current_fastest_lap = best_lap_time
-            msg = f'## 🕒 🟪 MEILLEUR TOUR 🟪  {participant}  ` {formatted_lap_time} `'
+            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪  {participant}  ` {formatted_lap_time} `'
         else:
-            msg = f'### 🕒 🟩  {participant}  ` {formatted_lap_time} `'
+            msg = f'🕒 🟩  **{participant}**  ` {formatted_lap_time} `'
 
         return [Message(content=msg, channel=Channel.PACE)]
