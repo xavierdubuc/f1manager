@@ -95,7 +95,8 @@ class Brain:
         if msg.channel == Channel.BROADCAST:
             channels = [c for c in Channel if c != Channel.BROADCAST]
             for channel in channels:
-                self._send_discord_message(Message(content=msg.content, channel=channel), msg)
+                self._send_discord_message(Message(content=msg.content, channel=channel), parent_msg=msg)
+                return
 
         _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord ({msg.channel})')
         _logger.info(msg.content)
@@ -123,6 +124,7 @@ class Brain:
         if discord_config.get('use_thread', False) and channel.threads and len(channel.threads):
             where = channel.threads[-1]
 
+        _logger.info(f'Message sent to {guild.name} / {channel.name}')
         self.bot.loop.create_task(where.send(msg.get_content()))
 
     def _emit(self, event:Event, *args, **kwargs):
