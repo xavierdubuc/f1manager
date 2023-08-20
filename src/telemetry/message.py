@@ -10,6 +10,7 @@ class Channel(Enum):
     DAMAGE = 'damage'
     CLASSIFICATION = 'classification'
     WEATHER = 'weather'
+    PACE = 'pace'
 
 
 @dataclass

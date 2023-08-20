@@ -20,3 +20,10 @@ class Event(Enum):
     CLASSIFICATION_CREATED            = 40
     CLASSIFICATION_LIST_INITIALIZED   = 41
     CLASSIFICATION_UPDATED            = 42
+
+    LAP_RECORD_CREATED                = 50
+    LAP_RECORD_UPDATED                = 51
+
+    LAP_CREATED                       = 60
+
+    BEST_SECTOR_UPDATED               = 70

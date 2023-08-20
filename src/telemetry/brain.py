@@ -1,4 +1,5 @@
 import logging
+from typing import Dict
 from disnake.ext import commands
 from f1_22_telemetry.packets import (
     Packet,
@@ -17,15 +18,18 @@ from f1_22_telemetry.packets import (
 )
 from tabulate import tabulate
 from src.telemetry.event import Event
+from src.telemetry.listeners.best_lap_time_listener import BestLapTimeListener
 from src.telemetry.listeners.classification_listener import ClassificationListener
 from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
+from src.telemetry.managers.abstract_manager import Change
 from src.telemetry.message import Channel, Message
 
 from src.telemetry.models.enums.driver_status import DriverStatus
 from src.telemetry.models.enums.session_type import SessionType
+from src.telemetry.models.participant import Participant
 from .managers.lap_record_manager import LapRecordManager
 from datetime import timedelta
 
@@ -39,15 +43,13 @@ from .managers.telemetry_manager import TelemetryManager
 _logger = logging.getLogger(__name__)
 
 LISTENER_CLASSES = [
+    BestLapTimeListener,
     ClassificationListener,
     NoticeableDamageListener,
     SessionCreationListener,
     SafetyCarListener,
     WeatherForecastListener,
 ]
-
-DEFAULT_GUILD_ID = 1074380392154533958
-DEFAULT_CHANNEL_ID = 1096169137589461082
 
 class Brain:
     def __init__(self, bot: commands.InteractionBot = None, championship_config:dict=None):
@@ -282,53 +284,21 @@ class Brain:
         if not self.current_session.lap_records:
             self.current_session.lap_records = [None] * 20
         if not self.current_session.lap_records[packet.car_idx]:
-            self.current_session.lap_records[packet.car_idx] = LapRecordManager.create(packet)
+            lap_record = LapRecordManager.create(packet)
+            self.current_session.lap_records[packet.car_idx] = lap_record
+            self._emit(Event.LAP_RECORD_CREATED, session=self.current_session, lap_record=lap_record)
         else:
-            lap_record = self.current_session.lap_records[packet.car_idx]
-            changes = LapRecordManager.update(lap_record, packet)
             amount_of_participants = len(self.current_session.participants)
             if packet.car_idx >= amount_of_participants:
                 return
+            lap_record = self.current_session.lap_records[packet.car_idx]
+            changes = LapRecordManager.update(lap_record, packet)
+            participant = self.current_session.participants[packet.car_idx]
 
-            driver = self.current_session.participants[packet.car_idx]
-            if changes:
-                if 'best_lap_time' in changes:
-                    best_lap_time = changes["best_lap_time"].actual
-                    lap_time = timedelta(seconds=best_lap_time/1000)
-                    if not self.current_session.current_fastest_lap or best_lap_time < self.current_session.current_fastest_lap:
-                        self.current_session.current_fastest_lap = best_lap_time
-                        msg = f'🕒 🟪 **{driver}** : nouveau meilleur tour ! (`{self.current_session._format_time(lap_time)}`)'
-                    else:
-                        msg = f'🕒 🟩 **{driver}** : nouveau meilleur tour personnel ! (`{self.current_session._format_time(lap_time)}`)'
-                    self._send_discord_message(Message(content=msg))
-                    return
-                if not self.current_session.session_type.is_race():
-                    keys = (
-                        'best_sector1_time', 'best_sector2_time', 'best_sector3_time'
-                    )
-                    present_keys = list(filter(lambda x: x in changes, keys))
-                    if present_keys:
-                        txts = {
-                            'best_sector1_time': 'Secteur 1',
-                            'best_sector2_time': 'Secteur 2',
-                            'best_sector3_time': 'Secteur 3'
-                        }
-                        session_mapping = {
-                            'best_sector1_time': 'current_fastest_sector1',
-                            'best_sector2_time': 'current_fastest_sector2',
-                            'best_sector3_time': 'current_fastest_sector3'
-                        }
-                        for key in present_keys:
-                            current_time = changes[key].actual
-                            sector_time = timedelta(seconds=current_time/1000)
+            if changes and self.current_session.session_type.is_qualification():
+                self._keep_up_to_date_session_best_sectors(changes, participant)
 
-                            session_attr = session_mapping[key]
-                            current_best = getattr(self.current_session, session_attr)
-                            if not current_best or current_time < current_best:
-                                setattr(self.current_session, session_attr, current_time)
-                                msg = f'🕒 🟪 **{driver}**: nouveau meilleur {txts[key]} ! (`{self.current_session._format_time(sector_time)}`)'
-                            else:
-                                msg = f'🕒 🟩 **{driver}**: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`)'
+            self._emit(Event.LAP_RECORD_UPDATED, lap_record, changes, participant, self.current_session)
 
     def _handle_received_lap_packet(self, packet:PacketLapData):
         if not self.current_session:
@@ -441,3 +411,12 @@ class Brain:
 
                     # .. and update it
                     self.current_session.lap_state_last_start_of_lap[i] = LapManager.create(packet_data, len(car_laps))
+
+    def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
+        for sector in ('sector1', 'sector2', 'sector3'):
+            if f'best_{sector}_time' in changes:
+                current_best = getattr(self.current_session, f'current_fastest_{sector}')
+                new_time = changes[f'best_{sector}_time'].actual
+                if not current_best or new_time < current_best:
+                    setattr(self.current_session, f'current_fastest_{sector}', new_time)
+                    self._emit(Event.BEST_SECTOR_UPDATED, session=self.current_session, participant=participant, sector=sector, now=new_time, old=current_best)
