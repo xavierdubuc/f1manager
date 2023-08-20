@@ -124,7 +124,7 @@ class Brain:
         if discord_config.get('use_thread', False) and channel.threads and len(channel.threads):
             where = channel.threads[-1]
 
-        _logger.info(f'Message sent to {guild.name} / {channel.name}')
+        _logger.info(f'Message sent to "{guild.name}/#{channel.name}')
         self.bot.loop.create_task(where.send(msg.get_content()))
 
     def _emit(self, event:Event, *args, **kwargs):

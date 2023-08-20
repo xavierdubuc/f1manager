@@ -7,7 +7,7 @@ from enum import Enum
 class Channel(Enum):
     BROADCAST = 'broadcast'
     DEFAULT = 'default'
-    DAMAGE = 'damage',
+    DAMAGE = 'damage'
     CLASSIFICATION = 'classification'
     WEATHER = 'weather'
 
