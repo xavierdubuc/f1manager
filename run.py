@@ -6,10 +6,12 @@ from datetime import datetime
 from f1_22_telemetry.packets import *
 import logging
 from src.telemetry.telemetry_command import Command
+from pprint import pformat
 
 from telemetry import TelemetryThread
 from bot import bot
-from config.config import discord_bot_token
+from config.config import discord_bot_token, CHAMPIONSHIPS
+
 
 args = Command().parse_args()
 levels = {
@@ -28,7 +30,14 @@ logging.basicConfig(
 )
 _logger = logging.getLogger(__name__)
 
-thread_telemetry = TelemetryThread(args.ip, args.sheet_name, bot, args.discord_guild, args.discord_channel)
+if args.championship not in CHAMPIONSHIPS:
+    _logger.error(f'Unknown championship "{args.championship}"')
+    exit()
+CHAMPIONSHIP_CONFIG = CHAMPIONSHIPS[args.championship]
+_logger.info(f'Will use "{args.championship}" config')
+_logger.debug(f'\n{pformat(CHAMPIONSHIP_CONFIG,indent=2)}')
+
+thread_telemetry = TelemetryThread(args.ip, args.sheet_name, bot, CHAMPIONSHIP_CONFIG)
 thread_telemetry.daemon = True  # this is a problem for pickle and send to gsheet
 thread_telemetry.start()
 

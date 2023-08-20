@@ -1,7 +1,8 @@
-from typing import Dict
+from typing import Dict, List
 from src.telemetry.event import Event
 
 from src.telemetry.managers.abstract_manager import Change
+from src.telemetry.message import Channel, Message
 from src.telemetry.models.damage import Damage
 from src.telemetry.models.enums.result_status import ResultStatus
 from src.telemetry.models.participant import Participant
@@ -13,7 +14,7 @@ class NoticeableDamageListener(AbstractListener):
         Event.DAMAGE_UPDATED
     ]
 
-    def _on_damage_updated(self, damage:Damage, changes:Dict[str, Change], participant:Participant, session:Session) -> str:
+    def _on_damage_updated(self, damage:Damage, changes:Dict[str, Change], participant:Participant, session:Session) -> List[Message]:
         # don't mention anything about not running pilots
         if session.get_participant_status(participant) not in (ResultStatus.active, ResultStatus.invalid, ResultStatus.inactive):
             return
@@ -22,7 +23,9 @@ class NoticeableDamageListener(AbstractListener):
         main_msg = f'## {participant} → {self._get_changes_description(changes)}'
         car_status = damage.get_current_status()
         msg = '\n'.join([main_msg, car_status])
-        return msg
+        return [Message(content=msg, channel=Channel.DAMAGE)]
+
+    # PRIVATE
 
     def _has_noticeable_damage_changes(self, changes:Dict[str, Change]) -> bool:
         if not changes:

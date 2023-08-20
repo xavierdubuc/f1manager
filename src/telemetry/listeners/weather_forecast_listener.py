@@ -4,6 +4,7 @@ from typing import Dict, List
 from src.telemetry.event import Event
 
 from src.telemetry.managers.abstract_manager import Change
+from src.telemetry.message import Channel, Message
 from src.telemetry.models.session import Session
 from src.telemetry.models.weather_forecast import WeatherForecast
 from .abstract_listener import AbstractListener
@@ -25,15 +26,15 @@ class WeatherForecastListener(AbstractListener):
         self.last_notified_at = None
         self.last_logged_at = None
 
-    def _on_session_created(self, current: Session, old: Session) -> str:
+    def _on_session_created(self, current: Session, old: Session)  -> List[Message]:
         now = datetime.now()
         wfcasts = current.weather_forecast
         current_forecasts = self._log_forecasts(current, wfcasts)
         self.last_logged_at = now
         self.last_notified_at = now
-        return current_forecasts
+        return [Message(content=current_forecasts, channel=Channel.WEATHER)]
 
-    def _on_session_updated(self, session:Session, changes:Dict[str, Change]) -> str:
+    def _on_session_updated(self, session:Session, changes:Dict[str, Change])  -> List[Message]:
         if 'weather_forecast' not in changes:
             return
         now = datetime.now()
@@ -46,7 +47,7 @@ class WeatherForecastListener(AbstractListener):
             notification_delta = now - self.last_notified_at if self.last_notified_at else None
             if not notification_delta or notification_delta.seconds > self.log_delay:
                 self.last_notified_at = now
-                return current_forecasts
+                return [Message(content=current_forecasts, channel=Channel.WEATHER)]
 
     def _log_forecasts(self, session:Session, forecasts:List[WeatherForecast]) -> str:
         str_wfcasts = []

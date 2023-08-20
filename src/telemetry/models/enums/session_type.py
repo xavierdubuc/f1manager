@@ -38,3 +38,12 @@ class SessionType(Enum):
         return self in (
             SessionType.race, SessionType.race_2, SessionType.race_3
         )
+
+    def is_clm(self):
+        return self == SessionType.clm
+
+    def is_qualification(self):
+        return self in (
+            SessionType.one_lap_q, SessionType.q1, SessionType.q2,
+            SessionType.q3, SessionType.short_q
+        )

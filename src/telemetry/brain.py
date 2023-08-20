@@ -1,4 +1,4 @@
-import logging, asyncio
+import logging
 from disnake.ext import commands
 from f1_22_telemetry.packets import (
     Packet,
@@ -17,28 +17,29 @@ from f1_22_telemetry.packets import (
 )
 from tabulate import tabulate
 from src.telemetry.event import Event
+from src.telemetry.listeners.classification_listener import ClassificationListener
 from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
-from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
+from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
+from src.telemetry.message import Channel, Message
 
 from src.telemetry.models.enums.driver_status import DriverStatus
 from src.telemetry.models.enums.session_type import SessionType
 from .managers.lap_record_manager import LapRecordManager
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from src.telemetry.models.enums.safety_car_status import SafetyCarStatus
 from .managers.classification_manager import ClassificationManager
 from .managers.damage_manager import DamageManager
 from .managers.lap_manager import LapManager
 from .managers.participant_manager import ParticipantManager
-
 from .managers.session_manager import SessionManager
 from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
 LISTENER_CLASSES = [
+    ClassificationListener,
     NoticeableDamageListener,
     SessionCreationListener,
     SafetyCarListener,
@@ -47,17 +48,14 @@ LISTENER_CLASSES = [
 
 DEFAULT_GUILD_ID = 1074380392154533958
 DEFAULT_CHANNEL_ID = 1096169137589461082
-WEATHER_NOTIFICATION_DELAY = 4 * 60 # 4 minutes
 
 class Brain:
-    def __init__(self, bot: commands.InteractionBot = None, discord_guild: str = DEFAULT_GUILD_ID, discord_channel: str = DEFAULT_CHANNEL_ID):
+    def __init__(self, bot: commands.InteractionBot = None, championship_config:dict=None):
         self.current_session = None
         self.previous_sessions = []
         self.bot = bot
         self.last_weather_notified_at = None
-        self.discord_guild = int(discord_guild) if discord_guild is not None else DEFAULT_GUILD_ID
-        self.discord_channel = int(discord_channel) if discord_channel is not None else DEFAULT_CHANNEL_ID
-        _logger.info(f'Will use {self.discord_guild}:{self.discord_channel} to send Discord messages')
+        self.championship_config = championship_config
         self.listeners_by_event = {event: [] for event in Event}
         for Listener in LISTENER_CLASSES:
             listener = Listener()
@@ -89,42 +87,51 @@ class Brain:
         elif packet_type == PacketSessionHistoryData:
             self._handle_received_session_history_packet(packet)
 
-    def _send_discord_message(self, msg):
+    def _send_discord_message(self, msg:Message, parent_msg:Message=None):
         if not self.bot:
             return
         if not self.bot.loop:
-            return 
-        if not self.discord_guild:
             return
-        if not self.discord_channel:
-            return
+        if msg.channel == Channel.BROADCAST:
+            channels = [c for c in Channel if c != Channel.BROADCAST]
+            for channel in channels:
+                self._send_discord_message(Message(content=msg.content, channel=channel), msg)
 
-        _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord')
+        _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord (channel: {msg.channel})')
         _logger.info(msg)
 
-        guild = self.bot.get_guild(self.discord_guild)
+        discord_config = self.championship_config['discord'].get(msg.channel)
+        if not discord_config:
+            if parent_msg:
+                _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no specific config for it')
+                return
+
+            _logger.info(f'No discord config for channel type "{msg.channel}, will use default')
+            discord_config = self.championship_config['discord']['default']
+
+        guild = self.bot.get_guild(discord_config['guild'])
         if not guild:
-            _logger.error(f'Guild "{self.discord_guild}" not found, message not sent')
+            _logger.error(f'Guild "{discord_config["guild"]}" not found, message not sent')
             return
 
-        channel = guild.get_channel(self.discord_channel)
+        channel = guild.get_channel(discord_config['channel'])
         if not channel:
-            _logger.error(f'Channel "{self.discord_channel}" not found, message not sent')
+            _logger.error(f'Channel "{discord_config["channel"]}" not found, message not sent')
             return
 
-        if channel.threads and len(channel.threads):
+        where = channel
+        if discord_config['channel'].get('use_thread', False) and channel.threads and len(channel.threads):
             where = channel.threads[-1]
-        else:
-            where = channel
 
         self.bot.loop.create_task(where.send(msg))
 
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')
         for listener in self.listeners_by_event[event]:
-            msg = listener.on(event, *args, **kwargs)
-            if msg:
-                self._send_discord_message(msg)
+            msgs = listener.on(event, *args, **kwargs)
+            if msgs:
+                for msg in msgs:
+                    self._send_discord_message(msg)
 
     """
     @emits SESSION_CREATED
@@ -250,26 +257,20 @@ class Brain:
                 for i in range(packet.num_cars)
             ]
             self._emit(Event.CLASSIFICATION_LIST_INITIALIZED, session=self.current_session, final_classification=self.current_session.final_classification)
-            self._send_discord_message(f'Fin de la session "{self.current_session.session_type}" voici le classement final :')
-            for part in self._get_final_classification_as_string():
-                self._send_discord_message(f"```\n{part}\n```")
         else:
             current_amount_of_classification = len(self.current_session.final_classification)
-            at_least_one_changed = False
             for i in range(packet.num_cars):
                 packet_data = packet.classification_data[i]
                 if i > current_amount_of_classification - 1:
-                    self.current_session.final_classification.append(ClassificationManager.create(packet_data))
+                    new_classification = ClassificationManager.create(packet_data)
+                    self._emit(Event.CLASSIFICATION_CREATED, session=self.current_session, final_classification=new_classification)
+                    self.current_session.final_classification.append(new_classification)
                 else:
                     changes = ClassificationManager.update(self.current_session.final_classification[i], packet_data)
                     if changes:
                         _logger.warning('!? final classification changed !?')
                         _logger.warning(changes)
-                        at_least_one_changed = True
-            if at_least_one_changed:
-                self._send_discord_message('Le classement a changé !? Voici la nouvelle version:')
-                for part in self._get_final_classification_as_string():
-                    self._send_discord_message(f"```\n{part}\n```")
+                        self._emit(Event.CLASSIFICATION_UPDATED, session=self.current_session, changes=changes)
 
     def _handle_received_session_history_packet(self, packet: PacketSessionHistoryData):
         if not self.current_session:
@@ -297,7 +298,7 @@ class Brain:
                         msg = f'🕒 🟪 **{driver}** : nouveau meilleur tour ! (`{self.current_session._format_time(lap_time)}`)'
                     else:
                         msg = f'🕒 🟩 **{driver}** : nouveau meilleur tour personnel ! (`{self.current_session._format_time(lap_time)}`)'
-                    self._send_discord_message(msg)
+                    self._send_discord_message(Message(content=msg))
                     return
                 if not self.current_session.session_type.is_race():
                     keys = (
@@ -326,20 +327,6 @@ class Brain:
                                 msg = f'🕒 🟪 **{driver}**: nouveau meilleur {txts[key]} ! (`{self.current_session._format_time(sector_time)}`)'
                             else:
                                 msg = f'🕒 🟩 **{driver}**: nouveau meilleur {txts[key]} personnel ! (`{self.current_session._format_time(sector_time)}`)'
-
-    def _get_final_classification_as_string(self):
-        _logger.info('Final ranking of previous session below.')
-        final_ranking = self.current_session.get_formatted_final_ranking()
-        if self.current_session.session_type.is_race():
-            colalign = ('right','left','right', 'left', 'right')
-        else:
-            colalign = ('right','left','right', 'right')
-        if len(self.current_session.final_classification) > 12:
-            return [
-                tabulate(final_ranking[:10], tablefmt='simple_grid', colalign=colalign),
-                tabulate(final_ranking[10:], tablefmt='simple_grid', colalign=colalign)
-            ]
-        return [tabulate(final_ranking, tablefmt='simple_grid', colalign=colalign)]
 
     def _handle_received_lap_packet(self, packet:PacketLapData):
         if not self.current_session:
@@ -388,13 +375,13 @@ class Brain:
                         result_status = changes['result_status'].actual
                         msg = result_status.get_pilot_result_str(pilot)
                         if msg:
-                            self._send_discord_message(msg)
+                            self._send_discord_message(Message(content=msg))
                     # DON'T DO THE FOLLOWING IN RACE
                     if not self.current_session.session_type.is_race() and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
                         if 'current_lap_invalid' in changes and car_last_lap.current_lap_invalid:
                             square_repr = '🟥🟥🟥'
                             msg = f'**{pilot}** : {square_repr}'
-                            self._send_discord_message(msg)
+                            self._send_discord_message(Message(content=msg))
                         if lap_records and ('sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes) and not car_last_lap.current_lap_invalid:
                             pb_sector1 = lap_records.best_sector1_time
                             ob_sector1 = self.current_session.current_fastest_sector1
@@ -405,7 +392,7 @@ class Brain:
                             square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, None, None, None)
 
                             msg = f'**{pilot}** : {square_repr}'
-                            self._send_discord_message(msg)
+                            self._send_discord_message(Message(content=msg))
 
                 # Pilot just crossed the line
                 else:
@@ -422,7 +409,7 @@ class Brain:
                                 f'{new_lap.get_lap_num_title(self.current_session.total_laps)}'
                                 '━━━━━━━━━━━━━━'
                             )
-                            self._send_discord_message(msg)
+                            self._send_discord_message(Message(content=msg))
                     # -- QUALIFS
                     else:
                         if lap_records and not car_last_lap.current_lap_invalid and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
@@ -438,7 +425,7 @@ class Brain:
                             square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, new_lap.last_lap_time_in_ms, pb_sector3, ob_sector3)
 
                             msg = f'**{pilot}** : {square_repr}'
-                            self._send_discord_message(msg)
+                            self._send_discord_message(Message(content=msg))
 
                     # Compare with lap state last time pilot crossed the line...
                     old_lap_state = self.current_session.lap_state_last_start_of_lap[i]
@@ -448,7 +435,7 @@ class Brain:
                         position_change = new_lap.get_position_evolution(old_lap_state)
                         if position_change:
                             msg = f'{position_change} **{pilot}**'
-                        self._send_discord_message(msg)
+                        self._send_discord_message(Message(content=msg))
 
                     # .. and update it
                     self.current_session.lap_state_last_start_of_lap[i] = LapManager.create(packet_data, len(car_laps))
