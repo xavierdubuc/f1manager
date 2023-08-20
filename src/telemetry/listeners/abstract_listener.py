@@ -12,7 +12,6 @@ class AbstractListener:
         method = getattr(self, f'_on_{unsp_name}')
         if method:
             res = method(*args, **kwargs)
-            if not res:
-                return res
-            if not isinstance(res, list):
+            if res and not isinstance(res, list):
                 return list(res)
+            return res
