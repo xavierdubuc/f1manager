@@ -114,13 +114,13 @@ class Brain:
             _logger.error(f'Guild "{discord_config["guild"]}" not found, message not sent')
             return
 
-        channel = guild.get_channel(discord_config['channel'])
+        channel = guild.get_channel(discord_config['chann'])
         if not channel:
-            _logger.error(f'Channel "{discord_config["channel"]}" not found, message not sent')
+            _logger.error(f'Channel "{discord_config["chann"]}" not found, message not sent')
             return
 
         where = channel
-        if discord_config['channel'].get('use_thread', False) and channel.threads and len(channel.threads):
+        if discord_config.get('use_thread', False) and channel.threads and len(channel.threads):
             where = channel.threads[-1]
 
         self.bot.loop.create_task(where.send(msg))
