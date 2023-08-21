@@ -37,6 +37,9 @@ class Lap:
     def __str__(self):
         return f'Lap {self.current_lap_num}'
 
+    def is_leader(self):
+        return self.car_position == 1
+
     def get_lap_num_title(self, total_amount_of_laps):
         if not total_amount_of_laps:
             return f'` TOUR {str(self.current_lap_num).rjust(2)} `'

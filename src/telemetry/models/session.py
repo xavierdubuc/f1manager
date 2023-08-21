@@ -95,6 +95,14 @@ class Session:
             return False
         return True
 
+    def get_lap_records(self, participant:Participant) -> LapRecord:
+        index = self.participants.index(participant)
+        if not self.lap_records:
+            return None
+        if index >= len(self.lap_records):
+            return None
+        return self.lap_records[index]
+
     def get_current_lap(self, participant:Participant) -> Lap:
         index = self.participants.index(participant)
         return self.laps[index][-1]

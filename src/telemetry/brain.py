@@ -20,7 +20,11 @@ from tabulate import tabulate
 from src.telemetry.event import Event
 from src.telemetry.listeners.best_lap_time_listener import BestLapTimeListener
 from src.telemetry.listeners.classification_listener import ClassificationListener
+from src.telemetry.listeners.dnf_listener import DNFListener
+from src.telemetry.listeners.lap_start_listener import LapStartListener
 from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
+from src.telemetry.listeners.position_change_listener import PositionChangeListener
+from src.telemetry.listeners.qualification_sectors_listener import QualificationSectorsListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
@@ -45,9 +49,13 @@ _logger = logging.getLogger(__name__)
 LISTENER_CLASSES = [
     BestLapTimeListener,
     ClassificationListener,
+    DNFListener,
+    LapStartListener,
     NoticeableDamageListener,
-    SessionCreationListener,
+    PositionChangeListener,
+    QualificationSectorsListener,
     SafetyCarListener,
+    SessionCreationListener,
     WeatherForecastListener,
 ]
 
@@ -276,6 +284,10 @@ class Brain:
                         _logger.warning(changes)
                         self._emit(Event.CLASSIFICATION_UPDATED, session=self.current_session, changes=changes)
 
+    """
+    @emits LAP_RECORD_CREATED
+    @emits LAP_RECORD_UPDATED
+    """
     def _handle_received_session_history_packet(self, packet: PacketSessionHistoryData):
         if not self.current_session:
             return # this should not happen
@@ -300,6 +312,11 @@ class Brain:
 
             self._emit(Event.LAP_RECORD_UPDATED, lap_record, changes, participant, self.current_session)
 
+    """
+    @emits LAP_CREATED
+    @emits LAP_UPDATED
+    @emits LAP_START_CREATED
+    """
     def _handle_received_lap_packet(self, packet:PacketLapData):
         if not self.current_session:
             return # this should not happen
@@ -312,16 +329,21 @@ class Brain:
             self.current_session.laps = []
             self.current_session.lap_state_last_start_of_lap = []
             for i in range(amount_of_pertinent_lap):
-                self.current_session.laps.append([
-                    LapManager.create(packet.lap_data[i], 0)
-                ])
-                self.current_session.lap_state_last_start_of_lap.append(
-                    LapManager.create(packet.lap_data[i], 0)
-                )
+                participant = self.current_session.participants[i]
+                lap = LapManager.create(packet.lap_data[i], 0)
+                self.current_session.laps.append([lap])
+                self._emit(Event.LAP_CREATED, lap=lap, participant=participant, session=self.current_session)
+                # We have to create again the lap as we want to store two different objects
+
+                start_of_lap = LapManager.create(packet.lap_data[i], 0)
+                self.current_session.lap_state_last_start_of_lap.append(start_of_lap)
+                self._emit(Event.LAP_START_CREATED, lap=lap, participant=participant,
+                           session=self.current_session, previous_lap=None)
         else:
             current_amount_of_lap = len(self.current_session.laps)
             for i in range(amount_of_pertinent_lap):
                 packet_data = packet.lap_data[i]
+                participant = self.current_session.participants[i]
 
                 # We had no laps yet for this one
                 if i > current_amount_of_lap - 1:
@@ -330,87 +352,25 @@ class Brain:
 
                 car_laps = self.current_session.laps[i]
                 car_last_lap = car_laps[-1] if car_laps else None
-                pilot = self.current_session.participants[i]
-
-                # pilot lap records (best sectors & lap)
-                if self.current_session.lap_records:
-                    all_lap_records = self.current_session.lap_records
-                else:
-                    all_lap_records = None
-                lap_records = all_lap_records[i] if all_lap_records and i < len(all_lap_records) else None
 
                 # Same lap
                 if car_last_lap and car_last_lap.current_lap_num == packet_data.current_lap_num:
                     changes = LapManager.update(car_last_lap, packet_data)
-
-                    if 'result_status' in changes:
-                        result_status = changes['result_status'].actual
-                        msg = result_status.get_pilot_result_str(pilot)
-                        if msg:
-                            self._send_discord_message(Message(content=msg))
-                    # DON'T DO THE FOLLOWING IN RACE
-                    if not self.current_session.session_type.is_race() and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
-                        if 'current_lap_invalid' in changes and car_last_lap.current_lap_invalid:
-                            square_repr = '🟥🟥🟥'
-                            msg = f'**{pilot}** : {square_repr}'
-                            self._send_discord_message(Message(content=msg))
-                        if lap_records and ('sector1_time_in_ms' in changes or 'sector2_time_in_ms' in changes) and not car_last_lap.current_lap_invalid:
-                            pb_sector1 = lap_records.best_sector1_time
-                            ob_sector1 = self.current_session.current_fastest_sector1
-
-                            pb_sector2 = lap_records.best_sector2_time
-                            ob_sector2 = self.current_session.current_fastest_sector2
-
-                            square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, None, None, None)
-
-                            msg = f'**{pilot}** : {square_repr}'
-                            self._send_discord_message(Message(content=msg))
-
+                    self._emit(Event.LAP_UPDATED, lap=car_last_lap, changes=changes, participant=participant, session=self.current_session)
                 # Pilot just crossed the line
                 else:
                     # Add the new lap to the car's list of lap
                     new_lap = LapManager.create(packet_data, len(car_laps))
+                    self._emit(Event.LAP_CREATED, lap=new_lap, participant=participant, session=self.current_session)
                     car_laps.append(new_lap)
 
-                    # -- RACE
-                    if self.current_session.session_type.is_race():
-                        # If it's the lap of the race leader, notify new lap
-                        if new_lap.car_position == 1:
-                            msg = (
-                                '━━━━━━━━━━━━━━'
-                                f'{new_lap.get_lap_num_title(self.current_session.total_laps)}'
-                                '━━━━━━━━━━━━━━'
-                            )
-                            self._send_discord_message(Message(content=msg))
-                    # -- QUALIFS
-                    else:
-                        if lap_records and not car_last_lap.current_lap_invalid and car_last_lap.driver_status not in (DriverStatus.in_pit, DriverStatus.out_lap):
-                            pb_sector1 = lap_records.best_sector1_time
-                            ob_sector1 = self.current_session.current_fastest_sector1
-
-                            pb_sector2 = lap_records.best_sector2_time
-                            ob_sector2 = self.current_session.current_fastest_sector2
-
-                            pb_sector3 = lap_records.best_sector3_time
-                            ob_sector3 = self.current_session.current_fastest_sector3
-
-                            square_repr = car_last_lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2, ob_sector2, new_lap.last_lap_time_in_ms, pb_sector3, ob_sector3)
-
-                            msg = f'**{pilot}** : {square_repr}'
-                            self._send_discord_message(Message(content=msg))
-
-                    # Compare with lap state last time pilot crossed the line...
-                    old_lap_state = self.current_session.lap_state_last_start_of_lap[i]
-
-                    # Notify position change if any
-                    if old_lap_state and old_lap_state.car_position != new_lap.car_position:
-                        position_change = new_lap.get_position_evolution(old_lap_state)
-                        if position_change:
-                            msg = f'{position_change} **{pilot}**'
-                        self._send_discord_message(Message(content=msg))
-
-                    # .. and update it
-                    self.current_session.lap_state_last_start_of_lap[i] = LapManager.create(packet_data, len(car_laps))
+                    # Update lap start
+                    lap_start = LapManager.create(packet_data, len(car_laps))
+                    previous_lap = self.current_session.lap_state_last_start_of_lap[i]
+                    self.current_session.lap_state_last_start_of_lap[i] = lap_start
+                    self._emit(Event.LAP_START_CREATED, lap=lap_start,
+                               previous_lap=previous_lap,participant=participant,
+                               session=self.current_session)
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):

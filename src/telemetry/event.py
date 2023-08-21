@@ -25,5 +25,7 @@ class Event(Enum):
     LAP_RECORD_UPDATED                = 51
 
     LAP_CREATED                       = 60
+    LAP_UPDATED                       = 61
+    LAP_START_CREATED                 = 62
 
     BEST_SECTOR_UPDATED               = 70
