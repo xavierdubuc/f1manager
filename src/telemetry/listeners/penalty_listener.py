@@ -28,8 +28,8 @@ class PenaltyListener(AbstractListener):
             msg = f'🏳️  {participant} a recu un avertissement ! Total : {amount_of_warnings}'
             messages.append(Message(content=msg, channel=Channel.PENALTY))
         if 'penalties' in changes:
-            seconds_of_penalties = changes['warnings'].actual
-            seconds_of_penalties_before = changes['warnings'].old
+            seconds_of_penalties = changes['penalties'].actual
+            seconds_of_penalties_before = changes['penalties'].old
             diff = seconds_of_penalties - seconds_of_penalties_before
             msg = f'🏴 {participant} a recu une pénalité de {diff} secondes ! Total : {seconds_of_penalties} secondes'
             messages.append(Message(content=msg, channel=Channel.PENALTY))
