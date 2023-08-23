@@ -23,6 +23,7 @@ from src.telemetry.listeners.classification_listener import ClassificationListen
 from src.telemetry.listeners.dnf_listener import DNFListener
 from src.telemetry.listeners.lap_start_listener import LapStartListener
 from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
+from src.telemetry.listeners.penalty_listener import PenaltyListener
 from src.telemetry.listeners.position_change_listener import PositionChangeListener
 from src.telemetry.listeners.qualification_sectors_listener import QualificationSectorsListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
@@ -52,6 +53,7 @@ LISTENER_CLASSES = [
     DNFListener,
     LapStartListener,
     NoticeableDamageListener,
+    PenaltyListener,
     PositionChangeListener,
     QualificationSectorsListener,
     SafetyCarListener,
