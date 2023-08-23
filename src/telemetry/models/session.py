@@ -95,7 +95,7 @@ class Session:
             return False
         return True
 
-    def get_lap_records(self, participant:Participant) -> LapRecord:
+    def get_lap_record(self, participant:Participant) -> LapRecord:
         index = self.participants.index(participant)
         if not self.lap_records:
             return None
