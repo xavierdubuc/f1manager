@@ -9,10 +9,12 @@ from models.enums.tyre_compound import TyreCompound
 from models.enums.tyre import Tyre
 from models.enums.flag import Flag
 from models.enums.ers_deploy_mode import ERSDeployMode
+from src.telemetry.models.participant import Participant
 
 _logger = logging.getLogger(__name__)
 
 ERS_CAPACITY_JOUL = 4000000
+
 
 @dataclass
 class CarStatus(EvolvingModel):
@@ -39,73 +41,3 @@ class CarStatus(EvolvingModel):
     ers_harvested_this_lap_mguk: float = None
     ers_harvested_this_lap_mguh: float = None
     ers_deployed_this_lap: float = None
-
-    @staticmethod
-    def _get_primitive_field_names():
-        return {
-            "front_brake_bias": "front_brake_bias",
-            "fuel_in_tank": "fuel_in_tank",
-            "fuel_capacity": "fuel_capacity",
-            "fuel_remaining_laps": "fuel_remaining_laps",
-            "max_rpm": "max_rpm",
-            "idle_rpm": "idle_rpm",
-            "max_gears": "max_gears",
-            "drs_activation_distance": "drs_activation_distance",
-            "tyres_age_laps": "tyres_age_laps",
-            "ers_store_energy": "ers_store_energy",
-            "ers_harvested_this_lap_mguk": "ers_harvested_this_lap_mguk",
-            "ers_harvested_this_lap_mguh": "ers_harvested_this_lap_mguh",
-            "ers_deployed_this_lap": "ers_deployed_this_lap",
-        }
-
-    @staticmethod
-    def _get_enum_field_names():
-        return {
-            'traction_control': (TractionControl, 'traction_control'),
-            'fuel_mix': (FuelMix, 'fuel_mix'),
-            'actual_tyre_compound': (TyreCompound, 'actual_tyre_compound'),
-            'visual_tyre_compound': (Tyre, 'visual_tyre_compound'),
-            'vehicle_fia_flags': (Flag, 'vehicle_fia_flags'),
-            'ers_deploy_mode': (ERSDeployMode, 'ers_deploy_mode'),
-        }
-
-    @staticmethod
-    def _get_bool_field_names():
-        return {
-            'anti_lock_brakes_enabled': 'anti_lock_brakes',
-            'pit_limiter_enabled': "pit_limiter_status",
-            'drs_allowed': 'drs_allowed',
-            'network_paused': 'network_paused',
-        }
-
-    def _primitive_value_changed(self, field, old_value, new_value):
-        if field in (
-            'ers_harvested_this_lap_mguk', 'ers_harvested_this_lap_mguh',
-            'ers_deployed_this_lap', 'ers_store_energy',
-            'drs_activation_distance', 'fuel_in_tank', 'fuel_capacity',
-            'fuel_remaining_laps', 'max_rpm', 'idle_rpm', 'max_gears'
-        ):
-            return
-        if field == 'tyres_age_laps':
-            if new_value < old_value:
-                self._log(f'Old tyres was {old_value} laps old and new one are {new_value} laps old.')
-            return
-        super(CarStatus, self)._primitive_value_changed(field, old_value, new_value)
-
-    def _enum_value_changed(self, field, old_value, new_value):
-        if field == 'ers_deploy_mode':
-            ers_percent = round(100 * (self.ers_store_energy/ERS_CAPACITY_JOUL))
-            if new_value == 'overtake':
-                self._warn(f'Enabling overtake mode ! Available amount : {ers_percent}%')
-            elif old_value == 'overtake':
-                self._warn(f'Disabling overtake mode ! Remaining amount : {ers_percent}%')
-            return
-        if field == 'visual_tyre_compound':
-            self._warn(f'Switching tyres from {old_value} to {new_value} !')
-            return
-        super(CarStatus, self)._enum_value_changed(field, old_value, new_value)
-
-    def _bool_value_changed(self, field, new_value):
-        if field != 'pit_limiter_enabled':
-            return  # not needed to log this
-        super(CarStatus, self)._bool_value_changed(field, new_value)

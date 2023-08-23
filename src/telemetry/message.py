@@ -12,6 +12,7 @@ class Channel(Enum):
     WEATHER = 'weather'
     PACE = 'pace'
     PENALTY = 'penalty'
+    PIT = 'pit'
 
 
 @dataclass

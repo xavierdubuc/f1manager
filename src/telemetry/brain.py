@@ -24,19 +24,20 @@ from src.telemetry.listeners.dnf_listener import DNFListener
 from src.telemetry.listeners.lap_start_listener import LapStartListener
 from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
 from src.telemetry.listeners.penalty_listener import PenaltyListener
+from src.telemetry.listeners.pit_listener import PitListener
 from src.telemetry.listeners.position_change_listener import PositionChangeListener
 from src.telemetry.listeners.qualification_sectors_listener import QualificationSectorsListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
+from src.telemetry.listeners.tyres_old_listener import TyresOldListener
 from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
 from src.telemetry.managers.abstract_manager import Change
+from src.telemetry.managers.car_status_manager import CarStatusManager
 from src.telemetry.message import Channel, Message
 
-from src.telemetry.models.enums.driver_status import DriverStatus
 from src.telemetry.models.enums.session_type import SessionType
 from src.telemetry.models.participant import Participant
 from .managers.lap_record_manager import LapRecordManager
-from datetime import timedelta
 
 from .managers.classification_manager import ClassificationManager
 from .managers.damage_manager import DamageManager
@@ -54,10 +55,12 @@ LISTENER_CLASSES = [
     LapStartListener,
     NoticeableDamageListener,
     PenaltyListener,
+    PitListener,
     PositionChangeListener,
     QualificationSectorsListener,
     SafetyCarListener,
     SessionCreationListener,
+    TyresOldListener,
     WeatherForecastListener,
 ]
 
@@ -89,6 +92,9 @@ class Brain:
 
         elif packet_type == PacketCarDamageData:
             self._handle_received_damage_packet(packet)
+
+        elif packet_type == PacketCarStatusData:
+            self._handle_received_status_packet(packet)
 
         elif packet_type == PacketCarTelemetryData:
             self._handle_received_telemetry_packet(packet)
@@ -373,6 +379,34 @@ class Brain:
                     self._emit(Event.LAP_START_CREATED, lap=lap_start,
                                previous_lap=previous_lap,participant=participant,
                                session=self.current_session)
+
+    def _handle_received_status_packet(self, packet:PacketCarStatusData):
+        if not self.current_session:
+            return # this should not happen
+        if not self.current_session.participants:
+            return # this should not happen neither
+        if self.current_session.session_type == SessionType.clm:
+            return # this has no sense
+        pertinent_amount = len(self.current_session.participants)
+        if not self.current_session.car_statuses:
+            self.current_session.car_statuses = [
+                CarStatusManager.create(packet.car_status_data[i])
+                for i in range(pertinent_amount)
+            ]
+            self._emit(Event.CAR_STATUS_LIST_INITIALIZED, session=self.current_session, damages=self.current_session.car_statuses)
+        else:
+            current_amount = len(self.current_session.car_statuses)
+            for i in range(pertinent_amount):
+                participant = self.current_session.participants[i]
+                packet_data = packet.car_status_data[i]
+                if i > current_amount - 1:
+                    new_car_status = CarStatusManager.create(packet_data)
+                    self.current_session.car_statuses.append(new_car_status)
+                    self._emit(Event.CAR_STATUS_CREATED, car_status=new_car_status, participant=participant, session=self.current_session)
+                else:
+                    changes = CarStatusManager.update(self.current_session.car_statuses[i], packet_data)
+                    self._emit(Event.CAR_STATUS_UPDATED, car_status=self.current_session.car_statuses[i], changes=changes, participant=participant, session=self.current_session)
+
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):

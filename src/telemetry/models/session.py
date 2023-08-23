@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import List
+from src.telemetry.models.car_status import CarStatus
 
 from src.telemetry.models.lap_record import LapRecord
 
@@ -8,7 +9,6 @@ from .classification import Classification
 from .damage import Damage
 from .enums.result_status import ResultStatus
 from .enums.session_type import SessionType
-from .enums.tyre import Tyre
 from .enums.weather import Weather
 from .enums.track import Track
 from .enums.formula_type import FormulaType
@@ -77,6 +77,7 @@ class Session:
     laps: List[List[Lap]] = None
     lap_state_last_start_of_lap: List[Lap] = None
     lap_records: List[LapRecord] = None
+    car_statuses: List[CarStatus] = None
     current_fastest_lap: int = None # in ms
     current_fastest_sector1: int = None # in ms
     current_fastest_sector2: int = None # in ms
@@ -102,6 +103,14 @@ class Session:
         if index >= len(self.lap_records):
             return None
         return self.lap_records[index]
+
+    def get_car_status(self, participant:Participant) -> CarStatus:
+        index = self.participants.index(participant)
+        if not self.car_statuses:
+            return None
+        if index >= len(self.car_statuses):
+            return None
+        return self.car_statuses[index]
 
     def get_current_lap(self, participant:Participant) -> Lap:
         index = self.participants.index(participant)

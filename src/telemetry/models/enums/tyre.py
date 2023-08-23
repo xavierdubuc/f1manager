@@ -28,3 +28,16 @@ class Tyre(Enum):
         if self == Tyre.wet:
             return 'W'
         return self.name
+
+    def get_long_string(self):
+        if self == Tyre.soft:
+            return 'Soft'
+        if self == Tyre.medium:
+            return 'Medium'
+        if self == Tyre.hard:
+            return 'Hard'
+        if self == Tyre.inter:
+            return 'Inter'
+        if self == Tyre.wet:
+            return 'Wet'
+        return self.name
