@@ -11,6 +11,7 @@ MAX_NUMBER = 99
 OFFICIAL_PILOTS_NUMBERS = {
     '1': '-',
     '2': 'Sargeant',
+    '3': 'Ricciardo',
     '4': 'Norris',
     '10': 'Gasly',
     '11': 'Perez',

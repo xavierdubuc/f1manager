@@ -1,4 +1,6 @@
 import importlib
+
+from src.media_generation.generators.pilot_generator import PilotGenerator
 from .generator_config import GeneratorConfig
 
 from ..generators.pole_generator import PoleGenerator
@@ -25,6 +27,7 @@ class Renderer:
         'numbers': NumbersGenerator,
         'season_lineup': SeasonLineupGenerator,
         'calendar': CalendarGenerator,
+        'pilot': PilotGenerator,
         'grid_ribbon': {
             'package': 'src.media_generation.generators.grid_ribbon_generator',
             'name': 'GridRibbonGenerator'
@@ -32,7 +35,7 @@ class Renderer:
     }
 
     @classmethod
-    def render(cls, config: GeneratorConfig, championship_config: dict, season:int):
+    def render(cls, config: GeneratorConfig, championship_config: dict, season:int, identifier: str = None):
         visuals_config = championship_config['settings']['visuals']
         custom_generator = visuals_config.get(config.type, {}).get('generator')
         if custom_generator:
@@ -45,5 +48,5 @@ class Renderer:
             if isinstance(generator_cls,dict):
                 generator_module = importlib.import_module(generator_cls['package'])
                 generator_cls = getattr(generator_module, generator_cls['name'])
-        generator = generator_cls(championship_config, config, season)
+        generator = generator_cls(championship_config, config, season, identifier)
         return generator.generate()

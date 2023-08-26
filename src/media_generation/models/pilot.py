@@ -106,29 +106,49 @@ class Pilot:
         )
 
     def _get_image_from_psd(self, psd:PSDImage, faces_index=1, clothes_index=2, width:int=None, height:int=None, cropping_zone:tuple=False) -> PngImageFile:
+        # FACE
         try:
             faces = psd[faces_index]
+            faces.visible = True
         except IndexError:
             _logger.error(f'There is no "{faces_index}" in following psd, face calc index is probably wrong')
             _logger.error(psd)
             faces = []
 
+        face_found = None
+        for v in faces:
+            v.visible = v.name == self.name
+            if v.visible:
+                face_found = v.name
+        if face_found: 
+            _logger.debug(f'Using "{face_found}" face')
+        else:
+            _logger.warning(f'No face found for pilot {self.name}, using default one')
+            faces[0].visible = True # enable 'default' layer
+
+        # CLOTHES
         try:
             clothes = psd[clothes_index]
+            clothes.visible = True
         except IndexError:
             _logger.error(f'There is no "{clothes_index}" in following psd, face calc index is probably wrong')
             _logger.error(psd)
             clothes = []
 
-        image_found = False
-        for v in faces:
-            v.visible = v.name == self.name
-            if v.name == self.name:
-                image_found = True
-        if not image_found: # enable 'default' layer
-            faces[0].visible = True
-        for t in clothes:
+        default_index = -1
+        clothes_found = None
+        for i, t in enumerate(clothes):
+            if t.name == 'default':
+                default_index = i
             t.visible = t.name.replace(' ','') == self.team.name if self.team else None
+            if t.visible:
+                clothes_found = t.name
+        if clothes_found:
+            _logger.debug(f'Using "{clothes_found}" clothes')
+        else:
+            _logger.warning(f'No clothes found for team {self.team.name}, using default one')
+            clothes[default_index].visible = True
+
         base = psd.composite(layer_filter=lambda x:x.is_visible())
 
         # resizing

@@ -32,6 +32,8 @@ class GridRibbonGenerator:
         title_width = 520
         start_position = title_width + 150
         space_between_position = 50
+        # 75 --> duration = 120
+        # 125 --> duration = 75
         speed = 75
         base_img_path, _ = self._get_base_image()
         title_img_path, _ = self._get_title_image(title_width)

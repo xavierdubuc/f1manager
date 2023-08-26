@@ -6,11 +6,12 @@ from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
 class AbstractGenerator(ABC):
-    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int):
+    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int, identifier: str = None):
         self.championship_config = championship_config
         self.config = config
         self.season = season
         self.visual_config = self.championship_config['settings']['visuals'].get(self._get_visual_type(), {})
+        self.identifier = identifier
 
     def generate(self):
         base_img = self._generate_basic_image()

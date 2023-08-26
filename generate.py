@@ -26,6 +26,7 @@ _logger.info(f'\t season: {args.season}')
 _logger.info(f'\t output: {args.output}')
 _logger.info(f'\t sheet: {args.sheet}')
 _logger.info(f'\t metric: {args.metric}')
+_logger.info(f'\t identifier: {args.identifier}')
 
 if args.championship not in CHAMPIONSHIPS:
     _logger.error(f'Unknown championship "{args.championship}"')
@@ -54,5 +55,5 @@ reader = READER_CLASS(
 )
 championship_data = reader.read()
 _logger.info('Rendering...')
-output_filepath = Renderer.render(championship_data, CHAMPIONSHIP_CONFIG, season)
+output_filepath = Renderer.render(championship_data, CHAMPIONSHIP_CONFIG, season, args.identifier or None)
 _logger.info(f'Image successfully rendered in file "{os.path.realpath(output_filepath)}"')
