@@ -1,15 +1,13 @@
-from datetime import timedelta
 import logging
 from dataclasses import dataclass
-from f1_22_telemetry.packets import CarStatusData
-from models.evolving_model import EvolvingModel
-from models.enums.traction_control import TractionControl
-from models.enums.fuel_mix import FuelMix
-from models.enums.tyre_compound import TyreCompound
-from models.enums.tyre import Tyre
-from models.enums.flag import Flag
-from models.enums.ers_deploy_mode import ERSDeployMode
-from src.telemetry.models.participant import Participant
+
+from src.telemetry.models.enums.ers_deploy_mode import ERSDeployMode
+from src.telemetry.models.enums.flag import Flag
+from src.telemetry.models.enums.fuel_mix import FuelMix
+from src.telemetry.models.enums.traction_control import TractionControl
+from src.telemetry.models.enums.tyre import Tyre
+from src.telemetry.models.enums.tyre_compound import TyreCompound
+from src.telemetry.models.evolving_model import EvolvingModel
 
 _logger = logging.getLogger(__name__)
 
