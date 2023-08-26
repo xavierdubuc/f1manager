@@ -1,5 +1,6 @@
 import logging
 from typing import Dict
+
 from disnake.ext import commands
 from f1_22_telemetry.packets import (
     Packet,
@@ -17,6 +18,12 @@ from f1_22_telemetry.packets import (
     PacketLobbyInfoData
 )
 from tabulate import tabulate
+
+from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
+                           Q3_RANKING_RANGE, QUALI_RANKING_RANGE,
+                           RACE_RANKING_RANGE)
+
+from src.gsheet.gsheet import GSheet
 from src.telemetry.event import Event
 from src.telemetry.listeners.best_lap_time_listener import BestLapTimeListener
 from src.telemetry.listeners.classification_listener import ClassificationListener
@@ -29,22 +36,25 @@ from src.telemetry.listeners.position_change_listener import PositionChangeListe
 from src.telemetry.listeners.qualification_sectors_listener import QualificationSectorsListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
+from src.telemetry.listeners.telemetry_public_listener import TelemetryPublicListener
 from src.telemetry.listeners.tyres_old_listener import TyresOldListener
 from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
+
 from src.telemetry.managers.abstract_manager import Change
 from src.telemetry.managers.car_status_manager import CarStatusManager
-from src.telemetry.message import Channel, Message
+from src.telemetry.managers.classification_manager import ClassificationManager
+from src.telemetry.managers.damage_manager import DamageManager
+from src.telemetry.managers.lap_manager import LapManager
+from src.telemetry.managers.lap_record_manager import LapRecordManager
+from src.telemetry.managers.participant_manager import ParticipantManager
+from src.telemetry.managers.session_manager import SessionManager
+from src.telemetry.managers.telemetry_manager import TelemetryManager
 
+from src.telemetry.message import Channel, Message
 from src.telemetry.models.enums.session_type import SessionType
 from src.telemetry.models.participant import Participant
-from .managers.lap_record_manager import LapRecordManager
+from src.telemetry.models.session import Session
 
-from .managers.classification_manager import ClassificationManager
-from .managers.damage_manager import DamageManager
-from .managers.lap_manager import LapManager
-from .managers.participant_manager import ParticipantManager
-from .managers.session_manager import SessionManager
-from .managers.telemetry_manager import TelemetryManager
 
 _logger = logging.getLogger(__name__)
 
@@ -60,18 +70,21 @@ LISTENER_CLASSES = [
     QualificationSectorsListener,
     SafetyCarListener,
     SessionCreationListener,
+    TelemetryPublicListener,
     TyresOldListener,
     WeatherForecastListener,
 ]
 
+
 class Brain:
-    def __init__(self, bot: commands.InteractionBot = None, championship_config:dict=None):
+    def __init__(self, bot: commands.InteractionBot = None, championship_config:dict=None, sheet_name:str=None):
         self.current_session = None
         self.previous_sessions = []
         self.bot = bot
         self.last_weather_notified_at = None
         self.championship_config = championship_config
         self.listeners_by_event = {event: [] for event in Event}
+        self.sheet_name = sheet_name
         for Listener in LISTENER_CLASSES:
             listener = Listener()
             for event in Listener.SUBSCRIBED_EVENTS:
@@ -170,6 +183,7 @@ class Brain:
             else:
                 _logger.info('A new session has started, previous one has been backuped')
                 self.previous_sessions.append(self.current_session)
+                self._send_ranking_to_gsheet(self.current_session)
                 self.current_session = tmp_session
 
     """
@@ -380,6 +394,11 @@ class Brain:
                                previous_lap=previous_lap,participant=participant,
                                session=self.current_session)
 
+    """
+    @emits CAR_STATUS_CREATED
+    @emits CAR_STATUS_LIST_INITIALIZED
+    @emits CAR_STATUS_UPDATED
+    """
     def _handle_received_status_packet(self, packet:PacketCarStatusData):
         if not self.current_session:
             return # this should not happen
@@ -407,7 +426,6 @@ class Brain:
                     changes = CarStatusManager.update(self.current_session.car_statuses[i], packet_data)
                     self._emit(Event.CAR_STATUS_UPDATED, car_status=self.current_session.car_statuses[i], changes=changes, participant=participant, session=self.current_session)
 
-
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):
             if f'best_{sector}_time' in changes:
@@ -416,3 +434,45 @@ class Brain:
                 if not current_best or new_time < current_best:
                     setattr(self.current_session, f'current_fastest_{sector}', new_time)
                     self._emit(Event.BEST_SECTOR_UPDATED, session=self.current_session, participant=participant, sector=sector, now=new_time, old=current_best)
+
+    def _send_ranking_to_gsheet(self, session:Session):
+        if not self.sheet_name:
+            _logger.info('No sheet name given, nothing will be sent')
+            return
+        if not session:
+            _logger.error('Trying to send ranking of a not existing session !')
+            return
+        if not session.final_classification:
+            _logger.error('Trying to send not existing ranking of a session !')
+            return
+
+        if session.session_type.is_race():
+            range = RACE_RANKING_RANGE
+        elif session.session_type.is_qualification():
+            if session.session_type == SessionType.q1:
+                session_type_str = 'Q1'
+                range = Q1_RANKING_RANGE
+            elif session.session_type == SessionType.q2:
+                session_type_str = 'Q2'
+                range = Q2_RANKING_RANGE
+            elif session.session_type == SessionType.q3:
+                session_type_str = 'Q3'
+                range = Q3_RANKING_RANGE
+            else:
+                range = QUALI_RANKING_RANGE
+                session_type_str = 'Qualifications'
+            _logger.info(f'{session_type_str} ranking found, will be sent to google sheet !')
+        else:
+            _logger.info('Ranking will not be sent as this session type does not require it')
+
+        final_ranking = session.get_formatted_final_ranking(delta_char='')
+        for row in final_ranking:
+            print('\t'.join(map(str, row)))
+
+        g = GSheet()
+        range_str = f"'{self.sheet_name}'!{range}"
+        seasons = self.championship_config['seasons']
+        season_id = list(seasons.keys())[-1]
+        season = seasons[season_id]
+        g.set_sheet_values(season['sheet'], range_str, final_ranking)
+        _logger.info(f"Writing ranking above to sheet {season['sheet']}/{self.sheet_name}")

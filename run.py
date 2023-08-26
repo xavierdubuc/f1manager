@@ -60,17 +60,4 @@ except KeyboardInterrupt:
             _logger.error(e)
             _logger.info('Pickling current session instead...')
             pickle.dump(thread_telemetry.brain.current_session, out_file)
-        # PRINT TO GSHEET
-        if thread_telemetry.brain.current_session and thread_telemetry.brain.current_session.final_classification:
-            _logger.info('final ranking found, will be sent to google sheet !')
-            final_ranking = thread_telemetry.brain.current_session.get_formatted_final_ranking(delta_char='')
-            for row in final_ranking:
-                print('\t'.join(map(str, row)))
-            if thread_telemetry.sheet_name:
-                g = GSheet()
-                range_str = f"'{thread_telemetry.sheet_name}'!{RACE_RANKING_RANGE}"
-                g.set_sheet_values(DEFAULT_SPREADSHEET_ID, range_str, final_ranking)
-                _logger.info(f'Writing ranking above to sheet {thread_telemetry.sheet_name}')
-        else:
-            _logger.info('No final ranking found, exit')
     sys.exit(130)

@@ -2,7 +2,7 @@ from f1_22_telemetry.packets import *
 import logging
 from src.telemetry.telemetry_command import Command
 
-from telemetry import run_telemetry
+# from telemetry import run_telemetry
 
 args = Command().parse_args()
 levels = {
@@ -20,4 +20,4 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 
-run_telemetry(args.ip, args.sheet_name, None)
+# run_telemetry(args.ip, args.sheet_name, None) FIXME
