@@ -38,7 +38,7 @@ DEBUG_CHAN_ID = 1096169137589461082
 @bot.event
 async def on_ready():
     msg = f'Mesdames messieurs {"bonjour" if 5 < datetime.now().hour < 17 else "bonsoir"} !'
-    await bot.get_guild(DEBUG_GUILD_ID).get_channel(DEBUG_CHAN_ID).send(msg, tts=True)
+    # await bot.get_guild(DEBUG_GUILD_ID).get_channel(DEBUG_CHAN_ID).send(msg, tts=True)
     _logger.info('Connected !')
 
 
