@@ -146,6 +146,10 @@ class Session:
                     row[delta_column_index] = '-' if self.session_type.is_race() else '--:--.---'
 
         data.sort(key=lambda x: x[0])
+        if self.session_type == SessionType.q1:
+            return data[:10]
+        if self.session_type == SessionType.q2:
+            return data[:15]
         return data
 
     def _get_formatted_final_ranking_row(self, classification:Classification, participant:Participant):
