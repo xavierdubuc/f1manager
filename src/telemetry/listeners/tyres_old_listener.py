@@ -23,11 +23,6 @@ class TyresOldListener(AbstractListener):
     def _on_damage_updated(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if 'tyres_damage' in changes:
             tyres_wear = changes.get('tyres_damage').actual
-            if participant.name[-3:] == 'REZ':
-                print(participant)
-                print(damage)
-                print(changes)
-                print(self.notified)
             if self.notified.get(participant.name, False): # if he's already notified
                 if all(t < 70 for t in tyres_wear):
                     self.notified[participant.name] = False
@@ -35,6 +30,6 @@ class TyresOldListener(AbstractListener):
                 if any(t > 70 for t in tyres_wear):
                     self.notified[participant.name] = True
                     tyres_wear_str = ','.join(f'{str(t).rjust(3)}%' for t in tyres_wear)
-                    msg = f"Les pneus de **{participant}** sont très usés `{tyres_wear_str}` !"
+                    msg = f"🆘 Les pneus de **{participant}** sont très usés `{tyres_wear_str}` !"
                     return [Message(content=msg, channel=Channel.DAMAGE)]
         return []
