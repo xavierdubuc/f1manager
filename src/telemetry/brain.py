@@ -183,7 +183,6 @@ class Brain:
             else:
                 _logger.info('A new session has started, previous one has been backuped')
                 self.previous_sessions.append(self.current_session)
-                self._send_ranking_to_gsheet(self.current_session)
                 self.current_session = tmp_session
 
     """
@@ -291,20 +290,26 @@ class Brain:
                 for i in range(packet.num_cars)
             ]
             self._emit(Event.CLASSIFICATION_LIST_INITIALIZED, session=self.current_session, final_classification=self.current_session.final_classification)
+            self._send_ranking_to_gsheet(self.current_session)
         else:
             current_amount_of_classification = len(self.current_session.final_classification)
+            at_least_one_change = False
             for i in range(packet.num_cars):
                 packet_data = packet.classification_data[i]
                 if i > current_amount_of_classification - 1:
+                    at_least_one_change = True
                     new_classification = ClassificationManager.create(packet_data)
                     self._emit(Event.CLASSIFICATION_CREATED, session=self.current_session, final_classification=new_classification)
                     self.current_session.final_classification.append(new_classification)
                 else:
                     changes = ClassificationManager.update(self.current_session.final_classification[i], packet_data)
                     if changes:
+                        at_least_one_change = True
                         _logger.warning('!? final classification changed !?')
                         _logger.warning(changes)
                         self._emit(Event.CLASSIFICATION_UPDATED, session=self.current_session, changes=changes)
+            if at_least_one_change:
+                self._send_ranking_to_gsheet(self.current_session)
 
     """
     @emits LAP_RECORD_CREATED
