@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 
 
 class GridRibbonGenerator:
-    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int):
+    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int, identifier: str = None):
         self.championship_config = championship_config
         self.config = config
         self.season = season
@@ -32,27 +32,29 @@ class GridRibbonGenerator:
         title_width = 520
         start_position = title_width + 150
         space_between_position = 50
-        # 75 --> duration = 120
-        # 125 --> duration = 75
-        speed = 75
         base_img_path, _ = self._get_base_image()
         title_img_path, _ = self._get_title_image(title_width)
         title_mask_path, _ = self._get_title_mask(title_width)
         ranking = self.config.qualif_ranking
         race = self.config.race
         i = 0
-        grid_images = [self._get_grid_image(i:=i+1, race.get_pilot(line['B'])) for _, line in ranking.iterrows()]
+        grid_images = [self._get_grid_image(i:=i+1, race.get_pilot(line['B'])) for _, line in ranking.iterrows() if line['B'] != None]
         bg_clip = ImageClip(base_img_path)
-        bg_clip = bg_clip.set_duration(120)
+        # speed 75 --> duration_by_driver = 6
+        # speed 125 --> duration_by_driver = 4
+        speed = 75
+        duration_by_driver = 6
+        duration = len(grid_images) * duration_by_driver
+        bg_clip = bg_clip.set_duration(duration)
         title_clip = ImageClip(title_img_path)
-        title_clip = title_clip.set_duration(120)
+        title_clip = title_clip.set_duration(duration)
         title_clip = title_clip.set_position(lambda t: (0, 'center'))
         title_mask = ImageClip(title_mask_path, ismask=True)
 
         grid_clips = []
         for grid_img_path, grid_img in grid_images:
             grid_clip = ImageClip(grid_img_path)
-            grid_clip = grid_clip.set_duration(120)
+            grid_clip = grid_clip.set_duration(duration)
 
             def _position(start_position):
                 return lambda t: (start_position - speed * t, 'center')
@@ -68,6 +70,8 @@ class GridRibbonGenerator:
         return self.config.output
 
     def _get_grid_image(self, pos, pilot: Pilot) -> PngImageFile:
+        if not pilot:
+            return None
         pilot_result = PilotResult(pilot, pos, None, None)
         font = FontFactory.regular(30)
         fg_color = (255, 255, 255)

@@ -50,7 +50,7 @@ class Reader:
             config.description = self.data['A'][6]
         if self.type in ('pole', 'grid_ribbon'):
             config.qualif_ranking = self.data[['B','C']][24:]
-        if self.type in ('results', 'fastest', 'grid_ribbon'):
+        if self.type in ('results', 'fastest'):
             config.ranking = self._get_ranking()
         if self.type == 'results':
             config.driver_of_the_day = self._get_driver_of_the_day()
