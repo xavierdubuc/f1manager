@@ -25,7 +25,7 @@ class TyresOldListener(AbstractListener):
             tyres_wear = changes.get('tyres_damage').actual
             if participant.name[-3:] == 'REZ':
                 print(damage)
-                print(tyres_wear)
+                print(changes)
                 print(self.notified)
             if self.notified.get(participant.name, False): # if he's already notified
                 if all(t < 70 for t in tyres_wear):
