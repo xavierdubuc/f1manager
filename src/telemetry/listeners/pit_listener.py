@@ -31,5 +31,6 @@ class PitListener(AbstractListener):
             if pit_status == PitStatus.not_in_pit:
                 car_status = session.get_car_status(participant)
                 tyres_str = f'{car_status.visual_tyre_compound.get_long_string()} ({car_status.tyres_age_laps} tours)'
-                msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {car_status.fuel_remaining_laps} tours d\'essence'
+                fuel = round(car_status.fuel_remaining_laps, 2)
+                msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {fuel} tours d\'essence'
                 return [Message(msg, Channel.PIT)]
