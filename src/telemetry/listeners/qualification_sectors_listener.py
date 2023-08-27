@@ -46,11 +46,11 @@ class QualificationSectorsListener(AbstractListener):
         lap_record = session.get_lap_record(participant)
         if not lap_record:
             return []
-        if self._lap_should_be_ignored(lap):
-            return []
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
             square_repr = '🟥🟥🟥'
-            return Message(content=f'**{participant}** : {square_repr}', channel=Channel.PACE)
+            return [Message(content=f'**{participant}** : {square_repr}', channel=Channel.PACE)]
+        if self._lap_should_be_ignored(lap):
+            return []
         if 'sector1_time_in_ms' not in changes and 'sector2_time_in_ms' not in changes:
             return []
         return [
