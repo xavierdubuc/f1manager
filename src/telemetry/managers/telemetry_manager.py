@@ -1,4 +1,6 @@
 from typing import Dict
+
+from src.telemetry.models.enums.surface_type import SurfaceType
 from .abstract_manager import AbstractManager, Change
 from ..models.telemetry import Telemetry
 from f1_22_telemetry.packets import CarTelemetryData
@@ -21,7 +23,6 @@ class TelemetryManager(AbstractManager):
         # tyres_surface_temperature
         # tyres_inner_temperature
         # tyres_pressure
-        # surface_type
     }
 
     enum_fields = {}
@@ -37,7 +38,9 @@ class TelemetryManager(AbstractManager):
         self.tyres_surface_temperature = list(packet.tyres_surface_temperature)
         self.tyres_inner_temperature = list(packet.tyres_inner_temperature)
         self.tyres_pressure = list(packet.tyres_pressure)
-        self.surface_type = list(packet.surface_type)
+        self.surface_types = [
+            SurfaceType(s) for s in packet.surface_type
+        ]
         return self
 
     @classmethod
@@ -46,7 +49,7 @@ class TelemetryManager(AbstractManager):
 
         list_fields = [
             'brakes_temperature','tyres_surface_temperature',
-            'tyres_inner_temperature','tyres_pressure','surface_type',
+            'tyres_inner_temperature','tyres_pressure',
         ]
         for field in list_fields:
             new_value = list(getattr(packet, field))
@@ -55,4 +58,10 @@ class TelemetryManager(AbstractManager):
                 changes[field]= Change(actual=new_value, old=old_value)
                 setattr(telemetry, field, new_value)
 
+        actual_stypes = [
+            SurfaceType(s) for s in packet.surface_type
+        ]
+        if actual_stypes != telemetry.surface_types:
+            changes['surface_types'] = Change(actual=actual_stypes, old=telemetry.surface_types)
+            telemetry.surface_types = actual_stypes
         return changes

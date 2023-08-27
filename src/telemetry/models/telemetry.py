@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from src.telemetry.models.enums.surface_type import SurfaceType
+
 
 @dataclass
 class Telemetry:
@@ -18,4 +20,4 @@ class Telemetry:
     tyres_surface_temperature: List[int] = None
     tyres_inner_temperature: List[int] = None
     tyres_pressure: List[float] = None
-    surface_type: List[int] = None
+    surface_types: List[SurfaceType] = None
