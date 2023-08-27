@@ -1,7 +1,6 @@
-from enum import Flag
-
 from src.telemetry.models.car_status import CarStatus
 from src.telemetry.models.enums.ers_deploy_mode import ERSDeployMode
+from src.telemetry.models.enums.flag import Flag
 from src.telemetry.models.enums.fuel_mix import FuelMix
 from src.telemetry.models.enums.traction_control import TractionControl
 from .abstract_manager import AbstractManager

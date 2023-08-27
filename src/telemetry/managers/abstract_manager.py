@@ -55,8 +55,6 @@ class AbstractManager:
 
         for field, (enum_class, packet_field) in cls.enum_fields.items():
             curr_value = getattr(model, field)
-            if packet_field == 'vehicle_fia_flags':
-                print(type(getattr(packet, packet_field)))
             packet_value = enum_class(getattr(packet, packet_field))
 
             if curr_value != packet_value:
