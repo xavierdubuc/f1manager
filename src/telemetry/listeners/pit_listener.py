@@ -26,6 +26,7 @@ class PitListener(AbstractListener):
             pit_status = changes['pit_status'].actual
             if pit_status == PitStatus.pitting:
                 if lap.result_status.is_still_in_the_race():
+                    print(changes['pit_status'])
                     msg = f'⤴️ **{participant}** rentre au stand...'
                     return [Message(msg, Channel.PIT)]
             if pit_status == PitStatus.not_in_pit:
