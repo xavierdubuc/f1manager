@@ -23,7 +23,7 @@ class PitListener(AbstractListener):
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if 'pit_status' in changes:
-            print(changes['pit_status'])
+            print(participant, changes['pit_status'])
             pit_status = changes['pit_status'].actual
             if pit_status == PitStatus.pitting:
                 if lap.result_status.is_still_in_the_race():
