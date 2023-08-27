@@ -25,8 +25,9 @@ class PitListener(AbstractListener):
         if 'pit_status' in changes:
             pit_status = changes['pit_status'].actual
             if pit_status == PitStatus.pitting:
-                msg = f'⤴️ **{participant}** rentre au stand...'
-                return [Message(msg, Channel.PIT)]
+                if lap.result_status.is_still_in_the_race():
+                    msg = f'⤴️ **{participant}** rentre au stand...'
+                    return [Message(msg, Channel.PIT)]
             if pit_status == PitStatus.not_in_pit:
                 car_status = session.get_car_status(participant)
                 tyres_str = f'{car_status.visual_tyre_compound.get_long_string()} ({car_status.tyres_age_laps} tours)'

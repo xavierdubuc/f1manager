@@ -13,6 +13,9 @@ class ResultStatus(Enum):
     not_classified = 6
     retired = 7
 
+    def is_still_in_the_race(self):
+        return self in (ResultStatus.inactive, ResultStatus.active)
+
     def get_pilot_result_str(self, pilot:Participant):
         if self == ResultStatus.finished:
             return f'🏁 **{pilot}**'

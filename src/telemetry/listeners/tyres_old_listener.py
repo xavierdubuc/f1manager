@@ -27,7 +27,7 @@ class TyresOldListener(AbstractListener):
                 if all(t < 70 for t in tyres_wear):
                     self.notified[participant.name] = False
             else:
-                if any(t > 70 for t in tyres_wear):
+                if any(70 < t < 100 for t in tyres_wear): # we don't want to notify for broken/punctured tyres
                     self.notified[participant.name] = True
                     tyres_wear_str = ','.join(f'{str(t).rjust(3)}%' for t in tyres_wear)
                     msg = f"🆘 Les pneus de **{participant}** sont très usés `{tyres_wear_str}` !"

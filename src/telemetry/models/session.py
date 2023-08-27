@@ -146,7 +146,7 @@ class Session:
                     row[delta_column_index] = '-' if self.session_type.is_race() else '--:--.---'
 
         data.sort(key=lambda x: x[0])
-        if self.session_type == SessionType.q1:
+        if self.session_type == SessionType.q3:
             return data[:10]
         if self.session_type == SessionType.q2:
             return data[:15]
