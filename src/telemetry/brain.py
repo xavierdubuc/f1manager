@@ -175,7 +175,8 @@ class Brain:
 
         if self.current_session == tmp_session:
             changes = SessionManager.update(self.current_session, packet)
-            self._emit(Event.SESSION_UPDATED, session=self.current_session, changes=changes)
+            if changes:
+                self._emit(Event.SESSION_UPDATED, session=self.current_session, changes=changes)
         else:
             self._emit(Event.SESSION_CREATED, current=tmp_session, old=self.current_session)
             if not self.current_session:
@@ -209,7 +210,8 @@ class Brain:
                         self.current_session.participants.append(new_participant)
                     else:
                         changes = ParticipantManager.update(self.current_session.participants[i], packet_data)
-                        self._emit(Event.PARTICIPANT_UPDATED, self.current_session.participants[i], changes, self.current_session)
+                        if changes:
+                            self._emit(Event.PARTICIPANT_UPDATED, self.current_session.participants[i], changes, self.current_session)
                         if 'network_id' in changes or 'name' in changes:
                             _logger.warning('!? A participant changed !?')
                             _logger.warning(changes)
@@ -243,8 +245,9 @@ class Brain:
                     self._emit(Event.DAMAGE_CREATED, session=self.current_session, damage=new_damage)
                 else:
                     changes = DamageManager.update(self.current_session.damages[i], packet_data)
-                    participant = self.current_session.participants[i]
-                    self._emit(Event.DAMAGE_UPDATED, self.current_session.damages[i], changes, participant, self.current_session)
+                    if changes:
+                        participant = self.current_session.participants[i]
+                        self._emit(Event.DAMAGE_UPDATED, self.current_session.damages[i], changes, participant, self.current_session)
 
     """
     @emits TELEMETRY_CREATED
@@ -273,8 +276,9 @@ class Brain:
                     self._emit(Event.TELEMETRY_CREATED, session=self.current_session, telemetry=new_telemetry)
                 else:
                     changes = TelemetryManager.update(self.current_session.telemetries[i], packet_data)
-                    participant = self.current_session.participants[i]
-                    self._emit(Event.TELEMETRY_UPDATED, self.current_session.telemetries[i], changes, participant, self.current_session)
+                    if changes:
+                        participant = self.current_session.participants[i]
+                        self._emit(Event.TELEMETRY_UPDATED, self.current_session.telemetries[i], changes, participant, self.current_session)
 
     """
     @emits CLASSIFICATION_CREATED
@@ -334,10 +338,10 @@ class Brain:
             changes = LapRecordManager.update(lap_record, packet)
             participant = self.current_session.participants[packet.car_idx]
 
-            if changes and self.current_session.session_type.is_qualification():
-                self._keep_up_to_date_session_best_sectors(changes, participant)
-
-            self._emit(Event.LAP_RECORD_UPDATED, lap_record, changes, participant, self.current_session)
+            if changes:
+                if self.current_session.session_type.is_qualification():
+                    self._keep_up_to_date_session_best_sectors(changes, participant)
+                self._emit(Event.LAP_RECORD_UPDATED, lap_record, changes, participant, self.current_session)
 
     """
     @emits LAP_CREATED
@@ -383,7 +387,8 @@ class Brain:
                 # Same lap
                 if car_last_lap and car_last_lap.current_lap_num == packet_data.current_lap_num:
                     changes = LapManager.update(car_last_lap, packet_data)
-                    self._emit(Event.LAP_UPDATED, lap=car_last_lap, changes=changes, participant=participant, session=self.current_session)
+                    if changes:
+                        self._emit(Event.LAP_UPDATED, lap=car_last_lap, changes=changes, participant=participant, session=self.current_session)
                 # Pilot just crossed the line
                 else:
                     # Add the new lap to the car's list of lap
@@ -429,7 +434,8 @@ class Brain:
                     self._emit(Event.CAR_STATUS_CREATED, car_status=new_car_status, participant=participant, session=self.current_session)
                 else:
                     changes = CarStatusManager.update(self.current_session.car_statuses[i], packet_data)
-                    self._emit(Event.CAR_STATUS_UPDATED, car_status=self.current_session.car_statuses[i], changes=changes, participant=participant, session=self.current_session)
+                    if changes:
+                        self._emit(Event.CAR_STATUS_UPDATED, car_status=self.current_session.car_statuses[i], changes=changes, participant=participant, session=self.current_session)
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):
