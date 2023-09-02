@@ -22,6 +22,9 @@ class PitListener(AbstractListener):
     notified = {}
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
+        print(participant)
+        print(changes)
+        print('------')
         if 'pit_status' in changes:
             pit_status = changes['pit_status'].actual
             if pit_status == PitStatus.pitting:
@@ -36,5 +39,3 @@ class PitListener(AbstractListener):
                 t = f'({round(lap.pit_lane_time_in_lane_in_ms/1000,2)}s)' if lap.pit_lane_time_in_lane_in_ms else ''
                 msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {fuel} tours d\'essence {t}'
                 return [Message(msg, Channel.PIT)]
-        if 'pit_lane_timer_active' in changes:
-            print(changes)
