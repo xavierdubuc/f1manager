@@ -38,6 +38,9 @@ class PitListener(AbstractListener):
                 tyres_str = f'{car_status.visual_tyre_compound.get_long_string()} ({car_status.tyres_age_laps} tours)'
                 fuel = round(car_status.fuel_remaining_laps, 2)
                 stop_time = changes['pit_stop_timer_in_ms'].old if 'pit_stop_timer_in_ms' in changes else None
+                lane_time = changes['pit_lane_time_in_lane_in_ms'].old if 'pit_lane_time_in_lane_in_ms' in changes else None
+
                 t = f'({round(stop_time/1000,2)}s)' if stop_time else ''
-                msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {fuel} tours d\'essence {t}'
+                tt = f' (Total: {round(lane_time/1000,2)}s)' if lane_time else ''
+                msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {fuel} tours d\'essence {t}{tt}'
                 return [Message(msg, Channel.PIT)]
