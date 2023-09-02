@@ -25,6 +25,17 @@ class PitListener(AbstractListener):
         print(participant)
         print(changes)
         print('------')
+
+        {
+            'current_lap_time_in_ms': 23131 -> 23231,
+            'lap_distance': 403.865234375 -> 406.060546875,
+            'total_distance': 56208.25390625 -> 56210.44921875,
+            'pit_stop_timer_in_ms': 2419 -> 0,
+            'pit_lane_time_in_lane_in_ms': 26342 -> 0,
+            'pit_status': PitStatus.pitting -> PitStatus.not_in_pit,
+            'pit_lane_timer_active': True -> False
+        }
+
         if 'pit_status' in changes:
             pit_status = changes['pit_status'].actual
             if pit_status == PitStatus.pitting:
@@ -36,6 +47,7 @@ class PitListener(AbstractListener):
                 car_status = session.get_car_status(participant)
                 tyres_str = f'{car_status.visual_tyre_compound.get_long_string()} ({car_status.tyres_age_laps} tours)'
                 fuel = round(car_status.fuel_remaining_laps, 2)
-                t = f'({round(lap.pit_lane_time_in_lane_in_ms/1000,2)}s)' if lap.pit_lane_time_in_lane_in_ms else ''
+                stop_time = changes['pit_stop_timer_in_ms'].old if 'pit_stop_timer_in_ms' in changes else None
+                t = f'({round(stop_time/1000,2)}s)' if stop_time else ''
                 msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {fuel} tours d\'essence {t}'
                 return [Message(msg, Channel.PIT)]
