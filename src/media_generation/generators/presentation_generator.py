@@ -24,8 +24,9 @@ class PresentationGenerator(AbstractGenerator):
 
     def _add_content(self, final: PngImageFile):
         vertical_padding = 20
+        left_width = int(0.67 * final.width)
         initial_top = self._get_visual_title_height()+vertical_padding
-        race_title = self._get_race_title_image(int(0.67 * final.width), 180)
+        race_title = self._get_race_title_image(left_width, 180)
         race_title_pos = paste(
             race_title, final, left=0,
             top=initial_top
@@ -33,7 +34,6 @@ class PresentationGenerator(AbstractGenerator):
 
         left_height = final.height - race_title_pos.bottom + vertical_padding
         h_padding = -100
-        left_width = int(0.67 * final.width)
         left_img = self._get_left_content_image(left_width, left_height)
         left_pos = paste(
             left_img, final, left=0, top=race_title_pos.bottom+vertical_padding
@@ -146,6 +146,7 @@ class PresentationGenerator(AbstractGenerator):
 
     def _get_right_content_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        left = 120
 
         title_color = (230, 0, 0)
         value_color = (255, 255, 255)
@@ -153,8 +154,8 @@ class PresentationGenerator(AbstractGenerator):
         value_font = FontFactory.bold(32)
 
         with self.config.race.circuit.get_map() as map:
-            map = resize(map, width, height)
-            prev_pos = paste(map, img, top=0, left=0)
+            map = resize(map, width-(left+10), height)
+            prev_pos = paste(map, img, top=0, left=(left-10))
 
         race_length_label = text('Distance totale', title_color, title_font)
         race_length_value = text(f'{self.config.race.get_total_length()} Km', value_color, value_font)
@@ -168,7 +169,6 @@ class PresentationGenerator(AbstractGenerator):
         best_lap_label = text('Meilleur temps', title_color, title_font)
         best_lap_value = text(f'{self.config.race.circuit.best_lap}', value_color, value_font)
 
-        left = 120
         right = width-40
         vertical_padding = 40
         line_padding = 15

@@ -150,7 +150,7 @@ class Reader:
         sheet_names = self.google_sheet_service.get_sheet_names(self.spreadsheet_id)
 
         if self.VALUES_SHEET_NAME in sheet_names:
-            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, '_values!A1:G50')
+            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, '_values!A1:G100')
             sheet_values = pandas.DataFrame(vals[1:], columns=vals[0])
         else:
             sheet_values = None

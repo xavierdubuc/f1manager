@@ -37,8 +37,17 @@ class GridRibbonGenerator:
         title_mask_path, _ = self._get_title_mask(title_width)
         ranking = self.config.qualif_ranking
         race = self.config.race
-        i = 0
-        grid_images = [self._get_grid_image(i:=i+1, race.get_pilot(line['B'])) for _, line in ranking.iterrows() if line['B'] != None]
+        i = 1
+        grid_images = []
+        for _, line in ranking.iterrows():
+            img = self._get_grid_image(i, race.get_pilot(line['B']))
+            if line['B'] != None and img != None:
+                grid_images.append(img)
+            i += 1
+
+        if len(grid_images) == 0:
+            _logger.warning('Ranking is empty, won\'t generate !')
+            return None
         bg_clip = ImageClip(base_img_path)
         # speed 75 --> duration_by_driver = 6
         # speed 125 --> duration_by_driver = 4
@@ -65,9 +74,10 @@ class GridRibbonGenerator:
         final = CompositeVideoClip(
             [bg_clip, title_clip] + grid_clips + [title_clip.set_mask(title_mask)],
         )
-        final.write_videofile(f'{self.config.output}.mp4', fps=24)
+        filename = f'{self.config.output}.mp4'
+        final.write_videofile(filename, fps=24)
 
-        return self.config.output
+        return filename
 
     def _get_grid_image(self, pos, pilot: Pilot) -> PngImageFile:
         if not pilot:
