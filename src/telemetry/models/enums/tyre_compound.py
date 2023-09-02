@@ -17,3 +17,4 @@ class TyreCompound(Enum):
     c3 = 18
     c2 = 19
     c1 = 20
+    unknown = 21
