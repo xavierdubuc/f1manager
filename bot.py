@@ -1,4 +1,5 @@
 import logging
+from typing import Dict, Tuple
 import disnake
 from disnake.ext import commands
 from datetime import datetime
@@ -11,8 +12,7 @@ from breaking import Renderer as BreakingRenderer
 from quote import Renderer as QuoteRenderer
 
 from src.media_generation.data import teams_idx
-from config import discord_bot_token
-
+from config import DISCORDS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,11 +23,16 @@ logging.basicConfig(
 _logger = logging.getLogger(__name__)
 TEAMS = list(teams_idx.keys())
 
+PRESENT_EMOJI = '✅'
+AWAY_EMOJI = '❌'
+PRESENCE_EMOJIS = [PRESENT_EMOJI, AWAY_EMOJI]
 
 command_sync_flags = commands.CommandSyncFlags.default()
 command_sync_flags.sync_commands_debug = True
 
-bot = commands.InteractionBot(command_sync_flags=command_sync_flags)
+intents = disnake.Intents.default()
+intents.members = True
+bot = commands.InteractionBot(command_sync_flags=command_sync_flags, intents=intents)
 
 FBRT_GUILD_ID = 923505034778509342
 FBRT_BOT_CHAN_ID = 1074632856443289610
@@ -48,14 +53,23 @@ async def on_message(msg: disnake.Message):
         # TODO calepino
         await msg.channel.send("Vous m'avez appelé ? Ne vous en faites Gaëtano est là ! J'vous ai déjà parlé de mon taximan brésilien ?")
 
+@bot.event
+async def on_raw_reaction_remove(payload):
+    if payload.emoji.name in PRESENCE_EMOJIS:
+        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id, payload.emoji.name)
 
 @bot.event
 async def on_raw_reaction_add(payload):
-    if payload.emoji.name == '❌':
+    if payload.user_id == bot.user.id:
+        return
+    if payload.emoji.name == '💥':
         channel = await bot.fetch_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
         if message.author == bot.user:
             await message.delete()
+        return
+    if payload.emoji.name in PRESENCE_EMOJIS:
+        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id, payload.emoji.name)
 
 
 @bot.slash_command(name="rankings", description='Rankings')
@@ -73,13 +87,19 @@ async def rankings(inter,
                    )
                    ):
     _logger.info(f'{inter.user.display_name} called Rankings(what={what}, metric={metric})')
+
     await inter.response.defer()
 
-    _logger.info('Reading google sheet')
+    championship_config, season = _get_discord_config(inter.guild_id)
     tech_metric = 'Total' if metric == 'Points' else metric
-    config = GeneralRankingReader(f'{what}_ranking', 'gsheet', 'rankings.png', 5, tech_metric).read()
+    config = GeneralRankingReader(
+        f'{what}_ranking',
+        championship_config,
+        season,
+        f'{championship_config["name"]}rankings.png',
+        metric=tech_metric).read()
     _logger.info('Rendering image...')
-    output_filepath = Renderer.render(config)
+    output_filepath = Renderer.render(config, championship_config, season)
     _logger.info('Sending image...')
     with open(output_filepath, 'rb') as f:
         picture = disnake.File(f)
@@ -91,17 +111,41 @@ async def rankings(inter,
 async def race(inter: disnake.ApplicationCommandInteraction,
                race_number: str = commands.Param(name="race_number", description='Le numéro de la course'),
                what: str = commands.Param(name="what", choices=[
-                                          'lineup', 'presentation', 'results', 'fastest', 'pole'])
+                                          'presences', 'presentation', 'lineup', 'results', 'grid_ribbon'])
                ):
     _logger.info(f'{inter.user.display_name} called Race(race_number={race_number}, what={what})')
     sheet_name = f'Race {race_number}'
     await inter.response.defer()
 
-    _logger.info('Reading google sheet')
-    config = Reader(what, 'gsheet', sheet_name, f'output/race_{what}.png').read()
+    championship_config, season = _get_discord_config(inter.guild_id)
+    visual = what if what != 'presences' else 'presentation'
+    config = Reader(visual, championship_config, season, f'output/race_{what}.png', sheet_name).read()
+
+    if what == 'presences':
+        race = config.race
+        await inter.followup.send(
+            f"# Présences course {race.round}\n"
+            f"{race.full_date.strftime('%d/%m')} à {race.hour}\n"
+            f"{race.circuit.city} ({race.circuit.name})"
+        )
+        for role_str in ('Titulaire', 'Réserviste', 'Commentateur'):
+            role = None
+            for r in inter.guild.roles:
+                if r.name == role_str:
+                    role = r
+            if role:
+                msg = await inter.channel.send(role.mention)
+                await msg.add_reaction(PRESENT_EMOJI)
+                await msg.add_reaction(AWAY_EMOJI)
+            else:
+                _logger.error(f'Role {role_str} not found !')
+        return
 
     _logger.info('Rendering image...')
-    output_filepath = Renderer.render(config)
+    output_filepath = Renderer.render(config, championship_config, season)
+    if not output_filepath:
+        await inter.followup.send('Le visuel était vide, êtes-vous sûr que le Sheet est bien rempli ?')
+        return
 
     _logger.info('Sending image...')
     with open(output_filepath, 'rb') as f:
@@ -174,8 +218,75 @@ async def quote(inter,
         await inter.followup.send(file=picture)
         _logger.info('Image sent !')
 
-original_error_handler = bot.on_slash_command_error
+def _get_discord_config(discord_id:int) -> Tuple[Dict,str]:
+    championship_config = DISCORDS[discord_id]
+    _logger.info(f'Reading google sheet for {championship_config["name"]}')
+    season = DISCORDS[discord_id]['current_season']
+    return championship_config, season
 
+async def _update_presence_message(guild_id, channel_id, message_id, emoji):
+    channel = await bot.fetch_channel(channel_id)
+    message = await channel.fetch_message(message_id)
+
+    parts = message.content.split('\n')
+    notified_role = parts[0]
+    role = await _get_role_by_name(guild_id, notified_role)
+
+    pertinent_msg_reactions = (
+        r for r in message.reactions if r.emoji in PRESENCE_EMOJIS
+    )
+    all_users = role.members
+    mapping_users = {
+        PRESENT_EMOJI: [],
+        AWAY_EMOJI: [],
+        'missing': []
+    }
+    for reaction in pertinent_msg_reactions:
+        mapping_users[reaction.emoji] = [u.display_name async for u in reaction.users() if u in all_users]
+
+    for user in all_users:
+        if user.display_name not in mapping_users[PRESENT_EMOJI] and user.display_name not in mapping_users[AWAY_EMOJI]:
+            mapping_users['missing'].append(user.display_name)
+
+    # PRESENTS
+    if len(mapping_users[PRESENT_EMOJI]) == 0:
+        presents_str = '-'
+    else:
+        presents_str = ", ".join(mapping_users[PRESENT_EMOJI])
+ 
+    # ABSENTS
+    if len(mapping_users[AWAY_EMOJI]) == 0:
+        away_str = '-'
+    else:
+        away_str = ", ".join(mapping_users[AWAY_EMOJI])
+ 
+    # MISSINGS
+    if len(mapping_users['missing']) == 0:
+        missing_str = 'Tout le monde à voté !'
+    else:
+        missing_str = ", ".join(mapping_users["missing"])
+
+    msg = f"""{notified_role}
+
+{PRESENT_EMOJI} Présents : {presents_str}
+
+{AWAY_EMOJI} Absents : {away_str}
+
+❓Pas voté : {missing_str}"""
+    await message.edit(msg)
+
+async def _get_role_by_name(guild_id, role_name):
+    guild = bot.get_guild(guild_id)
+    roles = await guild.fetch_roles()
+    for r in roles:
+        if r.mention == role_name:
+            return r
+
+# def _get_
+
+## ERROR HANDLING
+
+original_error_handler = bot.on_slash_command_error
 
 async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, exception):
     what = inter.filled_options.get('what')
