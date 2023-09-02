@@ -36,5 +36,5 @@ class PitListener(AbstractListener):
                 t = f'({round(lap.pit_lane_time_in_lane_in_ms/1000,2)}s)' if lap.pit_lane_time_in_lane_in_ms else ''
                 msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {fuel} tours d\'essence {t}'
                 return [Message(msg, Channel.PIT)]
-        if 'pit_lane_time_active' in changes:
+        if 'pit_lane_timer_active' in changes:
             print(changes)
