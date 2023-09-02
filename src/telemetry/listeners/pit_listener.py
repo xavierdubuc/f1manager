@@ -26,16 +26,6 @@ class PitListener(AbstractListener):
         print(changes)
         print('------')
 
-        {
-            'current_lap_time_in_ms': 23131 -> 23231,
-            'lap_distance': 403.865234375 -> 406.060546875,
-            'total_distance': 56208.25390625 -> 56210.44921875,
-            'pit_stop_timer_in_ms': 2419 -> 0,
-            'pit_lane_time_in_lane_in_ms': 26342 -> 0,
-            'pit_status': PitStatus.pitting -> PitStatus.not_in_pit,
-            'pit_lane_timer_active': True -> False
-        }
-
         if 'pit_status' in changes:
             pit_status = changes['pit_status'].actual
             if pit_status == PitStatus.pitting:
