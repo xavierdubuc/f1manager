@@ -22,10 +22,6 @@ class PitListener(AbstractListener):
     notified = {}
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
-        print(participant)
-        print(changes)
-        print('------')
-
         if 'pit_status' in changes:
             pit_status = changes['pit_status'].actual
             if pit_status == PitStatus.pitting:
