@@ -6,7 +6,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
 class AbstractGenerator(ABC):
-    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int, identifier: str = None):
+    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
         self.championship_config = championship_config
         self.config = config
         self.season = season

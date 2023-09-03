@@ -218,6 +218,32 @@ async def quote(inter,
         await inter.followup.send(file=picture)
         _logger.info('Image sent !')
 
+
+@bot.slash_command(name="pilot", description='Pilot')
+async def pilot(inter,
+                   who: str = commands.Param(
+                       name="name",
+                       description="Le nom du pilote"
+                   ),
+                   team: str = commands.Param(name='team', default=None, choices=TEAMS,
+                                              description="L'équipe (celle de la saison actuelle par défaut)"),
+                   ):
+    _logger.info(f'{inter.user.display_name} called Pilot(who={who}, team={team})')
+
+    await inter.response.defer()
+
+    championship_config, season = _get_discord_config(inter.guild_id)
+    config = Reader('pilot', championship_config, season, f'output/pilot_{who}.png').read()
+    _logger.info('Rendering image...')
+    output_filepath = Renderer.render(config, championship_config, season, who, team=team)
+    _logger.info('Sending image...')
+    with open(output_filepath, 'rb') as f:
+        picture = disnake.File(f)
+        await inter.followup.send(file=picture)
+        _logger.info('Image sent !')
+
+
+
 def _get_discord_config(discord_id:int) -> Tuple[Dict,str]:
     championship_config = DISCORDS[discord_id]
     _logger.info(f'Reading google sheet for {championship_config["name"]}')

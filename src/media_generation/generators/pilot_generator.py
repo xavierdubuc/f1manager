@@ -2,15 +2,21 @@ import logging
 import os
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
+from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.models.pilot import Pilot
 
 from src.media_generation.models.visual import Visual
 from ..generators.abstract_generator import AbstractGenerator
 from ..helpers.transform import *
+from src.media_generation.data import teams_idx as TEAMS
 
 _logger = logging.getLogger(__name__)
 
 class PilotGenerator(AbstractGenerator):
+    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
+        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
+        self.forced_team = kwargs.get('team')
+
     def _get_visual_type(self) -> str:
         return 'pilot'
 
@@ -50,5 +56,7 @@ class PilotGenerator(AbstractGenerator):
     def _get_pilot_img(self, pilot:Pilot, width, height):
         pilot_name_length = len(pilot.name)
         has_long_pseudo =  pilot_name_length >= 15
+        if self.forced_team:
+            pilot.team = TEAMS.get(self.forced_team, pilot.team)
         pilot_font = FontFactory.black(24 if has_long_pseudo else 30)
         return pilot.team._get_lineup_pilot_image(pilot, pilot_font, width, height, 138, has_long_pseudo)
