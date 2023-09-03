@@ -25,7 +25,12 @@ austin = Circuit(id='austin', name='Etats-Unis', city='Austin', lap_length=5.513
 mexico = Circuit(id='mexico', name='Mexique', city='Mexico City', lap_length=4.304, best_lap="1' 17'' 774")
 brazil = Circuit(id='brazil', name='Brésil', city='Sao Paulo', lap_length=4.309, best_lap="1' 10'' 540")
 abudhabi = Circuit(id='abudhabi', name='Abu Dhabi', city='Yas Marina', lap_length=5.281, best_lap="1' 26'' 103")
-portugal = Circuit(id='portugal', name='Portugal', city='Portimao', lap_length=4.653, best_lap="1' 18'' 750")
+portugal = Circuit(id='portugal', name='Portugal', city='Portimao', lap_length=4.653, best_lap="1' 18'' 750",
+                   fbrt_best_lap=BestLap(
+                       pilot_name='FBRT_Kayzor',
+                       lap_time="1' 17'' 583",
+                       season=4
+                   ))
 china = Circuit(id='china', name='Chine', city='Shanghai', lap_length=5.451, best_lap="1' 32'' 238")
 qatar = Circuit(id='qatar', name='Qatar', city='Losail', lap_length=5.380, best_lap="1' 23'' 196")
 lasvegas = Circuit(id='lasvegas', name='Las Vegas', city='Las Vegas', lap_length=6.120, best_lap="/")

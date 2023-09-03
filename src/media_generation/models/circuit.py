@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 from PIL import Image, ImageDraw
 from PIL.PngImagePlugin import PngImageFile
+
+from src.media_generation.models.best_lap import BestLap
 from ..helpers.transform import text, paste
 
 from src.media_generation.font_factory import FontFactory
@@ -14,6 +16,7 @@ class Circuit:
     lap_length: float
     best_lap: str
     city: str = None
+    fbrt_best_lap: BestLap = None
 
     def get_flag(self) -> PngImageFile:
         return self._get_assets('flags')

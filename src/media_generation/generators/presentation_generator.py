@@ -167,7 +167,11 @@ class PresentationGenerator(AbstractGenerator):
         lap_amount_value = text(f'{self.config.race.laps}', value_color, value_font)
 
         best_lap_label = text('Meilleur temps', title_color, title_font)
-        best_lap_value = text(f'{self.config.race.circuit.best_lap}', value_color, value_font)
+        best_lap_value = text(f'{self.config.race.circuit.fbrt_best_lap.lap_time}', value_color, value_font)
+        best_lap_author_value = text(
+            f'{self.config.race.circuit.fbrt_best_lap.pilot_name} (Saison {self.config.race.circuit.fbrt_best_lap.season})',
+            value_color, value_font
+        )
 
         right = width-40
         vertical_padding = 40
@@ -201,4 +205,6 @@ class PresentationGenerator(AbstractGenerator):
         line_top = top + best_lap_label.height - line_height_offset - (best_lap_label.height - best_lap_value.height)
         draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - best_lap_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
 
+        top = int(prev_pos.bottom+(vertical_padding/2))
+        paste(best_lap_author_value, img, top=top, left=right - best_lap_author_value.width)
         return img
