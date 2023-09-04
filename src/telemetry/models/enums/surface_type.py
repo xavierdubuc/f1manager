@@ -14,3 +14,4 @@ class SurfaceType(Enum):
     cobblestone = 9 # pavé
     metal = 10
     ridge = 11
+    other = 12
