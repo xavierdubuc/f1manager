@@ -3,6 +3,7 @@ from typing import Dict, Tuple
 import disnake
 from disnake.ext import commands
 from datetime import datetime
+from src.media_generation.generators.pilot_generator import PilotGenerator
 
 from src.media_generation.helpers.reader import Reader
 from src.media_generation.helpers.general_ranking_reader import GeneralRankingReader
@@ -25,6 +26,12 @@ TEAMS = list(teams_idx.keys())
 
 PRESENT_EMOJI = '✅'
 AWAY_EMOJI = '❌'
+VOTE_EMOJI = '❤️'
+VOTES_EMOJIS = '🇦🇧🇨🇩🇪🇫🇬🇭🇮🇯🇰🇱🇲🇳🇴🇵🇶🇷🇸🇹'
+CIRCUIT_EMOJIS = {
+    'Portimao': '🇵🇹',
+    'Singapour': '🇸🇬'
+}
 PRESENCE_EMOJIS = [PRESENT_EMOJI, AWAY_EMOJI]
 
 command_sync_flags = commands.CommandSyncFlags.default()
@@ -56,7 +63,7 @@ async def on_message(msg: disnake.Message):
 @bot.event
 async def on_raw_reaction_remove(payload):
     if payload.emoji.name in PRESENCE_EMOJIS:
-        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id, payload.emoji.name)
+        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id)
 
 @bot.event
 async def on_raw_reaction_add(payload):
@@ -69,7 +76,7 @@ async def on_raw_reaction_add(payload):
             await message.delete()
         return
     if payload.emoji.name in PRESENCE_EMOJIS:
-        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id, payload.emoji.name)
+        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id)
 
 
 @bot.slash_command(name="rankings", description='Rankings')
@@ -111,22 +118,29 @@ async def rankings(inter,
 async def race(inter: disnake.ApplicationCommandInteraction,
                race_number: str = commands.Param(name="race_number", description='Le numéro de la course'),
                what: str = commands.Param(name="what", choices=[
-                                          'presences', 'presentation', 'lineup', 'results', 'grid_ribbon'])
+                                          'presences', 'presentation', 'lineup', 'results', 'pilotoftheday', 'grid_ribbon'])
                ):
     _logger.info(f'{inter.user.display_name} called Race(race_number={race_number}, what={what})')
     sheet_name = f'Race {race_number}'
     await inter.response.defer()
 
     championship_config, season = _get_discord_config(inter.guild_id)
-    visual = what if what != 'presences' else 'presentation'
+    if what == 'presences':
+        visual = 'presentation'
+    elif what == 'pilotoftheday':
+        visual = 'results'
+    else:
+        visual = what
+    
     config = Reader(visual, championship_config, season, f'output/race_{what}.png', sheet_name).read()
 
     if what == 'presences':
         race = config.race
+        circuit_country = CIRCUIT_EMOJIS.get(race.circuit.city, f'({race.circuit.name})')
         await inter.followup.send(
             f"# Présences course {race.round}\n"
             f"{race.full_date.strftime('%d/%m')} à {race.hour}\n"
-            f"{race.circuit.city} ({race.circuit.name})"
+            f"{race.circuit.city} {circuit_country}"
         )
         for role_str in ('Titulaire', 'Réserviste', 'Commentateur'):
             role = None
@@ -139,6 +153,26 @@ async def race(inter: disnake.ApplicationCommandInteraction,
                 await msg.add_reaction(AWAY_EMOJI)
             else:
                 _logger.error(f'Role {role_str} not found !')
+        return
+
+    if what == 'pilotoftheday':
+        race = config.race
+        circuit_country = CIRCUIT_EMOJIS.get(race.circuit.city, f'({race.circuit.name})')
+        await inter.followup.send(
+            f"# Sondage pilote du jour course {race.round}\n"
+            f"{race.circuit.city} {circuit_country}"
+        )
+        msg_content = ''
+        for index, pilot_data in config.ranking.iterrows():
+            # Get pilot
+            pilot_name = pilot_data[0]
+            position = str(index+1)
+            if len(position) == 1:
+                position = f' {position}'
+            msg_content += f'\n{VOTES_EMOJIS[index]} `{position}. {pilot_name}`'
+        msg = await inter.channel.send(msg_content)
+        for emoji in VOTES_EMOJIS:
+            await msg.add_reaction(emoji)
         return
 
     _logger.info('Rendering image...')
@@ -250,7 +284,7 @@ def _get_discord_config(discord_id:int) -> Tuple[Dict,str]:
     season = DISCORDS[discord_id]['current_season']
     return championship_config, season
 
-async def _update_presence_message(guild_id, channel_id, message_id, emoji):
+async def _update_presence_message(guild_id, channel_id, message_id):
     channel = await bot.fetch_channel(channel_id)
     message = await channel.fetch_message(message_id)
 
@@ -292,11 +326,14 @@ async def _update_presence_message(guild_id, channel_id, message_id, emoji):
     else:
         missing_str = ", ".join(mapping_users["missing"])
 
+#     msg = f"""{notified_role}
+
+# {PRESENT_EMOJI} Présents : {presents_str}
+
+# {AWAY_EMOJI} Absents : {away_str}
+
+# ❓Pas voté : {missing_str}"""
     msg = f"""{notified_role}
-
-{PRESENT_EMOJI} Présents : {presents_str}
-
-{AWAY_EMOJI} Absents : {away_str}
 
 ❓Pas voté : {missing_str}"""
     await message.edit(msg)
