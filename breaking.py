@@ -72,7 +72,7 @@ class Renderer:
         img = Image.new('RGBA', (width, height), (255, 255, 255, 0))
         left_padding = 25
         between_padding = 40
-        with Visual.get_fbrt_logo(no_border=True) as logo:
+        with Visual.get_fbrt_round_logo() as logo:
             logo = resize(logo, int(0.15 * width), height)
             logo_dim = paste(logo, img, left_padding, with_alpha=True)
 
