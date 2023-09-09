@@ -5,7 +5,6 @@ from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.models.pilot import Pilot
 
-from src.media_generation.models.visual import Visual
 from ..generators.abstract_generator import AbstractGenerator
 from ..helpers.transform import *
 from src.media_generation.data import teams_idx as TEAMS
@@ -16,12 +15,19 @@ class PilotGenerator(AbstractGenerator):
     def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
         super().__init__(championship_config, config, season, identifier, *args, **kwargs)
         self.forced_team = kwargs.get('team')
+        self.visual_type = kwargs.get('visual_type', 'lineup')
 
     def _get_visual_type(self) -> str:
         return 'pilot'
 
     def _generate_basic_image(self) -> PngImageFile:
-        return Image.new('RGBA', (364, 210), (0,0,0,0))
+        if self.visual_type == 'whole':
+            size = (380,715)
+        elif self.visual_type == 'closeup':
+            size = (200,200)
+        else:
+            size = (364, 210)
+        return Image.new('RGBA', size, (0,0,0,0))
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         return None
@@ -54,9 +60,14 @@ class PilotGenerator(AbstractGenerator):
         paste(img, base_img)
 
     def _get_pilot_img(self, pilot:Pilot, width, height):
-        pilot_name_length = len(pilot.name)
-        has_long_pseudo =  pilot_name_length >= 15
-        if self.forced_team:
-            pilot.team = TEAMS.get(self.forced_team, pilot.team)
-        pilot_font = FontFactory.black(24 if has_long_pseudo else 30)
-        return pilot.team._get_lineup_pilot_image(pilot, pilot_font, width, height, 138, has_long_pseudo)
+        if self.visual_type == 'lineup':
+            pilot_name_length = len(pilot.name)
+            has_long_pseudo =  pilot_name_length >= 15
+            if self.forced_team:
+                pilot.team = TEAMS.get(self.forced_team, pilot.team)
+            pilot_font = FontFactory.black(24 if has_long_pseudo else 30)
+            return pilot.team._get_lineup_pilot_image(pilot, pilot_font, width, height, 138, has_long_pseudo)
+        if self.visual_type == 'closeup':
+            return pilot.get_close_up_image(138)
+        if self.visual_type == 'whole':
+            return pilot.get_long_range_image()

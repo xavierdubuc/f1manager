@@ -3,7 +3,6 @@ from typing import Dict, Tuple
 import disnake
 from disnake.ext import commands
 from datetime import datetime
-from src.media_generation.generators.pilot_generator import PilotGenerator
 
 from src.media_generation.helpers.reader import Reader
 from src.media_generation.helpers.general_ranking_reader import GeneralRankingReader
@@ -259,17 +258,23 @@ async def pilot(inter,
                        name="name",
                        description="Le nom du pilote"
                    ),
+                   visual_type: str = commands.Param(
+                        name="visual_type",
+                        choices=["lineup", 'closeup', 'whole'],
+                        description="Type de visuel",
+                        default='lineup'
+                   ),
                    team: str = commands.Param(name='team', default=None, choices=TEAMS,
                                               description="L'équipe (celle de la saison actuelle par défaut)"),
                    ):
-    _logger.info(f'{inter.user.display_name} called Pilot(who={who}, team={team})')
+    _logger.info(f'{inter.user.display_name} called Pilot(who={who}, visual_type={visual_type}, team={team})')
 
     await inter.response.defer()
 
     championship_config, season = _get_discord_config(inter.guild_id)
     config = Reader('pilot', championship_config, season, f'output/pilot_{who}.png').read()
     _logger.info('Rendering image...')
-    output_filepath = Renderer.render(config, championship_config, season, who, team=team)
+    output_filepath = Renderer.render(config, championship_config, season, who, team=team, visual_type=visual_type)
     _logger.info('Sending image...')
     with open(output_filepath, 'rb') as f:
         picture = disnake.File(f)
