@@ -30,6 +30,12 @@ def get_round_corner_mask(img: PngImageFile, radius=50):
     draw_mask.rounded_rectangle(((0,0), (mask.width, mask.height)), radius=radius, fill=1)
     return mask
 
+def rounded_rectangle(width, height, fill, radius=50):
+    img = Image.new('RGBA', (width, height), (0,0,0,0))
+    draw = ImageDraw.Draw(img)
+    draw.rounded_rectangle(((0,0), (width, height)), radius=radius, fill=fill)
+    return img
+
 def paste_rounded(bg: PngImageFile, img: PngImageFile, xy: tuple = (0, 0), radius=50):
     mask = get_round_corner_mask(img, radius)
     bg.paste(img, xy, mask)

@@ -10,7 +10,11 @@ import os.path
 
 import logging
 
-GENERAL_RANKING_TYPES = (GeneratorType.TeamsRanking.value, GeneratorType.PilotsRanking.value)
+GENERAL_RANKING_TYPES = (
+    GeneratorType.TeamsRanking.value,
+    GeneratorType.PilotsRanking.value,
+    GeneratorType.LicensePoints.value
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -51,7 +55,7 @@ _logger.info(f'Will use "{READER_CLASS.__name__}" to read sheet data')
 
 reader = READER_CLASS(
     args.type, CHAMPIONSHIP_CONFIG, season,
-    args.output, args.sheet, args.metric
+    args.output, args.sheet, metric=args.metric
 )
 championship_data = reader.read()
 _logger.info('Rendering...')

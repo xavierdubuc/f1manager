@@ -159,7 +159,7 @@ class Pilot:
         if width and height:
             if cropping_zone:
                 base = base.crop(cropping_zone)
-            base = resize(base, width, height)
+            base = resize(base, width, height, keep_ratio=False)
 
         return base
 

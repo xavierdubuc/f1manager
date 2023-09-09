@@ -1,4 +1,5 @@
 import importlib
+from src.media_generation.generators.license_points_generator import LicensePointsGenerator
 
 from src.media_generation.generators.pilot_generator import PilotGenerator
 from .generator_config import GeneratorConfig
@@ -24,6 +25,7 @@ class Renderer:
         'pole': PoleGenerator,
         'teams_ranking': TeamsRankingGenerator,
         'pilots_ranking': PilotsRankingGenerator,
+        'license_points': LicensePointsGenerator,
         'numbers': NumbersGenerator,
         'season_lineup': SeasonLineupGenerator,
         'calendar': CalendarGenerator,

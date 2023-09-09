@@ -13,6 +13,7 @@ class GeneratorType(enum.Enum):
     Fastest = 'fastest'
     TeamsRanking = 'teams_ranking'
     PilotsRanking = 'pilots_ranking'
+    LicensePoints = 'license_points'
 
 @dataclass
 class FastestLap:

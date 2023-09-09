@@ -8,7 +8,7 @@ class GeneralRankingReader(Reader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.metric = kwargs.get('metric', 'Total')
-        if self.type == GeneratorType.PilotsRanking.value:
+        if self.type in (GeneratorType.PilotsRanking.value, GeneratorType.LicensePoints.value):
             self.sheet_name = 'Pilots Ranking'
         if self.type == GeneratorType.TeamsRanking.value:
             self.sheet_name = 'Teams Ranking'
@@ -23,7 +23,7 @@ class GeneralRankingReader(Reader):
         for i, row in self.data.iterrows():
             r = row.dropna()
             max_size = max_size if max_size > r.size else r.size
-        if self.type == GeneratorType.PilotsRanking.value:
+        if self.type in (GeneratorType.PilotsRanking.value, GeneratorType.LicensePoints.value):
             if self.metric == 'Total':
                 ranking_title = f'Saison {self.season} classement pilotes'.upper()
             else:
@@ -45,7 +45,7 @@ class GeneralRankingReader(Reader):
         return config
 
     def _get_data_sheet_from_gsheet(self):
-        range_str = f"'{self.sheet_name}'!A1:T50"
+        range_str = f"'{self.sheet_name}'!A1:U50"
         vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, range_str)
         columns = vals[0] 
         values = [
@@ -56,5 +56,5 @@ class GeneralRankingReader(Reader):
 
     def _get_general_ranking(self):
         A = 'Ecurie' if self.type == GeneratorType.TeamsRanking.value else 'Pilot'
-        columns = [A,'Total'] if self.type == GeneratorType.TeamsRanking.value else [A,'Total', 'Points par course']
+        columns = [A,'Total'] if self.type == GeneratorType.TeamsRanking.value else [A,'Total', 'Points par course', 'Permis']
         return self.data[columns].where(lambda x: x != '', pandas.NA).dropna()
