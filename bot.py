@@ -29,7 +29,8 @@ VOTE_EMOJI = '❤️'
 VOTES_EMOJIS = '🇦🇧🇨🇩🇪🇫🇬🇭🇮🇯🇰🇱🇲🇳🇴🇵🇶🇷🇸🇹'
 CIRCUIT_EMOJIS = {
     'Portimao': '🇵🇹',
-    'Singapour': '🇸🇬'
+    'Singapour': '🇸🇬',
+    'Spielberg': '🇦🇹'
 }
 PRESENCE_EMOJIS = [PRESENT_EMOJI, AWAY_EMOJI]
 
