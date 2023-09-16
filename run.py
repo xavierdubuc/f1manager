@@ -1,5 +1,3 @@
-from src.gsheet.gsheet import GSheet
-from config.config import DEFAULT_SPREADSHEET_ID, RACE_RANKING_RANGE
 import sys
 import pickle
 from datetime import datetime
