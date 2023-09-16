@@ -330,7 +330,7 @@ async def _update_presence_message(guild_id, channel_id, message_id):
     if len(mapping_users['missing']) == 0:
         missing_str = 'Tout le monde à voté !'
     else:
-        missing_str = ", ".join(mapping_users["missing"])
+        missing_str = '❓Pas voté : ' + ", ".join(mapping_users["missing"])
 
 #     msg = f"""{notified_role}
 
@@ -341,7 +341,7 @@ async def _update_presence_message(guild_id, channel_id, message_id):
 # ❓Pas voté : {missing_str}"""
     msg = f"""{notified_role}
 
-❓Pas voté : {missing_str}"""
+{missing_str}"""
     await message.edit(msg)
 
 async def _get_role_by_name(guild_id, role_name):
