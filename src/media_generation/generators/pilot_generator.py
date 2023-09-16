@@ -60,11 +60,11 @@ class PilotGenerator(AbstractGenerator):
         paste(img, base_img)
 
     def _get_pilot_img(self, pilot:Pilot, width, height):
+        if self.forced_team:
+            pilot.team = TEAMS.get(self.forced_team, pilot.team)
         if self.visual_type == 'lineup':
             pilot_name_length = len(pilot.name)
             has_long_pseudo =  pilot_name_length >= 15
-            if self.forced_team:
-                pilot.team = TEAMS.get(self.forced_team, pilot.team)
             pilot_font = FontFactory.black(24 if has_long_pseudo else 30)
             return pilot.team._get_lineup_pilot_image(pilot, pilot_font, width, height, 138, has_long_pseudo)
         if self.visual_type == 'closeup':
