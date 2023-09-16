@@ -48,6 +48,8 @@ def resize(img: PngImageFile, width:int = None, height: int = None, keep_ratio=T
             width = int((height / img.height) * img.width)
         if height is None:
             height = int((width / img.width) * img.height)
+        if width > img.width or height > img.height:
+            return img.resize((width, height))
         img.thumbnail((width, height), Image.Resampling.LANCZOS)
         return img.copy()
     else:
