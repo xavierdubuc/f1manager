@@ -84,7 +84,7 @@ def rotated_text(txt_str:str, text_color, font:ImageFont.FreeTypeFont, stroke_wi
     txt = text(txt_str, text_color, font, stroke_width, stroke_fill)
     return txt.rotate(angle, expand=True)
 
-def paste(img:PngImageFile, on_what:PngImageFile, left=False, top=False, with_alpha=None):
+def paste(img:PngImageFile, on_what:PngImageFile, left:int=False, top:int=False, with_alpha:bool=None):
     left = left if left is not False else (on_what.width-img.width) // 2
     top = top if top is not False else (on_what.height-img.height) // 2
     if with_alpha is True or (with_alpha is None and img.mode != 'RGB'):
