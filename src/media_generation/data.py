@@ -72,7 +72,7 @@ circuits = {
 
 redbull = Team(
     name='RedBull',
-    title='Oracle Red Bull',
+    title='RED BULL',
     subtitle="Racing",
     main_color=(215, 190, 50),
     secondary_color=(0, 0, 186),
@@ -85,7 +85,7 @@ redbull = Team(
 )
 mercedes = Team(
     name='Mercedes',
-    title='Mercedes',
+    title='MERCEDES',
     subtitle="AMG Petronas F1 Team",
     main_color=(0, 179, 158),
     secondary_color=(0, 0, 0),
@@ -98,7 +98,7 @@ mercedes = Team(
 )
 mclaren = Team(
     name='McLaren',
-    title='McLaren',
+    title='McLAREN',
     subtitle='F1 Team',
     main_color=(224, 146, 12),
     secondary_color=(40, 40, 40),
@@ -112,7 +112,7 @@ mclaren = Team(
 )
 haas = Team(
     name='Haas',
-    title='Haas',
+    title='HAAS',
     subtitle='F1 Team',
     main_color=(200, 10, 15),
     secondary_color=(211, 211, 211),
@@ -130,7 +130,7 @@ haas = Team(
 )
 alpine = Team(
     name='Alpine',
-    title='BWT Alpine',
+    title='ALPINE',
     subtitle='F1 Team',
     main_color=(10, 130, 210),
     secondary_color=(0, 0, 0),
@@ -144,7 +144,7 @@ alpine = Team(
 )
 ferrari = Team(
     name='Ferrari',
-    title='Ferrari',
+    title='FERRARI',
     subtitle='Scuderia',
     main_color=(255, 200, 200),
     secondary_color=(255, 0, 0),
@@ -157,7 +157,7 @@ ferrari = Team(
 )
 williams = Team(
     name='Williams',
-    title='Williams',
+    title='WILLIAMS',
     subtitle="Racing",
     main_color=(6, 76, 187),
     secondary_color=(255, 255, 255),
@@ -171,7 +171,7 @@ williams = Team(
 )
 alfa_romeo = Team(
     name='AlfaRomeo',
-    title='Alfa Romeo',
+    title='ALFA ROMEO',
     subtitle='F1 Team ORLEN',
     main_color=(114, 4, 5),
     secondary_color=(255, 255, 255),
@@ -185,7 +185,7 @@ alfa_romeo = Team(
 )
 aston_martin = Team(
     name='AstonMartin',
-    title='Aston Martin',
+    title='ASTON MARTIN',
     subtitle='Aramco Cognizant F1 Team',
     main_color=(14, 104, 88),
     secondary_color=(255, 255, 255),
@@ -198,7 +198,7 @@ aston_martin = Team(
 )
 alpha_tauri = Team(
     name="AlphaTauri",
-    title="AlphaTauri",
+    title="ALPHATAURI",
     subtitle='Scuderia',
     main_color=(40, 64, 90),
     secondary_color=(200, 200, 200),
