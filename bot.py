@@ -360,7 +360,7 @@ original_error_handler = bot.on_slash_command_error
 async def on_slash_command_error(inter: disnake.ApplicationCommandInteraction, exception):
     what = inter.filled_options.get('what')
     await inter.delete_original_message()
-    if what in ('results', 'fastest'):
+    if what == 'results':
         await inter.channel.send("Une erreur est survenue dans la génération, êtes-vous sûr que la Google Sheet est bien remplie ? Si oui, contactez Xion.")
     else:
         await inter.channel.send('Une erreur est survenue dans la génération, contactez Xion.')

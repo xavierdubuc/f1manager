@@ -10,7 +10,6 @@ class GeneratorType(enum.Enum):
     Presentation = 'presentation'
     Lineup ='lineup'
     Results = 'results'
-    Fastest = 'fastest'
     TeamsRanking = 'teams_ranking'
     PilotsRanking = 'pilots_ranking'
     LicensePoints = 'license_points'

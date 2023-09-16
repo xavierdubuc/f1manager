@@ -49,7 +49,7 @@ class Reader:
             config.description = self.data['A'][6]
         if self.type in ('pole', 'grid_ribbon'):
             config.qualif_ranking = self.data[['B','C']][24:]
-        if self.type in ('results', 'fastest'):
+        if self.type in ('results',):
             config.ranking = self._get_ranking()
         if self.type in ('results', 'driver_of_the_day'):
             config.driver_of_the_day = self._get_driver_of_the_day()
@@ -182,6 +182,6 @@ class Reader:
 
     def _get_sheet_columns(self) -> list:
         all_columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
-        if self.type in ('results', 'fastest'):
+        if self.type in ('results',):
             return all_columns
         return all_columns[:8]  # -> H

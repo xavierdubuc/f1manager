@@ -7,7 +7,6 @@ from .generator_config import GeneratorConfig
 
 from ..generators.pole_generator import PoleGenerator
 from ..generators.results_generator import ResultsGenerator
-from ..generators.fastest_generator import FastestGenerator
 from ..generators.lineups_generator import LineupGenerator
 from ..generators.presentation_generator import PresentationGenerator
 from ..generators.teams_ranking_generator import TeamsRankingGenerator
@@ -22,7 +21,6 @@ class Renderer:
         'lineup': LineupGenerator,
         'presentation': PresentationGenerator,
         'results': ResultsGenerator,
-        'fastest': FastestGenerator,
         'pole': PoleGenerator,
         'teams_ranking': TeamsRankingGenerator,
         'pilots_ranking': PilotsRankingGenerator,

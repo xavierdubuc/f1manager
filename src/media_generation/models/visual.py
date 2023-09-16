@@ -69,8 +69,6 @@ class Visual:
         # Title
         if self.type == 'results':
             title = self._get_race_result_title(width//3, height)
-        elif self.type == 'fastest':
-            title = self._get_race_fastest_title(width//3, height)
         elif self.type == 'presentation':
             title = self._get_race_presentation_title(width//3, height)
         top = height // 3
@@ -115,20 +113,4 @@ class Visual:
         number_left = race_left + race_width + 20
         draw_img.text((race_left,0), 'COURSE', (255, 255, 255), font)
         draw_img.text((number_left,0), f'{self.race.round}', (255, 0, 0), font)
-        return img
-
-    def _get_race_fastest_title(self, width, height):
-        font_size = 60 if len(self.race.round) < 2 else 52
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-        font = FontFactory.bold(font_size)
-        draw_img = ImageDraw.Draw(img)
-        _, _, whole_width, _ = draw_img.textbbox((0, 0), f'Race {self.race.round} - Fastest lap', font)
-        _, _, race_width, _ = draw_img.textbbox((0, 0), f'Race', font)
-        _, _, number_width, _ = draw_img.textbbox((0, 0), f'{self.race.round}', font)
-        race_left = (width-whole_width) // 2
-        number_left = race_left + race_width + 20
-        fastest_left = number_left + number_width
-        draw_img.text((race_left,0), 'Race', (255, 255, 255), font)
-        draw_img.text((number_left,0), f'{self.race.round}', (255, 0, 0), font)
-        draw_img.text((fastest_left,0), ' - Fastest lap', (255, 255, 255), font)
         return img

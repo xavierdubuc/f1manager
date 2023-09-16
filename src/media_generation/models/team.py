@@ -82,49 +82,6 @@ class Team:
     def _get_alt_logo_path(self):
         return os.path.join(ASSETS_PATH, f'alt/{self.name}.png')
 
-    def get_team_image(self, width, title_font):
-        line_separation = 10
-        box_width = 10
-        v_padding = 10
-        title_width, title_height = text_size(self.title.upper(), title_font)
-        subtitle_font = FontFactory.regular(title_font.size - 10)
-        subtitle_width, subtitle_height = text_size(self.subtitle, title_font)
-        box_height = title_height + subtitle_height + line_separation + 2 * v_padding
-
-        img = Image.new('RGBA', (width, box_height), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        # background
-        bg = Image.new('RGB', (width, box_height))
-        gradient(bg, direction=GradientDirection.LEFT_TO_RIGHT)
-        img.paste(bg)
-
-        # box
-        draw.rectangle(((0, 0), (box_width, box_height)), fill=self.box_color)
-
-        # Name
-        padding_after_box = box_width + 20
-        draw.text(
-            (padding_after_box, v_padding),
-            self.title.upper(),
-            fill=(255, 255, 255),
-            font=title_font
-        )
-        draw.text(
-            (padding_after_box, v_padding+line_separation+title_height),
-            self.subtitle,
-            fill=(255, 255, 255),
-            font=subtitle_font
-        )
-
-        # logo
-        with Image.open(self.get_image()) as team_image:
-            padding = 4
-            image_size = box_height - padding
-            team_image = resize(team_image, image_size, image_size)
-            paste(team_image, img, left=width - team_image.width - 10)
-
-        return img
-
     def get_parallelogram(self, width, height):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         draw = ImageDraw.Draw(img)
