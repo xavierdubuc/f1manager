@@ -1,4 +1,5 @@
 import importlib
+from src.media_generation.generators.driver_of_the_day_generator import DriverOfTheDayGenerator
 from src.media_generation.generators.license_points_generator import LicensePointsGenerator
 
 from src.media_generation.generators.pilot_generator import PilotGenerator
@@ -30,6 +31,7 @@ class Renderer:
         'season_lineup': SeasonLineupGenerator,
         'calendar': CalendarGenerator,
         'pilot': PilotGenerator,
+        'driver_of_the_day': DriverOfTheDayGenerator,
         'grid_ribbon': {
             'package': 'src.media_generation.generators.grid_ribbon_generator',
             'name': 'GridRibbonGenerator'

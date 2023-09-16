@@ -165,7 +165,7 @@ class ResultsGenerator(AbstractGenerator):
 
             pos = index + 1
             has_fastest_lap = pilot_name == self.config.fastest_lap.pilot.name
-            is_pilot_of_the_day = pilot_name == self.config.driver_of_the_day
+            is_pilot_of_the_day = pilot_name == self.config.driver_of_the_day[0]
             tyres = pilot_data[2] if isinstance(pilot_data[2], str) else ''
             pilot_result = PilotResult(pilot, pos, pilot_data[1], tyres,
                                        self.championship_config['settings']['components']['pilot_results'])

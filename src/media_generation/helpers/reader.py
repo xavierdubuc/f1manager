@@ -23,7 +23,6 @@ class InputData:
 
 class Reader:
     VALUES_SHEET_NAME = '_values'
-    DEFAULT_SPREADSHEET_ID = '1JJw3YnVUXYCyjhH4J5MIbVg5OtjTIDLptx0pF2M9KV4'
 
     def __init__(self, type: str, championship_config: dict, season: int,
                  out_filepath: str = None, sheet_name: str = None, *args, **kwargs):
@@ -52,7 +51,7 @@ class Reader:
             config.qualif_ranking = self.data[['B','C']][24:]
         if self.type in ('results', 'fastest'):
             config.ranking = self._get_ranking()
-        if self.type == 'results':
+        if self.type in ('results', 'driver_of_the_day'):
             config.driver_of_the_day = self._get_driver_of_the_day()
             config.fastest_lap = self._get_fastest_lap(race)
         return config
@@ -130,7 +129,7 @@ class Reader:
         return self.data[ranking_cols][:20]
 
     def _get_driver_of_the_day(self):
-        return self.data['I'][22]
+        return (self.data['I'][22], self.data['J'][22])
 
     def _get_fastest_lap(self, race: Race):
         vals = {'pilot_name': self.data['G'][22]}
