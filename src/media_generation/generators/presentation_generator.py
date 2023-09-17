@@ -140,7 +140,7 @@ class PresentationGenerator(AbstractGenerator):
             hour_img = text(self.config.race.hour, (255, 255, 255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
             paste(hour_img, img, left=left, top=tw_name_pos.bottom + 10)
 
-            twitch_logo = resize(twitch_logo, width, int(2*(height/3)))
+            twitch_logo = resize(twitch_logo, height=int(2*(height/3)))
             paste(twitch_logo, img, left=tw_name_pos.left - 20 - twitch_logo.width)
         return img
 
@@ -154,7 +154,7 @@ class PresentationGenerator(AbstractGenerator):
         value_font = FontFactory.bold(32)
 
         with self.config.race.circuit.get_map() as map:
-            map = resize(map, width-(left+10), height)
+            map = resize(map, width=width-(left+10))
             prev_pos = paste(map, img, top=0, left=(left-10))
 
         race_length_label = text('Distance totale', title_color, title_font)
