@@ -13,7 +13,11 @@ monaco = Circuit(id='monaco', name='Monaco', city='Monaco', lap_length=3.337, be
 azerbaidjan = Circuit(id='azerbaidjan', name='Azerbaïdjan', city='Baku', lap_length=6.003, best_lap="1' 43'' 009")
 canada = Circuit(id='canada', name='Canada', city='Montréal', lap_length=4.361, best_lap="1' 13'' 078")
 gb = Circuit(id='gb', name='Grande-Bretagne', city='Silverstone', lap_length=5.891, best_lap="1' 27'' 097")
-austria = Circuit(id='austria', name='Autriche', city='Spielberg', lap_length=4.318, best_lap="1' 05'' 619")
+austria = Circuit(id='austria', name='Autriche', city='Spielberg', lap_length=4.318, best_lap="1' 05'' 619", fbrt_best_lap=BestLap(
+    pilot_name='FBRT_Kayzor',
+    lap_time="1' 04'' 939",
+    season=5
+))
 france = Circuit(id='france', name='France', city='Paul Ricard', lap_length=5.842, best_lap="1' 32'' 740")
 hungary = Circuit(id='hungary', name='Hongrie', city='Budapest', lap_length=4.381, best_lap="1' 16'' 627")
 belgium = Circuit(id='belgium', name='Belgique', city='Spa-Francorchamps', lap_length=7.004, best_lap="1' 41'' 252")
