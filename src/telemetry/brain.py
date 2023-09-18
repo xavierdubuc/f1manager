@@ -127,7 +127,7 @@ class Brain:
             channels = [c for c in Channel if c != Channel.BROADCAST]
             for channel in channels:
                 self._send_discord_message(Message(content=msg.content, channel=channel), parent_msg=msg)
-                return
+            return
 
         _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord ({msg.channel})')
         _logger.info(msg.content)
