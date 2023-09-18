@@ -296,6 +296,8 @@ async def _update_presence_message(guild_id, channel_id, message_id):
 
     parts = message.content.split('\n')
     notified_role = parts[0]
+    if notified_role not in ('Réserviste', 'Titulaire', 'Commentateur'):
+        return
     role = await _get_role_by_name(guild_id, notified_role)
 
     pertinent_msg_reactions = (
