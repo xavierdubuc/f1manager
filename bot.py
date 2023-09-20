@@ -166,6 +166,8 @@ async def race(inter: disnake.ApplicationCommandInteraction,
         for index, pilot_data in config.ranking.iterrows():
             # Get pilot
             pilot_name = pilot_data[0]
+            if not pilot_name:
+                continue
             position = str(index+1)
             if len(position) == 1:
                 position = f' {position}'
