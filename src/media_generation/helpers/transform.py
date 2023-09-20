@@ -44,11 +44,14 @@ def resize(img: PngImageFile, width:int = None, height: int = None, keep_ratio=T
     if width is None and height is None:
         raise Exception('Please give at least width or height!')
     if keep_ratio:
+        can_resize_up = False
         if width is None:
+            can_resize_up = True
             width = int((height / img.height) * img.width)
         if height is None:
+            can_resize_up = True
             height = int((width / img.width) * img.height)
-        if width > img.width or height > img.height:
+        if (width > img.width or height > img.height) and can_resize_up:
             return img.resize((width, height))
         img.thumbnail((width, height), Image.Resampling.LANCZOS)
         return img.copy()
