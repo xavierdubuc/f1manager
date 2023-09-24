@@ -167,11 +167,15 @@ class PresentationGenerator(AbstractGenerator):
         lap_amount_value = text(f'{self.config.race.laps}', value_color, value_font)
 
         best_lap_label = text('Meilleur temps', title_color, title_font)
-        best_lap_value = text(f'{self.config.race.circuit.fbrt_best_lap.lap_time}', value_color, value_font)
-        best_lap_author_value = text(
-            f'{self.config.race.circuit.fbrt_best_lap.pilot_name} (Saison {self.config.race.circuit.fbrt_best_lap.season})',
-            value_color, value_font
-        )
+        if self.config.race.circuit.fbrt_best_lap:
+            best_lap_value = text(f'{self.config.race.circuit.fbrt_best_lap.lap_time}', value_color, value_font)
+            best_lap_author_value = text(
+                f'{self.config.race.circuit.fbrt_best_lap.pilot_name} (Saison {self.config.race.circuit.fbrt_best_lap.season})',
+                value_color, value_font
+            )
+        else:
+            best_lap_value = text(f'{self.config.race.circuit.best_lap}', value_color, value_font)
+            best_lap_author_value = text(f'',value_color, value_font)
 
         right = width-40
         vertical_padding = 40

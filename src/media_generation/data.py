@@ -5,7 +5,11 @@ from .models import *
 
 bahrein = Circuit(id='bahrein', name='Bahreïn', city='Sakhir', lap_length=5.412, best_lap="1' 31'' 447")
 saudiarabia = Circuit(id='saudiarabia', name='Arabie Saoudite', city='Jeddah', lap_length=6.174, best_lap="1' 30'' 734")
-australia = Circuit(id='australia', name='Australie', city='Melbourne', lap_length=5.278, best_lap="N/A")
+australia = Circuit(id='australia', name='Australie', city='Melbourne', lap_length=5.278, best_lap="N/A", fbrt_best_lap=BestLap(
+    pilot_name='Gros-Nain-Vert',
+    lap_time="1' 17'' 619",
+    season=5
+))
 imola = Circuit(id='imola', name='Imola', city='Imola', lap_length=4.909, best_lap="1' 15'' 484")
 miami = Circuit(id='miami', name='Miami', city='Miami', lap_length=5.412, best_lap="1' 31'' 361")
 spain = Circuit(id='spain', name='Espagne', city='Barcelona', lap_length=4.675, best_lap="1' 18'' 149")
