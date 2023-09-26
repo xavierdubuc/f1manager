@@ -31,7 +31,15 @@ CIRCUIT_EMOJIS = {
     'Portimao': '🇵🇹',
     'Singapour': '🇸🇬',
     'Spielberg': '🇦🇹',
-    'Melbourne': '🇦🇺'
+    'Melbourne': '🇦🇺',
+    'Zandvoort': '🇳🇱',
+    'Las Vegas': '🇺🇸',
+    'Miami': '🇺🇸',
+    'Shanghai': '🇨🇳',
+    'Budapest': '🇭🇺',
+    'Monza': '🇮🇹',
+    'Barcelona': '🇪🇸',
+    'Montréal': '🇨🇦',
 }
 PRESENCE_EMOJIS = [PRESENT_EMOJI, AWAY_EMOJI]
 
