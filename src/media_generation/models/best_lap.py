@@ -12,4 +12,4 @@ class BestLap:
     pilot_name: str = None
     lap_time: str = None
     championship_name: str = 'FBRT'
-    season: int = 6
+    season: int = None

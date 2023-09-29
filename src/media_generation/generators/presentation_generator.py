@@ -169,10 +169,28 @@ class PresentationGenerator(AbstractGenerator):
         best_lap_label = text('Meilleur temps', title_color, title_font)
         if self.config.race.circuit.fbrt_best_lap:
             best_lap_value = text(f'{self.config.race.circuit.fbrt_best_lap.lap_time}', value_color, value_font)
-            best_lap_author_value = text(
-                f'{self.config.race.circuit.fbrt_best_lap.pilot_name} (Saison {self.config.race.circuit.fbrt_best_lap.season})',
-                value_color, value_font
-            )
+            # pilot name
+            if self.config.race.circuit.fbrt_best_lap.pilot_name:
+                best_lap_author_value_txt = self.config.race.circuit.fbrt_best_lap.pilot_name
+            else:
+                best_lap_author_value_txt = ''
+            # saison
+            if self.config.race.circuit.fbrt_best_lap.season:
+                best_lap_season_value_txt = self.config.race.circuit.fbrt_best_lap.season
+            else:
+                best_lap_season_value_txt = ''
+            if best_lap_author_value_txt and best_lap_season_value_txt:
+                txt_content = f'{self.config.race.circuit.fbrt_best_lap.pilot_name} (Saison {self.config.race.circuit.fbrt_best_lap.season})'
+            elif best_lap_author_value_txt:
+                txt_content = self.config.race.circuit.fbrt_best_lap.pilot_name
+            elif best_lap_season_value_txt:
+                txt_content = f'(Saison {self.config.race.circuit.fbrt_best_lap.season})'
+            else:
+                txt_content = None
+            if txt_content:
+                best_lap_author_value = text(txt_content, value_color, value_font)
+            else:
+                best_lap_author_value = text(f'',value_color, value_font)
         else:
             best_lap_value = text(f'{self.config.race.circuit.best_lap}', value_color, value_font)
             best_lap_author_value = text(f'',value_color, value_font)

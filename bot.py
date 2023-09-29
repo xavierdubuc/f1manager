@@ -126,8 +126,12 @@ async def rankings(inter,
 @bot.slash_command(name="race", description='Race information')
 async def race(inter: disnake.ApplicationCommandInteraction,
                race_number: str = commands.Param(name="race_number", description='Le numéro de la course'),
-               what: str = commands.Param(name="what", choices=[
-                                          'presences', 'presentation', 'lineup', 'results', 'pilotoftheday', 'grid_ribbon'])
+               what: str = commands.Param(
+                   name="what",
+                   choices=[
+                       'presences', 'presentation', 'lineup', 'grid_ribbon', 'results',
+                       'vote_driveroftheday', 'driver_of_the_day'
+                   ])
                ):
     _logger.info(f'{inter.user.display_name} called Race(race_number={race_number}, what={what})')
     sheet_name = f'Race {race_number}'
@@ -136,7 +140,7 @@ async def race(inter: disnake.ApplicationCommandInteraction,
     championship_config, season = _get_discord_config(inter.guild_id)
     if what == 'presences':
         visual = 'presentation'
-    elif what == 'pilotoftheday':
+    elif what == 'vote_driveroftheday':
         visual = 'results'
     else:
         visual = what
@@ -164,7 +168,7 @@ async def race(inter: disnake.ApplicationCommandInteraction,
                 _logger.error(f'Role {role_str} not found !')
         return
 
-    if what == 'pilotoftheday':
+    if what == 'vote_driveroftheday':
         race = config.race
         circuit_country = CIRCUIT_EMOJIS.get(race.circuit.city, f'({race.circuit.name})')
         await inter.followup.send(

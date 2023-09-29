@@ -5,6 +5,7 @@ import pandas
 from src.gsheet.gsheet import GSheet
 from src.media_generation.helpers.generator_config import FastestLap, GeneratorConfig
 from src.media_generation.models import Pilot, Race
+from src.media_generation.models.best_lap import BestLap
 from src.media_generation.models.team import Team
 from ..data import circuits, teams_idx
 from ..data import teams as DEFAULT_TEAMS_LIST
@@ -46,7 +47,7 @@ class Reader:
             race=race
         )
         if self.type == 'presentation':
-            config.description = self.data['A'][6]
+            config.description = self.data['A'][5]
         if self.type in ('pole', 'grid_ribbon'):
             config.qualif_ranking = self.data[['B','C']][24:]
         if self.type in ('results',):
@@ -109,12 +110,24 @@ class Reader:
         if isinstance(race_day, str):
             race_day = datetime.strptime(race_day, '%d/%m')
         hour = self.data['B'][4]
+        circuit = circuits[self.data['B'][1]]
+        fastest_lap_time = self.data['B'][20]
+        fastest_lap_driver = self.data['B'][21]
+        fastest_lap_season = self.data['B'][22]
+        if fastest_lap_driver or fastest_lap_time or fastest_lap_season:
+            lap = BestLap(
+                pilot_name=fastest_lap_driver,
+                lap_time=fastest_lap_time,
+                season=fastest_lap_season
+            )
+            circuit.fbrt_best_lap = lap
+
 
         return Race(
             full_date=race_day,
             round=self.data['B'][0],
             laps=int(self.data['B'][2]),
-            circuit=circuits[self.data['B'][1]],
+            circuit=circuit,
             day=race_day.day,
             month=race_day.strftime('%b'),
             hour=hour,

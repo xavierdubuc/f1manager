@@ -38,7 +38,7 @@ class CalendarReader(Reader):
                 race = {
                     'index': df['B'][0],
                     'circuit': CIRCUITS.get(df['B'][1], None),
-                    'type': df['B'][20],
+                    'type': df['B'][19],
                     'date': date_obj,
                     'hour': df['B'][4],
                     'obj': Race(
@@ -51,7 +51,7 @@ class CalendarReader(Reader):
                         hour=df['B'][4],
                         pilots={},
                         teams=[],
-                        type=df['B'][20]
+                        type=df['B'][19]
                     )
                 }
                 races.append(race)
