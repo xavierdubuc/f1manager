@@ -73,4 +73,7 @@ class Circuit:
         return img
 
     def _get_assets(self, asset_type):
-        return Image.open(f'assets/circuits/{asset_type}/{self.id}.png')
+        return Image.open(self.get_assets_url(asset_type))
+
+    def get_assets_url(self, asset_type):
+        return f'assets/circuits/{asset_type}/{self.id}.png'

@@ -5,6 +5,7 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+import pandas
 
 TOKEN_FILEPATH = 'config/token.json'
 CREDENTIALS_FILEPATH = 'config/credentials.json'
@@ -55,3 +56,37 @@ class GSheet:
             self.service = service.spreadsheets()
         except HttpError as err:
             print(err)
+
+    def set_presence(self, spreadsheet_id: str, discord_name):
+        pass
+
+class PresenceGSheet(GSheet):
+    def __init__(self, spreadsheet_id:str):
+        self._gsheet = GSheet()
+        self.spreadsheet_id = spreadsheet_id
+
+    def set(self, discord_name:str, race_identifier: str, value:bool):
+        str_value = 'Y' if value else 'N'
+        values = self.get_sheet_values(self.spreadsheet_id, 'Presences!A1:M31')
+        races = values[0]
+        race_index = races.index(race_identifier)
+        pilots = [v[0] for v in values[1:]]
+        try:
+            pilot_index = pilots.index(discord_name) + 1
+        except ValueError:
+            pilot_index = len(pilots) + 1
+            self.set_sheet_values(self.spreadsheet_id, f'Presences!A{pilot_index+1}', [[discord_name]])
+        self.set_sheet_values(self.spreadsheet_id, self._indexes_to_range(race_index, pilot_index), [[str_value]])
+
+    def _indexes_to_range(self, race_index: int, pilot_index:int):
+        column = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[race_index]
+        row = pilot_index+1
+        return f'Presences!{column}{row}'
+
+    def get(self, race_identifier: str):
+        values = self.get_sheet_values(self.spreadsheet_id, 'Presences!A1:M31')
+        races = values[0]
+        race_index = races.index(race_identifier)
+        return {
+            v[0]: v[race_index] if race_index < len(v) else False for v in values[1:]
+        }

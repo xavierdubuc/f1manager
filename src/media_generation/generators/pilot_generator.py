@@ -11,6 +11,9 @@ from src.media_generation.data import teams_idx as TEAMS
 
 _logger = logging.getLogger(__name__)
 
+class PublicException(Exception):
+    pass
+
 class PilotGenerator(AbstractGenerator):
     def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
         super().__init__(championship_config, config, season, identifier, *args, **kwargs)
@@ -53,7 +56,8 @@ class PilotGenerator(AbstractGenerator):
         if not identifier in self.config.pilots:
             _logger.error(f'{identifier} not found in pilots')
             _logger.error(f'Recognized pilots are : {", ".join(self.config.pilots.keys())}')
-            raise Exception('Pilot not found !')
+            pilots = "\n".join(f'- `{key}` ({self.config.pilots[key].team.name})' for key in self.config.pilots.keys())
+            raise PublicException(f'Pilote non trouvé, les pilotes reconnus sont : \n{pilots}')
         pilot = self.config.pilots[identifier]
 
         img = self._get_pilot_img(pilot, base_img.width, base_img.height)
