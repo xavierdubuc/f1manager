@@ -109,38 +109,48 @@ async def _configure_embed(embed: disnake.Embed, inter: disnake.MessageInteracti
     aways = [m for m in presences if presences[m] == 'N']
     presents = [m for m in presences if presences[m] == 'Y']
     didnt_votes = []
-    away_field = None
+    didntvote_field = None
     for field in embed_dict['fields']:
-        if field['name'] == AWAY_SECTION:
+        if field['name'].startswith(AWAY_SECTION):
+            new_name = f'{AWAY_SECTION} ({len(aways)})'
             new_value = _format_names(aways, field['inline'])
-        elif field['name'] == VOTING_SECTION:
-            away_field = field
-            continue
         else:
-            role = await _get_role_by_name(inter, field['name'])
-            present_members = []
-            for m in role.members:
-                member_name = m.display_name
-                if member_name in presents:
-                    present_members.append(member_name)
-                elif member_name not in aways:
-                    didnt_votes.append(member_name)
-            new_value = _format_names(present_members, field['inline'])
+            real_field_name = field['name'].split('(')[0].strip()
+            if real_field_name == VOTING_SECTION:
+                didntvote_field = field
+                continue
+            else:
+                role = await _get_role_by_name(inter, real_field_name)
+                present_members = []
+                for m in role.members:
+                    member_name = m.display_name
+                    if member_name in presents:
+                        present_members.append(member_name)
+                    elif member_name not in aways:
+                        didnt_votes.append(member_name)
+                new_value = _format_names(present_members, field['inline'])
+                new_name = f'{real_field_name} ({len(present_members)})'
         if new_value and new_value != field['value']:
             field['value'] = new_value
             changed = True
+        if new_name and new_name != field['name']:
+            field['name'] = new_name
+            changed = True
 
-    if didnt_votes and away_field:
-        new_value = _format_names(didnt_votes, away_field['inline'])
+    if didnt_votes and didntvote_field:
+        new_value = _format_names(didnt_votes, didntvote_field['inline'])
+        new_name = f'{real_field_name} ({len(didnt_votes)})'
         changed = True
-        if new_value != away_field['value']:
-            away_field['value'] = new_value
+        if new_value != didntvote_field['value']:
+            didntvote_field['value'] = new_value
+            changed = True
+        if new_name and new_name != didntvote_field['name']:
+            didntvote_field['name'] = new_name
             changed = True
 
     if changed:
         return embed_dict
-    else:
-        return None
+    return None
 
 def _format_names(names:list, inline:bool):
     if not names:
