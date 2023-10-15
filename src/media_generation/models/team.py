@@ -117,6 +117,7 @@ class Team:
 
         # FIXME refactor below + try to open only once the psd
 
+        pilots = [p for p in pilots if p.name != '/']
         ########
         # Pilots
         ########
