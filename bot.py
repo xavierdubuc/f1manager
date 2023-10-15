@@ -62,7 +62,7 @@ DEBUG_CHAN_ID = 1096169137589461082
 
 FBRT_TWITCH_USER_ID = '756827903'
 SEPHELDOR_TWITCH_USER_ID = '72670233'
-WATCHED_TWITCH_IDS = [FBRT_TWITCH_USER_ID, SEPHELDOR_TWITCH_USER_ID]
+WATCHED_TWITCH_IDS = [FBRT_TWITCH_USER_ID]
 IS_LIVE = {}
 
 async def _check_twitch_status(bot:commands.InteractionBot, guild_id:int, channel_id:int):
@@ -113,24 +113,6 @@ async def on_message(msg: disnake.Message):
     if bot.user.mentioned_in(msg) and not msg.mention_everyone and msg.type != disnake.MessageType.reply:
         # TODO calepino
         await msg.channel.send("Vous m'avez appelé ? Ne vous en faites Gaëtano est là ! J'vous ai déjà parlé de mon taximan brésilien ?")
-
-@bot.event
-async def on_raw_reaction_remove(payload):
-    if payload.emoji.name in PRESENCE_EMOJIS:
-        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id)
-
-@bot.event
-async def on_raw_reaction_add(payload):
-    if payload.user_id == bot.user.id:
-        return
-    if payload.emoji.name == '💥':
-        channel = await bot.fetch_channel(payload.channel_id)
-        message = await channel.fetch_message(payload.message_id)
-        if message.author == bot.user:
-            await message.delete()
-        return
-    if payload.emoji.name in PRESENCE_EMOJIS:
-        await _update_presence_message(payload.guild_id, payload.channel_id, payload.message_id)
 
 
 @bot.slash_command(name="rankings", description='Rankings')
