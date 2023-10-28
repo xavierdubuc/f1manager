@@ -122,7 +122,6 @@ class Reader:
             )
             circuit.fbrt_best_lap = lap
 
-
         return Race(
             full_date=race_day,
             round=self.data['B'][0],
@@ -133,7 +132,7 @@ class Reader:
             hour=hour,
             pilots=pilots,
             teams=teams,
-            type=self.data['B'][20],
+            type=self.data['B'][19],
             swappings=self._determine_swappings(pilots)
         )
 
