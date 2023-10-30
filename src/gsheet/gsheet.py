@@ -67,7 +67,7 @@ class PresenceGSheet(GSheet):
 
     def set(self, discord_name:str, race_identifier: str, value:bool):
         str_value = 'Y' if value else 'N'
-        values = self.get_sheet_values(self.spreadsheet_id, 'Presences!A1:M31')
+        values = self.get_sheet_values(self.spreadsheet_id, 'Presences!A1:M50')
         races = values[0]
         race_index = races.index(race_identifier)
         pilots = [v[0] for v in values[1:]]
