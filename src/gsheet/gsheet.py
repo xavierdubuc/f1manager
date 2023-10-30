@@ -60,6 +60,8 @@ class GSheet:
     def set_presence(self, spreadsheet_id: str, discord_name):
         pass
 
+PRESENCES_RANGE = 'Presences!A1:M50'
+
 class PresenceGSheet(GSheet):
     def __init__(self, spreadsheet_id:str):
         self._gsheet = GSheet()
@@ -67,7 +69,7 @@ class PresenceGSheet(GSheet):
 
     def set(self, discord_name:str, race_identifier: str, value:bool):
         str_value = 'Y' if value else 'N'
-        values = self.get_sheet_values(self.spreadsheet_id, 'Presences!A1:M50')
+        values = self.get_sheet_values(self.spreadsheet_id, PRESENCES_RANGE)
         races = values[0]
         race_index = races.index(race_identifier)
         pilots = [v[0] for v in values[1:]]
@@ -84,7 +86,7 @@ class PresenceGSheet(GSheet):
         return f'Presences!{column}{row}'
 
     def get(self, race_identifier: str):
-        values = self.get_sheet_values(self.spreadsheet_id, 'Presences!A1:M31')
+        values = self.get_sheet_values(self.spreadsheet_id, PRESENCES_RANGE)
         races = values[0]
         race_index = races.index(race_identifier)
         return {
