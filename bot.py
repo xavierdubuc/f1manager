@@ -185,7 +185,10 @@ async def race(inter: disnake.ApplicationCommandInteraction,
             f"# Sondage pilote du jour course {race.round}\n"
             f"{race.circuit.city} {circuit_country}"
         )
-        msg_content = ''
+        if config.grid_positions:
+            msg_content = '`   Pos. Grille  Pilote`'
+        else:
+            msg_content = '`   Pos.  Pilote`'
         for index, pilot_data in config.ranking.iterrows():
             # Get pilot
             pilot_name = pilot_data[0]
@@ -194,7 +197,18 @@ async def race(inter: disnake.ApplicationCommandInteraction,
             position = str(index+1)
             if len(position) == 1:
                 position = f' {position}'
-            msg_content += f'\n{VOTES_EMOJIS[index]} `{position}. {pilot_name}`'
+            if config.grid_positions:
+                grid_position = config.grid_positions.get(pilot_name)
+                if not grid_position:
+                    grid_position_txt = ''
+                else:
+                    grid_position = str(grid_position)
+                    if len(grid_position) == 1:
+                        grid_position = f' {grid_position}'
+                    grid_position_txt = f' (P{grid_position})  '
+            else:
+                grid_position_txt = ''
+            msg_content += f'\n{VOTES_EMOJIS[index]} `{position}. {grid_position_txt} {pilot_name}`'
         msg = await inter.channel.send(msg_content)
         for emoji in VOTES_EMOJIS:
             await msg.add_reaction(emoji)
