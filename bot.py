@@ -119,8 +119,8 @@ async def on_message(msg: disnake.Message):
 async def rankings(inter,
                    what: str = commands.Param(
                        name="what",
-                       choices=["teams", "pilots"],
-                       description="Teams pour le classement des équipes, pilots pour les pilotes"
+                       choices=["teams", "pilots", 'license_points'],
+                       description="Le classement désiré"
                    ),
                    metric: str = commands.Param(
                        name="metric",
@@ -136,7 +136,7 @@ async def rankings(inter,
     championship_config, season = _get_discord_config(inter.guild_id)
     tech_metric = 'Total' if metric == 'Points' else metric
     config = GeneralRankingReader(
-        f'{what}_ranking',
+        f'{what}_ranking' if what in ('teams', 'pilots') else what,
         championship_config,
         season,
         f'{championship_config["name"]}rankings.png',

@@ -45,6 +45,8 @@ class LicensePointsGenerator(AbstractGenerator):
         top = self.visual_config['body']['top']
         body_height = base_img.height - top
         for _, row in self.config.ranking.sort_values(by='Permis', ascending=False).iterrows():
+            if int(row['# courses']) == 0:
+                continue
             pilot_name = row['Pilot']
             points = int(row['Permis'])
             pilot = self.config.pilots.get(pilot_name)
@@ -104,7 +106,7 @@ class LicensePointsGenerator(AbstractGenerator):
 
     def _get_names_img(self, pilots:List[Pilot], width:int, height:int):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
-        bottom = height - 25
+        bottom = height - 15
         for pilot in reversed(pilots):
             pilot_img = pilot.get_name_image(FontFactory.black(16))
             top = bottom-pilot_img.height
