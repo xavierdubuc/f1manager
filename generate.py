@@ -1,6 +1,6 @@
 from src.media_generation.helpers.reader import Reader
 from src.media_generation.helpers.calendar_reader import CalendarReader
-from src.media_generation.helpers.general_ranking_reader import GeneralRankingReader
+from src.media_generation.readers.general_ranking_reader import GeneralRankingReader
 from src.media_generation.helpers.renderer import Renderer
 from src.media_generation.helpers.command import Command
 from src.media_generation.helpers.generator_config import GeneratorType

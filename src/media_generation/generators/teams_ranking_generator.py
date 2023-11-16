@@ -74,14 +74,13 @@ class TeamsRankingGenerator(AbstractGenerator):
         row_height = ((base_img.height - 300 - padding_top) // 10) - padding_between_rows
         # row_height = 87
         current_top = title_height+padding_top
-        metric = 'Total'
-        self.config.ranking[metric] = self.config.ranking[metric].str.replace(',','.').astype(int)
-        for _, row in self.config.ranking.sort_values(by=metric, ascending=False).iterrows():
-            team_ranking_img = self._get_team_ranking_img(width, row_height, row['Ecurie'], row[metric])
+        for i, row in enumerate(self.config.ranking):
+            is_champion = i == 0 # FIXME
+            team_ranking_img = self._get_team_ranking_img(width, row_height, row.team_name, row.total_points, is_champion)
             pos = paste(team_ranking_img, base_img, top=current_top)
             current_top = pos.bottom + padding_between_rows
 
-    def _get_team_ranking_img(self, width:int, height:int, team_name, points):
+    def _get_team_ranking_img(self, width:int, height:int, team_name, points, is_champion: bool = False):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
 
         # TEAM
@@ -90,7 +89,8 @@ class TeamsRankingGenerator(AbstractGenerator):
         pos = paste(team_img, img, left=0)
 
         # POINTS
-        points_txt = self._get_points_img(width // 3, height, points)
+        color = (199, 141, 39) if is_champion else None
+        points_txt = self._get_points_img(width // 3, height, points, color)
         paste(points_txt, img, left=pos.right + 25)
 
         return img
@@ -111,13 +111,13 @@ class TeamsRankingGenerator(AbstractGenerator):
 
         return card
 
-    def _get_points_img(self, width:int, height: int, points:str):
+    def _get_points_img(self, width:int, height: int, points:str, color:tuple = None):
         img = Image.new('RGB', (width, height), (255, 255, 255))
 
         cfg = self.visual_config['rows']['points']
         font_name = cfg.get('font')
         font_size = cfg.get('font_size', 70)
-        font_color = cfg['font_color']
+        font_color = color or cfg['font_color']
         font = FontFactory.get_font(font_name, font_size, FontFactory.black)
 
         points_top = cfg.get('top', 0)

@@ -44,11 +44,12 @@ class LicensePointsGenerator(AbstractGenerator):
         pilots_by_points = {}
         top = self.visual_config['body']['top']
         body_height = base_img.height - top
-        for _, row in self.config.ranking.sort_values(by='Permis', ascending=False).iterrows():
-            if int(row['# courses']) == 0:
+        self.config.ranking.sort_by_license_points()
+        for row in self.config.ranking:
+            if int(row.amount_of_races) == 0:
                 continue
-            pilot_name = row['Pilot']
-            points = int(row['Permis'])
+            pilot_name = row.pilot_name
+            points = row.license_points
             pilot = self.config.pilots.get(pilot_name)
             if not pilot:
                 reservist_team = Team(**self.championship_config['settings']['reservist_team'])

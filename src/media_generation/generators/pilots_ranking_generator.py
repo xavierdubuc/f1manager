@@ -121,25 +121,25 @@ class PilotsRankingGenerator(AbstractGenerator):
         current_left = padding_side
         amount_of_columns = self.rows_config['amounts_of_column']
         column_width = ((width - padding_between_cols)// amount_of_columns)
-        if self.config.metric == 'Total':
-            data_type = int
+        if self.config.metric == 'Points par course':
+            self.config.ranking.sort_by_mean_points()
+            field = 'mean_points'
         else:
-            data_type = float
-        self.config.ranking[self.config.metric] = self.config.ranking[self.config.metric].str.replace(',','.').astype(data_type)
+            field = 'total_points'
         amount_by_column = self.rows_config['pilots_by_column']
         i = 0
         max_pilot_index = (amount_of_columns * amount_by_column) - 1
-        for _, row in self.config.ranking.sort_values(by=self.config.metric, ascending=False).iterrows():
-            pilot = self.config.pilots.get(row['Pilot'])
+        for row in self.config.ranking:
+            pilot = self.config.pilots.get(row.pilot_name)
             if not pilot:
                 reservist_team = Team(**self.championship_config['settings']['reservist_team'])
-                pilot = Pilot(name=row['Pilot'], team=reservist_team, number='RE', reservist=True)
+                pilot = Pilot(name=row.pilot_name, team=reservist_team, number='RE', reservist=True)
             if (self.identifier == 'main' and pilot.reservist) or (self.identifier == 'reservists' and not pilot.reservist):
                 continue
             if i % amount_by_column == 0 and i > 0:
                 current_top = title_height+padding_top
                 current_left += column_width + padding_between_cols
-            pilot_ranking_img = self._get_pilot_ranking_img(column_width, row_height, pilot, row[self.config.metric], i+1)
+            pilot_ranking_img = self._get_pilot_ranking_img(column_width, row_height, pilot, getattr(row, field), i+1)
             pilot_ranking_pos = paste(pilot_ranking_img, base_img, left=current_left, top=current_top)
             current_top = pilot_ranking_pos.bottom + padding_between_rows
             i += 1

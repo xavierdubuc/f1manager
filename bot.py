@@ -8,7 +8,7 @@ from datetime import datetime
 from src.media_generation.generators.pilot_generator import PublicException
 import src.presence_embed as PresenceEmbed
 from src.media_generation.helpers.reader import Reader
-from src.media_generation.helpers.general_ranking_reader import GeneralRankingReader
+from src.media_generation.readers.general_ranking_reader import GeneralRankingReader
 from src.media_generation.helpers.renderer import Renderer
 
 from breaking import Renderer as BreakingRenderer

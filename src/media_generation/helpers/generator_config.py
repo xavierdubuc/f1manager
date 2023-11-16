@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 import enum
 from typing import Dict, List
-import pandas
 
 from src.media_generation.models import Pilot, Race
 from src.media_generation.models.team import Team
+from src.media_generation.readers.ranking import Ranking
 
 class GeneratorType(enum.Enum):
     Presentation = 'presentation'
@@ -29,7 +29,7 @@ class GeneratorConfig:
     race: Race = None
     description: str = None
     qualif_ranking: List[str] = None
-    ranking: pandas.DataFrame = None
+    ranking: Ranking = None
     fastest_lap: FastestLap = None
     ranking_title: str = None
     ranking_subtitle: str = None
