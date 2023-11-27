@@ -29,7 +29,7 @@ class PilotsRankingGenerator(AbstractGenerator):
         height = self.visual_config['height']
         _logger.info(f'Output size is {width}px x {height}px')
         # FIXME use a BG image ?
-        return Image.new('RGB', (width, height), (0,0,0))
+        return Image.new('RGB', (width, height), (255,255,255))
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         #                 base_img.width
@@ -152,6 +152,7 @@ class PilotsRankingGenerator(AbstractGenerator):
         # [POS] [TEAM CARD + PILOT] [PTS]
         #  15%        65%            20%
 
+        is_champion = False # pos == 1 # FIXME
         padding_between = 10
         effective_width = width - 2 * padding_between
         position_width = int(0.15 * effective_width)
@@ -179,19 +180,20 @@ class PilotsRankingGenerator(AbstractGenerator):
         paste(team_txt, img, team_name_pos.left+pilot_config['left_padding'])
 
         # POINTS
-        points_txt = self._get_points_img(points_width, height, str(points))
+        color = (199, 141, 39) if is_champion else (0,0,0)
+        points_txt = self._get_points_img(points_width, height, str(points), color)
         paste(points_txt, img, left=team_name_pos.right + padding_between)
 
         return img
 
-    def _get_points_img(self, width:int, height: int, points:str):
+    def _get_points_img(self, width:int, height: int, points:str, color:tuple=(0,0,0)):
         img = Image.new('RGB', (width, height), (255, 255, 255))
 
         font_name = self.rows_config['points'].get('font')
         font_size = self.rows_config['points']['font_size']
         font = FontFactory.get_font(font_name, font_size, FontFactory.black)
 
-        points_txt = text(points, (0,0,0), font, security_padding=4)
+        points_txt = text(points, color, font, security_padding=4)
         paste(points_txt, img, top=(height-points_txt.height)//2 - 4)
         return img
 

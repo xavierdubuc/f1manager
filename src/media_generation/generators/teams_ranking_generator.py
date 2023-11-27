@@ -75,7 +75,7 @@ class TeamsRankingGenerator(AbstractGenerator):
         # row_height = 87
         current_top = title_height+padding_top
         for i, row in enumerate(self.config.ranking):
-            is_champion = i == 0 # FIXME
+            is_champion = False # FIXME
             team_ranking_img = self._get_team_ranking_img(width, row_height, row.team_name, row.total_points, is_champion)
             pos = paste(team_ranking_img, base_img, top=current_top)
             current_top = pos.bottom + padding_between_rows
