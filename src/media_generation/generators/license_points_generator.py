@@ -1,21 +1,19 @@
 import math
 from typing import List
-import logging
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.models.pilot import Pilot
-from src.media_generation.models.team import Team
+from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRanking
 
 from .abstract_generator import AbstractGenerator
 from ..helpers.transform import *
-from src.media_generation.data import teams_idx as TEAMS
 
-_logger = logging.getLogger(__name__)
 
 class LicensePointsGenerator(AbstractGenerator):
     def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, *args, **kwargs):
         super().__init__(championship_config, config, season, *args, **kwargs)
+        self.ranking: PilotRanking = self.config.ranking
 
     def _get_visual_type(self) -> str:
         return 'license_points'
@@ -38,22 +36,19 @@ class LicensePointsGenerator(AbstractGenerator):
     def _add_content(self, base_img: PngImageFile):
         title_txt = text('POINTS DE PERMIS', (0,0,0), FontFactory.black(80))
         title_pos = paste(title_txt, base_img, top=self.visual_config['title']['padding_top'])
-        subtitle_txt = text(self.config.ranking_subtitle, (0,0,0), FontFactory.regular(60))
-        paste(subtitle_txt, base_img, top=title_pos.bottom+self.visual_config['title']['padding_between'])
+        if self.config.ranking_subtitle:
+            subtitle_txt = text(self.config.ranking_subtitle, (0,0,0), FontFactory.regular(60))
+            paste(subtitle_txt, base_img, top=title_pos.bottom+self.visual_config['title']['padding_between'])
 
         pilots_by_points = {}
         top = self.visual_config['body']['top']
         body_height = base_img.height - top
-        self.config.ranking.sort_by_license_points()
-        for row in self.config.ranking:
-            if int(row.amount_of_races) == 0:
+        self.ranking.sort_by_license_points()
+        for row in self.ranking.rows:
+            if int(row.amount_of_races) == 0 and not row.titular:
                 continue
-            pilot_name = row.pilot_name
             points = row.license_points
-            pilot = self.config.pilots.get(pilot_name)
-            if not pilot:
-                reservist_team = Team(**self.championship_config['settings']['reservist_team'])
-                pilot = Pilot(name=pilot_name, team=reservist_team, number='RE')
+            pilot = row.pilot
             pilots_by_points.setdefault(points, [])
             pilots_by_points[points].append(pilot)
 
@@ -78,7 +73,7 @@ class LicensePointsGenerator(AbstractGenerator):
         left = self.visual_config['rows']['padding_left']
         paste(rectangle, img, top=height-rectangle.height)
         row_pilots = []
-        points_width = 150
+        points_width = 250
         row_width = width - points_width - self.visual_config['rows']['padding_left']
         first_row = True
         for (i, pilot) in enumerate(pilots):

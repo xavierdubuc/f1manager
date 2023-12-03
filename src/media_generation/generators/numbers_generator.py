@@ -20,7 +20,6 @@ OFFICIAL_PILOTS_NUMBERS = {
     '17': '/',
     '18': 'Stroll',
     '20': 'Magnussen',
-    '21': 'de Vries',
     '22': 'Tsunoda',
     '23': 'Albon',
     '24': 'Zhou',

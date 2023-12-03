@@ -1,23 +1,26 @@
 from dataclasses import dataclass
-from datetime import datetime
-import pandas
+from typing import Dict, List
+from src.media_generation.helpers.generator_type import GeneratorType
+from src.media_generation.models.pilot import Pilot
+from src.media_generation.models.team import Team
+from src.media_generation.readers.race_reader import RaceReader
+from src.media_generation.readers.race_reader_models.race import Race
 
-from src.media_generation.models.race import Race
-from .reader import Reader
-from ..data import circuits as CIRCUITS
+import logging
+_logger = logging.getLogger(__name__)
 
 @dataclass
 class CalendarGeneratorConfig:
-    races: list
+    races: List[Race]
     season: int
-    type: str
+    type: GeneratorType
     output: str
 
 
-class CalendarReader(Reader):
+class CalendarReader(RaceReader):
     def read(self):
-        races = self._get_races_details()
-            
+        pilots, teams = self._read()
+        races = self._get_races_details(pilots, teams)
         config = CalendarGeneratorConfig(
             type=self.type,
             season=self.season,
@@ -26,34 +29,15 @@ class CalendarReader(Reader):
         )
         return config
 
-    def _get_races_details(self):
+    def _get_races_details(self, pilots:Dict[str,Pilot], teams:List[Team]) -> List[Race]:
         sheet_names = self.google_sheet_service.get_sheet_names(self.spreadsheet_id)
 
         races = []
         for sheet_name in sheet_names:
-            if sheet_name[:4] == 'Race':
-                race_vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f"'{sheet_name}'!A1:B22")
-                df = pandas.DataFrame(race_vals[1:], columns=['A','B'])
-                date_obj = datetime.strptime(f"{df['B'][3]}/{datetime.now().year}", '%d/%m/%Y').date()
-                race = {
-                    'index': df['B'][0],
-                    'circuit': CIRCUITS.get(df['B'][1], None),
-                    'type': df['B'][19],
-                    'date': date_obj,
-                    'hour': df['B'][4],
-                    'obj': Race(
-                        full_date = date_obj,
-                        round=df['B'][0],
-                        laps=int(df['B'][2]),
-                        circuit=CIRCUITS.get(df['B'][1]),
-                        day='dummy',
-                        month='value',
-                        hour=df['B'][4],
-                        pilots={},
-                        teams=[],
-                        type=df['B'][19]
-                    )
-                }
+            if sheet_name[:4] in ('Race', 'Course'):
+                _logger.info(f'Dealing with "{sheet_name}"')
+                self.sheet_name = sheet_name
+                self.data = self._get_data_sheet_from_gsheet()
+                race = self._get_race(pilots, teams)
                 races.append(race)
-
         return races

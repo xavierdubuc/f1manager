@@ -18,7 +18,7 @@ class TeamsRankingGenerator(AbstractGenerator):
         height = self.visual_config['height']
         _logger.info(f'Output size is {width}px x {height}px')
         # FIXME use a BG image ?
-        return Image.new('RGB', (width, height), (0,0,0))
+        return Image.new('RGB', (width, height), (255,255,255))
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         height = 300
@@ -57,12 +57,13 @@ class TeamsRankingGenerator(AbstractGenerator):
             txt_top = big_txt_pos.bottom+10
 
         # Sub title
-        small_font_size = title_cfg.get('small_font_size', 30)
-        small_font_color = title_cfg.get('small_font_color', (0,0,0))
-        small_font_name = title_cfg.get('small_font')
-        small_txt_font = FontFactory.get_font(small_font_name, small_font_size, FontFactory.regular)
-        small_txt = text(self.config.ranking_subtitle, small_font_color, small_txt_font)
-        paste(small_txt, img, left=txt_left, top=big_txt_pos.bottom+20)
+        if self.config.ranking_subtitle:
+            small_font_size = title_cfg.get('small_font_size', 30)
+            small_font_color = title_cfg.get('small_font_color', (0,0,0))
+            small_font_name = title_cfg.get('small_font')
+            small_txt_font = FontFactory.get_font(small_font_name, small_font_size, FontFactory.regular)
+            small_txt = text(self.config.ranking_subtitle, small_font_color, small_txt_font)
+            paste(small_txt, img, left=txt_left, top=big_txt_pos.bottom+20)
 
         return img
 
@@ -89,7 +90,7 @@ class TeamsRankingGenerator(AbstractGenerator):
         pos = paste(team_img, img, left=0)
 
         # POINTS
-        color = (199, 141, 39) if is_champion else None
+        color = (199, 141, 39) if is_champion else (255,255,255)
         points_txt = self._get_points_img(width // 3, height, points, color)
         paste(points_txt, img, left=pos.right + 25)
 
@@ -112,7 +113,7 @@ class TeamsRankingGenerator(AbstractGenerator):
         return card
 
     def _get_points_img(self, width:int, height: int, points:str, color:tuple = None):
-        img = Image.new('RGB', (width, height), (255, 255, 255))
+        img = Image.new('RGB', (width, height), (0,0,0))
 
         cfg = self.visual_config['rows']['points']
         font_name = cfg.get('font')

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from src.media_generation.readers.race_result import RaceResult
+from src.media_generation.readers.general_ranking_models.race_result import RaceResult
 
 @dataclass
 class RankingRow:

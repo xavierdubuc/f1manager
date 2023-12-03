@@ -2,6 +2,7 @@ import logging
 from PIL import Image
 
 from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRanking
 from ..generators.abstract_generator import AbstractGenerator
 
 from ..helpers.transform import *
@@ -17,6 +18,7 @@ class PilotsRankingGenerator(AbstractGenerator):
         key = self.identifier or 'default'
         cfg = self.visual_config['body']
         self.rows_config = cfg.get(key, cfg['default'])
+        self.ranking: PilotRanking = self.config.ranking
 
     def _get_visual_type(self) -> str:
         return 'pilots_ranking'
@@ -79,14 +81,17 @@ class PilotsRankingGenerator(AbstractGenerator):
 
         # Sub title
         small_txt_content = self.config.ranking_subtitle
-        small_font_size = self.visual_config['title'].get('small_font_size', 70)
-        small_font_color = self.visual_config['title'].get('small_font_color', (0,0,0))
-        small_font_name = self.visual_config['title'].get('small_font')
-        small_txt_font = FontFactory.get_font(small_font_name, small_font_size, FontFactory.black)
+        if small_txt_content:
+            small_font_size = self.visual_config['title'].get('small_font_size', 70)
+            small_font_color = self.visual_config['title'].get('small_font_color', (0,0,0))
+            small_font_name = self.visual_config['title'].get('small_font')
+            small_txt_font = FontFactory.get_font(small_font_name, small_font_size, FontFactory.black)
+            _, small_txt_expected_height = text_size(small_txt_content, small_txt_font, img)
+        else:
+            small_txt_expected_height = 0
 
         # Paste titles
         _, big_txt_expected_height = text_size(big_txt_content, big_txt_font, img)
-        _, small_txt_expected_height = text_size(small_txt_content, small_txt_font, img)
         all_txt_height = big_txt_expected_height + small_txt_expected_height
 
         # -- main
@@ -95,8 +100,9 @@ class PilotsRankingGenerator(AbstractGenerator):
         big_txt_pos = paste(big_txt, img, top=(height-all_txt_height)//2 + vertical_adjustment)
 
         # -- small
-        small_txt = text(small_txt_content, small_font_color, small_txt_font)
-        paste(small_txt, img, top=big_txt_pos.bottom+20)
+        if small_txt_content:
+            small_txt = text(small_txt_content, small_font_color, small_txt_font)
+            paste(small_txt, img, top=big_txt_pos.bottom+20)
         return img, big_txt_pos
 
     def _add_content(self, base_img: PngImageFile):
@@ -122,27 +128,30 @@ class PilotsRankingGenerator(AbstractGenerator):
         amount_of_columns = self.rows_config['amounts_of_column']
         column_width = ((width - padding_between_cols)// amount_of_columns)
         if self.config.metric == 'Points par course':
-            self.config.ranking.sort_by_mean_points()
+            self.ranking.sort_by_mean_points()
             field = 'mean_points'
         else:
             field = 'total_points'
         amount_by_column = self.rows_config['pilots_by_column']
-        i = 0
         max_pilot_index = (amount_of_columns * amount_by_column) - 1
-        for row in self.config.ranking:
-            pilot = self.config.pilots.get(row.pilot_name)
-            if not pilot:
-                reservist_team = Team(**self.championship_config['settings']['reservist_team'])
-                pilot = Pilot(name=row.pilot_name, team=reservist_team, number='RE', reservist=True)
+        previous_points = None
+        for i,row in enumerate(self.ranking.rows):
+            pilot = row.pilot
             if (self.identifier == 'main' and pilot.reservist) or (self.identifier == 'reservists' and not pilot.reservist):
                 continue
             if i % amount_by_column == 0 and i > 0:
                 current_top = title_height+padding_top
                 current_left += column_width + padding_between_cols
-            pilot_ranking_img = self._get_pilot_ranking_img(column_width, row_height, pilot, getattr(row, field), i+1)
+
+            points = getattr(row, field)
+            if previous_points is not None and previous_points == points:
+                position = '-'
+            else:
+                position = i+1
+            pilot_ranking_img = self._get_pilot_ranking_img(column_width, row_height, pilot, points, position)
             pilot_ranking_pos = paste(pilot_ranking_img, base_img, left=current_left, top=current_top)
             current_top = pilot_ranking_pos.bottom + padding_between_rows
-            i += 1
+            previous_points = points
             if i > max_pilot_index:
                 break
 
@@ -198,7 +207,7 @@ class PilotsRankingGenerator(AbstractGenerator):
         return img
 
     def _get_pos_img(self, width:int, height: int, pos:int):
-        pos = self._pos_to_ordinal(pos)
+        pos = self._pos_to_ordinal(pos) if pos != '-' else pos
         img = Image.new('RGB', (width, height), (0, 0, 0))
 
         font_name = self.rows_config['position'].get('font')

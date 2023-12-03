@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-import os
 from PIL import Image, ImageDraw
-from .race import Race
+
+from src.media_generation.readers.race_reader_models.race import Race
 from ..font_factory import FontFactory
 from ..helpers.transform import *
 

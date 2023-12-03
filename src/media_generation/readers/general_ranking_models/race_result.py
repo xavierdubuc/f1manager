@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
+from src.media_generation.readers.race_reader_models.race import Race
 
-from src.media_generation.models.race import Race
 
 @dataclass
 class RaceResult:

@@ -1,18 +1,25 @@
-from PIL import Image, ImageDraw
+from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
+import logging
+
+from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
+from src.media_generation.generators.exceptions import IncorrectDataException
+from src.media_generation.models.ranking_row_renderer import RankingRowRenderer
 from ..helpers.transform import *
-from ..models import PilotResult
 
 from ..font_factory import FontFactory
-from ..generators.abstract_generator import AbstractGenerator
+
+DEFAULT_TIME = '-:--.---'
 
 small_font = FontFactory.regular(32)
 font = FontFactory.regular(38)
 big_font = FontFactory.regular(56)
 pilot_font = FontFactory.bold(30)
 
+_logger = logging.getLogger(__name__)
 
-class ResultsGenerator(AbstractGenerator):
+
+class ResultsGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'results'
 
@@ -32,7 +39,7 @@ class ResultsGenerator(AbstractGenerator):
         if bg:
             with bg:
                 bg = resize(bg, width, height)
-                paste(bg.convert('RGB'),img)
+                paste(bg.convert('RGB'), img)
         return img
 
     def _add_content(self, final: PngImageFile):
@@ -40,16 +47,19 @@ class ResultsGenerator(AbstractGenerator):
         paddings = self.visual_config['padding']
         top_h_padding = paddings['top']
         available_width = final.width - paddings['left']
-        subtitle_image = self._get_subtitle_image(available_width, self.visual_config['subtitle']['height'])
-        pos = paste(subtitle_image, final, paddings['left'], title_height + top_h_padding)
+        subtitle_image = self._get_subtitle_image(
+            available_width, self.visual_config['subtitle']['height'])
+        pos = paste(subtitle_image, final,
+                    paddings['left'], title_height + top_h_padding)
 
-        rankings_top = pos.bottom + self.visual_config['content']['padding']['top']
+        rankings_top = pos.bottom + \
+            self.visual_config['content']['padding']['top']
         rankings_height = final.height - rankings_top
         rankings_img = self._get_ranking_image(final.width, rankings_height)
         paste(rankings_img, final, left=0, top=rankings_top)
 
     def _get_subtitle_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (0, 0, 0 ,0))
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         subtitle_config = self.visual_config['subtitle']
         padding = subtitle_config['padding']
         race_title_width = int(0.35 * width)
@@ -71,11 +81,12 @@ class ResultsGenerator(AbstractGenerator):
         race_date_font_size = subtitle_config['race_date']['font_size']
         race_date_font_name = subtitle_config['race_date'].get('font')
         if race_date_font_name:
-            race_date_font = FontFactory.font(race_date_font_name, race_date_font_size)
+            race_date_font = FontFactory.font(
+                race_date_font_name, race_date_font_size)
         else:
             race_date_font = FontFactory.regular(race_date_font_size)
 
-        race_title_image = self.config.race.get_circuit_and_date_img(
+        race_title_image = self.race_renderer.get_circuit_and_date_img(
             race_title_width,
             height,
             name_font=name_font,
@@ -86,7 +97,8 @@ class ResultsGenerator(AbstractGenerator):
 
         fastest_lap_left = race_dimension.right + padding
         fastest_lap_width = width - padding - fastest_lap_left
-        fastest_lap_img = self._get_fastest_lap_image(fastest_lap_width, height)
+        fastest_lap_img = self._get_fastest_lap_image(
+            fastest_lap_width, height)
         paste(fastest_lap_img, img, fastest_lap_left)
         return img
 
@@ -99,7 +111,10 @@ class ResultsGenerator(AbstractGenerator):
             logo_pos = paste(fstst_img, img, left=0)
 
         # TEAM LOGO
-        pilot = self.config.race.get_pilot(self.config.fastest_lap.pilot.name)
+        pilot = self.race.fastest_lap_pilot
+        if not pilot:
+            raise IncorrectDataException(
+                f'Fastest lap pilot "{self.race.fastest_lap_pilot_name}" is unknown !')
         team = pilot.team
         with team.get_results_logo() as team_img:
             team_img = resize(team_img, height, height)
@@ -112,7 +127,7 @@ class ResultsGenerator(AbstractGenerator):
             FontFactory.bold
         )
         pilot_font_color = self.visual_config['fastest_lap']['pilot']['font_color']
-        pilot_content = self.config.fastest_lap.pilot.name.upper()
+        pilot_content = self.race.fastest_lap_pilot.name.upper()
         pilot_txt = text(pilot_content, pilot_font_color, pilot_font)
         pilot_pos = paste(pilot_txt, img, left=team_pos.right + 30)
 
@@ -124,7 +139,9 @@ class ResultsGenerator(AbstractGenerator):
         )
         lap_font_color = self.visual_config['fastest_lap']['lap']['font_color']
         lap_txt_content = self.visual_config['fastest_lap']['lap']['text']
-        lap_content = f'{lap_txt_content} {self.config.fastest_lap.lap}'
+        if not self.race.fastest_lap_lap:
+            _logger.warning('Fastest lap "LAP" information is not filled in !')
+        lap_content = f'{lap_txt_content} {self.race.fastest_lap_lap}'
         lap_txt = text(lap_content, lap_font_color, lap_font)
         lap_left_space = self.visual_config['fastest_lap']['lap']['left']
         paste(lap_txt, img, left=pilot_pos.right + lap_left_space)
@@ -136,7 +153,9 @@ class ResultsGenerator(AbstractGenerator):
             FontFactory.bold
         )
         time_font_color = self.visual_config['fastest_lap']['time']['font_color']
-        time_txt = text(self.config.fastest_lap.time, time_font_color, time_font)
+        if not self.race.fastest_lap_time or self.race.fastest_lap_time == DEFAULT_TIME:
+            _logger.warning('Fastest lap "TIME" information is not filled in !')
+        time_txt = text(self.race.fastest_lap_time, time_font_color, time_font)
         paste(time_txt, img, left=width-time_txt.width-15)
 
         return img
@@ -156,28 +175,22 @@ class ResultsGenerator(AbstractGenerator):
 
         maximum_split_size, maximum_tyre_amount = self._compute_max_split_size_and_tyre_amount()
 
-        for index, pilot_data in self.config.ranking.iterrows():
-            # Get pilot
-            pilot_name = pilot_data[0]
-            pilot = self.config.race.get_pilot(pilot_name)
-            if not pilot:
-                continue
+        if not self.race.race_result or not self.race.race_result.rows:
+            raise IncorrectDataException('No race results !')
+        for ranking_row in self.race.race_result.rows:
+            if not ranking_row.pilot:
+                raise IncorrectDataException(f'Invalid pilot "{ranking_row.position}. {ranking_row.pilot_name}"')
+            row_renderer = RankingRowRenderer(
+                ranking_row,
+                self.championship_config['settings']['components']['ranking_row_renderer']
+            )
 
-            pos = index + 1
-            has_fastest_lap = pilot_name == self.config.fastest_lap.pilot.name
-            is_pilot_of_the_day = pilot_name == self.config.driver_of_the_day[0]
-            tyres = pilot_data[2] if isinstance(pilot_data[2], str) else ''
-            pilot_result = PilotResult(pilot, pos, pilot_data[1], tyres,
-                                       self.championship_config['settings']['components']['pilot_results'])
-
-            left = first_col_left if index % 2 == 0 else second_col_left
-            pilot_result_image = pilot_result.get_details_image(
+            left = first_col_left if ranking_row.position % 2 == 1 else second_col_left
+            pilot_result_image = row_renderer.get_details_image(
                 col_width,
                 row_height,
                 maximum_split_size,
-                maximum_tyre_amount,
-                has_fastest_lap,
-                is_pilot_of_the_day
+                maximum_tyre_amount
             )
             paste(pilot_result_image, img, left, top)
             top += hop_between_position
@@ -186,15 +199,15 @@ class ResultsGenerator(AbstractGenerator):
     def _compute_max_split_size_and_tyre_amount(self):
         maximum_split_size = 0
         maximum_tyre_amount = 0
-        for _, pilot_data in self.config.ranking.iterrows():
+        for ranking_row in self.race.race_result.rows:
             # compute max size of time & split
-            if pilot_data[1] is not None:
-                w,_ = text_size(pilot_data[1], small_font)
+            if ranking_row.split is not None:
+                w, _ = text_size(ranking_row.split, small_font)
                 if w > maximum_split_size:
                     maximum_split_size = w
             # compute max amount of tyre stints
-            if pilot_data[2] is not None:
-                tyre_amount = len(pilot_data[2])
+            if ranking_row.tyres is not None:
+                tyre_amount = len(ranking_row.tyres)
                 if tyre_amount > maximum_tyre_amount:
                     maximum_tyre_amount = tyre_amount
         return maximum_split_size, maximum_tyre_amount

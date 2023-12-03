@@ -3,16 +3,17 @@ import logging
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
+from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
+
 from ..font_factory import FontFactory
-from ..generators.abstract_generator import AbstractGenerator
 from ..helpers.transform import *
 from ..models import Pilot, Visual
 
 _logger = logging.getLogger(__name__)
 
-class PoleGenerator(AbstractGenerator):
+class PoleGenerator(AbstractRaceGenerator):
     def _get_pole_pilot(self) -> Pilot:
-        return self.config.qualif_ranking[0]
+        return self.race.qualification_result.rows[0].pilot
 
     def _get_visual_type(self) -> str:
         return 'pole'
@@ -26,7 +27,7 @@ class PoleGenerator(AbstractGenerator):
             _logger.error('No pilot in pole, using default bg color')
             color = (255,255,255)
         else:
-            pole_pilot.team.get_pole_colors()['bg']
+            color = pole_pilot.team.get_pole_colors()['bg']
         return Image.new('RGB', (1080, 1650), color=color)
 
     def _get_pilot_image(self, pilot: Pilot, width, height):
@@ -38,8 +39,8 @@ class PoleGenerator(AbstractGenerator):
     def _get_podium_img(self):
         first = self._get_pole_pilot()
         color = first.team.get_pole_colors()['fg']
-        second = self.config.qualif_ranking[1]
-        third = self.config.qualif_ranking[2]
+        second = self.race.qualification_result.rows[1].pilot
+        third = self.race.qualification_result.rows[2].pilot
         separator = '  /  '
         full_text = f'1st {first.name}{separator}2nd {second.name}{separator}3rd {third.name}'.upper()
         Font = FontFactory.black

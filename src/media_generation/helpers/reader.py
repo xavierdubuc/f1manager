@@ -1,15 +1,14 @@
 from dataclasses import dataclass
-from datetime import datetime
 import logging
+from typing import Tuple
 import pandas
 from src.gsheet.gsheet import GSheet
-from src.media_generation.helpers.generator_config import FastestLap, GeneratorConfig
-from src.media_generation.models import Pilot, Race
-from src.media_generation.models.best_lap import BestLap
+from src.media_generation.helpers.generator_type import GeneratorType
+from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.models.pilot import Pilot
 from src.media_generation.models.team import Team
-from ..data import circuits, teams_idx
+from ..data import teams_idx
 from ..data import teams as DEFAULT_TEAMS_LIST
-
 
 
 _logger = logging.getLogger(__name__)
@@ -25,7 +24,7 @@ class InputData:
 class Reader:
     VALUES_SHEET_NAME = '_values'
 
-    def __init__(self, type: str, championship_config: dict, season: int,
+    def __init__(self, type: GeneratorType, championship_config: dict, season: int,
                  out_filepath: str = None, sheet_name: str = None, *args, **kwargs):
         self.type = type
         self.championship_config = championship_config
@@ -38,37 +37,15 @@ class Reader:
 
     def read(self):
         pilots, teams = self._read()
-        race = self._get_race(pilots, teams) if self.type not in ('numbers', 'season_lineup', 'pilot') else None
         config = GeneratorConfig(
             type=self.type,
             output=self.out_filepath or f'./output/{self.type}.png',
             pilots=pilots,
             teams=teams,
-            race=race
         )
-        if self.type == 'presentation':
-            config.description = self.data['A'][5]
-        if self.type in ('pole', 'grid_ribbon', 'results'):
-            config.qualif_ranking = self.data[['B','C']][24:]
-        if self.type in ('results',):
-            config.ranking = self._get_ranking()
-            config._compute_grid_positions()
-        if self.type in ('results', 'driver_of_the_day'):
-            config.driver_of_the_day = self._get_driver_of_the_day()
-            config.fastest_lap = self._get_fastest_lap(race)
         return config
 
-    def _determine_swappings(self, pilots):
-        replacements = self.data[['D', 'E']].where(lambda x: x != '', pandas.NA).dropna()
-        out = {}
-        for _, row in replacements.iterrows():
-            subs = row['E']
-            while out.get(subs) and len(subs) < 22:
-                subs += ' '
-            out[subs] = pilots.get(row['D'])
-        return out
-
-    def _build_pilots_list(self, values: pandas.DataFrame):
+    def _build_pilots_list(self, values: pandas.DataFrame) -> dict:
         default_team = Team(**self.championship_config['settings']['default_team'])
         reservist_team = Team(**self.championship_config['settings']['reservist_team'])
         return {
@@ -80,12 +57,12 @@ class Reader:
             ) for _, row in values[values['Pilotes'].notnull()].iterrows()
         }
 
-    def _build_teams_list(self, values: pandas.DataFrame):
+    def _build_teams_list(self, values: pandas.DataFrame) -> list:
         return [
             teams_idx[row['Ecuries']] for _, row in values.dropna().iterrows()
         ]
 
-    def _read(self):
+    def _read(self) -> Tuple[dict, list]:
         if self.spreadsheet_id:
             input_data = self._get_data_from_gsheet()
         else:
@@ -95,7 +72,7 @@ class Reader:
         self.data = input_data.sheet_data
         return pilots, teams
 
-    def _determine_pilots_and_teams(self, sheet_values):
+    def _determine_pilots_and_teams(self, sheet_values) -> Tuple[dict, list]:
         if sheet_values is not None:
             pilots_values = sheet_values[['Pilotes', 'Numéro', 'Ecurie']]
             pilots = self._build_pilots_list(pilots_values)
@@ -105,58 +82,6 @@ class Reader:
             pilots = []
             teams = DEFAULT_TEAMS_LIST
         return pilots, teams
-
-    def _get_race(self, pilots, teams):
-        race_day = self.data['B'][3]
-        if isinstance(race_day, str):
-            race_day = datetime.strptime(race_day, '%d/%m')
-        hour = self.data['B'][4]
-        circuit = circuits[self.data['B'][1]]
-        fastest_lap_time = self.data['B'][20]
-        fastest_lap_driver = self.data['B'][21]
-        fastest_lap_season = self.data['B'][22]
-        if fastest_lap_driver or fastest_lap_time or fastest_lap_season:
-            lap = BestLap(
-                pilot_name=fastest_lap_driver,
-                lap_time=fastest_lap_time,
-                season=fastest_lap_season
-            )
-            circuit.fbrt_best_lap = lap
-
-        return Race(
-            full_date=race_day,
-            round=self.data['B'][0],
-            laps=int(self.data['B'][2]),
-            circuit=circuit,
-            day=race_day.day,
-            month=race_day.strftime('%b'),
-            hour=hour,
-            pilots=pilots,
-            teams=teams,
-            type=self.data['B'][19],
-            swappings=self._determine_swappings(pilots)
-        )
-
-    def _get_ranking(self):
-        ranking_cols = ['I', 'J', 'K', 'L']
-        return self.data[ranking_cols][:20]
-
-    def _get_driver_of_the_day(self):
-        return (self.data['I'][22], self.data['J'][22])
-
-    def _get_fastest_lap(self, race: Race):
-        vals = {'pilot_name': self.data['G'][22]}
-        if self.type == 'results':
-            vals.update({
-                'lap': self.data['G'][24],
-                'time': self.data['G'][26]}
-            )
-
-        return FastestLap(
-            pilot=race.get_pilot(vals['pilot_name']),
-            lap=vals.get('lap'),
-            time=vals.get('time')
-        )
 
     def _get_values_sheet_from_gsheet(self):
         sheet_names = self.google_sheet_service.get_sheet_names(self.spreadsheet_id)

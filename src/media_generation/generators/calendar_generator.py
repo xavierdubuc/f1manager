@@ -1,11 +1,20 @@
 import math
+from typing import List
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
+
+from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.models.race_renderer import RaceRenderer
+from src.media_generation.readers.race_reader_models.race import Race, RaceType
 from ..helpers.transform import *
 from ..generators.abstract_generator import AbstractGenerator
 from ..models import Visual
 
 class CalendarGenerator(AbstractGenerator):
+    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
+        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
+        self.races: List[Race] = self.config.races
+
     def _get_visual_type(self) -> str:
         return 'calendar'
 
@@ -33,7 +42,10 @@ class CalendarGenerator(AbstractGenerator):
         top = initial_top
         width = 478
         height = 100
-        races = [race for race in self.config.races if race['type'] not in ('Sprint (1)', 'Double Grid (2)')]
+        races = [
+            race for race in self.races
+            if race.type not in (RaceType.SPRINT_1, RaceType.DOUBLE_GRID_2)
+        ]
         amount_of_races = len(races)
         halfway = math.ceil(amount_of_races / 2)
         for i, race in enumerate(races):
@@ -45,17 +57,18 @@ class CalendarGenerator(AbstractGenerator):
             else:
                 top = race_position.bottom + 15
 
-    def _get_race_image(self, race:dict, width: int, height: int) -> PngImageFile:
+    def _get_race_image(self, race:Race, width: int, height: int) -> PngImageFile:
+        race_renderer = RaceRenderer(race)
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         left_width = int(0.20 * width)
         right_width = width - left_width
 
         # left_part
-        left_img = race['obj'].get_type_image(left_width, height)
+        left_img = race_renderer.get_type_image(left_width, height)
 
         # right part
         right_img = Image.new('RGB', (right_width, height), (31,31,31))
-        circuit = race['circuit']
+        circuit = race.circuit
         if circuit:
             with circuit.get_flag() as circuit_flag:
                 flag = resize(circuit_flag, 65, 65, keep_ratio=True)
@@ -65,7 +78,7 @@ class CalendarGenerator(AbstractGenerator):
             info_left = 95
 
         info_top = 15
-        date_txt = race['date'].strftime('%d %b').upper()
+        date_txt = race.full_date.strftime('%d %b').upper()
         date_img = text(date_txt, (255, 255, 255), FontFactory.regular(18))
         date_position = paste(date_img, right_img, left=info_left, top=info_top)
 
@@ -75,7 +88,7 @@ class CalendarGenerator(AbstractGenerator):
 
         # paste parts
         left_img_position = paste(left_img, img, left=0)
-        right_img_position = paste(right_img, img, left=left_img_position.right)
+        paste(right_img, img, left=left_img_position.right)
         return img
 
     def _get_title_image(self, width: int, height: int) -> PngImageFile:

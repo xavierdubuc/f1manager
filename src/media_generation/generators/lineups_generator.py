@@ -2,11 +2,11 @@ from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
 from src.media_generation.models.visual import Visual
-from ..generators.abstract_generator import AbstractGenerator
+from ..generators.abstract_race_generator import AbstractRaceGenerator
 from ..helpers.transform import *
 
 
-class LineupGenerator(AbstractGenerator):
+class LineupGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'lineups'
 
@@ -27,8 +27,8 @@ class LineupGenerator(AbstractGenerator):
 
         center_width = base_img.width - teams_width * 2
 
-        for i, team in enumerate(self.config.race.teams):
-            lineup_img = team.get_lineup_image(teams_width, teams_height, self.config.race.get_pilots(team))
+        for i, team in enumerate(self.config.teams):
+            lineup_img = team.get_lineup_image(teams_width, teams_height, self.race.get_pilots(team))
             teams_pos = paste(lineup_img, base_img, left=teams_left, top=teams_top)
             if i == amount_of_teams_by_column - 1:
                 teams_top = teams_initial_top
@@ -41,8 +41,7 @@ class LineupGenerator(AbstractGenerator):
         paste(center_img, base_img, left=teams_width + padding)
 
     def _get_center_image(self, width:int, height:int) -> PngImageFile:
-        race = self.config.race
-        circuit = race.circuit
+        circuit = self.race.circuit
         img = Image.new('RGB', (width, height), (255,255,255))
 
         # FBRT
@@ -54,7 +53,7 @@ class LineupGenerator(AbstractGenerator):
         type_title_top = fbrt_logo_pos.bottom+50
         type_size = int(0.35 * width)
         padding_type_title = 20
-        type_img = race.get_type_image(
+        type_img = self.race_renderer.get_type_image(
             type_size, type_size, text_font=FontFactory.regular(20)
         )
         title_line1_text = 'LINE'
@@ -85,7 +84,7 @@ class LineupGenerator(AbstractGenerator):
         padding_name_city = 5
         padding_city_date = 20
         circuit_city_img = circuit.get_city_img(FontFactory.black(28))
-        date_txt = f'{race.day} {date_fr(race.month).upper()}'
+        date_txt = f'{self.race.day} {date_fr(self.race.month).upper()}'
         date_img = text(date_txt, (255, 255, 255), FontFactory.regular(30))
         circuit_height = (
             circuit_name_img.height

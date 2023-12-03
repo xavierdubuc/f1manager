@@ -1,41 +1,48 @@
 import pandas
-from src.media_generation.helpers.generator_config import GeneratorConfig, GeneratorType
+from src.media_generation.generators.exceptions import IncorrectDataException
+from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.helpers.generator_type import GeneratorType
 
 from src.media_generation.helpers.reader import Reader
-from src.media_generation.readers.pilot_ranking import PilotRanking, PilotRankingRow
-from src.media_generation.readers.race_result import RaceResult
-from src.media_generation.readers.ranking import Ranking
-from src.media_generation.readers.team_ranking import TeamRanking, TeamRankingRow
+from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRanking, PilotRankingRow
+from src.media_generation.readers.general_ranking_models.race_result import RaceResult
+from src.media_generation.readers.general_ranking_models.ranking import Ranking
+from src.media_generation.readers.general_ranking_models.team_ranking import TeamRanking, TeamRankingRow
 
 class GeneralRankingReader(Reader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.metric = kwargs.get('metric', 'Total')
-        if self.type in (GeneratorType.PilotsRanking.value, GeneratorType.LicensePoints.value):
+        if self.type in (GeneratorType.PILOTS_RANKING, GeneratorType.LICENSE_POINTS):
             self.sheet_name = 'Pilots Ranking'
-        if self.type == GeneratorType.TeamsRanking.value:
+        elif self.type == GeneratorType.TEAMS_RANKING:
             self.sheet_name = 'Teams Ranking'
+        else:
+            raise IncorrectDataException(f'{self.type.value} is not supported by GeneralRankingReader !')
 
     def read(self):
         pilots, teams = self._read()
-        ranking = self._get_general_ranking()
+        ranking = self._get_general_ranking(pilots, teams)
         max_size = -1
         self.data = self.data.where(self.data != 'abs', pandas.NA)
-        if self.type == GeneratorType.TeamsRanking.value:
+        if self.type == GeneratorType.TEAMS_RANKING:
             self.data = self.data.where(self.data != '0', pandas.NA)
-        for i, row in self.data.iterrows():
+
+        # DETERMINE max_size
+        for _, row in self.data.iterrows():
             r = row.dropna()
             max_size = max_size if max_size > r.size else r.size
-        if self.type in (GeneratorType.PilotsRanking.value, GeneratorType.LicensePoints.value):
+        if self.type == GeneratorType.TEAMS_RANKING:
+            ranking_title = f'Saison {self.season} classement équipes'.upper()
+            ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper() if max_size > 2 else None
+        else:
             if self.metric == 'Total':
                 ranking_title = f'Saison {self.season} classement pilotes'.upper()
             else:
                 ranking_title = f'Saison {self.season} pilotes points/course'.upper()
-        elif self.type == GeneratorType.TeamsRanking.value:
-            ranking_title = f'Saison {self.season} classement équipes'.upper()
-        ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper()
-            
+            ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper() if max_size > 7 else None
+
         config = GeneratorConfig(
             type=self.type,
             metric=self.metric,
@@ -58,12 +65,12 @@ class GeneralRankingReader(Reader):
         ]
         return pandas.DataFrame(values, columns=vals[0])
 
-    def _get_general_ranking(self) -> Ranking:
-        if self.type == GeneratorType.TeamsRanking.value:
-            return self._get_teams_general_ranking()
-        return self._get_pilots_general_ranking()
+    def _get_general_ranking(self, pilots, teams) -> Ranking:
+        if self.type == GeneratorType.TEAMS_RANKING:
+            return self._get_teams_general_ranking(teams)
+        return self._get_pilots_general_ranking(pilots)
 
-    def _get_teams_general_ranking(self) -> TeamRanking:
+    def _get_teams_general_ranking(self, teams:list) -> TeamRanking:
         ranking = TeamRanking(
             rows=[
                 TeamRankingRow(
@@ -81,13 +88,14 @@ class GeneralRankingReader(Reader):
         )
         return ranking
 
-    def _get_pilots_general_ranking(self) -> PilotRanking:
+    def _get_pilots_general_ranking(self, pilots:dict) -> PilotRanking:
         dataset = self.data[self.data['Pilot'] != '']
         ranking = PilotRanking(
             rows=[
                 PilotRankingRow(
                     pilot_name=row.iloc[0],
-                    titular=bool(row.iloc[1]),
+                    pilot=pilots[row.iloc[0]],
+                    titular=row.iloc[1] == 'TRUE',
                     team_name=row.iloc[2],
                     total_points=int(row.iloc[3].replace(',','.')),
                     mean_points=float(row.iloc[4].replace(',','.')),

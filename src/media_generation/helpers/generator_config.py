@@ -1,18 +1,11 @@
 from dataclasses import dataclass
-import enum
 from typing import Dict, List
+from src.media_generation.helpers.generator_type import GeneratorType
 
 from src.media_generation.models import Pilot, Race
 from src.media_generation.models.team import Team
-from src.media_generation.readers.ranking import Ranking
+from src.media_generation.readers.general_ranking_models.ranking import Ranking
 
-class GeneratorType(enum.Enum):
-    Presentation = 'presentation'
-    Lineup ='lineup'
-    Results = 'results'
-    TeamsRanking = 'teams_ranking'
-    PilotsRanking = 'pilots_ranking'
-    LicensePoints = 'license_points'
 
 @dataclass
 class FastestLap:
@@ -30,7 +23,7 @@ class GeneratorConfig:
     description: str = None
     qualif_ranking: List[str] = None
     ranking: Ranking = None
-    fastest_lap: FastestLap = None
+    # fastest_lap: FastestLap = None
     ranking_title: str = None
     ranking_subtitle: str = None
     metric: str = 'Total'

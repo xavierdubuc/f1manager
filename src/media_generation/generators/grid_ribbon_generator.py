@@ -6,7 +6,9 @@ from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
 from src.media_generation.font_factory import FontFactory
-from src.media_generation.models.pilot_result import PilotResult
+from src.media_generation.generators.exceptions import IncorrectDataException
+from src.media_generation.models.ranking_row_renderer import RankingRowRenderer
+from src.media_generation.readers.race_reader_models.race_ranking import RaceRankingRow
 
 from ..helpers.generator_config import GeneratorConfig
 from ..helpers.transform import paste, text, text_size
@@ -19,6 +21,7 @@ class GridRibbonGenerator:
     def __init__(self, championship_config: dict, config:GeneratorConfig, season: int, identifier: str = None):
         self.championship_config = championship_config
         self.config = config
+        self.race = config.race
         self.season = season
         self.visual_config = self.championship_config['settings']['visuals'].get('grid_ribbon', {})
         self.width = 1920
@@ -35,19 +38,17 @@ class GridRibbonGenerator:
         base_img_path, _ = self._get_base_image()
         title_img_path, _ = self._get_title_image(title_width)
         title_mask_path, _ = self._get_title_mask(title_width)
-        ranking = self.config.qualif_ranking
-        race = self.config.race
+        ranking = self.race.qualification_result
         i = 1
         grid_images = []
-        for _, line in ranking.iterrows():
-            img = self._get_grid_image(i, race.get_pilot(line['B']))
-            if line['B'] != None and img != None:
+        for row in ranking.rows:
+            img = self._get_grid_image(i, row)
+            if row.pilot != None and img != None:
                 grid_images.append(img)
             i += 1
 
         if len(grid_images) == 0:
-            _logger.warning('Ranking is empty, won\'t generate !')
-            return None
+            raise IncorrectDataException('Ranking is empty, won\'t generate !')
         bg_clip = ImageClip(base_img_path)
         # speed 75 --> duration_by_driver = 6
         # speed 125 --> duration_by_driver = 4
@@ -79,20 +80,23 @@ class GridRibbonGenerator:
 
         return filename
 
-    def _get_grid_image(self, pos, pilot: Pilot) -> PngImageFile:
-        if not pilot:
+    def _get_grid_image(self, pos, ranking_row: RaceRankingRow) -> PngImageFile:
+        if not ranking_row or not ranking_row.pilot:
             return None
-        pilot_result = PilotResult(pilot, pos, None, None)
+        row_renderer = RankingRowRenderer(
+            ranking_row,
+            self.championship_config['settings']['components']['ranking_row_renderer']
+        )
         font = FontFactory.regular(30)
         fg_color = (255, 255, 255)
 
         def _generate():
-            pos_img = pilot_result._get_position_image()
+            pos_img = row_renderer._get_position_image()
             estimated_logo_width = 50
             padding = 20
-            estimated_name_width = text_size(pilot.name.upper(), font)[0]
+            estimated_name_width = text_size(ranking_row.pilot.name.upper(), font)[0]
             width = estimated_logo_width + estimated_name_width + pos_img.width + padding * 2
-            pilot_img = pilot.get_ranking_image(width, self.height, font, True, fg_color)
+            pilot_img = ranking_row.pilot.get_ranking_image(width, self.height, font, True, fg_color)
             img = Image.new('RGBA', (pos_img.width+pilot_img.width+padding, self.height))
             pos_pos = paste(pos_img, img, left=0)
             paste(pilot_img, img, pos_pos.right+padding)

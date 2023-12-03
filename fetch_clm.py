@@ -17,9 +17,10 @@ def format_time(obj:timedelta):
     return f'{minutes_str}{seconds_str}.{str(obj.microseconds//1000).zfill(3)}'
 
 def print_clm(l: list):
+    rnks = sorted(l, key=lambda x: datetime.strptime(x[1], '%M:%S.%f').replace(year=2023).timestamp())
     ranking = [
-        (i+1, l[i][0], l[i][1])
-        for i in range(len(l))
+        (i+1, rnks[i][0], rnks[i][1])
+        for i in range(len(rnks))
     ]
     print('```')
     print(tabulate.tabulate(ranking, tablefmt='simple_grid'))

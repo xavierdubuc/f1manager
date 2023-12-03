@@ -1,12 +1,13 @@
 from PIL import Image
+from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
+
 from ..font_factory import FontFactory
-from ..generators.abstract_generator import AbstractGenerator
 
 from ..helpers.transform import *
 import textwrap
 
 
-class PresentationGenerator(AbstractGenerator):
+class PresentationGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'presentation'
 
@@ -66,7 +67,6 @@ class PresentationGenerator(AbstractGenerator):
         return img
 
     def _get_race_title_image(self, width:int, height:int):
-        race = self.config.race
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         lines_image = self._get_title_lines_image(width, height)
         paste(lines_image, img)
@@ -79,14 +79,14 @@ class PresentationGenerator(AbstractGenerator):
         name_font = FontFactory.black(70)
 
         #  80 - 280
-        day = text(str(race.day), day_color, day_font)
-        month = text(race.month, month_color, month_font)
+        day = text(str(self.race.day), day_color, day_font)
+        month = text(self.race.month, month_color, month_font)
 
         day_pos = paste(day, img, left = (280 - day.width) // 2, top=35)
         paste(month, img, left = (280 - month.width) // 2, top=day_pos.bottom+10)
 
-        circuit = self.config.race.circuit
-        with self.config.race.circuit.get_flag() as flag:
+        circuit = self.race.circuit
+        with circuit.get_flag() as flag:
             flag = resize(flag, 200, 200)
             flag_pos = paste(flag, img, left=300)
         circuit_img = circuit.get_full_name_img(
@@ -108,7 +108,7 @@ class PresentationGenerator(AbstractGenerator):
         # photo
         img_top = 20
         remaining_height = height - img_top
-        with self.config.race.circuit.get_photo() as photo:
+        with self.race.circuit.get_photo() as photo:
             photo = resize(photo, width-left_padding, remaining_height)
             paste_rounded(img, photo, (left_padding, img_top))
 
@@ -123,7 +123,7 @@ class PresentationGenerator(AbstractGenerator):
 
         # TEXT
         text_font = FontFactory.regular(32)
-        text_lines = textwrap.wrap(self.config.description, width=67)
+        text_lines = textwrap.wrap(self.race.presentation_text, width=67)
 
         for text_line in text_lines:
             top += 45
@@ -137,7 +137,7 @@ class PresentationGenerator(AbstractGenerator):
             twitch_name = text('FBRT_ECHAMP', (255,255,255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
             left = width-twitch_name.width-40
             tw_name_pos = paste(twitch_name, img, left=left, top=25)
-            hour_img = text(self.config.race.hour, (255, 255, 255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
+            hour_img = text(self.race.hour, (255, 255, 255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
             paste(hour_img, img, left=left, top=tw_name_pos.bottom + 10)
 
             twitch_logo = resize(twitch_logo, height=int(2*(height/3)))
@@ -147,44 +147,40 @@ class PresentationGenerator(AbstractGenerator):
     def _get_right_content_image(self, width: int, height: int):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         left = 120
+        circuit = self.race.circuit
 
         title_color = (230, 0, 0)
         value_color = (255, 255, 255)
         title_font = FontFactory.regular(32)
         value_font = FontFactory.bold(32)
 
-        with self.config.race.circuit.get_map() as map:
+        with circuit.get_map() as map:
             map = resize(map, width=width-(left+10))
             prev_pos = paste(map, img, top=0, left=(left-10))
 
         race_length_label = text('Distance totale', title_color, title_font)
-        race_length_value = text(f'{self.config.race.get_total_length()} Km', value_color, value_font)
+        race_length_value = text(f'{self.race.get_total_length()} Km', value_color, value_font)
 
         lap_length_label = text('Longueur', title_color, title_font)
-        lap_length_value = text(f'{self.config.race.circuit.lap_length} Km', value_color, value_font)
+        lap_length_value = text(f'{circuit.lap_length} Km', value_color, value_font)
 
         lap_amount_label = text('Nombre de tours', title_color, title_font)
-        lap_amount_value = text(f'{self.config.race.laps}', value_color, value_font)
+        lap_amount_value = text(f'{self.race.laps}', value_color, value_font)
 
         best_lap_label = text('Meilleur temps', title_color, title_font)
-        if self.config.race.circuit.fbrt_best_lap:
-            best_lap_value = text(f'{self.config.race.circuit.fbrt_best_lap.lap_time}', value_color, value_font)
+        if self.race.circuit_fastest_lap_time:
+            best_lap_value = text(f'{self.race.circuit_fastest_lap_time}', value_color, value_font)
             # pilot name
-            if self.config.race.circuit.fbrt_best_lap.pilot_name:
-                best_lap_author_value_txt = self.config.race.circuit.fbrt_best_lap.pilot_name
-            else:
-                best_lap_author_value_txt = ''
+            best_lap_author_value_txt = self.race.circuit_fastest_lap_pilot_name or ''
             # saison
-            if self.config.race.circuit.fbrt_best_lap.season:
-                best_lap_season_value_txt = self.config.race.circuit.fbrt_best_lap.season
-            else:
-                best_lap_season_value_txt = ''
+            best_lap_season_value_txt = self.race.circuit_fastest_lap_season or ''
+
             if best_lap_author_value_txt and best_lap_season_value_txt:
-                txt_content = f'{self.config.race.circuit.fbrt_best_lap.pilot_name} (Saison {self.config.race.circuit.fbrt_best_lap.season})'
+                txt_content = f'{best_lap_author_value_txt} (Saison {best_lap_season_value_txt})'
             elif best_lap_author_value_txt:
-                txt_content = self.config.race.circuit.fbrt_best_lap.pilot_name
+                txt_content = best_lap_author_value_txt
             elif best_lap_season_value_txt:
-                txt_content = f'(Saison {self.config.race.circuit.fbrt_best_lap.season})'
+                txt_content = f'(Saison {best_lap_season_value_txt})'
             else:
                 txt_content = None
             if txt_content:
@@ -192,7 +188,7 @@ class PresentationGenerator(AbstractGenerator):
             else:
                 best_lap_author_value = text(f'',value_color, value_font)
         else:
-            best_lap_value = text(f'{self.config.race.circuit.best_lap}', value_color, value_font)
+            best_lap_value = text(f'{circuit.best_lap}', value_color, value_font)
             best_lap_author_value = text(f'',value_color, value_font)
 
         right = width-40

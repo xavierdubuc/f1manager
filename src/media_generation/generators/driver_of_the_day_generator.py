@@ -1,13 +1,15 @@
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
+
+from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
+from src.media_generation.generators.exceptions import IncorrectDataException
 from ..helpers.transform import *
 
 from ..font_factory import FontFactory
-from ..generators.abstract_generator import AbstractGenerator
 
 BG_COLOR = (20, 20, 30)
 
-class DriverOfTheDayGenerator(AbstractGenerator):
+class DriverOfTheDayGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'driver_of_the_day'
 
@@ -43,7 +45,9 @@ class DriverOfTheDayGenerator(AbstractGenerator):
         paste(dotd_text_img, final, left=dotd_left, top=dotd_top)
 
         # PILOT IMAGE
-        driver = self.config.race.get_pilot(self.config.driver_of_the_day[0])
+        driver = self.race.driver_of_the_day
+        if not driver:
+            raise IncorrectDataException(f'Driver of the day "{self.race.driver_of_the_day_name}" is not known ! ')
         pilot_photo = driver.get_long_range_image()
         driver_height = self.visual_config['pilot_photo']['height']
         driver_top = self.visual_config['pilot_photo']['top']
@@ -66,7 +70,7 @@ class DriverOfTheDayGenerator(AbstractGenerator):
                   top=pilot_name_pos.top-logo.height - 10)
 
         # PERCENTAGE TEXT
-        percentage_str = self.config.driver_of_the_day[1] or '0%'
+        percentage_str = self.race.driver_of_the_day_percent or '0%'
         percentage = round(float(percentage_str.replace('%','').replace(',','.')))
         percentage_font = FontFactory.bold(40)
         percentage_sec_font = FontFactory.regular(20)
@@ -85,7 +89,7 @@ class DriverOfTheDayGenerator(AbstractGenerator):
 
     def _get_bottom_image(self, w:int, h:int) -> PngImageFile:
         img = Image.new('RGB', (w,h), BG_COLOR)
-        circuit = self.config.race.circuit
+        circuit = self.race.circuit
         with circuit.get_flag() as f:
             f = resize(f, height=h//4)
             flag_pos = paste(f, img, left=20)
@@ -104,7 +108,7 @@ class DriverOfTheDayGenerator(AbstractGenerator):
 
     def _get_center_img(self, width:int, height: int) -> PngImageFile:
         # CIRCUIT
-        with self.config.race.circuit.get_photo() as p:
+        with self.race.circuit.get_photo() as p:
             img = resize(p, height=height)
             crop_left = (img.width - width) // 2
             crop_top = (img.height - height) // 2

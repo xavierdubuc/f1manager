@@ -1,20 +1,14 @@
-from src.media_generation.helpers.reader import Reader
-from src.media_generation.helpers.calendar_reader import CalendarReader
-from src.media_generation.readers.general_ranking_reader import GeneralRankingReader
+from src.media_generation.generators.exceptions import IncorrectDataException
 from src.media_generation.helpers.renderer import Renderer
 from src.media_generation.helpers.command import Command
-from src.media_generation.helpers.generator_config import GeneratorType
+from src.media_generation.helpers.generator_type import GeneratorType
 from pprint import pformat
 from config.config import CHAMPIONSHIPS
 import os.path
 
 import logging
 
-GENERAL_RANKING_TYPES = (
-    GeneratorType.TeamsRanking.value,
-    GeneratorType.PilotsRanking.value,
-    GeneratorType.LicensePoints.value
-)
+from src.media_generation.run_config import RUN_CONFIGS, RunConfig
 
 logging.basicConfig(
     level=logging.INFO,
@@ -32,6 +26,7 @@ _logger.info(f'\t sheet: {args.sheet}')
 _logger.info(f'\t metric: {args.metric}')
 _logger.info(f'\t identifier: {args.identifier}')
 
+# VALIDATE CHAMPIONSHIP
 if args.championship not in CHAMPIONSHIPS:
     _logger.error(f'Unknown championship "{args.championship}"')
     exit()
@@ -39,25 +34,33 @@ CHAMPIONSHIP_CONFIG = CHAMPIONSHIPS[args.championship]
 _logger.info(f'Will use "{args.championship}" config')
 _logger.debug(f'\n{pformat(CHAMPIONSHIP_CONFIG,indent=2)}')
 
+# VALIDATE SEASON
 if args.season is None:
     season = sorted(CHAMPIONSHIP_CONFIG['seasons'].keys())[-1]
 else:
     season = args.season
 _logger.info(f'Season {season} selected')
 
-READER_CLASS = Reader
-if args.type in GENERAL_RANKING_TYPES:
-    READER_CLASS = GeneralRankingReader
-elif args.type == 'calendar':
-    READER_CLASS = CalendarReader
+# VALIDATE TYPE
+try:
+    visual_type = GeneratorType(args.type)
+except ValueError:
+    _logger.error(f'Unknown generator type "{args.type}"')
+    exit()
 
+run_config:RunConfig = RUN_CONFIGS[visual_type]
+READER_CLASS = run_config.Reader
 _logger.info(f'Will use "{READER_CLASS.__name__}" to read sheet data')
 
 reader = READER_CLASS(
-    args.type, CHAMPIONSHIP_CONFIG, season,
+    visual_type, CHAMPIONSHIP_CONFIG, season,
     args.output, args.sheet, metric=args.metric
 )
 championship_data = reader.read()
 _logger.info('Rendering...')
-output_filepath = Renderer.render(championship_data, CHAMPIONSHIP_CONFIG, season, args.identifier or None)
-_logger.info(f'Image successfully rendered in file "{os.path.realpath(output_filepath)}"')
+renderer = Renderer(run_config)
+try:
+    output_filepath = renderer.render(championship_data, CHAMPIONSHIP_CONFIG, season, args.identifier or None)
+    _logger.info(f'Image successfully rendered in file "{os.path.realpath(output_filepath)}"')
+except IncorrectDataException as e:
+    _logger.error(f'An error occured during generation : {str(e)}')

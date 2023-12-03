@@ -1,5 +1,4 @@
 import math
-import os
 from typing import Dict, Tuple
 import disnake
 import logging
@@ -7,24 +6,9 @@ import logging
 from tabulate import tabulate
 from config.config import DISCORDS
 from src.gsheet.gsheet import PresenceGSheet
-from src.media_generation.models.race import Race
+from src.media_generation.readers.race_reader_models.race import Race
 
 _logger = logging.getLogger(__name__)
-
-CIRCUIT_EMOJIS = {
-    'Portimao': '🇵🇹',
-    'Singapour': '🇸🇬',
-    'Spielberg': '🇦🇹',
-    'Melbourne': '🇦🇺',
-    'Zandvoort': '🇳🇱',
-    'Las Vegas': '🇺🇸',
-    'Miami': '🇺🇸',
-    'Shanghai': '🇨🇳',
-    'Budapest': '🇭🇺',
-    'Monza': '🇮🇹',
-    'Barcelona': '🇪🇸',
-    'Montréal': '🇨🇦',
-}
 
 PRESENT_BUTTON_ID = 'present'
 ABSENT_BUTTON_ID = 'absent'
@@ -39,7 +23,7 @@ async def send_initial_messages(inter: disnake.MessageInteraction, race: Race):
         disnake.ui.Button(label="Présent", style=disnake.ButtonStyle.green, custom_id=PRESENT_BUTTON_ID),
         disnake.ui.Button(label="Absent", style=disnake.ButtonStyle.red, custom_id=ABSENT_BUTTON_ID),
     ]
-    circuit_country = CIRCUIT_EMOJIS.get(race.circuit.city, f'({race.circuit.name})')
+    circuit_country = race.circuit.emoji
     roles = []
     for role_str in ('Titulaire', 'Réserviste', 'Commentateur'):
         for r in inter.guild.roles:
@@ -170,7 +154,6 @@ def _format_names(names:list, inline:bool):
                 current_row = None
         names_str = tabulate(table, tablefmt='plain')
     return f'```\n{names_str}\n```'
-
 
 def _get_discord_config(discord_id:int) -> Tuple[Dict,str]:
     championship_config = DISCORDS[discord_id]

@@ -1,0 +1,2 @@
+class IncorrectDataException(Exception):
+    pass
