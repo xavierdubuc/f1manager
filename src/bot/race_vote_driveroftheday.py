@@ -26,11 +26,10 @@ async def send_initial_message(inter: disnake.MessageInteraction, race: Race):
             position = f' {position}'
         if race.qualification_result:
             qualification_res = race.qualification_result.get(ranking_row.pilot)
-            grid_position = qualification_res.position
-            if not grid_position:
+            if not qualification_res:
                 grid_position_txt = ''
             else:
-                grid_position = str(grid_position)
+                grid_position = str(qualification_res.position)
                 if len(grid_position) == 1:
                     grid_position = f' {grid_position}'
                 grid_position_txt = f' (P{grid_position})  '
