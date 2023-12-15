@@ -23,21 +23,7 @@ class GeneratorConfig:
     description: str = None
     qualif_ranking: List[str] = None
     ranking: Ranking = None
-    # fastest_lap: FastestLap = None
     ranking_title: str = None
     ranking_subtitle: str = None
     metric: str = 'Total'
     driver_of_the_day: str = None
-    grid_positions: dict = None
-
-    def __post_init__(self):
-        if self.qualif_ranking and self.ranking:
-            self._compute_grid_positions()
-
-    def _compute_grid_positions(self):
-        self.grid_positions = {}
-        i = 1
-        for _, line in self.qualif_ranking.iterrows():
-            if line['B']:
-                self.grid_positions[line['B']] = i
-            i += 1

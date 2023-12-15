@@ -30,7 +30,9 @@ class GeneralRankingReader(Reader):
             self.data = self.data.where(self.data != '0', pandas.NA)
 
         # DETERMINE max_size
-        for _, row in self.data.iterrows():
+        for i, row in self.data.iterrows():
+            if i == 0: # ignore first line as it's only the circuit names
+                continue
             r = row.dropna()
             max_size = max_size if max_size > r.size else r.size
         if self.type == GeneratorType.TEAMS_RANKING:
@@ -106,9 +108,9 @@ class GeneralRankingReader(Reader):
                             race_number=race_name.replace('Course ',''),
                             points=int(result) if result not in ('abs', 'NT', 'DSQ') else result
                         )
-                        for race_name, result in row.iloc[6:].items()
+                        for race_name, result in row.iloc[7:].items()
                     ]
-                ) for _, row in dataset.iterrows()
+                ) for i, row in dataset.iterrows()
             ]
         )
 

@@ -71,7 +71,7 @@ class RankingRowRenderer:
         paste(split_img, img, left=width-split_img.width-20)
 
         # TYRES
-        size_by_tyre = int(.75 * height)
+        size_by_tyre = int(self.visual_config['tyres'].get('size_ratio',.75) * height)
         # we take +1 as a security to avoid any overflow on images
         padding = self._get_tyres_padding(maximum_tyre_amount)+self.visual_config['tyres']['security_on_max_padding']
         max_tyres_size = (maximum_tyre_amount * size_by_tyre) + (maximum_tyre_amount * padding)

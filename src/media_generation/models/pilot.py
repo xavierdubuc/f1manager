@@ -56,8 +56,7 @@ class Pilot:
             paste(box_img, img, left=0)
 
         # TEAM
-        padding = 8
-        image_size = height - padding
+        image_size = .75 * height
         team_logo = self._get_team_logo_image(image_size, image_size)
         team_pos = paste(team_logo, img, left=box_width + 20)
 
@@ -168,4 +167,11 @@ class Pilot:
         for v in faces:
             if v.name == self.name:
                 return True
+        return False
+
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, Pilot):
+            return value.name == self.name
+        if isinstance(value, str):
+            return self.name == value
         return False

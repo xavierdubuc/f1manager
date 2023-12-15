@@ -12,12 +12,14 @@ from src.media_generation.generators.pole_generator import PoleGenerator
 from src.media_generation.generators.presentation_generator import PresentationGenerator
 from src.media_generation.generators.results_generator import ResultsGenerator
 from src.media_generation.generators.season_lineup_generator import SeasonLineupGenerator
+from src.media_generation.generators.season_ranking_generator import SeasonRankingGenerator
 from src.media_generation.generators.teams_ranking_generator import TeamsRankingGenerator
-from src.media_generation.helpers.calendar_reader import CalendarReader
 from src.media_generation.helpers.generator_type import GeneratorType
 from src.media_generation.helpers.reader import Reader as DefaultReader
+from src.media_generation.readers.calendar_reader import CalendarReader
 from src.media_generation.readers.general_ranking_reader import GeneralRankingReader
 from src.media_generation.readers.race_reader import RaceReader
+from src.media_generation.readers.season_ranking_reader import SeasonRankingReader
 
 @dataclass
 class RunConfig:
@@ -78,9 +80,13 @@ RUN_CONFIGS: Dict[GeneratorType, RunConfig] = {
         Generator=PilotGenerator
     ),
 
-    # SPECIFIC
+    # ALL RACES
     GeneratorType.CALENDAR: RunConfig(
         Generator=CalendarGenerator,
         Reader=CalendarReader
-    )
+    ),
+    GeneratorType.SEASON_RANKING: RunConfig(
+        Generator=SeasonRankingGenerator,
+        Reader=SeasonRankingReader
+    ),
 }

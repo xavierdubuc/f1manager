@@ -34,11 +34,11 @@ class ResultsGenerator(AbstractRaceGenerator):
     def _generate_basic_image(self) -> PngImageFile:
         width = self.visual_config['width']
         height = self.visual_config['height']
-        img = Image.new('RGB', (width, height), (255, 255, 255))
+        img = Image.new('RGB', (width, height), (30, 30, 30))
         bg = self._get_background_image()
         if bg:
             with bg:
-                bg = resize(bg, width, height)
+                bg = bg.resize((width, height))
                 paste(bg.convert('RGB'), img)
         return img
 
@@ -86,6 +86,7 @@ class ResultsGenerator(AbstractRaceGenerator):
         else:
             race_date_font = FontFactory.regular(race_date_font_size)
 
+        round_img = self.race_renderer.get_type_image(height, height, with_txt=False)
         race_title_image = self.race_renderer.get_circuit_and_date_img(
             race_title_width,
             height,
@@ -93,7 +94,8 @@ class ResultsGenerator(AbstractRaceGenerator):
             city_font=city_font,
             date_font=race_date_font
         )
-        race_dimension = paste(race_title_image, img, left=padding)
+        round_dim = paste(round_img, img, left=padding)
+        race_dimension = paste(race_title_image, img, left=round_dim.right+padding)
 
         fastest_lap_left = race_dimension.right + padding
         fastest_lap_width = width - padding - fastest_lap_left

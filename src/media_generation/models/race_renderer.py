@@ -68,13 +68,14 @@ class RaceRenderer:
         width: int,
         height: int,
         expand_round: bool = False,
+        with_txt: bool = True,
         round_font: ImageFont.FreeTypeFont = FontFactory.black(36),
         text_font: ImageFont.FreeTypeFont = FontFactory.regular(16)
     ) -> PngImageFile:
-        if self.race.type == RaceType.SPRINT_2:
+        if self.race.type in (RaceType.SPRINT_1, RaceType.SPRINT_2):
             type_txt = 'SPRINT'
             color = (0,200,200,240)
-        elif self.race.type == RaceType.DOUBLE_GRID_1:
+        elif self.race.type in (RaceType.DOUBLE_GRID_1, RaceType.DOUBLE_GRID_2):
             type_txt = 'DOUBLE GRID'
             color = (200, 200, 0, 240)
         elif self.race.type == RaceType.FULL_LENGTH:
@@ -90,13 +91,14 @@ class RaceRenderer:
         round_img = text(round_text, (255, 255, 255), round_font)
         paste(round_img, img, top=(height-round_img.height)//2-3)
 
-        if type_txt in ('SPRINT', '100%') :
-            type_txt_img = text(type_txt, (255,255,255), text_font)
-            paste(type_txt_img, img, top=height-type_txt_img.height - 10)
-        elif type_txt == 'DOUBLE GRID':
-            type_txt_img = text('DOUBLE', (255,255,255), text_font)
-            paste(type_txt_img, img, top=10)
-            type_txt_img = text('GRID', (255,255,255), text_font)
-            paste(type_txt_img, img, top=height-type_txt_img.height - 10)
+        if with_txt:
+            if type_txt in ('SPRINT', '100%') :
+                type_txt_img = text(type_txt, (255,255,255), text_font)
+                paste(type_txt_img, img, top=height-type_txt_img.height - 10)
+            elif type_txt == 'DOUBLE GRID':
+                type_txt_img = text('DOUBLE', (255,255,255), text_font)
+                paste(type_txt_img, img, top=10)
+                type_txt_img = text('GRID', (255,255,255), text_font)
+                paste(type_txt_img, img, top=height-type_txt_img.height - 10)
 
         return img

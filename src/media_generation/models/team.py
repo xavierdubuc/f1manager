@@ -30,6 +30,7 @@ class Team:
     pole_fg_color: Union[str,tuple] = None
     pole_bg_color: Union[str,tuple] = None
     pole_line_color: Union[str,tuple] = None
+    transparent_color: Union[str,tuple] = None
     card_image_path: str= None
 
     def get_card_image(self):

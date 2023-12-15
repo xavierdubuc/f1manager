@@ -16,6 +16,7 @@ class GeneratorType(enum.Enum):
 
     # MULTIPLE SHEETS
     CALENDAR = 'calendar'
+    SEASON_RANKING = 'season_ranking'
 
     # _values SHEET
     NUMBERS = 'numbers'

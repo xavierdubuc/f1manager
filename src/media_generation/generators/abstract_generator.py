@@ -22,7 +22,7 @@ class AbstractGenerator(ABC):
             else:
                 base_img.paste(title_img, title_img)
         self._add_content(base_img)
-        base_img.save(self.config.output, quality=95)
+        base_img.save(self.config.output, quality=100)
         return self.config.output
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
@@ -32,13 +32,7 @@ class AbstractGenerator(ABC):
         return visual.get_title_image(width, height)
 
     def _generate_basic_image(self) -> PngImageFile:
-        with Image.open('assets/bg.png') as bg:
-            base = bg.copy().convert('RGB')
-        with Image.open('assets/bgmetal.png') as gray_filter:
-            gray_filter = gray_filter.copy().resize((base.width, base.height)).convert('RGBA')
-        gray_filter.putalpha(150)
-        base.paste(gray_filter, gray_filter)
-        return base
+        pass
 
     def _get_background_image(self) -> PngImageFile:
         path = os.path.join('assets/backgrounds', self.championship_config['name'], f'{self._get_visual_type()}.png')
