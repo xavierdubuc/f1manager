@@ -168,9 +168,10 @@ class ResultsGenerator(AbstractRaceGenerator):
         top = content_config['top']
         hop_between_position = content_config['hop_between']
         row_height = content_config['row_height']
-        padding_left = self.visual_config['content']['padding']['left']
-        padding_between = self.visual_config['content']['padding']['between_cols']
-        padding_right = self.visual_config['content']['padding']['right']
+        content_paddings = content_config['padding']
+        padding_left = content_paddings['left']
+        padding_between = content_paddings['between_cols']
+        padding_right = content_paddings['right']
         col_width = (width - (padding_left+padding_between+padding_right)) // 2
         first_col_left = padding_left
         second_col_left = padding_left + col_width + padding_between
