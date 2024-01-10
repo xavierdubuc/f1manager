@@ -235,7 +235,7 @@ class SeasonRankingGenerator(AbstractGenerator):
                         )
                         for race in self.races
                     ]
-                ) for _, pilot in self.config.pilots.items() if (not pilot.reservist and self.identifier != 'reservists') or (pilot.reservist and self.identifier == 'reservists')
+                ) for _, pilot in self.config.pilots.items() if self.identifier == 'all' or (not pilot.reservist and self.identifier != 'reservists') or (pilot.reservist and self.identifier == 'reservists')
             ]
         )
         for r in ranking.rows:
