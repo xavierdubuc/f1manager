@@ -24,7 +24,7 @@ METRIC_PARAM = commands.Param(
 )
 
 
-async def run(inter: disnake.ApplicationCommandInteraction, what: str, metric: str, championship_config: dict, season: int):
+async def run(inter: disnake.ApplicationCommandInteraction, what: str, metric: str, championship_config: dict, season: int, channel: disnake.TextChannel = None):
     tech_metric = 'Total' if metric == 'Points' else metric
     generator_type = GeneratorType(
         f'{what}_ranking' if what in ('teams', 'pilots') else what)
@@ -41,5 +41,5 @@ async def run(inter: disnake.ApplicationCommandInteraction, what: str, metric: s
     _logger.info('Sending image...')
     with open(output_filepath, 'rb') as f:
         picture = disnake.File(f)
-        await inter.followup.send(file=picture)
+        await (channel or inter.followup).send(file=picture)
         _logger.info('Image sent !')

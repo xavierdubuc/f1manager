@@ -18,7 +18,7 @@ AWAY_SECTION = 'Absent(s)'
 ADDITIONAL_SECTIONS = (AWAY_SECTION, VOTING_SECTION)
 
 
-async def send_initial_messages(inter: disnake.MessageInteraction, race: Race):
+async def send_initial_messages(inter: disnake.MessageInteraction, race: Race, channel: disnake.TextChannel = None):
     components = [
         disnake.ui.Button(label="Présent", style=disnake.ButtonStyle.green, custom_id=PRESENT_BUTTON_ID),
         disnake.ui.Button(label="Absent", style=disnake.ButtonStyle.red, custom_id=ABSENT_BUTTON_ID),
@@ -56,7 +56,7 @@ async def send_initial_messages(inter: disnake.MessageInteraction, race: Race):
     embed_dict = await _configure_embed(embed, inter)
     embed = disnake.Embed.from_dict(embed_dict)
     msg = f"{' '.join(r.mention for r in roles)}\nVeuillez voter !"
-    await inter.followup.send(msg, embed=embed, components=components)
+    await (channel or inter.followup).send(msg, embed=embed, components=components)
 
 async def button_clicked(inter: disnake.MessageInteraction):
     await inter.response.defer()

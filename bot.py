@@ -8,6 +8,7 @@ from src.media_generation.generators.pilot_generator import PublicException
 import src.bot.presence_embed as PresenceEmbed
 import src.bot.breaking_command as BreakingCommand
 import src.bot.quote_command as QuoteCommand
+import src.bot.after_race_command as AfterRaceCommand
 import src.bot.race_command as RaceCommand
 import src.bot.pilot_command as PilotCommand
 import src.bot.rankings_command as RankingCommand
@@ -142,6 +143,21 @@ async def race(
     await inter.response.defer()
     championship_config, season = _get_discord_config(inter.guild_id)
     await RaceCommand.run(inter, race_number, what, championship_config, season)
+
+
+# ##### /afterrace
+
+
+@bot.slash_command(name="afterrace", description='Do all what has to be done after race')
+async def afterrace(
+    inter: disnake.ApplicationCommandInteraction,
+    runtype: str = AfterRaceCommand.RUNTYPE_PARAM,
+    race_number: str = RaceCommand.RACE_NUMBER_PARAM
+):
+    _logger.info(f'{inter.user.display_name} called AfterRace(race_number={race_number})')
+    await inter.response.defer()
+    championship_config, season = _get_discord_config(inter.guild_id)
+    await AfterRaceCommand.run(inter, runtype, race_number, championship_config, season)
 
 
 # ##### /breaking

@@ -6,9 +6,9 @@ from src.media_generation.readers.race_reader_models.race import Race
 VOTES_EMOJIS = '🇦🇧🇨🇩🇪🇫🇬🇭🇮🇯🇰🇱🇲🇳🇴🇵🇶🇷🇸🇹'
 
 
-async def send_initial_message(inter: disnake.MessageInteraction, race: Race):
+async def send_initial_message(inter: disnake.MessageInteraction, race: Race, channel: disnake.TextChannel = None):
     circuit_country = race.circuit.emoji
-    await inter.followup.send(
+    await (channel or inter.followup).send(
         f"# Sondage pilote du jour course {race.round}\n"
         f"## {race.circuit.city} {circuit_country}"
     )
@@ -36,7 +36,6 @@ async def send_initial_message(inter: disnake.MessageInteraction, race: Race):
         else:
             grid_position_txt = ''
         msg_content += f'\n{VOTES_EMOJIS[index]} `{position}. {grid_position_txt} {ranking_row.pilot.name}`'
-    print(msg_content)
-    msg = await inter.channel.send(msg_content)
+    msg = await (channel or inter.channel).send(msg_content)
     for emoji in VOTES_EMOJIS:
         await msg.add_reaction(emoji)
