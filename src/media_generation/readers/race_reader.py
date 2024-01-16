@@ -14,7 +14,7 @@ from src.media_generation.readers.race_reader_models.race_ranking import RaceRan
 from ..data import circuits as CIRCUITS
 
 class RaceReader(Reader):
-    def read(self):
+    def read(self) -> GeneratorConfig:
         pilots, teams = self._read()
         race = self._get_race(pilots, teams)
         config = GeneratorConfig(
