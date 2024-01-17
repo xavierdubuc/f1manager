@@ -238,7 +238,12 @@ class SeasonRankingGenerator(AbstractGenerator):
                 ) for _, pilot in self.config.pilots.items() if self.identifier == 'all' or (not pilot.reservist and self.identifier != 'reservists') or (pilot.reservist and self.identifier == 'reservists')
             ]
         )
+        kept_rows = []
         for r in ranking.rows:
+            if self.identifier != 'reservists' and all(res.points == 'abs' for res in r.race_results):
+                continue
             r.total_points = sum(result.points if isinstance(result.points, int) else 0 for result in r.race_results)
+            kept_rows.append(r)
+        ranking.rows = kept_rows
         ranking.sort_by_points()
         return ranking
