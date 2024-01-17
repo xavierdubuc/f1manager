@@ -9,6 +9,7 @@ import src.bot.presence_embed as PresenceEmbed
 import src.bot.breaking_command as BreakingCommand
 import src.bot.quote_command as QuoteCommand
 import src.bot.after_race_command as AfterRaceCommand
+import src.bot.confirm_results_command as ConfirmResultsCommand
 import src.bot.race_command as RaceCommand
 import src.bot.pilot_command as PilotCommand
 import src.bot.rankings_command as RankingCommand
@@ -143,6 +144,21 @@ async def race(
     await inter.response.defer()
     championship_config, season = _get_discord_config(inter.guild_id)
     await RaceCommand.run(inter, race_number, what, championship_config, season)
+
+
+# ##### /confirmresults
+
+
+@bot.slash_command(name="confirmresults", description="Confirm results")
+async def confirmresults(
+    inter: disnake.ApplicationCommandInteraction,
+    runtype: str = ConfirmResultsCommand.RUNTYPE_PARAM,
+    race_number: str = RaceCommand.RACE_NUMBER_PARAM
+):
+    _logger.info(f'{inter.user.display_name} called ConfirmResults(race_number={race_number})')
+    await inter.response.defer()
+    championship_config, season = _get_discord_config(inter.guild_id)
+    await ConfirmResultsCommand.run(inter, runtype, race_number, championship_config, season)
 
 
 # ##### /afterrace
