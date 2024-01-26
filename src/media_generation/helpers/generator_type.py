@@ -5,7 +5,8 @@ class GeneratorType(enum.Enum):
     PRESENTATION = 'presentation'
     LINEUP ='lineups'
     POLE = 'pole'
-    GRID = 'grid_ribbon'
+    GRID_VID = 'grid_ribbon'
+    GRID = 'grid'
     RESULTS = 'results'
     DRIVER_OF_THE_DAY = 'driver_of_the_day'
 

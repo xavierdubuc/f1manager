@@ -18,7 +18,7 @@ RACE_NUMBER_PARAM = commands.Param(
 WHAT_PARAM = commands.Param(
     name="what",
     choices=[
-        'presences', 'presentation', 'lineups', 'grid_ribbon', 'results',
+        'presences', 'presentation', 'lineups', 'grid_ribbon', 'grid', 'results',
         'vote_driveroftheday', 'driver_of_the_day'
     ]
 )

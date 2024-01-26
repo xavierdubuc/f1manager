@@ -183,6 +183,20 @@ def get_ordinal_img(i: int, Font=FontFactory.regular, font_size=24, color=(255, 
     paste(ordinal_img, img, left=position_pos.right, top=0)
     return img
 
+def get_ordinal_img_with_font(i: int, font:ImageFont.FreeTypeFont, color=(255, 255, 255)):
+    txt = _pos_to_ordinal(i)
+    txt_width, txt_height = text_size(txt, font)
+    img = Image.new('RGBA', (txt_width, txt_height), (0,0,0,0))
+
+    # print number
+    number_img = text(str(i), color, font)
+    position_pos = paste(number_img, img, left=0)
+
+    # print ordinal
+    ordinal_img = text(_pos_to_ordinal_suffix(i), color, font)
+    paste(ordinal_img, img, left=position_pos.right, top=0)
+    return img
+
 
 def _pos_to_ordinal_suffix(n):
     suffix = {1: 'ST', 2: 'ND', 3: 'RD'}.get(4 if 10 <= n % 100 < 20 else n % 10, "TH")

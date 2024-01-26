@@ -3,6 +3,7 @@ from typing import Dict, Type
 from src.media_generation.generators.abstract_generator import AbstractGenerator
 from src.media_generation.generators.calendar_generator import CalendarGenerator
 from src.media_generation.generators.driver_of_the_day_generator import DriverOfTheDayGenerator
+from src.media_generation.generators.grid_generator import GridGenerator
 from src.media_generation.generators.license_points_generator import LicensePointsGenerator
 from src.media_generation.generators.lineups_generator import LineupGenerator
 from src.media_generation.generators.numbers_generator import NumbersGenerator
@@ -49,6 +50,9 @@ RUN_CONFIGS: Dict[GeneratorType, RunConfig] = {
         Generator=PoleGenerator
     ),
     GeneratorType.GRID: RaceRunConfig(
+        Generator=GridGenerator
+    ),
+    GeneratorType.GRID_VID: RaceRunConfig(
         Generator={
             'package': 'src.media_generation.generators.grid_ribbon_generator',
             'name': 'GridRibbonGenerator'
