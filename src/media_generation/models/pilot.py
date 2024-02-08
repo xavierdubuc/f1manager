@@ -30,11 +30,19 @@ class Pilot:
         return PSDImage.open('assets/pilots/all.psd')
 
     def get_close_up_image(self, width=None, height=None) -> PngImageFile:
+        # Silence all warnings from PSDImage
+        initial_level = logging.getLogger().getEffectiveLevel()
+        logging.getLogger().setLevel(logging.ERROR)
         psd = self.get_close_up_psd()
+        logging.getLogger().setLevel(initial_level)
         return self._get_image_from_psd(psd, 0, 1, width, height, cropping_zone=(70, 0, 246, 176))
 
     def get_long_range_image(self) -> PngImageFile:
+        # Silence all warnings from PSDImage
+        initial_level = logging.getLogger().getEffectiveLevel()
+        logging.getLogger().setLevel(logging.ERROR)
         psd = self.get_long_range_psd()
+        logging.getLogger().setLevel(initial_level)
         return self._get_image_from_psd(psd, 0, 1)
 
     def has_image_in_close_up_psd(self) -> PngImageFile:
