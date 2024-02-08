@@ -41,6 +41,8 @@ class GeneralRankingReader(Reader):
         else:
             if self.metric == 'Total':
                 ranking_title = f'Saison {self.season} classement pilotes'.upper()
+            elif self.metric == 'Permis':
+                ranking_title = f'Saison {self.season} points de permis'.upper()
             else:
                 ranking_title = f'Saison {self.season} pilotes points/course'.upper()
             ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper() if max_size > 7 else None
