@@ -33,13 +33,22 @@ class FontFactory:
         return FontFactory.font(WIDE_FONT_NAME, size)
 
     @staticmethod
-    def font(name:str, size=32, ttf=True, **kwargs) -> ImageFont.FreeTypeFont:
+    def font(name: str, size=32, ttf=True, **kwargs) -> ImageFont.FreeTypeFont:
         if ttf:
             name = name if name.endswith('ttf') else f'{name}.ttf'
         return ImageFont.truetype(FontFactory._get_font_path(name), size, encoding="unic", **kwargs)
 
     @staticmethod
-    def get_font(name:str=None, size=32, DefaultFont=None, **kwargs) -> ImageFont.FreeTypeFont:
+    def get_font(name: str = None, size=32, DefaultFont=None, **kwargs) -> ImageFont.FreeTypeFont:
         if name:
             return FontFactory.font(name, size, **kwargs)
         return DefaultFont(size, **kwargs)
+
+    @classmethod
+    def from_config(cls, config: dict, default_size=20, default_font=None, default_color=(0, 0, 0)) -> tuple:
+        font = cls.get_font(
+            config.get('font_name'),
+            config.get('font_size', default_size),
+            default_font or cls.black
+        )
+        return font, config.get('font_color', default_color)
