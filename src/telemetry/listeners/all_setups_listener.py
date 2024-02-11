@@ -81,4 +81,4 @@ class AllSetupsListener(AbstractListener):
             '```',
         ]
         msg = '\n'.join(parts)
-        return [Message(content=msg, channel=Channel.SETUP)]
+        return Message(content=msg, channel=Channel.SETUP)
