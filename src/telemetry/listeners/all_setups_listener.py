@@ -18,7 +18,7 @@ FIELDS_LABELS = {
     'front_camber': 'Carrossage avant',
     'rear_camber': 'Carrossage arrière',
     'front_toe': 'Ouverture avant',
-    'rear_tor': 'Pincement arrière',
+    'rear_toe': 'Pincement arrière',
     'front_suspension': 'Suspension avant',
     'rear_suspension': 'Suspension arrière',
     'front_anti_roll_bar': 'Antiroulis avant',
