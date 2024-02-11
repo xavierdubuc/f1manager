@@ -56,7 +56,7 @@ class AllSetupsListener(AbstractListener):
             old = round(change.old, 2) if isinstance(change.old, float) else change.old
             actual = round(change.actual, 2) if isinstance(change.actual, float) else change.actual
 
-            parts.append(f'{field}: {old} → {actual}')
+            parts.append(f'{field_str}: {old} → {actual}')
 
         msg = '\n'.join(parts + ['```'])
         return [Message(content=msg, channel=Channel.SETUP)]

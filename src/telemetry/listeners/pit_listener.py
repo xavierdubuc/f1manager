@@ -31,6 +31,8 @@ class PitListener(AbstractListener):
                     return [Message(msg, Channel.PIT)]
             if pit_status == PitStatus.not_in_pit:
                 car_status = session.get_car_status(participant)
+                if not car_status:
+                    return
                 tyres_str = f'{car_status.visual_tyre_compound.get_long_string()} ({car_status.tyres_age_laps} tours)'
                 fuel = round(car_status.fuel_remaining_laps, 2)
                 stop_time = changes['pit_stop_timer_in_ms'].old if 'pit_stop_timer_in_ms' in changes else None
