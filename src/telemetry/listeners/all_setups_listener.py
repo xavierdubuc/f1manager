@@ -26,7 +26,7 @@ class AllSetupsListener(AbstractListener):
             '```',
         ]
 
-        for field, change in changes:
+        for field, change in changes.items():
             parts.append(f'{field}: {change.old} → {change.actual}')
 
         msg = '\n'.join(parts + ['```'])
