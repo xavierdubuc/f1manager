@@ -13,6 +13,7 @@ class Channel(Enum):
     PACE = 'pace'
     PENALTY = 'penalty'
     PIT = 'pit'
+    SETUP = 'setup'
 
 
 @dataclass

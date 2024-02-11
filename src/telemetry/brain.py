@@ -25,6 +25,8 @@ from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
 
 from src.gsheet.gsheet import GSheet
 from src.telemetry.event import Event
+
+from src.telemetry.listeners.all_setups_listener import AllSetupsListener
 from src.telemetry.listeners.best_lap_time_listener import BestLapTimeListener
 from src.telemetry.listeners.classification_listener import ClassificationListener
 from src.telemetry.listeners.dnf_listener import DNFListener
@@ -42,6 +44,7 @@ from src.telemetry.listeners.weather_forecast_listener import WeatherForecastLis
 
 from src.telemetry.managers.abstract_manager import Change
 from src.telemetry.managers.car_status_manager import CarStatusManager
+from src.telemetry.managers.car_setup_manager import CarSetupManager
 from src.telemetry.managers.classification_manager import ClassificationManager
 from src.telemetry.managers.damage_manager import DamageManager
 from src.telemetry.managers.lap_manager import LapManager
@@ -59,6 +62,7 @@ from src.telemetry.models.session import Session
 _logger = logging.getLogger(__name__)
 
 LISTENER_CLASSES = [
+    AllSetupsListener,
     BestLapTimeListener,
     ClassificationListener,
     DNFListener,
@@ -117,6 +121,9 @@ class Brain:
 
         elif packet_type == PacketSessionHistoryData:
             self._handle_received_session_history_packet(packet)
+
+        elif packet_type == PacketCarSetupData:
+            self._handle_received_car_setup_packet(packet)
 
     def _send_discord_message(self, msg:Message, parent_msg:Message=None):
         if not self.bot:
@@ -436,6 +443,39 @@ class Brain:
                     changes = CarStatusManager.update(self.current_session.car_statuses[i], packet_data)
                     if changes:
                         self._emit(Event.CAR_STATUS_UPDATED, car_status=self.current_session.car_statuses[i], changes=changes, participant=participant, session=self.current_session)
+
+    """
+    @emits CAR_SETUP_CREATED
+    @emits CAR_SETUP_LIST_INITIALIZED
+    @emits CAR_SETUP_UPDATED
+    """
+    def _handle_received_car_setup_packet(self, packet:PacketCarSetupData):
+        if not self.current_session:
+            return # this should not happen
+        if not self.current_session.participants:
+            return # this should not happen neither
+        if self.current_session.session_type == SessionType.clm:
+            return # this has no sense
+        pertinent_amount = len(self.current_session.participants)
+        if not self.current_session.car_setups:
+            self.current_session.car_setups = [
+                CarSetupManager.create(packet.car_setups[i])
+                for i in range(pertinent_amount)
+            ]
+            self._emit(Event.CAR_SETUP_LIST_INITIALIZED, session=self.current_session, setups=self.current_session.car_setups)
+        else:
+            current_amount = len(self.current_session.car_setups)
+            for i in range(pertinent_amount):
+                participant = self.current_session.participants[i]
+                packet_data = packet.car_setups[i]
+                if i > current_amount - 1:
+                    new_car_setup = CarSetupManager.create(packet_data)
+                    self.current_session.car_setups.append(new_car_setup)
+                    self._emit(Event.CAR_SETUP_CREATED, car_setup=new_car_setup, participant=participant, session=self.current_session)
+                else:
+                    changes = CarSetupManager.update(self.current_session.car_setups[i], packet_data)
+                    if changes:
+                        self._emit(Event.CAR_SETUP_UPDATED, car_setup=self.current_session.car_setups[i], changes=changes, participant=participant, session=self.current_session)
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):

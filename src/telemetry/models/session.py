@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import List
 from src.telemetry.models.car_status import CarStatus
+from src.telemetry.models.car_setup import CarSetup
 
 from src.telemetry.models.lap_record import LapRecord
 
@@ -78,6 +79,7 @@ class Session:
     lap_state_last_start_of_lap: List[Lap] = None
     lap_records: List[LapRecord] = None
     car_statuses: List[CarStatus] = None
+    car_setups: List[CarSetup] = None
     current_fastest_lap: int = None # in ms
     current_fastest_sector1: int = None # in ms
     current_fastest_sector2: int = None # in ms

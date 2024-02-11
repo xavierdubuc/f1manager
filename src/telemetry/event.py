@@ -32,4 +32,8 @@ class Event(Enum):
     CAR_STATUS_LIST_INITIALIZED       = 71
     CAR_STATUS_UPDATED                = 72
 
+    CAR_SETUP_CREATED                = 80
+    CAR_SETUP_LIST_INITIALIZED       = 81
+    CAR_SETUP_UPDATED                = 82
+
     BEST_SECTOR_UPDATED               = 200
