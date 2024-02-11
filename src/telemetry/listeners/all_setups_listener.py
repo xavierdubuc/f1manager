@@ -37,6 +37,7 @@ FIELDS_LABELS = {
 
 class AllSetupsListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
+        Event.CAR_SETUP_LIST_INITIALIZED,
         Event.CAR_SETUP_CREATED,
         Event.CAR_SETUP_UPDATED
     ]
@@ -62,6 +63,15 @@ class AllSetupsListener(AbstractListener):
         return [Message(content=msg, channel=Channel.SETUP)]
 
     def _on_car_setup_created(self, car_setup:CarSetup, session: Session, participant: Participant) -> List[Message]:
+        return [self._setup_to_message(participant, car_setup)]
+
+    def _on_car_setup_list_initialized(self, session: Session, setups: List[CarSetup]) -> List[Message]:
+        return [
+            self._setup_to_message(session.participants[i], car_setup)
+            for i, car_setup in enumerate(setups)
+        ]
+
+    def _setup_to_message(self, participant: Participant, car_setup: CarSetup) -> Message:
         parts = [
             f'# Setup de : {participant}',
             '```',
