@@ -41,9 +41,9 @@ class CarSetup(EvolvingModel):
         return '\n'.join([
             f'Aéro : [{self.front_wing}, {self.rear_wing}]',
             f'Différentiel : [{self.differential_on_throttle}, {self.differential_off_throttle}]',
-            f'Géométrie: Carrossage [{self.front_camber}, {self.rear_camber}], Ouvert/Pincement [{self.front_toe}, {self.rear_toe}]',
+            f'Géométrie: Carrossage [{round(self.front_camber, 2)}, {round(self.rear_camber, 2)}], Ouvert/Pincement [{round(self.front_toe, 2)}, {round(self.rear_toe, 2)}]',
             f'Suspensions : [{self.front_suspension}, {self.rear_suspension}, {self.front_anti_roll_bar}, {self.rear_anti_roll_bar}, {self.front_suspension_height}, {self.rear_suspension_height}]',
             f'Freins: [{self.brake_pressure}, {self.brake_bias}]',
-            f'Pressions: [{self.front_left_tyre_pressure}, {self.front_right_tyre_pressure}, {self.rear_left_tyre_pressure}, {self.rear_right_tyre_pressure}]',
+            f'Pressions: [{round(self.front_left_tyre_pressure,1)}, {round(self.front_right_tyre_pressure, 1)}, {round(self.rear_left_tyre_pressure, 1)}, {round(self.rear_right_tyre_pressure, 1)}]',
             f'{self.fuel_load} L, lest: {self.ballast}'
         ])

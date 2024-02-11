@@ -123,7 +123,6 @@ class Brain:
             self._handle_received_session_history_packet(packet)
 
         elif packet_type == PacketCarSetupData:
-            print(packet)
             self._handle_received_car_setup_packet(packet)
 
     def _send_discord_message(self, msg:Message, parent_msg:Message=None):
