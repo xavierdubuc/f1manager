@@ -10,6 +10,31 @@ from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
 from .abstract_listener import AbstractListener
 
+FIELDS_LABELS = {
+    'front_wing': 'Aéro avant',
+    'rear_wing': 'Aéro arrière',
+    'differential_on_throttle': "Différentiel à l'accélération",
+    'differential_off_throttle': "Différentiel à l'décélération",
+    'front_camber': 'Carrossage avant',
+    'rear_camber': 'Carrossage arrière',
+    'front_toe': 'Ouverture avant',
+    'rear_tor': 'Pincement arrière',
+    'front_suspension': 'Suspension avant',
+    'rear_suspension': 'Suspension arrière',
+    'front_anti_roll_bar': 'Antiroulis avant',
+    'rear_anti_roll_bar': 'Antiroulis arrière',
+    'front_suspension_height': 'Garde au sol avant',
+    'rear_suspension_height': 'Garde au sol arrière',
+    'brake_pressure': 'Pression des freins',
+    'brake_bias': 'Equilibrage des freins',
+    'front_right_tyre_pressure': 'Pression avant droit',
+    'front_left_tyre_pressure': 'Pression avant gauche',
+    'rear_right_tyre_pressure': 'Pression arrière droit',
+    'rear_left_tyre_pressure': 'Pression arrière gauche',
+    'ballast': 'Lest (?)',
+    'fuel_load': 'Essence'
+}
+
 class AllSetupsListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.CAR_SETUP_CREATED,
@@ -27,7 +52,11 @@ class AllSetupsListener(AbstractListener):
         ]
 
         for field, change in changes.items():
-            parts.append(f'{field}: {change.old} → {change.actual}')
+            field_str = FIELDS_LABELS[field]
+            old = round(change.old, 2) if isinstance(change.old, float) else change.old
+            actual = round(change.actual, 2) if isinstance(change.actual, float) else change.actual
+
+            parts.append(f'{field}: {old} → {actual}')
 
         msg = '\n'.join(parts + ['```'])
         return [Message(content=msg, channel=Channel.SETUP)]
@@ -41,5 +70,3 @@ class AllSetupsListener(AbstractListener):
         ]
         msg = '\n'.join(parts)
         return [Message(content=msg, channel=Channel.SETUP)]
-        
-        
