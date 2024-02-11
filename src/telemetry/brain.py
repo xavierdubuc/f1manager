@@ -454,8 +454,8 @@ class Brain:
             return # this should not happen
         if not self.current_session.participants:
             return # this should not happen neither
-        if self.current_session.session_type == SessionType.clm:
-            return # this has no sense
+        # if self.current_session.session_type == SessionType.clm:
+            # return # this has no sense
         pertinent_amount = len(self.current_session.participants)
         if not self.current_session.car_setups:
             self.current_session.car_setups = [
