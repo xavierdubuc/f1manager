@@ -47,3 +47,29 @@ class CarSetup(EvolvingModel):
             f'Pressions: [{round(self.front_left_tyre_pressure,1)}, {round(self.front_right_tyre_pressure, 1)}, {round(self.rear_left_tyre_pressure, 1)}, {round(self.rear_right_tyre_pressure, 1)}]',
             f'{self.fuel_load} L, lest: {self.ballast}'
         ])
+
+    def has_values(self):
+        return any(val != 0 for val in [
+            self.front_wing,
+            self.rear_wing,
+            self.differential_on_throttle,
+            self.differential_off_throttle,
+            self.front_camber,
+            self.rear_camber,
+            self.front_toe,
+            self.rear_toe,
+            self.front_suspension,
+            self.rear_suspension,
+            self.front_anti_roll_bar,
+            self.rear_anti_roll_bar,
+            self.front_suspension_height,
+            self.rear_suspension_height,
+            self.brake_pressure,
+            self.brake_bias,
+            self.rear_left_tyre_pressure,
+            self.rear_right_tyre_pressure,
+            self.front_left_tyre_pressure,
+            self.front_right_tyre_pressure,
+            self.ballast,
+            self.fuel_load
+        ])

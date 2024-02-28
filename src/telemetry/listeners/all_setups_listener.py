@@ -63,17 +63,18 @@ class AllSetupsListener(AbstractListener):
         return [Message(content=msg, channel=Channel.SETUP)]
 
     def _on_car_setup_created(self, car_setup:CarSetup, session: Session, participant: Participant) -> List[Message]:
-        return [Message(
-            content=self._setup_to_message_content(participant, car_setup),
-            channel=Channel.SETUP
-        )]
+        if car_setup.has_values():
+            return [Message(
+                content=self._setup_to_message_content(participant, car_setup),
+                channel=Channel.SETUP
+            )]
 
     def _on_car_setup_list_initialized(self, session: Session, setups: List[CarSetup]) -> List[Message]:
         return [
             Message(
                 content=self._setup_to_message_content(session.participants[i], car_setup),
                 channel=Channel.SETUP
-            ) for i, car_setup in enumerate(setups)
+            ) for i, car_setup in enumerate(setups) if car_setup.has_values()
         ]
 
     def _setup_to_message_content(self, participant: Participant, car_setup: CarSetup) -> Message:
