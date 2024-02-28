@@ -64,19 +64,17 @@ async def run(
     if runtype != 'dry':
         await inter.channel.send(f'✅ Classement équipes posté dans {teams_ranking_channel.mention}!')
 
-    if runtype == 'dry':
-        return
-
-    drivervote_channel = _get_channel(inter.bot, discord_config, 'driver_vote')
-    await RaceCommand.run(inter, race_number, 'vote_driveroftheday', championship_config, season, drivervote_channel)
     if runtype != 'dry':
+        drivervote_channel = _get_channel(inter.bot, discord_config, 'driver_vote')
+        await RaceCommand.run(inter, race_number, 'vote_driveroftheday', championship_config, season, drivervote_channel)
         await inter.channel.send(f'✅ Sondage pour le pilote du jour posté dans {drivervote_channel.mention}!')
 
-    round = int(race_number[0])
+    round = int(race_number.split(' ')[0])
     next_round = round+1
-    presences_channel = drivervote_channel = _get_channel(inter.bot, discord_config, 'presences')
-    await RaceCommand.run(inter, next_round, 'presences', championship_config, season, presences_channel)
     if runtype != 'dry':
+        presences_channel = drivervote_channel = _get_channel(inter.bot, discord_config, 'presences')
+        await RaceCommand.run(inter, next_round, 'presences', championship_config, season, presences_channel)
         await inter.channel.send(f'✅ Sondage de présence posté dans {presences_channel.mention}!')
         await inter.channel.send('Voilà, à la semaine prochaine !')
-
+    else:
+        await inter.channel.send(f'Le sondage de présence que je posterai sera celui de la course {next_round}')
