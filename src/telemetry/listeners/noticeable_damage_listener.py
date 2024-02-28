@@ -1,4 +1,7 @@
 from typing import Dict, List
+
+import disnake
+from src.media_generation.damage_image_generator import DamageImageGenerator
 from src.telemetry.event import Event
 
 from src.telemetry.managers.abstract_manager import Change
@@ -9,10 +12,16 @@ from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
 from .abstract_listener import AbstractListener
 
+USE_IMAGE = True
+
 class NoticeableDamageListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.DAMAGE_UPDATED
     ]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.img_generator = DamageImageGenerator()
 
     def _on_damage_updated(self, damage:Damage, changes:Dict[str, Change], participant:Participant, session:Session) -> List[Message]:
         # don't mention anything about not running pilots
@@ -21,9 +30,15 @@ class NoticeableDamageListener(AbstractListener):
         if not self._has_noticeable_damage_changes(changes):
             return []
         main_msg = f'## {participant} → {self._get_changes_description(changes)}'
-        car_status = damage.get_current_status()
-        msg = '\n'.join([main_msg, car_status])
-        return [Message(content=msg, channel=Channel.DAMAGE)]
+        if USE_IMAGE:
+            path = self.img_generator.generate(damage, participant)
+            with open(path, 'rb') as f:
+                picture = disnake.File(f)
+            return [Message(content=msg, file=picture, channel=Channel.DAMAGE)]
+        else:
+            car_status = damage.get_current_status()
+            msg = '\n'.join([main_msg, car_status])
+            return [Message(content=msg, channel=Channel.DAMAGE)]
 
     # PRIVATE
 

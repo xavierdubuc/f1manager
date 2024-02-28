@@ -8,7 +8,7 @@ from .enums.nationality import Nationality
 class Participant:
     network_id: int = None
     race_number: int = None
-    name: int = None
+    name: str = None
     original_driver: OriginalDriver = None
     team: Team = None
     nationality: Nationality = None

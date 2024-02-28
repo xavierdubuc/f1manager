@@ -77,3 +77,26 @@ class Damage:
         if value > 0:
             return '🟢'
         return no_damage_icon
+
+    def get_component_color(self, value):
+        if value >= 75:
+            return 'red'
+        if value >= 50:
+            return 'orange'
+        if value >= 15:
+            return 'yellow'
+        if value > 0:
+            return 'lightgreen'
+        return 'green'
+
+    def get_front_left_tyre_damage_value(self):
+        return self.tyres_damage[2]
+
+    def get_front_right_tyre_damage_value(self):
+        return self.tyres_damage[3]
+
+    def get_rear_left_tyre_damage_value(self):
+        return self.tyres_damage[0]
+
+    def get_rear_right_tyre_damage_value(self):
+        return self.tyres_damage[1]

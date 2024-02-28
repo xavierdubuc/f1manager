@@ -117,6 +117,10 @@ def determine_font_size(text, img, Font=FontFactory.regular, initial_font_size=2
         txt_width, txt_height = text_size(text, Font(font_size), img)
     return font_size
 
+def line(xy: tuple, img: PngImageFile, color:tuple, line_width=2):
+    draw = ImageDraw.Draw(img)
+    draw.line(xy, fill=color, width=line_width)
+
 def draw_lines(img: PngImageFile, color:tuple, space_between_lines=7, line_width=2):
     draw = ImageDraw.Draw(img)
     for i in range(space_between_lines, img.height, space_between_lines):
