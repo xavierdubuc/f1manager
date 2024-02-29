@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
 
-from disnake import File
 _logger = logging.getLogger(__name__)
 
 
@@ -22,7 +21,7 @@ class Channel(Enum):
 class Message:
     content: str = None
     channel: Channel = Channel.DEFAULT
-    file: File = None
+    file_path: str = None
 
     def get_content(self, force_full=False):
         if force_full or len(self.content) <= 2000:

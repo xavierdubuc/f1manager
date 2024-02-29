@@ -1,5 +1,6 @@
 import logging
 from typing import Dict
+import disnake
 
 from disnake.ext import commands
 from f1_22_telemetry.packets import (
@@ -133,7 +134,7 @@ class Brain:
         if msg.channel == Channel.BROADCAST:
             channels = [c for c in Channel if c != Channel.BROADCAST]
             for channel in channels:
-                self._send_discord_message(Message(content=msg.content, channel=channel, file=msg.file), parent_msg=msg)
+                self._send_discord_message(Message(content=msg.content, channel=channel, file_path=msg.file_path), parent_msg=msg)
             return
 
         _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord ({msg.channel})')
@@ -163,6 +164,10 @@ class Brain:
             where = channel.threads[-1]
 
         _logger.info(f'Message sent to "{guild.name}/#{channel.name}"')
+        if msg.file_path:
+            with open(msg.file_path, 'rb') as f:
+                picture = disnake.File(f)
+                self.bot.loop.create_task(where.send(msg.get_content(), file=picture))
         self.bot.loop.create_task(where.send(msg.get_content()))
 
     def _emit(self, event:Event, *args, **kwargs):

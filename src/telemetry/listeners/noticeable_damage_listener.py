@@ -32,9 +32,7 @@ class NoticeableDamageListener(AbstractListener):
         main_msg = f'## {participant} → {self._get_changes_description(changes)}'
         if USE_IMAGE:
             path = self.img_generator.generate(damage, participant)
-            with open(path, 'rb') as f:
-                picture = disnake.File(f)
-                return [Message(content=main_msg, file=picture, channel=Channel.DAMAGE)]
+            return [Message(content=main_msg, file_path=path, channel=Channel.DAMAGE)]
         else:
             car_status = damage.get_current_status()
             msg = '\n'.join([main_msg, car_status])
