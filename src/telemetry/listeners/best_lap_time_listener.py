@@ -36,18 +36,22 @@ class BestLapTimeListener(AbstractListener):
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
             if session.current_fastest_lap:
                 difference = timedelta(seconds=(session.current_fastest_lap - best_lap_time)/1000)
-                print(session.current_fastest_lap - best_lap_time, difference)
                 formatted_difference = f' (-{session._format_time(difference)})'
             else:
                 formatted_difference = ''
             session.current_fastest_lap = best_lap_time
-            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪 {position} {participant}  ` {formatted_lap_time}{formatted_difference}`'
+            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪 `{position}` {participant}  ` {formatted_lap_time}{formatted_difference}`'
         else:
             if changes["best_lap_time"].old:
                 difference = timedelta(seconds=(changes["best_lap_time"].old - best_lap_time)/1000)
                 formatted_difference = f' (-{session._format_time(difference)})'
             else:
                 formatted_difference = ''
-            msg = f'🕒 🟩 {position} **{participant}**  ` {formatted_lap_time}{formatted_difference}`'
+            if session.session_type.is_qualification() and session.current_fastest_lap:
+                delta_p1 = timedelta(seconds=(session.current_fastest_lap - best_lap_time)/1000)
+                formatted_delta_p1 = f' [+{session._format_time(delta_p1)}]'
+            else:
+                formatted_delta_p1 = ''
+            msg = f'🕒 🟩 `{position}` **{participant}**  ` {formatted_lap_time}{formatted_difference}{formatted_delta_p1}`'
 
         return [Message(content=msg, channel=Channel.PACE)]
