@@ -32,6 +32,9 @@ class QualificationSectorsListener(AbstractListener):
         if self._lap_should_be_ignored(last_lap):
             return []
 
+        print(repr(last_lap))
+        print(repr(lap))
+        print(repr(session))
         # TODO idea to get the last posted message (one by participant/one by lap by participant)
         # and edit it instead of create a new one --> need to store posted messages
         return [
