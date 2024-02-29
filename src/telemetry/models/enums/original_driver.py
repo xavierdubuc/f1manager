@@ -2,15 +2,16 @@ from enum import Enum
 
 
 class OriginalDriver(Enum):
+
     carlos_sainz=0
     daniil_kvyat=1
     daniel_ricciardo=2
     fernando_alonso=3
     felipe_massa=4
-    kimi_räikkönen=6
+    kimi_raikkonen=6
     lewis_hamilton=7
     max_verstappen=9
-    nico_hulkenburg=10
+    nico_hulkenberg=10
     kevin_magnussen=11
     romain_grosjean=12
     sebastian_vettel=13
@@ -49,12 +50,12 @@ class OriginalDriver(Enum):
     nyck_de_vries=48
     jack_aitken=49
     george_russell=50
-    maximilian_günther=51
+    maximilian_gunther=51
     nirei_fukuzumi=52
     luca_ghiotto=53
     lando_norris=54
     sergio_sette_camara=55
-    louis_delétraz=56
+    louis_deletraz=56
     antonio_fuoco=57
     charles_leclerc=58
     pierre_gasly=59
@@ -119,11 +120,18 @@ class OriginalDriver(Enum):
     frederik_vesti=128
     olli_caldwell=129
     logan_sargeant=130
-    cem_bölükbasi=131
+    cem_bolukbasi=131
     ayumu_iwasa=132
-    clément_novalak=133
+    clement_novalak=133
     dennis_hauger=134
     calan_williams=135
     jack_doohan=136
     amaury_cordeel=137
+    dennis_hauger=138
+    calan_williams=139
+    jamie_chadwick=140
+    kamui_kobayashi=141
+    pastor_maldonado=142
+    mika_hakkinen=143
+    nigel_mansell=144
     none=255

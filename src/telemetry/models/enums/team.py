@@ -45,6 +45,29 @@ class Team(Enum):
     bwt_21=115
     trident_21=116
     mercedes_amg_gt_black_series=117
+    mercedes_22=118
+    ferrari_22=119
+    red_bull_racing_22=120
+    williams_22=121
+    aston_martin_22=122
+    alpine_22=123
+    alpha_tauri_22=124
+    haas_22=125
+    mc_laren_22=126
+    alfa_romeo_22=127
+    konnersport_22=128
+    konnersport=129
+    prema_22=130
+    virtuosi_22=131
+    carlin_22=132
+    mp_motorsport_22=133
+    charouz_22=134
+    dams_22=135
+    campos_22=136
+    van_amersfoort_racing_22=137
+    trident_22=138
+    hitech_22=139
+    art_gp_22=140
     none=255
 
     def __str__(self) -> str:

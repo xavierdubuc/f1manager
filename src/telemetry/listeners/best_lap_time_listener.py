@@ -29,7 +29,7 @@ class BestLapTimeListener(AbstractListener):
 
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
             if session.current_fastest_lap:
-                difference = session.current_fastest_lap - best_lap_time
+                difference = timedelta(session.current_fastest_lap - best_lap_time)
                 formatted_difference = f' (-{session._format_time(difference)})'
             else:
                 formatted_difference = ''
@@ -37,7 +37,7 @@ class BestLapTimeListener(AbstractListener):
             msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪  {participant}  ` {formatted_lap_time}{formatted_difference}`'
         else:
             if changes["best_lap_time"].old:
-                difference = changes["best_lap_time"].old - best_lap_time
+                difference = timedelta(changes["best_lap_time"].old - best_lap_time)
                 formatted_difference = f' (-{session._format_time(difference)})'
             else:
                 formatted_difference = ''

@@ -66,9 +66,6 @@ class AllSetupsListener(AbstractListener):
         return [Message(content=msg, channel=Channel.SETUP)]
 
     def _on_car_setup_created(self, car_setup:CarSetup, session: Session, participant: Participant) -> List[Message]:
-        print('SETUP CREATED')
-        print(participant.ai_controlled)
-        print(participant.original_driver.name, participant.name)
         if car_setup.has_values() and (not participant.ai_controlled or not self.ai_setup_notified):
             self.ai_setup_notified = True
             return [Message(
@@ -77,11 +74,8 @@ class AllSetupsListener(AbstractListener):
             )]
 
     def _on_car_setup_list_initialized(self, session: Session, setups: List[CarSetup]) -> List[Message]:
-        print('SETUP LIST INITIALIZED')
         messages = []
         for i, car_setup in enumerate(setups):
-            print(session.participants[i].ai_controlled)
-            print(session.participants[i].original_driver.name, session.participants[i].name)
             if car_setup.has_values() and (not session.participants[i].ai_controlled or not self.ai_setup_notified):
                 self.ai_setup_notified = True
                 messages.append(Message(

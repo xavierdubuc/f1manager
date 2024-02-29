@@ -16,4 +16,6 @@ class GameMode(Enum):
     online_weekly_event = 15
     career_22 = 19
     career_22_online = 20
+    career_23 = 21
+    career_23_online = 22
     benchmark = 127
