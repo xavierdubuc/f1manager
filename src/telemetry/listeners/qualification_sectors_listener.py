@@ -43,12 +43,12 @@ class QualificationSectorsListener(AbstractListener):
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if not session.session_type.is_qualification():
             return []
-        if participant.name == 'Xionhearts':
+        if participant.name == 'RUSSELL':
             print(lap, changes, participant)
         lap_record = session.get_lap_record(participant)
         if not lap_record:
             return []
-        if participant.name == 'Xionhearts':
+        if participant.name == 'RUSSELL':
             print(lap_record)
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
             square_repr = '🟥🟥🟥'
@@ -76,7 +76,7 @@ class QualificationSectorsListener(AbstractListener):
         pb_sector3 = lap_record.best_sector3_time
         ob_sector3 = session.current_fastest_sector3
 
-        if participant.name == 'Xionhearts':
+        if participant.name == 'RUSSELL':
             print(lap)
             print('SECTOR 1', pb_sector1, ob_sector1)
             print('SECTOR 2', pb_sector2, ob_sector2)
