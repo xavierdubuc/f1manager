@@ -83,9 +83,9 @@ class Damage:
             return 'red'
         if value >= 50:
             return 'orange'
-        if value >= 15:
+        if value >= 25:
             return 'yellow'
-        if value > 0:
+        if value > 10:
             return 'lightgreen'
         return 'green'
 
