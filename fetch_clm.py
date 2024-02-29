@@ -1,5 +1,5 @@
-from f1_22_telemetry.listener import TelemetryListener
-from f1_22_telemetry.packets import *
+from f1_23_telemetry.listener import TelemetryListener
+from f1_23_telemetry.packets import *
 from datetime import datetime, timedelta
 import tabulate
 

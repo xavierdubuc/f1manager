@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from f1_22_telemetry.packets import Packet
+from f1_23_telemetry.packets import Packet
 
 import logging
 

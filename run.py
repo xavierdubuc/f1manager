@@ -1,7 +1,7 @@
 import sys
 import pickle
 from datetime import datetime
-from f1_22_telemetry.packets import *
+from f1_23_telemetry.packets import *
 import logging
 from src.telemetry.telemetry_command import Command
 from pprint import pformat

@@ -1,7 +1,7 @@
 from typing import Dict
 from .abstract_manager import AbstractManager, Change
 from ..models.damage import Damage
-from f1_22_telemetry.packets import CarDamageData
+from f1_23_telemetry.packets import CarDamageData
 
 
 class DamageManager(AbstractManager):
@@ -17,7 +17,7 @@ class DamageManager(AbstractManager):
         'gearbox_damage': 'gearbox_damage',
         'engined_damage': 'engined_damage',
         'engine_mguh_wear': 'engine_mguh_wear',
-        'engine_energy_store_qear': 'engine_energy_store_qear',
+        'engine_energy_store_wear': 'engine_energy_store_wear',
         'engine_control_electronics_wear': 'engine_control_electronics_wear',
         'engine_internal_combustion_engine_wear': 'engine_internal_combustion_engine_wear',
         'engine_mguk_wear': 'engine_mguk_wear',

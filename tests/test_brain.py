@@ -1,7 +1,7 @@
 import ctypes
 import unittest
 from unittest.mock import Mock, call, patch
-from f1_22_telemetry.packets import (
+from f1_23_telemetry.packets import (
     PacketSessionData,
     PacketParticipantsData,
     ParticipantData,

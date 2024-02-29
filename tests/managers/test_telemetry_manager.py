@@ -1,7 +1,7 @@
 import ctypes
 import unittest
 from unittest.mock import patch
-from f1_22_telemetry.packets import CarTelemetryData
+from f1_23_telemetry.packets import CarTelemetryData
 from managers.telemetry_manager import TelemetryManager
 
 from models.telemetry import Telemetry

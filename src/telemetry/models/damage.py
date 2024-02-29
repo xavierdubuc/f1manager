@@ -18,7 +18,7 @@ class Damage:
     gearbox_damage: int = None
     engined_damage: int = None
     engine_mguh_wear: int = None
-    engine_energy_store_qear: int = None
+    engine_energy_store_wear: int = None
     engine_control_electronics_wear: int = None
     engine_internal_combustion_engine_wear: int = None
     engine_mguk_wear: int = None

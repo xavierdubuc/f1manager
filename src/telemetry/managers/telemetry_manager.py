@@ -3,7 +3,7 @@ from typing import Dict
 from src.telemetry.models.enums.surface_type import SurfaceType
 from .abstract_manager import AbstractManager, Change
 from ..models.telemetry import Telemetry
-from f1_22_telemetry.packets import CarTelemetryData
+from f1_23_telemetry.packets import CarTelemetryData
 
 
 class TelemetryManager(AbstractManager):
