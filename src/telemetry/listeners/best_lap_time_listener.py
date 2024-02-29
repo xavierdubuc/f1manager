@@ -24,12 +24,16 @@ class BestLapTimeListener(AbstractListener):
             return []
 
         best_lap_time = changes["best_lap_time"].actual
+        if best_lap_time == timedelta(0):
+            return []
+
         lap_time = timedelta(seconds=best_lap_time/1000)
         formatted_lap_time = session._format_time(lap_time)
 
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
             if session.current_fastest_lap:
-                difference = timedelta(session.current_fastest_lap - best_lap_time)
+                difference = timedelta(seconds=(session.current_fastest_lap - best_lap_time)/1000)
+                print(session.current_fastest_lap - best_lap_time, difference)
                 formatted_difference = f' (-{session._format_time(difference)})'
             else:
                 formatted_difference = ''
