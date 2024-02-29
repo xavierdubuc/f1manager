@@ -43,13 +43,12 @@ class QualificationSectorsListener(AbstractListener):
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if not session.session_type.is_qualification():
             return []
-        if participant.name == 'RUSSELL' and len(changes.keys()) > 3:
-            print('LAP', lap, changes, participant)
+        # FIXME remove me
+        if participant.name != 'RUSSELL':
+            return []
         lap_record = session.get_lap_record(participant)
         if not lap_record:
             return []
-        if participant.name == 'RUSSELL' and len(changes.keys()) > 3:
-            print('LAP RECORD', lap_record)
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
             square_repr = '🟥🟥🟥'
             return [Message(content=f'**{participant}** : {square_repr}', channel=Channel.PACE)]
@@ -57,6 +56,8 @@ class QualificationSectorsListener(AbstractListener):
             return []
         if 'sector_1_time_in_ms' not in changes and 'sector_2_time_in_ms' not in changes:
             return []
+        print('LAP', lap, changes)
+        print('LAP RECORD', lap_record) 
         return [
             self._get_sectors_message(
                 lap, None, lap_record, participant, session
@@ -76,10 +77,9 @@ class QualificationSectorsListener(AbstractListener):
         pb_sector3 = lap_record.best_sector3_time
         ob_sector3 = session.current_fastest_sector3
 
-        if participant.name == 'RUSSELL':
-            print('SECTOR 1', lap.sector_1_time_minutes, lap.sector_1_time_in_ms, pb_sector1, ob_sector1)
-            print('SECTOR 2', lap.sector_2_time_minutes, lap.sector_2_time_in_ms, pb_sector2, ob_sector2)
-            print('SECTOR 3', lap.sector_3_time_in_ms, pb_sector3, ob_sector3)
+        print('SECTOR 1, CURRENT: ', lap.sector_1_time_minutes, lap.sector_1_time_in_ms, 'PB :', pb_sector1, 'OB :', ob_sector1)
+        print('SECTOR 2, CURRENT: ', lap.sector_2_time_minutes, lap.sector_2_time_in_ms, 'PB :',pb_sector2, 'OB :', ob_sector2)
+        print('SECTOR 3, CURRENT:', lap.sector_3_time_in_ms, 'PB :', pb_sector3, 'OB :', ob_sector3)
         square_repr = lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2,
                                            ob_sector2, lap_time, pb_sector3, ob_sector3)
         msg = f'**{participant}** : {square_repr}'
