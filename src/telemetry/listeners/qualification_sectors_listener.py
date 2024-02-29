@@ -18,8 +18,27 @@ _logger = logging.getLogger(__name__)
 
 class QualificationSectorsListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
+        Event.LAP_CREATED,
         Event.LAP_UPDATED,
     ]
+
+    def _on_lap_created(self, lap: Lap, participant: Participant, session: Session) -> List[Message]:
+        if not session.session_type.is_qualification():
+            return []
+        lap_record = session.get_lap_record(participant)
+        if not lap_record:
+            return []
+        last_lap = session.get_current_lap(participant)
+        if self._lap_should_be_ignored(last_lap):
+            return []
+
+        # TODO idea to get the last posted message (one by participant/one by lap by participant)
+        # and edit it instead of create a new one --> need to store posted messages
+        return [
+            self._get_sectors_message(
+                last_lap, lap.last_lap_time_in_ms, lap_record, participant, session
+            )
+        ]
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if not session.session_type.is_qualification():
