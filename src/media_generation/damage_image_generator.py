@@ -1,8 +1,11 @@
 from PIL import Image, ImageDraw
 from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.font_factory import FontFactory
-from src.media_generation.helpers.transform import line, paste, text
+from src.media_generation.helpers.transform import line, paste, resize, text
+from src.media_generation.data import teams_idx
+from src.media_generation.models.pilot import Pilot
 from src.telemetry.models.damage import Damage
+from src.telemetry.models.enums.team import Team
 from src.telemetry.models.participant import Participant
 
 ASSETS_DIR = 'assets/damages'
@@ -59,14 +62,8 @@ class DamageImageGenerator:
 
     def generate(self, damage:Damage, participant:Participant):
         out = self.base_image.copy()
-        font_size = 26
-        if len(participant.name) >= 16:
-            font_size = 22 if '_' in participant.name or '-' in participant.name else 20
-        elif len(participant.name) >= 13:
-            font_size = 24 if '_' in participant.name or '-' in participant.name else 22
-        name = text(participant.name.upper(), (255,255,255), FontFactory.black(font_size))
-
-        paste(name, out, top = 20)
+        pilot_img = self._get_pilot_image(270, 65, participant)
+        paste(pilot_img, out, top = 0)
         self._paste_parts_images(out, damage)
         self._paste_parts_percents(out, damage)
         path = f'output/damages/{participant.name.lower()}.png'
@@ -109,3 +106,34 @@ class DamageImageGenerator:
             value_str = f'{str(value).rjust(3)}%'
             position = PARTS_POSITIONS[part]
             paste(text(value_str, color, font), img, left=position[0], top=position[1])
+
+    def _get_pilot_image(self, width:int, height:int, participant):
+        img = Image.new('RGBA', (width*5, height*5))
+        font_size = 120
+        if len(participant.name) >= 16:
+            font_size = 80 if '_' in participant.name or '-' in participant.name else 70
+        elif len(participant.name) >= 14:
+            font_size = 100 if '_' in participant.name or '-' in participant.name else 90
+        elif len(participant.name) >= 12:
+            font_size = 100 if '_' in participant.name or '-' in participant.name else 90
+        font = FontFactory.black(font_size)
+
+        if participant.team == Team.mclaren:
+            team_str = 'McLaren'
+        elif participant.team == Team.red_bull_racing:
+            team_str = 'RedBull'
+        else:
+            team_str = participant.team.name.title().replace('_','')
+        team = teams_idx[team_str]
+        pilot = Pilot(participant.name, team, participant.race_number)
+
+        logo_width = .75 * img.height
+        logo_img = pilot._get_team_logo_image(logo_width, logo_width)
+        name_img = pilot.get_name_image(font, (255,255,255))
+        space_between = 40
+        logo_and_name_total_width = logo_img.width + space_between + name_img.width
+
+        logo_pos = paste(logo_img, img, left=(img.width-logo_and_name_total_width) // 2)
+        paste(name_img, img, left = logo_pos.right + space_between)
+
+        return resize(img, width, height)

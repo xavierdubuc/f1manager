@@ -2,6 +2,7 @@ import unittest
 
 from src.media_generation.damage_image_generator import DamageImageGenerator
 from src.telemetry.models.damage import Damage
+from src.telemetry.models.enums.team import Team
 from src.telemetry.models.participant import Participant
 
 
@@ -13,6 +14,7 @@ class DamageImageGeneratorTest(unittest.TestCase):
 
     def test_generate(self):
         names = [
+            'Xionhearts',
             'FBRT_Seb07',
             'Enakozi',
             'majforti-07',
@@ -23,7 +25,6 @@ class DamageImageGeneratorTest(unittest.TestCase):
             'FBRT_Naax',
             'DiNaZ-LCK',
             'Juraptors',
-            'Xionhearts',
             'WSC_Gregy21',
             'FBRT_Kayzor',
             'b0sS-sTyl3dimi',
@@ -45,8 +46,9 @@ class DamageImageGeneratorTest(unittest.TestCase):
             'chriss_29',
             'Nicolas-Nst',
         ]
-        for name in names:
-            participant = Participant(name=name)
+        teams = [Team(i) for i in range(10)]
+        for i,name in enumerate(names):
+            participant = Participant(name=name, team=teams[i%10])
             damage = Damage(
                 tyres_damage=[100, 50, 33, 10],
                 diffuser_damage=20,
