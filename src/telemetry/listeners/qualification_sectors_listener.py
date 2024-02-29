@@ -43,13 +43,13 @@ class QualificationSectorsListener(AbstractListener):
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if not session.session_type.is_qualification():
             return []
-        if participant.name == 'RUSSELL':
-            print(lap, changes, participant)
+        if participant.name == 'RUSSELL' and len(changes.keys()) > 3:
+            print('LAP', lap, changes, participant)
         lap_record = session.get_lap_record(participant)
         if not lap_record:
             return []
         if participant.name == 'RUSSELL':
-            print(lap_record)
+            print('LAP RECORD', lap_record)
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
             square_repr = '🟥🟥🟥'
             return [Message(content=f'**{participant}** : {square_repr}', channel=Channel.PACE)]
@@ -77,10 +77,9 @@ class QualificationSectorsListener(AbstractListener):
         ob_sector3 = session.current_fastest_sector3
 
         if participant.name == 'RUSSELL':
-            print(lap)
-            print('SECTOR 1', pb_sector1, ob_sector1)
-            print('SECTOR 2', pb_sector2, ob_sector2)
-            print('SECTOR 3', pb_sector3, ob_sector3)
+            print('SECTOR 1', lap.sector_1_time_in_minutes, lap.sector_1_time_in_ms, pb_sector1, ob_sector1)
+            print('SECTOR 2', lap.sector_2_time_in_minutes, lap.sector_2_time_in_ms, pb_sector2, ob_sector2)
+            print('SECTOR 3', lap.sector_3_time_in_minutes, lap.sector_3_time_in_ms, pb_sector3, ob_sector3)
         square_repr = lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2,
                                            ob_sector2, lap_time, pb_sector3, ob_sector3)
         msg = f'**{participant}** : {square_repr}'
