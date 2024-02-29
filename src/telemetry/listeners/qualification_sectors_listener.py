@@ -34,7 +34,7 @@ class QualificationSectorsListener(AbstractListener):
 
         # TODO idea to get the last posted message (one by participant/one by lap by participant)
         # and edit it instead of create a new one --> need to store posted messages
-        if lap.last_lap_time_in_ms:
+        if lap.last_lap_time_in_ms and last_lap.sector_1_time_in_ms and last_lap.sector_2_time_in_ms:
             return [
                 self._get_sectors_message(
                     last_lap, lap.last_lap_time_in_ms, lap_record, participant, session
