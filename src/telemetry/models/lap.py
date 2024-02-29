@@ -80,6 +80,8 @@ class Lap:
         return self._get_square(self.sector_2_time_in_ms, personal_best, overall_best)
 
     def get_third_sector_square(self, total_lap_time, personal_best, overall_best):
+        if not self.sector_2_time_in_ms or not total_lap_time:
+            return self._get_square(None, personal_best, overall_best)
         return self._get_square(self.sector_3_time_in_ms, personal_best, overall_best)
 
     def _get_square(self, current_time, personal_best, overall_best):
