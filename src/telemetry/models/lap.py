@@ -41,9 +41,9 @@ class Lap:
 
     @property
     def sector_3_time_in_ms(self):
-        if not self.sector_2_time_in_ms or not self.current_lap_time_in_ms:
+        if not self.sector_1_time_in_ms or not self.sector_2_time_in_ms or not self.current_lap_time_in_ms:
             return None
-        return (self.current_lap_time_in_ms - self.sector_2_time_in_ms)
+        return (self.current_lap_time_in_ms - self.sector_2_time_in_ms - self.sector_1_time_in_ms)
 
     def __str__(self):
         return f'Lap {self.current_lap_num}'
