@@ -21,7 +21,7 @@ class DamageManager(AbstractManager):
         'engine_control_electronics_wear': 'engine_control_electronics_wear',
         'engine_internal_combustion_engine_wear': 'engine_internal_combustion_engine_wear',
         'engine_mguk_wear': 'engine_mguk_wear',
-        'engine_traction_control_wear': 'engine_traction_control_wear',
+        'engine_turbo_charger_wear': 'engine_turbo_charger_wear',
     }
 
     enum_fields = {}

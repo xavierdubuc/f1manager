@@ -22,7 +22,7 @@ class Damage:
     engine_control_electronics_wear: int = None
     engine_internal_combustion_engine_wear: int = None
     engine_mguk_wear: int = None
-    engine_traction_control_wear: int = None
+    engine_turbo_charger_wear: int = None
     engine_blown: bool = None
     engine_seized: bool = None
 
