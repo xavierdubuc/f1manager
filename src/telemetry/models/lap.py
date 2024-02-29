@@ -39,6 +39,12 @@ class Lap:
     # data not from packets
     index: int = None
 
+    @property
+    def sector_3_time_in_ms(self):
+        if not self.sector_2_time_in_ms or not self.current_lap_time_in_ms:
+            return None
+        return (self.current_lap_time_in_ms - self.sector_2_time_in_ms)
+
     def __str__(self):
         return f'Lap {self.current_lap_num}'
 
@@ -74,11 +80,7 @@ class Lap:
         return self._get_square(self.sector_2_time_in_ms, personal_best, overall_best)
 
     def get_third_sector_square(self, total_lap_time, personal_best, overall_best):
-        if not self.sector_2_time_in_ms or not total_lap_time:
-            sector3_time = None
-        else:
-            sector3_time = (total_lap_time - self.sector_2_time_in_ms)
-        return self._get_square(sector3_time, personal_best, overall_best)
+        return self._get_square(self.sector_3_time_in_ms, personal_best, overall_best)
 
     def _get_square(self, current_time, personal_best, overall_best):
         if self.current_lap_invalid:
