@@ -41,6 +41,9 @@ class AllSetupsListener(AbstractListener):
         Event.CAR_SETUP_CREATED,
         Event.CAR_SETUP_UPDATED
     ]
+    def __init__(self) -> None:
+        super().__init__()
+        self.ai_setup_notified = False
 
     def _on_car_setup_updated(self, car_setup:CarSetup, changes:Dict[str, Change], participant:Participant, session:Session) -> List[Message]:
         # don't mention anything about not running pilots
@@ -63,19 +66,21 @@ class AllSetupsListener(AbstractListener):
         return [Message(content=msg, channel=Channel.SETUP)]
 
     def _on_car_setup_created(self, car_setup:CarSetup, session: Session, participant: Participant) -> List[Message]:
-        if car_setup.has_values():
+        if car_setup.has_values() and (not participant.ai_controlled or not self.ai_setup_notified):
             return [Message(
                 content=self._setup_to_message_content(participant, car_setup),
                 channel=Channel.SETUP
             )]
 
     def _on_car_setup_list_initialized(self, session: Session, setups: List[CarSetup]) -> List[Message]:
-        return [
-            Message(
-                content=self._setup_to_message_content(session.participants[i], car_setup),
-                channel=Channel.SETUP
-            ) for i, car_setup in enumerate(setups) if car_setup.has_values()
-        ]
+        messages = []
+        for i, car_setup in enumerate(setups):
+            if car_setup.has_values() and (not session.participants[i].ai_controlled or not self.ai_setup_notified):
+                messages.append(Message(
+                    content=self._setup_to_message_content(session.participants[i], car_setup),
+                    channel=Channel.SETUP
+                ))
+        return messages
 
     def _setup_to_message_content(self, participant: Participant, car_setup: CarSetup) -> Message:
         parts = [
