@@ -86,7 +86,7 @@ class AllSetupsListener(AbstractListener):
 
     def _setup_to_message_content(self, participant: Participant, car_setup: CarSetup) -> Message:
         parts = [
-            f'# Setup de : {participant}',
+            f'# Setup de : {participant if not participant.ai_controlled else "IA"}',
             '```',
             str(car_setup),
             '```',
