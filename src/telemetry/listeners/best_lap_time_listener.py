@@ -28,9 +28,19 @@ class BestLapTimeListener(AbstractListener):
         formatted_lap_time = session._format_time(lap_time)
 
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
+            if session.current_fastest_lap:
+                difference = session.current_fastest_lap - best_lap_time
+                formatted_difference = f' (-{session._format_time(difference)})'
+            else:
+                formatted_difference = ''
             session.current_fastest_lap = best_lap_time
-            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪  {participant}  ` {formatted_lap_time} `'
+            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪  {participant}  ` {formatted_lap_time}{formatted_difference}`'
         else:
-            msg = f'🕒 🟩  **{participant}**  ` {formatted_lap_time} `'
+            if changes["best_lap_time"].old:
+                difference = changes["best_lap_time"].old - best_lap_time
+                formatted_difference = f' (-{session._format_time(difference)})'
+            else:
+                formatted_difference = ''
+            msg = f'🕒 🟩  **{participant}**  ` {formatted_lap_time}{formatted_difference}`'
 
         return [Message(content=msg, channel=Channel.PACE)]
