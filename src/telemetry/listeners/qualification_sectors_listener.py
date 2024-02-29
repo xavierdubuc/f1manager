@@ -18,7 +18,6 @@ _logger = logging.getLogger(__name__)
 
 class QualificationSectorsListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
-        Event.LAP_CREATED,
         Event.LAP_UPDATED,
     ]
 
