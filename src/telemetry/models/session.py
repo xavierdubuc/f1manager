@@ -114,6 +114,14 @@ class Session:
             return None
         return self.car_statuses[index]
 
+    def get_car_damage(self, participant:Participant) -> Damage:
+        index = self.participants.index(participant)
+        if not self.damages:
+            return None
+        if index >= len(self.damages):
+            return None
+        return self.damages[index]
+
     def get_current_lap(self, participant:Participant) -> Lap:
         index = self.participants.index(participant)
         return self.laps[index][-1]

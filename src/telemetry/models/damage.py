@@ -100,3 +100,9 @@ class Damage:
 
     def get_rear_right_tyre_damage_value(self):
         return self.tyres_damage[1]
+
+    def get_max_tyre_damage(self):
+        return max(self.tyres_damage)
+
+    def get_mean_tyre_damage(self):
+        return round(sum(self.tyres_damage) / 4)

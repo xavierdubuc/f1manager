@@ -31,14 +31,18 @@ class PitListener(AbstractListener):
                     return [Message(msg, Channel.PIT)]
             if pit_status == PitStatus.not_in_pit:
                 car_status = session.get_car_status(participant)
+                car_damage = session.get_car_damage(participant)
                 if not car_status:
-                    return
-                tyres_str = f'{car_status.visual_tyre_compound.get_long_string()} ({car_status.tyres_age_laps} tours)'
-                fuel = round(car_status.fuel_remaining_laps, 2)
+                    fuel_str = tyres_str = ''
+                else:
+                    tyres_age_str = f' ({car_damage.get_max_tyre_damage()} %)' if car_damage else ''
+                    tyres_str = f' avec des pneus {car_status.visual_tyre_compound.get_long_string()}{tyres_age_str}'
+                    fuel_str = f' et {round(car_status.fuel_remaining_laps, 2)} tours d\'essence'
+
                 stop_time = changes['pit_stop_timer_in_ms'].old if 'pit_stop_timer_in_ms' in changes else None
                 lane_time = changes['pit_lane_time_in_lane_in_ms'].old if 'pit_lane_time_in_lane_in_ms' in changes else None
-
                 t = f'({round(stop_time/1000,2)}s)' if stop_time else ''
                 tt = f' (Total: {round(lane_time/1000,2)}s)' if lane_time else ''
-                msg = f'🟢 **{participant}** sort des stands avec des pneus {tyres_str} et {fuel} tours d\'essence {t}{tt}'
+
+                msg = f'🟢 **{participant}** sort des stands{tyres_str}{fuel_str} {t}{tt}'
                 return [Message(msg, Channel.PIT)]
