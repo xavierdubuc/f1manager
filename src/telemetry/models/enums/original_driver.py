@@ -127,7 +127,7 @@ class OriginalDriver(Enum):
     calan_williams=135
     jack_doohan=136
     amaury_cordeel=137
-    dennis_hauger=138
+    dennis_hauger_2=138  # ??
     calan_williams=139
     jamie_chadwick=140
     kamui_kobayashi=141
