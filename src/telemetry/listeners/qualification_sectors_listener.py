@@ -51,7 +51,7 @@ class QualificationSectorsListener(AbstractListener):
             return [Message(content=f'**{participant}** : {square_repr}', channel=Channel.PACE)]
         if self._lap_should_be_ignored(lap):
             return []
-        if 'sector1_time_in_ms' not in changes and 'sector2_time_in_ms' not in changes:
+        if 'sector_1_time_in_ms' not in changes and 'sector_2_time_in_ms' not in changes:
             return []
         return [
             self._get_sectors_message(

@@ -8,8 +8,12 @@ from .enums.result_status import ResultStatus
 class Lap:
     last_lap_time_in_ms: int = None
     current_lap_time_in_ms: int = None
-    sector1_time_in_ms: int = None
-    sector2_time_in_ms: int = None
+    sector_1_time_in_ms: int = None
+    sector_1_time_in_minutes: int = None
+    sector_2_time_in_ms: int = None
+    sector_2_time_in_minutes: int = None
+    delta_to_car_in_front_in_ms: int = None
+    delta_to_race_leader_in_ms: int = None
     lap_distance: float = None
     total_distance: float = None
     safety_car_delta: float = None
@@ -19,7 +23,8 @@ class Lap:
     sector: int = None
     current_lap_invalid: bool = None
     penalties: int = None
-    warnings: int = None
+    total_warnings: int = None
+    corner_cutting_warnings: int = None
     num_unserved_drive_through_pens: int = None
     num_unserved_stop_go_pens: int = None
     grid_position: int = None
@@ -63,16 +68,16 @@ class Lap:
         return f'{s1}{s2}{s3}'
 
     def get_first_sector_square(self, personal_best, overall_best):
-        return self._get_square(self.sector1_time_in_ms, personal_best, overall_best)
+        return self._get_square(self.sector_1_time_in_ms, personal_best, overall_best)
 
     def get_second_sector_square(self, personal_best, overall_best):
-        return self._get_square(self.sector2_time_in_ms, personal_best, overall_best)
+        return self._get_square(self.sector_2_time_in_ms, personal_best, overall_best)
 
     def get_third_sector_square(self, total_lap_time, personal_best, overall_best):
-        if not self.sector2_time_in_ms or not total_lap_time:
+        if not self.sector_2_time_in_ms or not total_lap_time:
             sector3_time = None
         else:
-            sector3_time = (total_lap_time - self.sector2_time_in_ms)
+            sector3_time = (total_lap_time - self.sector_2_time_in_ms)
         return self._get_square(sector3_time, personal_best, overall_best)
 
     def _get_square(self, current_time, personal_best, overall_best):

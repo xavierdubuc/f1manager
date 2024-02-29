@@ -25,11 +25,11 @@ class LapRecordManager(AbstractManager):
 
         if 1 <= packet.best_sector1_lap_num <= len(packet.lap_history_data):
             best_sector1_data = packet.lap_history_data[packet.best_sector1_lap_num-1]
-            self.best_sector1_time = best_sector1_data.sector1_time_in_ms
+            self.best_sector1_time = best_sector1_data.sector_1_time_in_ms
 
         if 1 <= packet.best_sector2_lap_num <= len(packet.lap_history_data):
             best_sector2_data = packet.lap_history_data[packet.best_sector2_lap_num-1]
-            self.best_sector2_time = best_sector2_data.sector2_time_in_ms
+            self.best_sector2_time = best_sector2_data.sector_2_time_in_ms
 
         if 1 <= packet.best_sector3_lap_num <= len(packet.lap_history_data):
             best_sector3_data = packet.lap_history_data[packet.best_sector3_lap_num-1]
@@ -46,13 +46,13 @@ class LapRecordManager(AbstractManager):
 
         if 'best_sector1_lap_num' in changes:
             best_sector1_data = packet.lap_history_data[packet.best_sector1_lap_num-1]
-            changes['best_sector1_time'] = Change(actual=best_sector1_data.sector1_time_in_ms, old=lap_record.best_sector1_time)
-            lap_record.best_sector1_time = best_sector1_data.sector1_time_in_ms
+            changes['best_sector1_time'] = Change(actual=best_sector1_data.sector_1_time_in_ms, old=lap_record.best_sector1_time)
+            lap_record.best_sector1_time = best_sector1_data.sector_1_time_in_ms
 
         if 'best_sector2_lap_num' in changes:
             best_sector2_data = packet.lap_history_data[packet.best_sector2_lap_num-1]
-            changes['best_sector2_time'] = Change(actual=best_sector2_data.sector2_time_in_ms, old=lap_record.best_sector2_time)
-            lap_record.best_sector2_time = best_sector2_data.sector2_time_in_ms
+            changes['best_sector2_time'] = Change(actual=best_sector2_data.sector_2_time_in_ms, old=lap_record.best_sector2_time)
+            lap_record.best_sector2_time = best_sector2_data.sector_2_time_in_ms
 
         if 'best_sector3_lap_num' in changes:
             best_sector3_data = packet.lap_history_data[packet.best_sector3_lap_num-1]

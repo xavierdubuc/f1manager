@@ -23,8 +23,8 @@ class PenaltyListener(AbstractListener):
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         messages = []
-        if 'warnings' in changes:
-            amount_of_warnings = changes['warnings'].actual
+        if 'corner_cutting_warnings' in changes:
+            amount_of_warnings = changes['corner_cutting_warnings'].actual
             msg = f'🏳️ **{participant}** a recu un avertissement ! **Total : {amount_of_warnings}**'
             messages.append(Message(content=msg, channel=Channel.PENALTY))
         if 'penalties' in changes:
