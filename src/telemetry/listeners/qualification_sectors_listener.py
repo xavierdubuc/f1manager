@@ -77,8 +77,8 @@ class QualificationSectorsListener(AbstractListener):
         ob_sector3 = session.current_fastest_sector3
 
         if participant.name == 'RUSSELL':
-            print('SECTOR 1', lap.sector_1_time_in_minutes, lap.sector_1_time_in_ms, pb_sector1, ob_sector1)
-            print('SECTOR 2', lap.sector_2_time_in_minutes, lap.sector_2_time_in_ms, pb_sector2, ob_sector2)
+            print('SECTOR 1', lap.sector_1_time_minutes, lap.sector_1_time_in_ms, pb_sector1, ob_sector1)
+            print('SECTOR 2', lap.sector_2_time_minutes, lap.sector_2_time_in_ms, pb_sector2, ob_sector2)
             print('SECTOR 3', lap.sector_3_time_in_ms, pb_sector3, ob_sector3)
         square_repr = lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2,
                                            ob_sector2, lap_time, pb_sector3, ob_sector3)

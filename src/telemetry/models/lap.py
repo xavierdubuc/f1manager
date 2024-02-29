@@ -9,9 +9,9 @@ class Lap:
     last_lap_time_in_ms: int = None
     current_lap_time_in_ms: int = None
     sector_1_time_in_ms: int = None
-    sector_1_time_in_minutes: int = None
+    sector_1_time_minutes: int = None
     sector_2_time_in_ms: int = None
-    sector_2_time_in_minutes: int = None
+    sector_2_time_minutes: int = None
     delta_to_car_in_front_in_ms: int = None
     delta_to_race_leader_in_ms: int = None
     lap_distance: float = None
