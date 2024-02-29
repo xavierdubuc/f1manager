@@ -34,6 +34,8 @@ class QualificationSectorsListener(AbstractListener):
 
         # TODO idea to get the last posted message (one by participant/one by lap by participant)
         # and edit it instead of create a new one --> need to store posted messages
+        # those messages id could be stored in the session
+        # FIXME check this if is working
         if lap.last_lap_time_in_ms and last_lap.sector_1_time_in_ms and last_lap.sector_2_time_in_ms:
             return [
                 self._get_sectors_message(
@@ -42,10 +44,8 @@ class QualificationSectorsListener(AbstractListener):
             ]
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
+        # TODO use images
         if not session.session_type.is_qualification():
-            return []
-        # FIXME remove me
-        if participant.name != 'RUSSELL':
             return []
         lap_record = session.get_lap_record(participant)
         if not lap_record:
@@ -57,8 +57,6 @@ class QualificationSectorsListener(AbstractListener):
             return []
         if 'sector_1_time_in_ms' not in changes and 'sector_2_time_in_ms' not in changes:
             return []
-        print('LAP', lap, changes)
-        print('LAP RECORD', lap_record) 
         return [
             self._get_sectors_message(
                 lap, None, lap_record, participant, session
@@ -83,5 +81,5 @@ class QualificationSectorsListener(AbstractListener):
         print('SECTOR 3, CURRENT:', lap.sector_3_time_in_ms, 'PB :', pb_sector3, 'OB :', ob_sector3)
         square_repr = lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2,
                                            ob_sector2, lap_time, pb_sector3, ob_sector3)
-        msg = f'**{participant}** : {square_repr}'
+        msg = f'`{str(lap.car_position).rjust(2)}` **{participant}** : {square_repr}'
         return Message(content=msg, channel=Channel.PACE)

@@ -29,7 +29,10 @@ class BestLapTimeListener(AbstractListener):
 
         lap_time = timedelta(seconds=best_lap_time/1000)
         formatted_lap_time = session._format_time(lap_time)
-
+ 
+        # TODO add position of the pilot
+        lap = session.get_current_lap(participant)
+        position = str(lap.car_position).rjust(2)
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
             if session.current_fastest_lap:
                 difference = timedelta(seconds=(session.current_fastest_lap - best_lap_time)/1000)
@@ -38,13 +41,13 @@ class BestLapTimeListener(AbstractListener):
             else:
                 formatted_difference = ''
             session.current_fastest_lap = best_lap_time
-            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪  {participant}  ` {formatted_lap_time}{formatted_difference}`'
+            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪 {position} {participant}  ` {formatted_lap_time}{formatted_difference}`'
         else:
             if changes["best_lap_time"].old:
                 difference = timedelta(seconds=(changes["best_lap_time"].old - best_lap_time)/1000)
                 formatted_difference = f' (-{session._format_time(difference)})'
             else:
                 formatted_difference = ''
-            msg = f'🕒 🟩  **{participant}**  ` {formatted_lap_time}{formatted_difference}`'
+            msg = f'🕒 🟩 {position} **{participant}**  ` {formatted_lap_time}{formatted_difference}`'
 
         return [Message(content=msg, channel=Channel.PACE)]
