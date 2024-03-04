@@ -77,11 +77,17 @@ def text_on_gradient(txt: str, text_color, font:ImageFont.FreeTypeFont, padding=
     return img
 
 def text(text:str, text_color, font:ImageFont.FreeTypeFont, stroke_width=0, stroke_fill=None, security_padding=0, **kwargs):
+    text = str(text)  # take care when a int is given
     width, height = text_size(text, font, stroke_width=stroke_width, **kwargs)
     img = Image.new('RGBA', (width+security_padding, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
     draw.text((security_padding, 0), text, text_color, font, stroke_width=stroke_width, stroke_fill=stroke_fill, **kwargs)
     return img
+
+def text_hi_res(txt: str, text_color, font:ImageFont.FreeTypeFont, width:int, height:int, *args, **kwargs):
+    big_font = font.font_variant(size=font.size * 5)
+    big_img = text(txt, text_color, big_font, *args, **kwargs)
+    return resize(big_img, width, height)
 
 def rotated_text(txt_str:str, text_color, font:ImageFont.FreeTypeFont, stroke_width=0, stroke_fill=None, angle=15, **kwargs):
     txt = text(txt_str, text_color, font, stroke_width, stroke_fill)
