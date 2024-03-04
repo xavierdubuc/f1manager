@@ -64,7 +64,7 @@ class QualificationSectorsListener(AbstractListener):
         ]
 
     def _lap_should_be_ignored(self, lap: Lap) -> bool:
-        return lap.current_lap_invalid or lap.driver_status in (DriverStatus.in_pit, DriverStatus.out_lap)
+        return lap.current_lap_invalid or lap.driver_status != DriverStatus.flying_lap
 
     def _get_sectors_message(self, lap: Lap, lap_time: int, lap_record: LapRecord, participant: Participant, session: Session) -> Message:
         pb_sector1 = lap_record.best_sector1_time

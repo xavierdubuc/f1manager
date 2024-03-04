@@ -2,7 +2,7 @@ from PIL import Image, ImageDraw
 from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.font_factory import FontFactory
 from src.media_generation.helpers.transform import line, paste, resize, text
-from src.media_generation.data import teams_idx
+from src.media_generation.data import RESERVIST_TEAM, teams_idx
 from src.media_generation.models.pilot import Pilot
 from src.telemetry.models.damage import Damage
 from src.telemetry.models.enums.team import Team
@@ -118,13 +118,7 @@ class DamageImageGenerator:
             font_size = 100 if '_' in participant.name or '-' in participant.name else 90
         font = FontFactory.black(font_size)
 
-        if participant.team == Team.mclaren:
-            team_str = 'McLaren'
-        elif participant.team == Team.red_bull_racing:
-            team_str = 'RedBull'
-        else:
-            team_str = participant.team.name.title().replace('_','')
-        team = teams_idx[team_str]
+        team = teams_idx.get(str(participant.team), RESERVIST_TEAM)
         pilot = Pilot(participant.name, team, participant.race_number)
 
         logo_width = .75 * img.height
