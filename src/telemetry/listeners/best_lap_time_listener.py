@@ -48,7 +48,7 @@ class BestLapTimeListener(AbstractListener):
             else:
                 formatted_difference = ''
             if session.session_type.is_qualification() and session.current_fastest_lap:
-                delta_p1 = timedelta(seconds=(session.current_fastest_lap - best_lap_time)/1000)
+                delta_p1 = timedelta(seconds=(best_lap_time-session.current_fastest_lap)/1000)
                 formatted_delta_p1 = f' [+{session._format_time(delta_p1)}]'
             else:
                 formatted_delta_p1 = ''
