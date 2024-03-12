@@ -69,8 +69,8 @@ class RaceReader(Reader):
         return Race(
             # BASE INFORMATION
             round=self.data['B'][0],
-            circuit = CIRCUITS[self.data['B'][1]],
-            laps=int(self.data['B'][2]),
+            circuit = CIRCUITS.get(self.data['B'][1], None),
+            laps=int(self.data['B'][2] if self.data['B'][2] and self.data['B'][2] != '#N/A' else 0),
             full_date=race_day,
             day=race_day.day,
             month=race_day.strftime('%b'),

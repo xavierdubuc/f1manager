@@ -78,7 +78,7 @@ class CalendarGenerator(AbstractGenerator):
             info_left = 95
 
         info_top = 15
-        date_txt = race.full_date.strftime('%d %b').upper()
+        date_txt = race.full_date.strftime('%d %b').upper() # FIXME french it up
         date_img = text(date_txt, (255, 255, 255), FontFactory.regular(18))
         date_position = paste(date_img, right_img, left=info_left, top=info_top)
 

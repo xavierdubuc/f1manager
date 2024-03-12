@@ -178,7 +178,7 @@ class PilotsRankingGenerator(AbstractGenerator):
         # [POS] [TEAM CARD + PILOT] [PTS]
         #  15%        65%            20%
 
-        is_champion = pos == 1 # FIXME
+        is_champion = False# pos == 1 # FIXME
         padding_between = 10
         effective_width = width - 2 * padding_between
         position_width = int(0.15 * effective_width)
