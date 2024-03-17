@@ -53,7 +53,8 @@ class Reader:
                 name=row['Pilotes'],
                 team=teams_idx.get(row['Ecurie'], reservist_team if row['Ecurie'] == 'R' else default_team),
                 reservist=row['Ecurie'] == 'R',
-                number=row['Numéro']
+                number=row['Numéro'],
+                trigram=row.get('Trigram')
             ) for _, row in values[values['Pilotes'].notnull()].iterrows()
         }
 
@@ -74,7 +75,10 @@ class Reader:
 
     def _determine_pilots_and_teams(self, sheet_values) -> Tuple[dict, list]:
         if sheet_values is not None:
-            pilots_values = sheet_values[['Pilotes', 'Numéro', 'Ecurie']]
+            if 'Trigram' in sheet_values.columns:
+                pilots_values = sheet_values[['Pilotes', 'Numéro', 'Trigram', 'Ecurie']]
+            else:
+                pilots_values = sheet_values[['Pilotes', 'Numéro', 'Ecurie']]
             pilots = self._build_pilots_list(pilots_values)
             teams_values = sheet_values[['Ecuries']]
             teams = self._build_teams_list(teams_values)
@@ -87,7 +91,7 @@ class Reader:
         sheet_names = self.google_sheet_service.get_sheet_names(self.spreadsheet_id)
 
         if self.VALUES_SHEET_NAME in sheet_names:
-            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, '_values!A1:G100')
+            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, '_values!A1:H100')
             sheet_values = pandas.DataFrame(vals[1:], columns=vals[0])
         else:
             sheet_values = None

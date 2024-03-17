@@ -18,6 +18,16 @@ class Pilot:
     number: str = 'Re'
     title: str = None
     reservist: bool = False
+    trigram: str = None
+
+    def __post_init__(self):
+        if not self.trigram:
+            for prefix in ('FBRT_', 'WSC_', 'VRA-', 'x0-', 'APX_', 'F1TEAM_', 'GT10_', 'RSC-'):
+                if self.name.startswith(prefix):
+                    self.trigram = self.name[len(prefix):len(prefix)+3].upper()
+                    break
+            else:
+                self.trigram = self.name[:3].upper()
 
     # IMAGES FROM PSD
 
@@ -54,6 +64,16 @@ class Pilot:
         return self._has_image_in_psd(psd, 0, 1)
 
     # GENERATED IMAGES
+
+    def get_trigram_image(self, width: int, height: int):
+        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        padding_box = 2
+        padding_name_box = 4
+        trigram_txt = text(self.trigram, (255, 255, 255), FontFactory.black(20))
+        box = self.team.get_box_image(width=6, height=trigram_txt.height + padding_box * 2)
+        box_pos = paste(box, img, left=padding_box, top=5)
+        paste(trigram_txt, img, left=box_pos.right + padding_name_box)
+        return img
 
     def get_image(self, width: int, height: int, pilot_font, pilot_color=(255,255,255), show_box:bool=False, box_width:int=0, box_height:int=0, name_top:int=False):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
