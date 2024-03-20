@@ -83,6 +83,11 @@ def text(text:str, text_color, font:ImageFont.FreeTypeFont, stroke_width=0, stro
     draw.text((security_padding, 0), text, text_color, font, stroke_width=stroke_width, stroke_fill=stroke_fill, **kwargs)
     return img
 
+def text_hi_res(txt: str, text_color, font:ImageFont.FreeTypeFont, width:int, height:int, *args, **kwargs):
+    big_font = font.font_variant(size=font.size * 5)
+    big_img = text(txt, text_color, big_font, *args, **kwargs)
+    return resize(big_img, width, height)
+
 def rotated_text(txt_str:str, text_color, font:ImageFont.FreeTypeFont, stroke_width=0, stroke_fill=None, angle=15, **kwargs):
     txt = text(txt_str, text_color, font, stroke_width, stroke_fill)
     return txt.rotate(angle, expand=True)

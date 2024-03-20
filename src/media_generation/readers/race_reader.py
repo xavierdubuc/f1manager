@@ -61,7 +61,9 @@ class RaceReader(Reader):
                 # get the replaced pilot's team and create a new pilot with it
                 # pilot_name = pilot_name if '/' not in pilot_name else '/'
                 replaced_pilot = pilots[replaced_pilot_name]
-                final_lineup_pilots[pilot_name] = Pilot(pilot_name, replaced_pilot.team)
+                p = pilots.get(pilot_name)
+                p.team = replaced_pilot.team
+                final_lineup_pilots[pilot_name] = p
         final_lineup = LineUp(
             pilot_names=list(self.data['F'][:20]),
             pilots=final_lineup_pilots

@@ -18,6 +18,7 @@ class Team:
     title: str
     subtitle: str
     main_color: Union[str,tuple] = 'white'
+    alternate_main_color: Union[str,tuple] = None
     secondary_color: Union[str,tuple] = 'black'
     box_color: Union[str,tuple] = 'black'
     lineup_bg_color: Union[str,tuple] = 'black'
@@ -32,6 +33,10 @@ class Team:
     pole_line_color: Union[str,tuple] = None
     transparent_color: Union[str,tuple] = None
     card_image_path: str= None
+
+    def __post_init__(self):
+        if not self.alternate_main_color:
+            self.alternate_main_color = self.standing_bg
 
     def get_card_image(self):
         basepath = os.path.join(ASSETS_PATH, 'empty_cards')
@@ -152,7 +157,7 @@ class Team:
 
     def _get_lineup_pilot_image(self, pilot:"Pilot", font: ImageFont.FreeTypeFont, width:int, height:int, img_height:int, has_long_pseudo:bool=False, text_left_padding:int=0):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
-        pilot_name_img = pilot.get_name_image(font)
+        pilot_name_img = pilot.get_name_image(font, color=(255,255,255) if not pilot.reservist else (150,150,150))
         vertical_shift = 26
         if not has_long_pseudo and '_' in pilot.name:
             vertical_shift = 21

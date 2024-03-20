@@ -74,7 +74,8 @@ redbull = Team(
     standing_fg=(255, 255, 255),
     transparent_color=(120, 130, 200),
     breaking_bg_color=(25, 26, 93),
-    breaking_line_color=(15, 16, 83)
+    breaking_line_color=(15, 16, 83),
+    alternate_main_color=(0,0,186)
 )
 mercedes = Team(
     name='Mercedes',
@@ -137,6 +138,7 @@ alpine = Team(
     transparent_color=(45, 90, 140),
     breaking_bg_color=(20, 30, 40),
     breaking_line_color=(10, 20, 35),
+    alternate_main_color=(9, 118, 193),
     breaking_use_white_logo=True
 )
 ferrari = Team(
@@ -166,6 +168,7 @@ williams = Team(
     transparent_color=(120, 160, 195),
     breaking_bg_color=(6, 170, 230),
     breaking_line_color=(0, 110, 170),
+    alternate_main_color=(7,48,102),
     breaking_use_white_logo=True
 )
 alfa_romeo = Team(
@@ -188,6 +191,7 @@ aston_martin = Team(
     title='ASTON MARTIN',
     subtitle='Aramco Cognizant F1 Team',
     main_color=(14, 104, 88),
+    alternate_main_color=(3, 115, 100),
     secondary_color=(255, 255, 255),
     box_color=(14, 104, 88),
     lineup_bg_color=(36, 89, 79),
@@ -210,6 +214,7 @@ alpha_tauri = Team(
     transparent_color=(81, 135, 175),
     breaking_bg_color=(35, 40, 80),
     breaking_line_color=(15, 20, 60),
+    alternate_main_color=(40, 64, 90),
     breaking_use_white_logo=True
 )
 DEFAULT_TEAM = Team(
