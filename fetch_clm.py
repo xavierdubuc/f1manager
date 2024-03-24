@@ -3,7 +3,6 @@ from f1_23_telemetry.packets import *
 from datetime import datetime, timedelta
 import tabulate
 
-# FIXME reorder to add PB at the right place ?
 # Also provide circuit country/name and format the Discord messages directly
 # TODO Maybe filter based on google sheet to only print pilots from current champ
 
@@ -23,7 +22,7 @@ def print_clm(l: list):
         for i in range(len(rnks))
     ]
     print('```')
-    print(tabulate.tabulate(ranking, tablefmt='simple_grid'))
+    print(tabulate.tabulate(ranking, tablefmt='simple_outline'))
     print('```')
 
 listener = TelemetryListener(port=20777, host='192.168.1.52')
