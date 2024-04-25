@@ -4,6 +4,7 @@ from src.media_generation.generators.abstract_generator import AbstractGenerator
 from src.media_generation.generators.calendar_generator import CalendarGenerator
 from src.media_generation.generators.driver_of_the_day_generator import DriverOfTheDayGenerator
 from src.media_generation.generators.grid_generator import GridGenerator
+from src.media_generation.generators.grid_lines_generator import GridLinesGenerator
 from src.media_generation.generators.license_points_generator import LicensePointsGenerator
 from src.media_generation.generators.lineups_generator import LineupGenerator
 from src.media_generation.generators.numbers_generator import NumbersGenerator
@@ -48,6 +49,9 @@ RUN_CONFIGS: Dict[GeneratorType, RunConfig] = {
     ),
     GeneratorType.POLE: RaceRunConfig(
         Generator=PoleGenerator
+    ),
+    GeneratorType.GRID_LINES: RaceRunConfig(
+        Generator=GridLinesGenerator
     ),
     GeneratorType.GRID: RaceRunConfig(
         Generator=GridGenerator

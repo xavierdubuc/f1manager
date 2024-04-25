@@ -6,6 +6,7 @@ class GeneratorType(enum.Enum):
     LINEUP ='lineups'
     POLE = 'pole'
     GRID_VID = 'grid_ribbon'
+    GRID_LINES = 'grid_lines'
     GRID = 'grid'
     RESULTS = 'results'
     DRIVER_OF_THE_DAY = 'driver_of_the_day'
