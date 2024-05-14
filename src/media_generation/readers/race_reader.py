@@ -19,7 +19,7 @@ class RaceReader(Reader):
         race = self._get_race(pilots, teams)
         config = GeneratorConfig(
             type=self.type,
-            output=self.out_filepath or f'./output/{self.type}.png',
+            output=self.out_filepath or f'./output/{self.type.value}.png',
             pilots=pilots,
             teams=teams,
             race=race

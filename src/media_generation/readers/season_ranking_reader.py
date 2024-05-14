@@ -16,7 +16,7 @@ class SeasonRankingReader(AllRacesReader):
         races = self._get_races_details(pilots, teams)
         config = SeasonRankingGeneratorConfig(
             type=self.type,
-            output=self.out_filepath or f'./output/{self.type}.png',
+            output=self.out_filepath or f'./output/{self.type.value}.png',
             pilots=pilots,
             teams=teams,
             races=races

@@ -21,6 +21,6 @@ class CalendarReader(AllRacesReader):
             type=self.type,
             season=self.season,
             races=races,
-            output=self.out_filepath or f'./output/{self.type}.png',
+            output=self.out_filepath or f'./output/{self.type.value}.png',
         )
         return config
