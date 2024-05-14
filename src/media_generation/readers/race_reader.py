@@ -63,8 +63,14 @@ class RaceReader(Reader):
                 replaced_pilot = pilots[replaced_pilot_name]
                 p = pilots.get(pilot_name)
                 if p:
-                    p.team = replaced_pilot.team if replaced_pilot else None
-                    final_lineup_pilots[pilot_name] = p
+                    final_lineup_pilots[pilot_name] = Pilot(
+                        p.name,
+                        replaced_pilot.team if replaced_pilot else None,
+                        p.number,
+                        p.title,
+                        p.reservist,
+                        p.trigram
+                    )
         final_lineup = LineUp(
             pilot_names=list(self.data['F'][:20]),
             pilots=final_lineup_pilots
