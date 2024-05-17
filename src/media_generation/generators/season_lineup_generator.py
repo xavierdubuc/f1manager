@@ -11,28 +11,6 @@ class SeasonLineupGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
         return 'season_lineup'
 
-    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return 200
-
-    def _generate_basic_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
-        img = Image.new('RGB', (width, height), (255, 255, 255))
-
-        bg = self._get_background_image()
-        if bg:
-            with bg:
-                paste(bg.convert('RGB'),img)
-
-        lines_config = self.visual_config.get('lines', {})
-        if lines_config.get('enabled', False):
-            draw_lines_all(img, lines_config['color'], space_between_lines=lines_config['space'], line_width=lines_config['width'])
-
-        return img
-
-    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        return None
-
     def _add_content(self, base_img: PngImageFile):
         main_pilots_objects = {k:p for i, (k, p) in enumerate(self.config.pilots.items()) if i < 20 }
         reservists_objects = {k:p for i, (k, p) in enumerate(self.config.pilots.items()) if i >= 20 }
@@ -42,7 +20,7 @@ class SeasonLineupGenerator(AbstractGenerator):
         else:
             pilots = list(pilots_objects)
         amount_of_pilots = len(pilots)
-        title_height = self._get_visual_title_height()
+        title_height = 200
         title_img = self._get_title_img(base_img.width, title_height)
         title_position = paste(title_img, base_img, top=0)
 

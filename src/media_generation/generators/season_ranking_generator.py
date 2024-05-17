@@ -27,19 +27,6 @@ class SeasonRankingGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
         return 'season_ranking'
 
-    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return 0
-
-    def _generate_basic_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
-        _logger.info(f'Output size is {width}px x {height}px')
-        # FIXME use a BG image ?
-        return Image.new('RGB', (width, height), (255,255,255))
-
-    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        return None
-
     def _add_content(self, base_img: PngImageFile):
         pilot_name_width = self.visual_config['rows']['pilot'].get('width', 240)
         headers_height = self.visual_config['headers'].get('height', 60)

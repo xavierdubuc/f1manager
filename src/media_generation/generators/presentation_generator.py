@@ -11,18 +11,6 @@ class PresentationGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'presentation'
 
-    def _generate_basic_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
-        img = Image.new('RGB', (width, height), (255, 255, 255))
-
-        bg = self._get_background_image()
-        if bg:
-            with bg:
-                paste(bg.convert('RGB'),img)
-
-        return img
-
     def _add_content(self, final: PngImageFile):
         vertical_padding = 20
         left_width = int(0.67 * final.width)

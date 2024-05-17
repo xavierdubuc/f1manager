@@ -24,7 +24,7 @@ class PilotsRankingGenerator(AbstractGenerator):
         return 'pilots_ranking'
 
     def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return 200
+        return 200 # FIXME use custom title mechanism
 
     def _generate_basic_image(self) -> PngImageFile:
         width = self.visual_config['width']

@@ -19,17 +19,7 @@ class CalendarGenerator(AbstractGenerator):
         return 'calendar'
 
     def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return 355
-
-    def _generate_basic_image(self) -> PngImageFile:
-        width = 1080 
-        height = 1080
-        img = Image.new('RGB', (width, height), (255, 255, 255))
-        # draw_lines_all(img, (159, 159, 159), space_between_lines=5, line_width=1)
-        return img
-
-    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        return None
+        return 355 # FIXME use custom title mechanism
 
     def _add_content(self, base_img: PngImageFile):
         title_width = base_img.width

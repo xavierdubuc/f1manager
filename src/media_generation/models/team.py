@@ -33,6 +33,8 @@ class Team:
     pole_line_color: Union[str,tuple] = None
     transparent_color: Union[str,tuple] = None
     card_image_path: str= None
+    driver_of_the_day_hsv_offset: int = None
+    driver_of_the_day_use_grayscale: bool = False
 
     def __post_init__(self):
         if not self.alternate_main_color:
@@ -157,7 +159,7 @@ class Team:
 
     def _get_lineup_pilot_image(self, pilot:"Pilot", font: ImageFont.FreeTypeFont, width:int, height:int, img_height:int, has_long_pseudo:bool=False, text_left_padding:int=0):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
-        pilot_name_img = pilot.get_name_image(font, color=(255,255,255) if not pilot.reservist else (150,150,150))
+        pilot_name_img = pilot.get_name_image(font, color=(255,255,255))
         vertical_shift = 26
         if not has_long_pseudo and '_' in pilot.name:
             vertical_shift = 21
@@ -166,7 +168,7 @@ class Team:
         paste(pilot_name_img, img, top=pilot_name_top, left=pilot_name_left)
 
         # img
-        left_pilot_img = pilot.get_close_up_image(height=img_height)
-        paste(left_pilot_img, img, top=0)
+        pilot_img = pilot.get_close_up_image(height=img_height)
+        paste(pilot_img, img, top=0)
 
         return img

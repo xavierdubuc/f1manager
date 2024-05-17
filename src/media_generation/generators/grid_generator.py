@@ -17,27 +17,6 @@ class GridGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'grid'
 
-    # COMMON TO RESULTSGENERATOR
-    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        if self.visual_config.get('title_height', 0) == 0:
-            return
-        return super()._generate_title_image(base_img)
-
-    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return self.visual_config['title_height']
-
-    def _generate_basic_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
-        _logger.info(f'Output size is {width}px x {height}px')
-        img = Image.new('RGB', (width, height), (255, 255, 255))
-        bg = self._get_background_image()
-        if bg:
-            with bg:
-                bg = bg.resize((width, height))
-                paste(bg.convert('RGB'), img)
-        return img
-
     def _add_content(self, final: PngImageFile):
         left_content_width = self.visual_config.get('left_content_width', 250)
         padding_left = self.visual_config.get('padding_left', 20)

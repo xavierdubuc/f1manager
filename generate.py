@@ -28,7 +28,7 @@ _logger.info(f'\t identifier: {args.identifier}')
 
 # VALIDATE CHAMPIONSHIP
 if args.championship not in CHAMPIONSHIPS:
-    _logger.error(f'Unknown championship "{args.championship}"')
+    _logger.error(f'Unknown championship "{args.championship}", use one of {list(CHAMPIONSHIPS.keys())}')
     exit()
 CHAMPIONSHIP_CONFIG = CHAMPIONSHIPS[args.championship]
 _logger.info(f'Will use "{args.championship}" config')
@@ -45,7 +45,8 @@ _logger.info(f'Season {season} selected')
 try:
     visual_type = GeneratorType(args.type)
 except ValueError:
-    _logger.error(f'Unknown generator type "{args.type}"')
+    _logger.error(f'Unknown generator type "{args.type}", supported ones are below.')
+    _logger.error([g.value for g in GeneratorType])
     exit()
 
 run_config:RunConfig = RUN_CONFIGS[visual_type]

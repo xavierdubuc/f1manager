@@ -13,14 +13,6 @@ class DriverOfTheDayGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'driver_of_the_day'
 
-    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        if self.visual_config.get('title_height', 0) == 0:
-            return
-        return super()._generate_title_image(base_img)
-
-    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return self.visual_config['title_height']
-
     def _generate_basic_image(self) -> PngImageFile:
         width = self.visual_config['width']
         height = self.visual_config['height']
@@ -113,10 +105,13 @@ class DriverOfTheDayGenerator(AbstractRaceGenerator):
             crop_left = (img.width - width) // 2
             crop_top = (img.height - height) // 2
             img = img.crop((crop_left, crop_top, crop_left+width, crop_top+height))
+        driver = self.race.driver_of_the_day
         hsv = img.convert('HSV')
         h,s,v = hsv.split()
-        h = h.point(lambda x:170)
+        h = h.point(lambda x:driver.team.driver_of_the_day_hsv_offset)
         new = Image.merge('HSV', (h,s,v))
+        if driver.team.driver_of_the_day_use_grayscale:
+            new = new.convert('L')
         return new.convert('RGB')
 
     def _get_driver_of_the_day_block_text_img(self, width:int, height:int) -> PngImageFile:

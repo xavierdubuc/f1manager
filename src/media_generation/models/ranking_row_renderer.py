@@ -56,7 +56,12 @@ class RankingRowRenderer:
         pos_right = left_padding + height
 
         # PILOT
-        show_box = not self.ranking_row.has_fastest_lap and not self.ranking_row.is_driver_of_the_day
+        if self.ranking_row.has_fastest_lap:
+            show_box = self.visual_config['fastest_lap']['show_box']
+        elif self.ranking_row.is_driver_of_the_day:
+            show_box = self.visual_config['driver_of_the_day']['show_box']
+        else:
+            show_box = True
         pilot_width = width - pos_right
         name_top = self.visual_config['pilot']['top']
         pilot_image = self.ranking_row.pilot.get_ranking_image(
@@ -67,7 +72,8 @@ class RankingRowRenderer:
         # SPLIT
         if not self.ranking_row.split:
             _logger.warning(f'Missing split for "{self.ranking_row.position}. {self.ranking_row.pilot.name}"')
-        split_img = text(self.split_str, self.fg_color, split_font)
+        split_fg = self.fg_color if not self.has_NT_or_DSQ else self.visual_config['nt'].get('split_foreground', self.fg_color)
+        split_img = text(self.split_str, split_fg, split_font)
         paste(split_img, img, left=width-split_img.width-20)
 
         # TYRES

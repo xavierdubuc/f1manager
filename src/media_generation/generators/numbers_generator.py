@@ -38,26 +38,6 @@ class NumbersGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
         return 'numbers'
 
-    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return 200
-
-    def _generate_basic_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
-        img = Image.new('RGB', (width, height), (255, 255, 255))
-        bg = self._get_background_image()
-        if bg:
-            with bg:
-                paste(bg.convert('RGB'),img)
-
-        lines_config = self.visual_config.get('lines', {})
-        if lines_config.get('enabled', False):
-            draw_lines_all(img, lines_config['color'], space_between_lines=lines_config['space'], line_width=lines_config['width'])
-        return img
-
-    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        return None
-
     def _get_pilot_font(self, name):
         size = self.visual_config['rows']['pilot_name']['font_size']
         if len(name) >= 12:

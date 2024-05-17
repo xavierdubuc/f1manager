@@ -21,7 +21,10 @@ class RaceRenderer:
         date_font=FontFactory.regular(18),
         name_color=(230, 0, 0),
         city_color=(255, 255, 255),
-        date_color=(255, 255, 255)
+        date_color=(255, 255, 255),
+        name_top=10,
+        city_top=10,
+        date_top=0
     ):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
 
@@ -37,7 +40,7 @@ class RaceRenderer:
             (month_img.width, month_img.height+day_img.height+10),
             (0, 0, 0, 0)
         )
-        day_pos = paste(day_img, date_img, top=0)
+        day_pos = paste(day_img, date_img, top=date_top)
         month_pos = paste(month_img, date_img, top=day_pos.bottom+10)
 
         paste(date_img, img, left=0)
@@ -57,7 +60,9 @@ class RaceRenderer:
             name_font=name_font,
             city_font=city_font,
             name_color=name_color,
-            city_color=city_color
+            city_color=city_color,
+            name_top=name_top,
+            city_top=city_top
         )
         paste(circuit_img, img, left=circuit_left)
 
