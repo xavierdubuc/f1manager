@@ -49,6 +49,10 @@ async def run(inter: disnake.ApplicationCommandInteraction, race_number: str, wh
         await VoteDriverOfTheDay.send_initial_message(inter, config.race, channel)
         return
 
+    if what == 'lineups':
+        circuit_country = config.race.circuit.emoji
+        await (channel or inter.followup).send(f'# Line-Up Course {config.race.round} {circuit_country}')
+
     _logger.info('Rendering image...')
     output_filepath = Renderer(run_config).render(
         config, championship_config, season)
