@@ -492,7 +492,6 @@ class Brain:
             if f'best_{sector}_time' in changes:
                 current_best = getattr(self.current_session, f'current_fastest_{sector}')
                 new_time = changes[f'best_{sector}_time'].actual
-                print(sector, participant.name, new_time, current_best, changes)
                 if not current_best or new_time < current_best:
                     setattr(self.current_session, f'current_fastest_{sector}', new_time)
                     self._emit(Event.BEST_SECTOR_UPDATED, session=self.current_session, participant=participant, sector=sector, now=new_time, old=current_best)

@@ -76,9 +76,6 @@ class QualificationSectorsListener(AbstractListener):
         pb_sector3 = lap_record.best_sector3_time
         ob_sector3 = session.current_fastest_sector3
 
-        print('SECTOR 1, CURRENT: ', lap.sector_1_time_minutes, lap.sector_1_time_in_ms, 'PB :', pb_sector1, 'OB :', ob_sector1)
-        print('SECTOR 2, CURRENT: ', lap.sector_2_time_minutes, lap.sector_2_time_in_ms, 'PB :',pb_sector2, 'OB :', ob_sector2)
-        print('SECTOR 3, CURRENT:', lap.sector_3_time_in_ms, 'PB :', pb_sector3, 'OB :', ob_sector3)
         square_repr = lap.get_squared_repr(pb_sector1, ob_sector1, pb_sector2,
                                            ob_sector2, lap_time, pb_sector3, ob_sector3)
         msg = f'`{str(lap.car_position).rjust(2)}` **{participant}** : {square_repr}'
