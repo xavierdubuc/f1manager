@@ -46,6 +46,13 @@ class ResultsGenerator(AbstractRaceGenerator):
         champ_logo_top = champ_config.get('top', False)
         paste(champ_logo, img, left=champ_logo_left, top=champ_logo_top)
 
+        secondary_config = title_config.get('secondary_logo', None)
+        if secondary_config:
+            secondary_logo = self._get_customized_title_secondary_logo_image(base_img, secondary_config)
+            secondary_logo_left = secondary_config.get('left', base_img.width-secondary_logo.width)
+            secondary_logo_top = secondary_config.get('top', False)
+            paste(secondary_logo, img, left=secondary_logo_left, top=secondary_logo_top)
+
         return img
 
     def _get_customized_title_text_image(self,  base_img: PngImageFile, title_config:dict) -> PngImageFile:
@@ -68,12 +75,21 @@ class ResultsGenerator(AbstractRaceGenerator):
         return logo
 
     def _get_customized_title_champ_logo_image(self,  base_img: PngImageFile, config:dict) -> PngImageFile:
-        # F1 23
+        # Champ
         with Image.open(config['path']) as champ:
             if w := config.get('width'):
                 logo = resize(champ, width=w)
             else:
                 logo = resize(champ, height=self._get_visual_title_height())
+        return logo
+
+    def _get_customized_title_secondary_logo_image(self,  base_img: PngImageFile, config:dict) -> PngImageFile:
+        # secondary
+        with Image.open(config['path']) as secondary:
+            if w := config.get('width'):
+                logo = resize(secondary, width=w)
+            else:
+                logo = resize(secondary, height=self._get_visual_title_height())
         return logo
 
     def _add_content(self, final: PngImageFile):

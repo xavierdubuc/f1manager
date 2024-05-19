@@ -67,12 +67,8 @@ class Visual:
         paste(fif, img, left=both_left + fbrt.width + 40)
 
         # Title
-        if self.type == 'results':
-            title = self._get_race_result_title(width//3, height)
-            top = 0
-        elif self.type == 'presentation':
-            title = self._get_race_presentation_title(width//3, height)
-            top = height // 3
+        title = self._get_race_presentation_title(width//3, height)
+        top = height // 3
         left = (width - title.width) // 2 # centered
         img.paste(title, (left, top), title)
 
@@ -82,17 +78,6 @@ class Visual:
             left = (width - f1.width) - 40 # right aligned, with a small padding
             top = (height-f1.height)//2 # centered
             img.paste(f1, (left, top), f1)
-        return img
-
-    def _get_race_result_title(self, width, height):
-        if len(str(self.race.round)) == 1:
-            font_size = 74
-        else:
-            font_size = 70
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-        font = FontFactory.black(font_size)
-        result_word = 'Résultats'
-        paste(text(result_word.upper(), (255,255,255), font), img, top=40)
         return img
 
     def _get_race_presentation_title(self, width, height):
