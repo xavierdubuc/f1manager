@@ -81,6 +81,9 @@ class QualificationSectorsListener(AbstractListener):
         lap_time = lap.last_lap_time_in_ms if previous_lap else None
         delta_to_pole = personal_best_lap - overal_fastest_lap if (overal_fastest_lap and personal_best_lap) else None
         delta_to_pole_str = f' ({self._format_time(delta_to_pole, True)})' if delta_to_pole else ''
+        # current_lap contains the lap of which we are displaying the time
+        # if previous lap is given, then it's that lap because lap is just given
+        # to gain access to "last_lap_time_in_ms" and actual position
         current_lap = previous_lap or lap
         if current_lap.current_lap_invalid:
             details = '🟥🟥🟥 TOUR INVALIDE 🟥🟥🟥'
@@ -125,7 +128,7 @@ class QualificationSectorsListener(AbstractListener):
                 personal_best_lap = lap_time
             personal_best_lap_str = self._format_time(personal_best_lap) if personal_best_lap else '*No time set*'
         msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
-        return self._create_message(msg, participant, lap)
+        return self._create_message(msg, participant, current_lap)
 
     def _create_message(self, content:str, participant: Participant, lap: Lap):
         local_id = f'sectors_{participant.race_number}_lap{lap.index}'
