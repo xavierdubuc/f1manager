@@ -30,8 +30,12 @@ class QualificationSectorsListener(AbstractListener):
             return []
 
         # Only act on last lap and if the last lap should not be ignored
-        last_lap = session.get_current_lap(participant)
+        laps = session.get_laps(participant)
+        last_lap = laps[-1]
         print(last_lap, last_lap.current_lap_time_in_ms)
+        if len(laps) > 1:
+            print(-2, laps[-2], laps[-2].current_lap_time_in_ms)
+
         if self._lap_should_be_ignored(last_lap):
             return []
 
