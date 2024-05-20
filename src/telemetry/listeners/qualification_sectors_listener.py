@@ -33,9 +33,6 @@ class QualificationSectorsListener(AbstractListener):
         # Only act on last lap and if the last lap should not be ignored
         laps = session.get_laps(participant)
         last_lap = laps[-1]
-        print(last_lap, last_lap.current_lap_time_in_ms, lap.last_lap_time_in_ms)
-        if len(laps) > 1:
-            print(-2, laps[-2], laps[-2].current_lap_time_in_ms)
 
         if self._lap_should_be_ignored(last_lap):
             _logger.info(f'[LAP_CREATED] {last_lap} of {participant} should be ignored')
@@ -58,7 +55,6 @@ class QualificationSectorsListener(AbstractListener):
             return []
         
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
-            print('LAP UPDATED INVALID')
             return [self._get_lap_repr(lap, None, lap_record, participant, session)]
 
         if self._lap_should_be_ignored(lap):
@@ -88,7 +84,7 @@ class QualificationSectorsListener(AbstractListener):
         else:
             current_s1 = lap.sector_1_time_in_ms
             current_s2 = lap.sector_2_time_in_ms
-            current_s3 = lap_time
+            current_s3 = (lap_time - current_s1 - current_s2) if lap_time else None
             personal_best_s1 =  lap_record.best_sector1_time
             personal_best_s2 =  lap_record.best_sector2_time
             personal_best_s3 =  lap_record.best_sector3_time
@@ -96,28 +92,34 @@ class QualificationSectorsListener(AbstractListener):
             delta_s1 = current_s1 - personal_best_s1 if (current_s1 and personal_best_s1) else None
             delta_s2 = current_s2 - personal_best_s2 if (current_s2 and personal_best_s2) else None
             delta_s3 = current_s3 - personal_best_s3 if (current_s3 and personal_best_s3) else None
+            delta_to_pb = lap_time - personal_best_lap if (lap_time and personal_best_lap) else None
 
             delta_s1_str = f'+ {self._format_time(delta_s1)}'.rjust(SECTOR_LENGTH) if delta_s1 else ' '*SECTOR_LENGTH
             delta_s2_str = f'+ {self._format_time(delta_s2)}'.rjust(SECTOR_LENGTH) if delta_s2 else ' '*SECTOR_LENGTH
             delta_s3_str = f'+ {self._format_time(delta_s3)}'.rjust(SECTOR_LENGTH) if delta_s3 else ' '*SECTOR_LENGTH
+            delta_to_pb_str = f'+ {self._format_time(delta_to_pb)}'.rjust(SECTOR_LENGTH) if delta_to_pb else ' '*SECTOR_LENGTH
             current_s1_str = (self._format_time(current_s1) if current_s1 else '-:--.---').rjust(SECTOR_LENGTH)
             current_s2_str = (self._format_time(current_s2) if current_s2 else '-:--.---').rjust(SECTOR_LENGTH)
             current_s3_str = (self._format_time(current_s3) if current_s3 else '-:--.---').rjust(SECTOR_LENGTH)
+            full_lap_str = (self._format_time(lap_time) if lap_time else '-:--.---').rjust(SECTOR_LENGTH)
 
             sep = ' '
             elements = [
                 '```',
                 sep.join((
-                    f'LAP {lap.current_lap_num} S1'.rjust(SECTOR_LENGTH),
+                    '    S1'.rjust(SECTOR_LENGTH),
                     '    S2'.rjust(SECTOR_LENGTH),
-                    '    S3'.rjust(SECTOR_LENGTH)
+                    '    S3'.rjust(SECTOR_LENGTH),
+                    f'LAP {lap.current_lap_num}'.rjust(SECTOR_LENGTH),
                 )),
-                sep.join((current_s1_str, current_s2_str,current_s3_str)),
+                sep.join((current_s1_str, current_s2_str,current_s3_str, full_lap_str)),
             ]
             if delta_s1 or delta_s2 or delta_s3:
-                elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str)))
+                elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str)))
             elements.append('```')
             details = '\n'.join(elements)
+            if not personal_best_lap:
+                personal_best_lap = lap_time
         msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap or "NO TIME SET"}{delta_to_pole_str}\n{details}'
         return self._create_message(msg, participant, lap)
 
