@@ -76,7 +76,7 @@ class QualificationSectorsListener(AbstractListener):
         return lap.current_lap_invalid or lap.driver_status != DriverStatus.flying_lap
 
     def _get_lap_repr(self, lap: Lap, lap_record: LapRecord, participant: Participant, session: Session, previous_lap:Lap) -> Message:
-        personal_best_lap = lap_record.best_lap_time
+        personal_best_lap = lap_record.best_lap_time if lap_record else None
         overal_fastest_lap = session.current_fastest_lap
         lap_time = lap.last_lap_time_in_ms if previous_lap else None
         delta_to_pole = personal_best_lap - overal_fastest_lap if (overal_fastest_lap and personal_best_lap) else None
