@@ -120,7 +120,8 @@ class QualificationSectorsListener(AbstractListener):
             details = '\n'.join(elements)
             if not personal_best_lap:
                 personal_best_lap = lap_time
-        msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap or "NO TIME SET"}{delta_to_pole_str}\n{details}'
+            personal_best_lap_str = self._format_time(personal_best_lap) if personal_best_lap else '*No time set*'
+        msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
         return self._create_message(msg, participant, lap)
 
     def _create_message(self, content:str, participant: Participant, lap: Lap):
