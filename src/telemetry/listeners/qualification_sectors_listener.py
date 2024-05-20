@@ -38,6 +38,7 @@ class QualificationSectorsListener(AbstractListener):
             print(-2, laps[-2], laps[-2].current_lap_time_in_ms)
 
         if self._lap_should_be_ignored(last_lap):
+            _logger.info(f'[LAP_CREATED] {last_lap} of {participant} should be ignored')
             return []
 
         # Send last lap status only if last lap is completed and we have last lap sectors time
@@ -56,11 +57,13 @@ class QualificationSectorsListener(AbstractListener):
         
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
             return [self._get_lap_repr(lap, None, lap_record, participant, session)]
+
         if self._lap_should_be_ignored(lap):
-            _logger.info(f'[LAP_UPDATED] {lap} of {participant} should be ignored')
             return []
+
         if 'sector_1_time_in_ms' not in changes and 'sector_2_time_in_ms' not in changes:
             return []
+
         return [self._get_lap_repr(lap, None, lap_record, participant, session)]
 
     def _get_lap_record(self, participant: Participant, session: Session) -> bool:
