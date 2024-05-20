@@ -81,11 +81,12 @@ class QualificationSectorsListener(AbstractListener):
         lap_time = lap.last_lap_time_in_ms if previous_lap else None
         delta_to_pole = personal_best_lap - overal_fastest_lap if (overal_fastest_lap and personal_best_lap) else None
         delta_to_pole_str = f' ({self._format_time(delta_to_pole, True)})' if delta_to_pole else ''
-        if lap.current_lap_invalid:
+        current_lap = previous_lap or lap
+        if current_lap.current_lap_invalid:
             details = '🟥🟥🟥 TOUR INVALIDE 🟥🟥🟥'
         else:
-            current_s1 = lap.sector_1_time_in_ms
-            current_s2 = lap.sector_2_time_in_ms
+            current_s1 = current_lap.sector_1_time_in_ms
+            current_s2 = current_lap.sector_2_time_in_ms
             current_s3 = (lap_time - current_s1 - current_s2) if lap_time else None
             personal_best_s1 =  lap_record.best_sector1_time
             personal_best_s2 =  lap_record.best_sector2_time
@@ -112,7 +113,7 @@ class QualificationSectorsListener(AbstractListener):
                     '    S1'.rjust(SECTOR_LENGTH),
                     '    S2'.rjust(SECTOR_LENGTH),
                     '    S3'.rjust(SECTOR_LENGTH),
-                    f'LAP {lap.current_lap_num}'.rjust(SECTOR_LENGTH),
+                    f'LAP {current_lap.current_lap_num}'.rjust(SECTOR_LENGTH),
                 )),
                 sep.join((current_s1_str, current_s2_str,current_s3_str, full_lap_str)),
             ]
@@ -127,7 +128,7 @@ class QualificationSectorsListener(AbstractListener):
         return self._create_message(msg, participant, lap)
 
     def _create_message(self, content:str, participant: Participant, lap: Lap):
-        local_id = f'sectors_{participant.race_number}_lap{lap.current_lap_num}'
+        local_id = f'sectors_{participant.race_number}_lap{lap.index}'
         print(local_id)
         return Message(content=content, channel=Channel.PACE, local_id=local_id)
 
