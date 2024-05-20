@@ -92,10 +92,14 @@ class QualificationSectorsListener(AbstractListener):
             sep = ' '
             elements = [
                 '```',
-                sep.join(('    S1    ', '    S2    ', '    S3    ')),
+                sep.join((
+                    f'LAP {lap.current_lap_num} S1'.rjust(SECTOR_LENGTH),
+                    '    S2'.rjust(SECTOR_LENGTH),
+                    '    S3'.rjust(SECTOR_LENGTH)
+                )),
                 sep.join((current_s1_str, current_s2_str,current_s3_str)),
             ]
-            if delta_s1_str or delta_s2_str or delta_s3_str:
+            if delta_s1 or delta_s2 or delta_s3:
                 elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str)))
             elements.append('```')
             details = '\n'.join(elements)
@@ -104,6 +108,7 @@ class QualificationSectorsListener(AbstractListener):
 
     def _create_message(self, content:str, participant: Participant, lap: Lap):
         local_id = f'sectors_{participant.race_number}_lap{lap.current_lap_num}'
+        print(local_id)
         return Message(content=content, channel=Channel.PACE, local_id=local_id)
 
     def _format_time(self, milliseconds:int):
