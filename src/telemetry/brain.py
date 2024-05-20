@@ -157,12 +157,12 @@ class Brain:
 
         channel = guild.get_channel(discord_config['chann'])
         if not channel:
-            _logger.error(f'Channel "{discord_config["chann"]}" not found, message not sent')
             for c in guild.channels:
                 if c.name == discord_config['chann']:
                     channel = c
                     break
             if not channel:
+                _logger.error(f'Channel "{discord_config["chann"]}" not found, message not sent')
                 return
 
         where = channel
