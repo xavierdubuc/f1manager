@@ -93,7 +93,7 @@ class QualificationSectorsListener(AbstractListener):
                 sep.join((delta_s1_str, delta_s2_str, delta_s3_str)),
                 '```'
             ))
-        msg = f'#`{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap or "NO TIME SET"}{delta_to_pole_str}\n{details}'
+        msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap or "NO TIME SET"}{delta_to_pole_str}\n{details}'
         return self._create_message(msg, participant, lap)
 
     def _create_message(self, content:str, participant: Participant, lap: Lap):
