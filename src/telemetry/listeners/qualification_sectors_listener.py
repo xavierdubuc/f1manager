@@ -56,7 +56,7 @@ class QualificationSectorsListener(AbstractListener):
             return []
         
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
-            return [self._get_lap_repr(lap, None, lap_record, participant, session)]
+            return [self._get_lap_repr(lap, lap_record, participant, session)]
 
         if self._lap_should_be_ignored(lap):
             return []
@@ -65,7 +65,7 @@ class QualificationSectorsListener(AbstractListener):
             return []
 
         print('LAP_UPDATED', changes)
-        return [self._get_lap_repr(lap, None, lap_record, participant, session)]
+        return [self._get_lap_repr(lap, lap_record, participant, session)]
 
     def _get_lap_record(self, participant: Participant, session: Session) -> bool:
         if not session.session_type.is_qualification():
@@ -75,7 +75,7 @@ class QualificationSectorsListener(AbstractListener):
     def _lap_should_be_ignored(self, lap: Lap) -> bool:
         return lap.current_lap_invalid or lap.driver_status != DriverStatus.flying_lap
 
-    def _get_lap_repr(self, lap: Lap, lap_record: LapRecord, participant: Participant, session: Session, previous_lap:Lap) -> Message:
+    def _get_lap_repr(self, lap: Lap, lap_record: LapRecord, participant: Participant, session: Session, previous_lap: Lap = None) -> Message:
         personal_best_lap = lap_record.best_lap_time if lap_record else None
         overal_fastest_lap = session.current_fastest_lap
         lap_time = lap.last_lap_time_in_ms if previous_lap else None
