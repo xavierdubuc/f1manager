@@ -82,14 +82,17 @@ class QualificationSectorsListener(AbstractListener):
             delta_s2 = current_s2 - personal_best_s2 if (current_s2 and personal_best_s2) else None
             delta_s3 = current_s3 - personal_best_s3 if (current_s3 and personal_best_s3) else None
 
-            delta_s1_str = f'+ {delta_s1}'.rjust(SECTOR_LENGTH) if delta_s1 else ' '*SECTOR_LENGTH
-            delta_s2_str = f'+ {delta_s2}'.rjust(SECTOR_LENGTH) if delta_s2 else ' '*SECTOR_LENGTH
-            delta_s3_str = f'+ {delta_s3}'.rjust(SECTOR_LENGTH) if delta_s3 else ' '*SECTOR_LENGTH
+            delta_s1_str = f'+ {self._format_time(delta_s1)}'.rjust(SECTOR_LENGTH) if delta_s1 else ' '*SECTOR_LENGTH
+            delta_s2_str = f'+ {self._format_time(delta_s2)}'.rjust(SECTOR_LENGTH) if delta_s2 else ' '*SECTOR_LENGTH
+            delta_s3_str = f'+ {self._format_time(delta_s3)}'.rjust(SECTOR_LENGTH) if delta_s3 else ' '*SECTOR_LENGTH
+            current_s1_str = (self._format_time(current_s1) if current_s1 else '-:--.---').rjust(SECTOR_LENGTH)
+            current_s2_str = (self._format_time(current_s2) if current_s2 else '-:--.---').rjust(SECTOR_LENGTH)
+            current_s3_str = (self._format_time(current_s3) if current_s3 else '-:--.---').rjust(SECTOR_LENGTH)
 
             sep = ' '
             details = '\n'.join((
                 '```',
-                sep.join((current_s1.rjust(SECTOR_LENGTH), current_s2.rjust(SECTOR_LENGTH),current_s3.rjust(SECTOR_LENGTH))),
+                sep.join((current_s1_str, current_s2_str,current_s3_str)),
                 sep.join((delta_s1_str, delta_s2_str, delta_s3_str)),
                 '```'
             ))
@@ -99,3 +102,20 @@ class QualificationSectorsListener(AbstractListener):
     def _create_message(self, content:str, participant: Participant, lap: Lap):
         local_id = f'sectors_{participant.race_number}_lap{lap.current_lap_num}'
         return Message(content=content, channel=Channel.PACE, local_id=local_id)
+
+    def _format_time(self, milliseconds:int):
+        milliseconds = abs(milliseconds)
+        if milliseconds == 0:
+            return '0.000'
+
+        full_seconds = milliseconds // 1000
+        minutes = full_seconds // 60
+        minutes_str = f'{minutes}:' if minutes > 0 else ''
+
+        seconds = full_seconds % 60
+        seconds_str = str(seconds).zfill(2) if minutes > 0 else seconds
+
+        milliseconds = milliseconds % 1000
+        milliseconds_str = str(milliseconds).zfill(3)
+
+        return f'{minutes_str}{seconds_str}.{milliseconds_str}'
