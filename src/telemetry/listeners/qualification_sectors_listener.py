@@ -73,7 +73,7 @@ class QualificationSectorsListener(AbstractListener):
         else:
             current_s1 = lap.sector_1_time_in_ms
             current_s2 = lap.sector_2_time_in_ms
-            current_s3 = lap.sector_3_time_in_ms
+            current_s3 = lap_time
             personal_best_s1 =  lap_record.best_sector1_time
             personal_best_s2 =  lap_record.best_sector2_time
             personal_best_s3 =  lap_record.best_sector3_time
