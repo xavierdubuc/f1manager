@@ -77,6 +77,9 @@ class QualificationSectorsListener(AbstractListener):
         # if previous lap is given, then it's that lap because lap is just given
         # to gain access to "last_lap_time_in_ms" and actual position
         current_lap = previous_lap or lap
+        if not personal_best_lap:
+            personal_best_lap = lap_time
+        personal_best_lap_str = self._format_time(personal_best_lap) if personal_best_lap else '*No time set*'
         if current_lap.current_lap_invalid:
             details = '🟥🟥🟥 TOUR INVALIDE 🟥🟥🟥'
         else:
@@ -116,9 +119,6 @@ class QualificationSectorsListener(AbstractListener):
                 elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str)))
             elements.append('```')
             details = '\n'.join(elements)
-            if not personal_best_lap:
-                personal_best_lap = lap_time
-            personal_best_lap_str = self._format_time(personal_best_lap) if personal_best_lap else '*No time set*'
         msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
         return self._create_message(msg, participant, current_lap)
 
