@@ -64,6 +64,8 @@ class QualificationSectorsListener(AbstractListener):
         return lap.current_lap_invalid or lap.driver_status != DriverStatus.flying_lap
 
     def _get_lap_repr(self, lap: Lap, lap_time: int, lap_record: LapRecord, participant: Participant, session: Session) -> Message:
+        personal_best_lap = lap_record.best_lap_time
+        delta_to_pole_str = f' (+ {delta_to_pole})' if delta_to_pole else ''
         if lap.current_lap_invalid:
             details = '🟥🟥🟥 TOUR INVALIDE 🟥🟥🟥'
         else:
@@ -73,7 +75,6 @@ class QualificationSectorsListener(AbstractListener):
             personal_best_s1 =  lap_record.best_sector1_time
             personal_best_s2 =  lap_record.best_sector2_time
             personal_best_s3 =  lap_record.best_sector3_time
-            personal_best_lap = lap_record.best_lap_time
             overal_fastest_lap = session.current_fastest_lap
 
             delta_to_pole = personal_best_lap - overal_fastest_lap if (overal_fastest_lap and personal_best_lap) else None
@@ -81,7 +82,6 @@ class QualificationSectorsListener(AbstractListener):
             delta_s2 = current_s2 - personal_best_s2 if (current_s2 and personal_best_s2) else None
             delta_s3 = current_s3 - personal_best_s3 if (current_s3 and personal_best_s3) else None
 
-            delta_to_pole_str = f' (+ {delta_to_pole})' if delta_to_pole else ''
             delta_s1_str = f'+ {delta_s1}'.rjust(SECTOR_LENGTH) if delta_s1 else ' '*SECTOR_LENGTH
             delta_s2_str = f'+ {delta_s2}'.rjust(SECTOR_LENGTH) if delta_s2 else ' '*SECTOR_LENGTH
             delta_s3_str = f'+ {delta_s3}'.rjust(SECTOR_LENGTH) if delta_s3 else ' '*SECTOR_LENGTH
