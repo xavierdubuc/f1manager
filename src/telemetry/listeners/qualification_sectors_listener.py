@@ -92,7 +92,7 @@ class QualificationSectorsListener(AbstractListener):
             sep = ' '
             elements = [
                 '```',
-                sep.join('    S1    ', '    S2    ', '    S3    '),
+                sep.join(('    S1    ', '    S2    ', '    S3    ')),
                 sep.join((current_s1_str, current_s2_str,current_s3_str)),
             ]
             if delta_s1_str or delta_s2_str or delta_s3_str:
