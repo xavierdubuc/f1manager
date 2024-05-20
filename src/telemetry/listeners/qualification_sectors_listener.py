@@ -43,6 +43,7 @@ class QualificationSectorsListener(AbstractListener):
             return []
 
         _logger.info(f'LAP_CREATED {last_lap}')
+        print(last_lap.car_position, lap.car_position)
         return [self._get_lap_repr(
             last_lap, lap.last_lap_time_in_ms, lap_record, participant, session
         )]
@@ -78,7 +79,7 @@ class QualificationSectorsListener(AbstractListener):
         personal_best_lap = lap_record.best_lap_time
         overal_fastest_lap = session.current_fastest_lap
         delta_to_pole = personal_best_lap - overal_fastest_lap if (overal_fastest_lap and personal_best_lap) else None
-        delta_to_pole_str = f' (+ {delta_to_pole})' if delta_to_pole else ''
+        delta_to_pole_str = f' ({self._format_time(delta_to_pole, True)})' if delta_to_pole else ''
         if lap.current_lap_invalid:
             details = '🟥🟥🟥 TOUR INVALIDE 🟥🟥🟥'
         else:
@@ -94,10 +95,10 @@ class QualificationSectorsListener(AbstractListener):
             delta_s3 = current_s3 - personal_best_s3 if (current_s3 and personal_best_s3) else None
             delta_to_pb = lap_time - personal_best_lap if (lap_time and personal_best_lap) else None
 
-            delta_s1_str = f'+ {self._format_time(delta_s1)}'.rjust(SECTOR_LENGTH) if delta_s1 else ' '*SECTOR_LENGTH
-            delta_s2_str = f'+ {self._format_time(delta_s2)}'.rjust(SECTOR_LENGTH) if delta_s2 else ' '*SECTOR_LENGTH
-            delta_s3_str = f'+ {self._format_time(delta_s3)}'.rjust(SECTOR_LENGTH) if delta_s3 else ' '*SECTOR_LENGTH
-            delta_to_pb_str = f'+ {self._format_time(delta_to_pb)}'.rjust(SECTOR_LENGTH) if delta_to_pb else ' '*SECTOR_LENGTH
+            delta_s1_str = self._format_time(delta_s1, True).rjust(SECTOR_LENGTH) if delta_s1 else ' '*SECTOR_LENGTH
+            delta_s2_str = self._format_time(delta_s2, True).rjust(SECTOR_LENGTH) if delta_s2 else ' '*SECTOR_LENGTH
+            delta_s3_str = self._format_time(delta_s3, True).rjust(SECTOR_LENGTH) if delta_s3 else ' '*SECTOR_LENGTH
+            delta_to_pb_str = self._format_time(delta_to_pb, True).rjust(SECTOR_LENGTH) if delta_to_pb else ' '*SECTOR_LENGTH
             current_s1_str = (self._format_time(current_s1) if current_s1 else '-:--.---').rjust(SECTOR_LENGTH)
             current_s2_str = (self._format_time(current_s2) if current_s2 else '-:--.---').rjust(SECTOR_LENGTH)
             current_s3_str = (self._format_time(current_s3) if current_s3 else '-:--.---').rjust(SECTOR_LENGTH)
@@ -129,7 +130,7 @@ class QualificationSectorsListener(AbstractListener):
         print(local_id)
         return Message(content=content, channel=Channel.PACE, local_id=local_id)
 
-    def _format_time(self, milliseconds:int):
+    def _format_time(self, milliseconds:int, is_delta=False):
         milliseconds = abs(milliseconds)
         if milliseconds == 0:
             return '0.000'
@@ -143,5 +144,7 @@ class QualificationSectorsListener(AbstractListener):
 
         milliseconds = milliseconds % 1000
         milliseconds_str = str(milliseconds).zfill(3)
-
-        return f'{minutes_str}{seconds_str}.{milliseconds_str}'
+ 
+        if not is_delta:
+            return f'{minutes_str}{seconds_str}.{milliseconds_str}'
+        return f'{"-" if milliseconds < 0 else "+"} {minutes_str}{seconds_str}.{milliseconds_str}'
