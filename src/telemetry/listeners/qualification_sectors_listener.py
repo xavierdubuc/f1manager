@@ -45,7 +45,7 @@ class QualificationSectorsListener(AbstractListener):
         _logger.info(f'LAP_CREATED {last_lap}')
         print(last_lap.car_position, lap.car_position) # FIXME we should use lap.car_position
         return [self._get_lap_repr(
-            last_lap, lap.last_lap_time_in_ms, lap_record, participant, session
+            lap, lap_record, participant, session, last_lap
         )]
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:        
@@ -75,9 +75,10 @@ class QualificationSectorsListener(AbstractListener):
     def _lap_should_be_ignored(self, lap: Lap) -> bool:
         return lap.current_lap_invalid or lap.driver_status != DriverStatus.flying_lap
 
-    def _get_lap_repr(self, lap: Lap, lap_time: int, lap_record: LapRecord, participant: Participant, session: Session) -> Message:
+    def _get_lap_repr(self, lap: Lap, lap_record: LapRecord, participant: Participant, session: Session, previous_lap:Lap) -> Message:
         personal_best_lap = lap_record.best_lap_time
         overal_fastest_lap = session.current_fastest_lap
+        lap_time = lap.last_lap_time_in_ms if previous_lap else None
         delta_to_pole = personal_best_lap - overal_fastest_lap if (overal_fastest_lap and personal_best_lap) else None
         delta_to_pole_str = f' ({self._format_time(delta_to_pole, True)})' if delta_to_pole else ''
         if lap.current_lap_invalid:
