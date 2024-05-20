@@ -90,13 +90,15 @@ class QualificationSectorsListener(AbstractListener):
             current_s3_str = (self._format_time(current_s3) if current_s3 else '-:--.---').rjust(SECTOR_LENGTH)
 
             sep = ' '
-            details = '\n'.join((
+            elements = [
                 '```',
                 sep.join('    S1    ', '    S2    ', '    S3    '),
                 sep.join((current_s1_str, current_s2_str,current_s3_str)),
-                sep.join((delta_s1_str, delta_s2_str, delta_s3_str)),
-                '```'
-            ))
+            ]
+            if delta_s1_str or delta_s2_str or delta_s3_str:
+                elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str)))
+            elements.append('```')
+            details = '\n'.join(elements)
         msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap or "NO TIME SET"}{delta_to_pole_str}\n{details}'
         return self._create_message(msg, participant, lap)
 
