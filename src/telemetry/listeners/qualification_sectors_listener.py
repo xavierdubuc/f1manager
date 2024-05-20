@@ -43,7 +43,7 @@ class QualificationSectorsListener(AbstractListener):
             return []
 
         _logger.info(f'LAP_CREATED {last_lap}')
-        print(last_lap.car_position, lap.car_position)
+        print(last_lap.car_position, lap.car_position) # FIXME we should use lap.car_position
         return [self._get_lap_repr(
             last_lap, lap.last_lap_time_in_ms, lap_record, participant, session
         )]
@@ -130,8 +130,8 @@ class QualificationSectorsListener(AbstractListener):
         print(local_id)
         return Message(content=content, channel=Channel.PACE, local_id=local_id)
 
-    def _format_time(self, milliseconds:int, is_delta=False):
-        milliseconds = abs(milliseconds)
+    def _format_time(self, signed_milliseconds:int, is_delta=False):
+        milliseconds = abs(signed_milliseconds)
         if milliseconds == 0:
             return '0.000'
 
@@ -147,4 +147,4 @@ class QualificationSectorsListener(AbstractListener):
  
         if not is_delta:
             return f'{minutes_str}{seconds_str}.{milliseconds_str}'
-        return f'{"-" if milliseconds < 0 else "+"} {minutes_str}{seconds_str}.{milliseconds_str}'
+        return f'{"-" if signed_milliseconds < 0 else "+"} {minutes_str}{seconds_str}.{milliseconds_str}'
