@@ -48,7 +48,7 @@ class QualificationSectorsListener(AbstractListener):
             lap, lap_record, participant, session, last_lap
         )]
 
-    def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:        
+    def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         # Only act if session is qualif and we have a lap record object
         lap_record = session.get_lap_record(participant)
         if not lap_record:
@@ -73,7 +73,7 @@ class QualificationSectorsListener(AbstractListener):
         return session.get_lap_record(participant)
 
     def _lap_should_be_ignored(self, lap: Lap) -> bool:
-        return lap.current_lap_invalid or lap.driver_status != DriverStatus.flying_lap
+        return lap.current_lap_invalid or lap.driver_status != DriverStatus.flying_lap or not lap.result_status.is_still_in_the_race()
 
     def _get_lap_repr(self, lap: Lap, lap_record: LapRecord, participant: Participant, session: Session, previous_lap: Lap = None) -> Message:
         personal_best_lap = lap_record.best_lap_time if lap_record else None
@@ -120,7 +120,7 @@ class QualificationSectorsListener(AbstractListener):
                 )),
                 sep.join((current_s1_str, current_s2_str,current_s3_str, full_lap_str)),
             ]
-            if delta_s1 or delta_s2 or delta_s3:
+            if delta_s1 or delta_s2 or delta_s3 or delta_to_pb_str:
                 elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str)))
             elements.append('```')
             details = '\n'.join(elements)
