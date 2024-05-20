@@ -24,6 +24,7 @@ from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            Q3_RANKING_RANGE, QUALI_RANKING_RANGE,
                            RACE_RANKING_RANGE)
 
+from src.telemetry.models.lap import Lap
 from src.gsheet.gsheet import GSheet
 from src.telemetry.event import Event
 
@@ -423,7 +424,7 @@ class Brain:
                 car_last_lap = car_laps[-1] if car_laps else None
 
                 # Same lap
-                if car_last_lap and car_last_lap.current_lap_num == packet_data.current_lap_num:
+                if self._same_lap(car_last_lap, packet_data):
                     changes = LapManager.update(car_last_lap, packet_data)
                     if changes:
                         self._emit(Event.LAP_UPDATED, lap=car_last_lap, changes=changes, participant=participant, session=self.current_session)
@@ -441,6 +442,14 @@ class Brain:
                     self._emit(Event.LAP_START_CREATED, lap=lap_start,
                                previous_lap=previous_lap,participant=participant,
                                session=self.current_session)
+
+    def _same_lap(self, lap:Lap, packet_data:PacketLapData):
+        if not lap:
+            return False
+        return (
+            lap.current_lap_num == packet_data.current_lap_num
+            and not (lap.sector == 2 and packet_data.sector == 0)
+        )
 
     """
     @emits CAR_STATUS_CREATED
