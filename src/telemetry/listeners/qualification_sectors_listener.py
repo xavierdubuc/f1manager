@@ -27,7 +27,6 @@ class QualificationSectorsListener(AbstractListener):
         # Only act if session is qualif and we have a lap record object
         lap_record = self._get_lap_record(participant, session)
         if not lap_record:
-            _logger.info(f'[LAP_CREATED] No lap record found for {participant}')
             return []
 
         # Only act on last lap and if the last lap should not be ignored
@@ -35,24 +34,18 @@ class QualificationSectorsListener(AbstractListener):
         last_lap = laps[-1]
 
         if self._lap_should_be_ignored(last_lap):
-            _logger.info(f'[LAP_CREATED] {last_lap} of {participant} should be ignored')
             return []
 
         # Send last lap status only if last lap is completed and we have last lap sectors time
         if not lap.last_lap_time_in_ms or not last_lap.sector_1_time_in_ms or not last_lap.sector_2_time_in_ms:
             return []
 
-        _logger.info(f'LAP_CREATED {last_lap}')
-        print(last_lap.car_position, lap.car_position) # FIXME we should use lap.car_position
-        return [self._get_lap_repr(
-            lap, lap_record, participant, session, last_lap
-        )]
+        return [self._get_lap_repr(lap, lap_record, participant, session, last_lap)]
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         # Only act if session is qualif and we have a lap record object
         lap_record = session.get_lap_record(participant)
         if not lap_record:
-            _logger.info(f'[LAP_UPDATED] No lap record found for {participant}')
             return []
         
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
@@ -64,7 +57,6 @@ class QualificationSectorsListener(AbstractListener):
         if 'sector_1_time_in_ms' not in changes and 'sector_2_time_in_ms' not in changes:
             return []
 
-        print('LAP_UPDATED', changes)
         return [self._get_lap_repr(lap, lap_record, participant, session)]
 
     def _get_lap_record(self, participant: Participant, session: Session) -> bool:
@@ -132,7 +124,6 @@ class QualificationSectorsListener(AbstractListener):
 
     def _create_message(self, content:str, participant: Participant, lap: Lap):
         local_id = f'sectors_{participant.race_number}_lap{lap.index}'
-        print(local_id)
         return Message(content=content, channel=Channel.PACE, local_id=local_id)
 
     def _format_time(self, signed_milliseconds:int, is_delta=False):
