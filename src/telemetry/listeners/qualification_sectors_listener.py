@@ -88,6 +88,9 @@ class QualificationSectorsListener(AbstractListener):
             personal_best_s3 =  lap_record.best_sector3_time
 
             delta_s1 = current_s1 - personal_best_s1 if (current_s1 and personal_best_s1) else None
+            print(personal_best_s1)
+            print(personal_best_s2)
+            print(personal_best_s3)
             delta_s2 = current_s2 - personal_best_s2 if (current_s2 and personal_best_s2) else None
             delta_s3 = current_s3 - personal_best_s3 if (current_s3 and personal_best_s3) else None
             delta_to_pb = lap_time - personal_best_lap if (lap_time and personal_best_lap) else None
