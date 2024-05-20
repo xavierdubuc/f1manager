@@ -173,7 +173,7 @@ class Brain:
         _logger.info(f'Message sent to "{guild.name}/#{channel.name}"')
         
         self.bot.loop.create_task(self._send(where, msg))
-        print(asyncio.all_tasks(self.bot.loop))
+        print(f'{len(asyncio.all_tasks(self.bot.loop))} tasks waiting')
 
     async def _send(self, channel:disnake.TextChannel, msg:Message, *args, **kwargs):
         message = False
