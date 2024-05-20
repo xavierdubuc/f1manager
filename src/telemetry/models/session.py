@@ -1,8 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import List
+from typing import Dict, List
 from src.telemetry.models.car_status import CarStatus
 from src.telemetry.models.car_setup import CarSetup
+from disnake import Message
 
 from src.telemetry.models.lap_record import LapRecord
 
@@ -84,6 +85,7 @@ class Session:
     current_fastest_sector1: int = None # in ms
     current_fastest_sector2: int = None # in ms
     current_fastest_sector3: int = None # in ms
+    sent_messages: Dict[str, Message] = field(default_factory=dict)
 
     def __eq__(self, other):
         if type(self) != type(other):

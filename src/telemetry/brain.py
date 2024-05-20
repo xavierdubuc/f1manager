@@ -169,11 +169,32 @@ class Brain:
             where = channel.threads[-1]
 
         _logger.info(f'Message sent to "{guild.name}/#{channel.name}"')
+        
+        self.bot.loop.create_task(self._send(where, msg))
+
+    async def _send(self, channel:disnake.TextChannel, msg:Message, *args, **kwargs):
+        message = False
+        if msg.local_id:
+            message = self.current_session.sent_messages.get(msg.local_id)
+            if not message:
+                _logger.info(f'Message with local id {msg.local_id} not found, sending a new one')
+        kwargs = {'content': msg.get_content()}
+
+        # FILE HANDLING
         if msg.file_path:
             with open(msg.file_path, 'rb') as f:
                 picture = disnake.File(f)
-                self.bot.loop.create_task(where.send(msg.get_content(), file=picture))
-        self.bot.loop.create_task(where.send(msg.get_content()))
+                kwargs['file'] = picture
+
+        # EDITION
+        if message:
+            return await message.edit(**kwargs)
+
+        # CREATION
+        message = await channel.send(**kwargs)
+        if msg.local_id:
+            self.current_session.sent_messages[msg.local_id] = message
+        return message
 
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')

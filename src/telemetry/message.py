@@ -22,6 +22,8 @@ class Message:
     content: str = None
     channel: Channel = Channel.DEFAULT
     file_path: str = None
+    id: int = None
+    local_id: str = None
 
     def get_content(self, force_full=False):
         if force_full or len(self.content) <= 2000:
