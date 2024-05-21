@@ -40,6 +40,8 @@ class BestLapTimeListener(AbstractListener):
             else:
                 formatted_difference = ''
             session.current_fastest_lap = best_lap_time
+            session.current_fastest_lap_driver = participant
+            session.current_fastest_lap_lap = session.current_lap
             msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪 `{position}` {participant}  ` {formatted_lap_time}{formatted_difference}`'
         else:
             if changes["best_lap_time"].old:

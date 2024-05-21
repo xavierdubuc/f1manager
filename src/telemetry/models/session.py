@@ -82,6 +82,9 @@ class Session:
     car_statuses: List[CarStatus] = None
     car_setups: List[CarSetup] = None
     current_fastest_lap: int = None # in ms
+    current_fastest_lap_driver: Participant = None
+    current_fastest_lap_lap: int = None
+    current_lap: int = None
     current_fastest_sector1: int = None # in ms
     current_fastest_sector2: int = None # in ms
     current_fastest_sector3: int = None # in ms

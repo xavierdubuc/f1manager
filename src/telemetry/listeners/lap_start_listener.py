@@ -23,5 +23,6 @@ class LapStartListener(AbstractListener):
     def _on_lap_created(self, lap: Lap, participant: Participant, session: Session) -> List[Message]:
         if session.session_type.is_race() and lap.car_position == 1:
             msg = f'# {lap.get_lap_num_title(session.total_laps)}'
+            session.current_lap = lap.current_lap_num
             return [Message(content=msg, channel=Channel.BROADCAST)]
         return []

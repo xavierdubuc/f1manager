@@ -23,7 +23,8 @@ from tabulate import tabulate
 
 from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            Q3_RANKING_RANGE, QUALI_RANKING_RANGE,
-                           RACE_RANKING_RANGE)
+                           RACE_RANKING_RANGE, FASTEST_LAP_PILOT_CELL,
+                           FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL)
 
 from src.telemetry.models.lap import Lap
 from src.gsheet.gsheet import GSheet
@@ -541,6 +542,15 @@ class Brain:
 
         if session.session_type.is_race():
             range = RACE_RANKING_RANGE
+            if session.current_fastest_lap:
+                _logger.info('Writing fastest lap time in sheet ...')
+                g.set_sheet_values(season['sheet'], FASTEST_LAP_TIME_CELL, session._format_time(session.current_fastest_lap))
+            if session.current_fastest_lap_driver:
+                _logger.info('Writing fastest lap driver in sheet ...')
+                g.set_sheet_values(season['sheet'], FASTEST_LAP_PILOT_CELL, str(session.current_fastest_lap_driver))
+            if session.current_fastest_lap_lap:
+                _logger.info('Writing fastest lap # in sheet ...')
+                g.set_sheet_values(season['sheet'], FASTEST_LAP_LAP_CELL, session.current_fastest_lap_lap)
         elif session.session_type.is_qualification():
             if session.session_type == SessionType.q1:
                 session_type_str = 'Q1'
