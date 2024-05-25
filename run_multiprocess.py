@@ -5,7 +5,7 @@ from config.config import discord_bot_token, CHAMPIONSHIPS
 from bot import bot
 
 import logging
-from f1manager.src.telemetry.brain import Brain
+from src.telemetry.brain import Brain
 from src.telemetry.telemetry_command import Command
 from pprint import pformat
 
