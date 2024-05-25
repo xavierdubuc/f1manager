@@ -1,9 +1,8 @@
 import logging
 from typing import Dict, Tuple
 import disnake
-from disnake.ext import commands, tasks
-from twitchAPI.twitch import Twitch
-from datetime import datetime
+from disnake.ext import commands
+from src.bot.cogs.twitch_cog import TwitchCog
 from src.bot.cogs.telemetry_cog import TelemetryCog
 from src.media_generation.generators.pilot_generator import PublicException
 from src.bot.vignebot import Vignebot
@@ -18,8 +17,6 @@ import src.bot.rankings_command as RankingCommand
 
 from src.media_generation.data import teams_idx
 from config import DISCORDS
-from config import twitch_app_id, twitch_app_secret
-from src.media_generation.run_config import RUN_CONFIGS
 
 logging.basicConfig(
     level=logging.INFO,
@@ -53,42 +50,10 @@ IS_LIVE = {}
 ############
 
 # SEND MESSAGES FROM TELEMETRY
-
 bot.add_cog(TelemetryCog(bot))
 
 # TWITCH
-
-async def _check_twitch_status(bot: commands.InteractionBot, guild_id: int, channel_id: int):
-    twitch = await Twitch(twitch_app_id, twitch_app_secret)
-    _logger.info('Executing Twitch status check...')
-    treated = {}
-    async for stream in twitch.get_streams(user_id=WATCHED_TWITCH_IDS):
-        _logger.info(f'{stream.user_name} is live !')
-        treated[stream.user_id] = stream.user_name
-        if stream.user_id not in IS_LIVE:
-            IS_LIVE[stream.user_id] = stream.user_name
-            ctx = bot.get_guild(guild_id).get_channel(channel_id)
-            msg = f'{stream.user_name} est en live, viens nous rejoindre sur https://twitch.tv/{stream.user_name.lower()} !'
-            await ctx.send(msg)
-        else:
-            _logger.info('... but already notified, just ignore it')
-
-    _logger.info('Checking not treated watched twitch ids state...')
-    for id in WATCHED_TWITCH_IDS:
-        if id not in treated and id in IS_LIVE:
-            live_name = IS_LIVE[id]
-            _logger.info(f'{live_name} is no more live !')
-            del IS_LIVE[id]
-            ctx = bot.get_guild(guild_id).get_channel(channel_id)
-            msg = f'Le live de {live_name} est terminé, tu peux voir le replay sur https://twitch.tv/{live_name.lower()} !'
-            await ctx.send(msg)
-    _logger.info('Done.')
-
-
-@tasks.loop(seconds=120)
-async def twitch_status_checker():
-    await _check_twitch_status(bot, FBRT_GUILD_ID, FBRT_TWITCH_CHAN_ID)
-
+bot.add_cog(TwitchCog(bot, FBRT_GUILD_ID, FBRT_TWITCH_CHAN_ID))
 
 ############
 # EVENT LISTENERS
@@ -97,8 +62,6 @@ async def twitch_status_checker():
 
 @bot.event
 async def on_ready():
-    if not twitch_status_checker.is_running():
-        twitch_status_checker.start()
     _logger.info('Connected !')
 
 
