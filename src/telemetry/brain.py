@@ -134,7 +134,7 @@ class Brain:
 
     def _send_discord_message(self, msg:Message):
         if self.queue:
-            self.queue.put((msg, self.championship_config))
+            self.queue.put(msg)
 
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')
