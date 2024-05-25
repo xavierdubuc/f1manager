@@ -34,9 +34,14 @@ class GridGenerator(AbstractRaceGenerator):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
 
         # FBRT
-        fbrt_logo_size = int(0.8 * width)
-        fbrt_logo = resize(Visual.get_fbrt_round_logo(), fbrt_logo_size)
-        fbrt_logo_pos = paste(fbrt_logo, img, top=20)
+        logo_size = int(0.8 * width)
+        if self.visual_config.get('logo'):
+            with Image.open(self.visual_config['logo']) as l:
+                logo = l.copy()
+        else:
+            logo = Visual.get_fbrt_round_logo()
+        logo = resize(logo, logo_size)
+        logo_pos = paste(logo, img, top=0)
 
         # F1
         f1_logo_size = width
@@ -45,16 +50,17 @@ class GridGenerator(AbstractRaceGenerator):
             f1_logo_pos = paste(f1_logo_img, img, top=img.height - f1_logo_img.height - 40)
 
         # FIF
-        fif_logo_size = width
-        with Visual.get_fif_logo('wide') as fif_logo_img:
-            fif_logo_img = resize(fif_logo_img, fif_logo_size, fif_logo_size)
-            fif_logo_pos = paste(fif_logo_img, img, top=f1_logo_pos.top - fif_logo_img.height)
+        if self.visual_config.get('fif', True):
+            fif_logo_size = width
+            with Visual.get_fif_logo('wide') as fif_logo_img:
+                fif_logo_img = resize(fif_logo_img, fif_logo_size, fif_logo_size)
+                fif_logo_pos = paste(fif_logo_img, img, top=f1_logo_pos.top - fif_logo_img.height)
 
         # R
         round_config = content_config.get('round', {})
         round_size = int(0.5 * width)
         round = self.race_renderer.get_type_image(round_size, round_size)
-        round_pos = paste(round, img, top = fbrt_logo_pos.bottom + round_config.get('padding_top', default_padding))
+        round_pos = paste(round, img, top = logo_pos.bottom + round_config.get('padding_top', default_padding))
 
         # THE GRID title
         the_grid_config = content_config.get('the_grid', {})

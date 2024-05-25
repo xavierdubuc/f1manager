@@ -27,14 +27,18 @@ class LineupGenerator(AbstractRaceGenerator):
 
         center_width = base_img.width - teams_width * 2
 
-        for i, team in enumerate(self.config.teams):
-            lineup_img = team.get_lineup_image(teams_width, teams_height, self.race.get_pilots(team))
-            teams_pos = paste(lineup_img, base_img, left=teams_left, top=teams_top)
-            if i == amount_of_teams_by_column - 1:
-                teams_top = teams_initial_top
-                teams_left += teams_width + center_width - 10
-            else:
-                teams_top = teams_pos.bottom + teams_margin
+        amount_of_treated_teams = 0
+        for team in self.config.teams:
+            pilots = self.race.get_pilots(team)
+            for j in range(0, len(pilots), 2):
+                lineup_img = team.get_lineup_image(teams_width, teams_height, (pilots[j], pilots[j+1]))
+                teams_pos = paste(lineup_img, base_img, left=teams_left, top=teams_top)
+                if amount_of_treated_teams == amount_of_teams_by_column - 1:
+                    teams_top = teams_initial_top
+                    teams_left += teams_width + center_width - 10
+                else:
+                    teams_top = teams_pos.bottom + teams_margin
+                amount_of_treated_teams += 1
 
         padding = 25
         center_img = self._get_center_image(center_width-2*padding, base_img.height)
@@ -45,12 +49,17 @@ class LineupGenerator(AbstractRaceGenerator):
         img = Image.new('RGB', (width, height), (255,255,255))
 
         # FBRT
-        fbrt_logo_size = int(0.8 * width)
-        fbrt_logo = resize(Visual.get_fbrt_round_logo(), fbrt_logo_size)
-        fbrt_logo_pos = paste(fbrt_logo, img, top=0)
+        logo_size = int(0.8 * width)
+        if self.visual_config.get('logo'):
+            with Image.open(self.visual_config['logo']) as l:
+                logo = l.copy()
+        else:
+            logo = Visual.get_fbrt_round_logo()
+        logo = resize(logo, logo_size)
+        logo_pos = paste(logo, img, top=0)
 
         # COURSE X + TITLE 'LINE-UP'
-        type_title_top = fbrt_logo_pos.bottom+50
+        type_title_top = logo_pos.bottom+50
         type_size = int(0.35 * width)
         padding_type_title = 20
         type_img = self.race_renderer.get_type_image(
@@ -109,6 +118,8 @@ class LineupGenerator(AbstractRaceGenerator):
             f1_logo_pos = paste(f1_logo_img, img, top=img.height - f1_logo_img.height - 40)
 
         # FIF
+        if not self.visual_config.get('fif', True):
+            return img
         fif_logo_size = int(0.7 * width)
         with Visual.get_fif_logo('wide') as fif_logo_img:
             fif_logo_img = resize(fif_logo_img, fif_logo_size, fif_logo_size)

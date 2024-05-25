@@ -1,3 +1,4 @@
+import copy
 import logging
 from PIL import Image
 from ..generators.abstract_generator import AbstractGenerator
@@ -75,17 +76,20 @@ class TeamsRankingGenerator(AbstractGenerator):
         row_height = ((base_img.height - 300 - padding_top) // 10) - padding_between_rows
         # row_height = 87
         current_top = title_height+padding_top
+        champ_teams = self.championship_config['settings'].get('teams', {})
+        all_teams = copy.deepcopy(teams_idx)
+        all_teams.update({name: Team(**champ_teams[name]) for name in champ_teams})
         for i, row in enumerate(self.config.ranking):
             is_champion = False # i == 0 # FIXME
-            team_ranking_img = self._get_team_ranking_img(width, row_height, row.team_name, row.total_points, is_champion)
+            team_ranking_img = self._get_team_ranking_img(all_teams, width, row_height, row.team_name, row.total_points, is_champion)
             pos = paste(team_ranking_img, base_img, top=current_top)
             current_top = pos.bottom + padding_between_rows
 
-    def _get_team_ranking_img(self, width:int, height:int, team_name, points, is_champion: bool = False):
+    def _get_team_ranking_img(self, teams, width:int, height:int, team_name, points, is_champion: bool = False):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
 
         # TEAM
-        team = teams_idx[team_name]
+        team = teams.get(team_name)
         team_img = self._get_team_img((2 * width) // 3, height, team)
         pos = paste(team_img, img, left=0)
 

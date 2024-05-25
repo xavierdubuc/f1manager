@@ -33,8 +33,8 @@ class Circuit:
                           city_font=FontFactory.black(20),
                           name_color=(230,0,0),
                           city_color=(255,255,255),
-                          name_top=10,
-                          city_top=10
+                          name_top=8,
+                          city_top=40
         ) -> PngImageFile:
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         name_img = text(self.name.upper(), name_color, name_font)

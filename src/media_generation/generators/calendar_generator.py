@@ -73,7 +73,7 @@ class CalendarGenerator(AbstractGenerator):
         date_position = paste(date_img, right_img, left=info_left, top=info_top)
 
         if circuit:
-            circuit_img = circuit.get_full_name_img(right_width, height-date_position.bottom-8, padding=5)
+            circuit_img = circuit.get_full_name_img(right_width, height-date_position.bottom-8)
             paste(circuit_img, right_img, left=info_left, top = date_position.bottom)
 
         # paste parts

@@ -1,6 +1,7 @@
+import copy
 from dataclasses import dataclass
 import logging
-from typing import Tuple
+from typing import Dict, Tuple
 import pandas
 from src.gsheet.gsheet import GSheet
 from src.media_generation.helpers.generator_type import GeneratorType
@@ -45,22 +46,22 @@ class Reader:
         )
         return config
 
-    def _build_pilots_list(self, values: pandas.DataFrame) -> dict:
+    def _build_pilots_list(self, values: pandas.DataFrame, teams: Dict[str, Team]) -> dict:
         default_team = Team(**self.championship_config['settings']['default_team'])
         reservist_team = Team(**self.championship_config['settings']['reservist_team'])
         return {
             row['Pilotes']: Pilot(
                 name=row['Pilotes'],
-                team=teams_idx.get(row['Ecurie'], reservist_team if row['Ecurie'] == 'R' else default_team),
+                team=teams.get(row['Ecurie'], reservist_team if row['Ecurie'] == 'R' else default_team),
                 reservist=row['Ecurie'] == 'R',
                 number=row['Numéro'],
                 trigram=row.get('Trigram')
             ) for _, row in values[values['Pilotes'].notnull()].iterrows()
         }
 
-    def _build_teams_list(self, values: pandas.DataFrame) -> list:
+    def _build_teams_list(self, values: pandas.DataFrame, teams: Dict[str, Team]) -> list:
         return [
-            teams_idx[row['Ecuries']] for _, row in values.dropna().iterrows()
+            teams[row['Ecuries']] for _, row in values.dropna().iterrows()
         ]
 
     def _read(self) -> Tuple[dict, list]:
@@ -79,9 +80,12 @@ class Reader:
                 pilots_values = sheet_values[['Pilotes', 'Numéro', 'Trigram', 'Ecurie']]
             else:
                 pilots_values = sheet_values[['Pilotes', 'Numéro', 'Ecurie']]
-            pilots = self._build_pilots_list(pilots_values)
+            champ_teams = self.championship_config['settings'].get('teams', {})
+            all_teams = copy.deepcopy(teams_idx)
+            all_teams.update({name: Team(**champ_teams[name]) for name in champ_teams})
+            pilots = self._build_pilots_list(pilots_values, all_teams)
             teams_values = sheet_values[['Ecuries']]
-            teams = self._build_teams_list(teams_values)
+            teams = self._build_teams_list(teams_values, all_teams)
         else:
             pilots = []
             teams = DEFAULT_TEAMS_LIST
