@@ -13,7 +13,6 @@ _logger = logging.getLogger(__name__)
 class TelemetryCog(commands.Cog):
     def __init__(self, bot: Vignebot):
         self.bot = bot
-        self.championship_config = self.bot.championship_config
         self.process_queue.start()
         self.sent_messages = {}
 
@@ -82,12 +81,12 @@ class TelemetryCog(commands.Cog):
         return message
 
     def _get_channel_for(self, msg: Message, use_default=True):
-        discord_config = self.championship_config['discord'].get(msg.channel.value)
+        discord_config = self.bot.championship_config['discord'].get(msg.channel.value)
         if not discord_config and not use_default:
             _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no specific config for it')
             return
         _logger.info(f'No discord config for {msg.channel}, will use default')
-        discord_config = self.championship_config['discord']['default']
+        discord_config = self.bot.championship_config['discord']['default']
 
         guild = self.bot.get_guild(discord_config['guild'])
         if not guild:
