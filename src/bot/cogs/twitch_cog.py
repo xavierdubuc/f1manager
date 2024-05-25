@@ -18,7 +18,7 @@ class TwitchCog(commands.Cog):
         self.bot = bot
         self.guild_id = guild_id
         self.channel_id = channel_id
-        self.watch_twitch.start()
+        self.check_twitch_status.start()
         self.sent_messages = {}
         self.is_live = {}
 
