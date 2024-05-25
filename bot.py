@@ -4,7 +4,9 @@ import disnake
 from disnake.ext import commands, tasks
 from twitchAPI.twitch import Twitch
 from datetime import datetime
+from src.bot.cogs.telemetry_cog import TelemetryCog
 from src.media_generation.generators.pilot_generator import PublicException
+from src.bot.vignebot import Vignebot
 import src.bot.presence_embed as PresenceEmbed
 import src.bot.breaking_command as BreakingCommand
 import src.bot.quote_command as QuoteCommand
@@ -33,8 +35,7 @@ command_sync_flags.sync_commands_debug = True
 
 intents = disnake.Intents.default()
 intents.members = True
-bot = commands.InteractionBot(
-    command_sync_flags=command_sync_flags, intents=intents)
+bot = Vignebot(command_sync_flags=command_sync_flags, intents=intents)
 
 FBRT_GUILD_ID = 923505034778509342
 FBRT_BOT_CHAN_ID = 1074632856443289610
@@ -48,9 +49,14 @@ WATCHED_TWITCH_IDS = [FBRT_TWITCH_USER_ID]
 IS_LIVE = {}
 
 ############
-# LOOPS
+# COGS
 ############
 
+# SEND MESSAGES FROM TELEMETRY
+
+bot.add_cog(TelemetryCog(bot))
+
+# TWITCH
 
 async def _check_twitch_status(bot: commands.InteractionBot, guild_id: int, channel_id: int):
     twitch = await Twitch(twitch_app_id, twitch_app_secret)
@@ -81,7 +87,6 @@ async def _check_twitch_status(bot: commands.InteractionBot, guild_id: int, chan
 
 @tasks.loop(seconds=120)
 async def twitch_status_checker():
-    # await _check_twitch_status(bot, DEBUG_GUILD_ID, DEBUG_CHAN_ID)
     await _check_twitch_status(bot, FBRT_GUILD_ID, FBRT_TWITCH_CHAN_ID)
 
 
@@ -94,8 +99,6 @@ async def twitch_status_checker():
 async def on_ready():
     if not twitch_status_checker.is_running():
         twitch_status_checker.start()
-    msg = f'Mesdames messieurs {"bonjour" if 5 < datetime.now().hour < 17 else "bonsoir"} !'
-    # await bot.get_guild(DEBUG_GUILD_ID).get_channel(DEBUG_CHAN_ID).send(msg, tts=True)
     _logger.info('Connected !')
 
 

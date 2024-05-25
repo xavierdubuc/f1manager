@@ -88,7 +88,6 @@ class Session:
     current_fastest_sector1: int = None # in ms
     current_fastest_sector2: int = None # in ms
     current_fastest_sector3: int = None # in ms
-    sent_messages: Dict[str, Message] = field(default_factory=dict)
 
     def __eq__(self, other):
         if type(self) != type(other):
@@ -138,14 +137,19 @@ class Session:
         lap = self.get_current_lap(participant)
         return lap.result_status
 
-    def get_formatted_final_ranking(self, delta_char='+'):
+    def get_formatted_final_ranking(self, delta_char='+', config=None):
         if not self.final_classification:
             return []
         data = []
         first_pos_time = None
         delta_column_index = 2 if self.session_type.is_race() else 3
         for participant, classification in zip(self.participants, self.final_classification):
-            row = self._get_formatted_final_ranking_row(classification, participant)
+            if config and not participant.has_name:
+                pilot = config.find_pilot(participant)
+                pilot_name = pilot.name if pilot else str(participant)
+            else:
+                pilot_name = str(participant)
+            row = self._get_formatted_final_ranking_row(classification, pilot_name)
             if classification.position == 1:
                 first_pos_time = row[delta_column_index]
             data.append(row)
@@ -170,9 +174,8 @@ class Session:
             return data[:15]
         return data
 
-    def _get_formatted_final_ranking_row(self, classification:Classification, participant:Participant):
+    def _get_formatted_final_ranking_row(self, classification:Classification, pilot_name:str):
         best_lap_time = timedelta(seconds=classification.best_lap_time_in_ms/1000)
-        driver = str(participant)
         if self.session_type.is_race():
             current_tyres = ''.join([str(t) for t in classification.tyre_stints_visual])
             if classification.result_status in (ResultStatus.retired, ResultStatus.dnf, ResultStatus.not_classified):
@@ -184,10 +187,10 @@ class Session:
             else:
                 race_time = timedelta(seconds=classification.get_race_time())
             return [
-                classification.position, driver, race_time, current_tyres, self._format_time(best_lap_time)
+                classification.position, pilot_name, race_time, current_tyres, self._format_time(best_lap_time)
             ]
         else:
-            return [classification.position, driver, self._format_time(best_lap_time), best_lap_time]
+            return [classification.position, pilot_name, self._format_time(best_lap_time), best_lap_time]
 
     def _format_time(self, obj:timedelta):
         if obj == timedelta(0):

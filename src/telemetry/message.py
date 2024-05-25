@@ -32,5 +32,12 @@ class Message:
         _logger.warning(self.content)
         return self.content[:2000]
 
+    def copy(self, channel=None):
+        return  Message(
+            content=self.content,
+            channel=channel or self.channel,
+            file_path=self.file_path
+        )
+
     def __len__(self):
         return len(self.content)

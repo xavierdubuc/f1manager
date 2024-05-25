@@ -27,3 +27,13 @@ class GeneratorConfig:
     ranking_subtitle: str = None
     metric: str = 'Total'
     driver_of_the_day: str = None
+
+    def find_pilot(self, participant:"Participant") -> Pilot:
+        for p in self.pilots:
+            if participant.has_name:
+                if participant.name_str == p.name:
+                    return p
+            else:
+                if int(participant.race_number) == int(p.number):
+                    return p
+        return None

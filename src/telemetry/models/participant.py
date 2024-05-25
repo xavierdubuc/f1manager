@@ -16,10 +16,17 @@ class Participant:
     ai_controlled: bool = None
     telemetry_is_public: bool = None
 
+    @property
+    def has_name(self):
+        return self.name_str and self.name_str != 'Joueur'
+
+    @property
+    def name_str(self):
+        return self.name.decode('utf-8') if isinstance(self.name, bytes) else self.name
+
     def __str__(self):
-        name = self.name.decode('utf-8') if isinstance(self.name, bytes) else self.name
-        if name and name != 'Joueur':
-            return name
+        if self.has_name:
+            return self.name_str
         return f'Pilote #{self.race_number} ({self.nationality.name}) {self.team.name}'
 
     def __eq__(self, other):

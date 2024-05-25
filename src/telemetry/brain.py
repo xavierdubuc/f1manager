@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from multiprocessing import Queue
 from typing import Dict
 import disnake
 
@@ -24,8 +25,10 @@ from tabulate import tabulate
 from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            Q3_RANKING_RANGE, QUALI_RANKING_RANGE,
                            RACE_RANKING_RANGE, FASTEST_LAP_PILOT_CELL,
-                           FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL)
+                           FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL, VALUES_SHEET_NAME)
 
+from src.media_generation.helpers.generator_type import GeneratorType
+from src.media_generation.helpers.reader import Reader
 from src.telemetry.models.lap import Lap
 from src.gsheet.gsheet import GSheet
 from src.telemetry.event import Event
@@ -85,10 +88,10 @@ LISTENER_CLASSES = [
 
 
 class Brain:
-    def __init__(self, bot: commands.InteractionBot = None, championship_config:dict=None, sheet_name:str=None):
+    def __init__(self, queue: Queue = None, championship_config:dict=None, sheet_name:str=None):
         self.current_session = None
         self.previous_sessions = []
-        self.bot = bot
+        self.queue = queue
         self.last_weather_notified_at = None
         self.championship_config = championship_config
         self.listeners_by_event = {event: [] for event in Event}
@@ -129,76 +132,9 @@ class Brain:
         elif packet_type == PacketCarSetupData:
             self._handle_received_car_setup_packet(packet)
 
-    def _send_discord_message(self, msg:Message, parent_msg:Message=None):
-        if not self.bot:
-            return
-        if not self.bot.loop:
-            return
-        if msg.channel == Channel.BROADCAST:
-            channels = [c for c in Channel if c != Channel.BROADCAST]
-            for channel in channels:
-                self._send_discord_message(Message(content=msg.content, channel=channel, file_path=msg.file_path), parent_msg=msg)
-            return
-
-        _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord ({msg.channel})')
-        _logger.info(msg.content)
-
-        discord_config = self.championship_config['discord'].get(msg.channel.value)
-        if not discord_config:
-            if parent_msg:
-                _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no specific config for it')
-                return
-
-            _logger.info(f'No discord config for {msg.channel}, will use default')
-            discord_config = self.championship_config['discord']['default']
-
-        guild = self.bot.get_guild(discord_config['guild'])
-        if not guild:
-            _logger.error(f'Guild "{discord_config["guild"]}" not found, message not sent')
-            return
-
-        channel = guild.get_channel(discord_config['chann'])
-        if not channel:
-            for c in guild.channels:
-                if c.name == discord_config['chann']:
-                    channel = c
-                    break
-            if not channel:
-                _logger.error(f'Channel "{discord_config["chann"]}" not found, message not sent')
-                return
-
-        where = channel
-        if discord_config.get('use_thread', False) and channel.threads and len(channel.threads):
-            where = channel.threads[-1]
-
-        _logger.info(f'Message sent to "{guild.name}/#{channel.name}"')
-        
-        self.bot.loop.create_task(self._send(where, msg))
-        print(f'{len(asyncio.all_tasks(self.bot.loop))} tasks waiting')
-
-    async def _send(self, channel:disnake.TextChannel, msg:Message, *args, **kwargs):
-        message = False
-        if msg.local_id:
-            message = self.current_session.sent_messages.get(msg.local_id)
-            if not message:
-                _logger.info(f'Message with local id {msg.local_id} not found, sending a new one')
-        kwargs = {'content': msg.get_content()}
-
-        # FILE HANDLING
-        if msg.file_path:
-            with open(msg.file_path, 'rb') as f:
-                picture = disnake.File(f)
-                kwargs['file'] = picture
-
-        # EDITION
-        if message:
-            return await message.edit(**kwargs)
-
-        # CREATION
-        message = await channel.send(**kwargs)
-        if msg.local_id:
-            self.current_session.sent_messages[msg.local_id] = message
-        return message
+    def _send_discord_message(self, msg:Message):
+        if self.queue:
+            self.queue.put((msg, self.championship_config))
 
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')
@@ -542,15 +478,6 @@ class Brain:
 
         if session.session_type.is_race():
             range = RACE_RANKING_RANGE
-            if session.current_fastest_lap:
-                _logger.info('Writing fastest lap time in sheet ...')
-                g.set_sheet_values(season['sheet'], FASTEST_LAP_TIME_CELL, session._format_time(session.current_fastest_lap))
-            if session.current_fastest_lap_driver:
-                _logger.info('Writing fastest lap driver in sheet ...')
-                g.set_sheet_values(season['sheet'], FASTEST_LAP_PILOT_CELL, str(session.current_fastest_lap_driver))
-            if session.current_fastest_lap_lap:
-                _logger.info('Writing fastest lap # in sheet ...')
-                g.set_sheet_values(season['sheet'], FASTEST_LAP_LAP_CELL, session.current_fastest_lap_lap)
         elif session.session_type.is_qualification():
             if session.session_type == SessionType.q1:
                 session_type_str = 'Q1'
@@ -568,14 +495,34 @@ class Brain:
         else:
             _logger.info('Ranking will not be sent as this session type does not require it')
 
-        final_ranking = session.get_formatted_final_ranking(delta_char='')
-        for row in final_ranking:
-            print('\t'.join(map(str, row)))
-
         g = GSheet()
-        range_str = f"'{self.sheet_name}'!{range}"
+
         seasons = self.championship_config['seasons']
         season_id = list(seasons.keys())[-1]
         season = seasons[season_id]
+        reader = Reader(GeneratorType.LINEUP, self.championship_config, season, self.sheet_name)
+        config = reader.read()
+        # FIXME print the ranking without any config if somehow reader is failing ?
+        final_ranking = session.get_formatted_final_ranking(delta_char='', config=config)
+        for row in final_ranking:
+            print('\t'.join(map(str, row)))
+
+        range_str = f"'{self.sheet_name}'!{range}"
         g.set_sheet_values(season['sheet'], range_str, final_ranking)
         _logger.info(f"Writing ranking above to sheet {season['sheet']}/{self.sheet_name}")
+
+        # FASTEST LAP
+        if session.current_fastest_lap:
+            _logger.info('Writing fastest lap time in sheet ...')
+            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_TIME_CELL}", session._format_time(session.current_fastest_lap))
+        if session.current_fastest_lap_driver:
+            _logger.info('Writing fastest lap driver in sheet ...')
+            if not session.current_fastest_lap_driver.has_name:
+                pilot = config.find_pilot(session.current_fastest_lap_driver)
+                name = pilot.name
+            else:
+                name = str(session.current_fastest_lap_driver)
+            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_PILOT_CELL}", name)
+        if session.current_fastest_lap_lap:
+            _logger.info('Writing fastest lap # in sheet ...')
+            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_LAP_CELL}", session.current_fastest_lap_lap)
