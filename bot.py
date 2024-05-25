@@ -3,7 +3,6 @@ from typing import Dict, Tuple
 import disnake
 from disnake.ext import commands
 from src.bot.cogs.twitch_cog import TwitchCog
-from src.bot.cogs.telemetry_cog import TelemetryCog
 from src.media_generation.generators.pilot_generator import PublicException
 from src.bot.vignebot import Vignebot
 import src.bot.presence_embed as PresenceEmbed
@@ -48,9 +47,6 @@ IS_LIVE = {}
 ############
 # COGS
 ############
-
-# SEND MESSAGES FROM TELEMETRY
-bot.add_cog(TelemetryCog(bot))
 
 # TWITCH
 bot.add_cog(TwitchCog(bot, FBRT_GUILD_ID, FBRT_TWITCH_CHAN_ID))

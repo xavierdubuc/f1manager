@@ -5,12 +5,16 @@ from config.config import discord_bot_token, CHAMPIONSHIPS
 from bot import bot
 
 import logging
+from src.bot.cogs.telemetry_cog import TelemetryCog
 from src.telemetry.brain import Brain
 from src.telemetry.telemetry_command import Command
 from pprint import pformat
 
 from bot import bot
 from config.config import discord_bot_token, CHAMPIONSHIPS
+
+# SEND MESSAGES FROM TELEMETRY
+bot.add_cog(TelemetryCog(bot))
 
 args = Command().parse_args()
 levels = {
