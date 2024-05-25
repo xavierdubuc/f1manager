@@ -20,17 +20,9 @@ class TelemetryCog(commands.Cog):
     async def process_queue(self):
         if not self.bot.queue:
             return
-        initial_size = self.bot.queue.qsize()
-        _logger.info(f'{initial_size} messages in queue')
-        if initial_size > 0:
-            self.process_queue.change_interval(seconds=INTERVAL)
-            for _ in range(initial_size):
-                msg = self.bot.queue.get()
-                await self._process(msg)
-        else:
-            _logger.info('No message')
-            new_interval = min(self.process_queue.seconds*2, 10)
-            self.process_queue.change_interval(seconds=new_interval)
+        while not self.bot.queue.empty():
+            msg = self.bot.queue.get()
+            await self._process(msg)
 
     @process_queue.before_loop
     async def before_process_queue(self):
