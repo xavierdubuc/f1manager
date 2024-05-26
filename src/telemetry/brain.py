@@ -500,7 +500,7 @@ class Brain:
         seasons = self.championship_config['seasons']
         season_id = list(seasons.keys())[-1]
         season = seasons[season_id]
-        reader = Reader(GeneratorType.LINEUP, self.championship_config, season, self.sheet_name)
+        reader = Reader(GeneratorType.LINEUP, self.championship_config, season_id, self.sheet_name)
         config = reader.read()
         # FIXME print the ranking without any config if somehow reader is failing ?
         final_ranking = session.get_formatted_final_ranking(delta_char='', config=config)
