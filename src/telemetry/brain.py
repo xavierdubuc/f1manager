@@ -1,4 +1,5 @@
 import asyncio
+from datetime import timedelta
 import logging
 from multiprocessing import Queue
 from typing import Dict
@@ -514,7 +515,8 @@ class Brain:
         # FASTEST LAP
         if session.current_fastest_lap:
             _logger.info('Writing fastest lap time in sheet ...')
-            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_TIME_CELL}", session._format_time(session.current_fastest_lap))
+            fastest_lap = timedelta(seconds=session.current_fastest_lap/1000)
+            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_TIME_CELL}", session._format_time(fastest_lap))
         if session.current_fastest_lap_driver:
             _logger.info('Writing fastest lap driver in sheet ...')
             if not session.current_fastest_lap_driver.has_name:
