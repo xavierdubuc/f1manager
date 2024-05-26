@@ -516,7 +516,7 @@ class Brain:
         if session.current_fastest_lap:
             _logger.info('Writing fastest lap time in sheet ...')
             fastest_lap = timedelta(seconds=session.current_fastest_lap/1000)
-            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_TIME_CELL}", session._format_time(fastest_lap))
+            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_TIME_CELL}", [[session._format_time(fastest_lap)]])
         if session.current_fastest_lap_driver:
             _logger.info('Writing fastest lap driver in sheet ...')
             if not session.current_fastest_lap_driver.has_name:
@@ -524,7 +524,7 @@ class Brain:
                 name = pilot.name
             else:
                 name = str(session.current_fastest_lap_driver)
-            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_PILOT_CELL}", name)
+            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_PILOT_CELL}", [[name]])
         if session.current_fastest_lap_lap:
             _logger.info('Writing fastest lap # in sheet ...')
-            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_LAP_CELL}", session.current_fastest_lap_lap)
+            g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_LAP_CELL}", [[session.current_fastest_lap_lap]])
