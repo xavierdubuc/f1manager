@@ -73,6 +73,7 @@ class TelemetryCog(commands.Cog):
         return message
 
     def _get_channel_for(self, msg: Message, use_default=True):
+        print(self.bot.championship_config['discord'], msg.channel.value)
         discord_config = self.bot.championship_config['discord'].get(msg.channel.value)
         if not discord_config and not use_default:
             _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no specific config for it')

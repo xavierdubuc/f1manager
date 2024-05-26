@@ -82,7 +82,9 @@ class PresentationGenerator(AbstractRaceGenerator):
             height,
             name_font=name_font,
             name_color=name_color,
-            city_font=FontFactory.black(60)
+            city_font=FontFactory.black(60),
+            name_top=20,
+            city_top=90
         )
         paste(circuit_img, img, left=flag_pos.right+30)
 
@@ -113,6 +115,7 @@ class PresentationGenerator(AbstractRaceGenerator):
         text_font = FontFactory.regular(32)
         text_lines = textwrap.wrap(self.race.presentation_text, width=67)
 
+        top -= 50
         for text_line in text_lines:
             top += 45
             draw.text((left_padding+20,  top), text_line, 'white', text_font)
