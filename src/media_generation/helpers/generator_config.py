@@ -29,7 +29,7 @@ class GeneratorConfig:
     driver_of_the_day: str = None
 
     def find_pilot(self, participant:"Participant") -> Pilot:
-        for p in self.pilots:
+        for pname, p in self.pilots.items():
             if participant.has_name:
                 if participant.name_str == p.name:
                     return p
