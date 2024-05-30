@@ -64,6 +64,7 @@ async def run(
     if runtype != 'dry':
         await inter.channel.send(f'✅ Classement équipes posté dans {teams_ranking_channel.mention}!')
 
+    # DRIVER OF THE DAY VOTE
     if runtype != 'dry':
         drivervote_channel = _get_channel(inter.bot, discord_config, 'driver_vote')
         await RaceCommand.run(inter, race_number, 'vote_driveroftheday', championship_config, season, drivervote_channel)
@@ -75,6 +76,7 @@ async def run(
         await inter.channel.send("C'était la dernière course de la saison !")
         return
 
+    # PRESENCES RACE i+1
     if runtype != 'dry':
         presences_channel = drivervote_channel = _get_channel(inter.bot, discord_config, 'presences')
         await RaceCommand.run(inter, next_round, 'presences', championship_config, season, presences_channel)
