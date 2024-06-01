@@ -17,12 +17,6 @@ import src.bot.rankings_command as RankingCommand
 from src.media_generation.data import teams_idx
 from config import DISCORDS
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[logging.StreamHandler()]
-)
-
 _logger = logging.getLogger(__name__)
 TEAMS = list(teams_idx.keys())
 

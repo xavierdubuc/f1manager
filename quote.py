@@ -1,18 +1,15 @@
 import argparse
 import logging
 import textwrap
-import math
+
 from PIL import Image
 from src.media_generation.data import teams_idx
 from src.media_generation.font_factory import FontFactory
 from src.media_generation.helpers.transform import *
 
+from f1manager.src.logging import setup as setup_logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler()]
-)
+setup_logging()
 _logger = logging.getLogger(__name__)
 
 
@@ -22,14 +19,19 @@ class QuoteCommand(argparse.ArgumentParser):
         self.add_argument("author", help="Auteur")
         self.add_argument("quote", help="Texte")
         self.add_argument("-t", "--team", help="Concerned team", dest='team', default=None)
-        self.add_argument("-b", "--background", help="Background color to use (ignored if -t/--team is specified)", dest='bg', default="255,255,255")
-        self.add_argument("-f", "--foreground", help="Foreground color to use (ignored if -t/--team is specified)", dest='fg', default="0,0,0")
+        self.add_argument(
+            "-b", "--background", help="Background color to use (ignored if -t/--team is specified)", dest='bg', default="255,255,255")
+        self.add_argument("-f", "--foreground",
+                          help="Foreground color to use (ignored if -t/--team is specified)", dest='fg', default="0,0,0")
         self.add_argument("-o", "--output", help="Output file to use", dest='output', default=None)
-        self.add_argument("-i", "--input", help="Image to use as main picture", dest='input', default='assets/circuits/photos/belgium.png')
-        self.add_argument('-p', '--padding-top', help="Top padding in pixel to use to align the image", dest='padding_top', default=None)
+        self.add_argument("-i", "--input", help="Image to use as main picture",
+                          dest='input', default='assets/circuits/photos/belgium.png')
+        self.add_argument('-p', '--padding-top', help="Top padding in pixel to use to align the image",
+                          dest='padding_top', default=None)
+
 
 class Renderer:
-    def __init__(self, quote:str, author:str, team_name:str, bg:tuple, fg:tuple, output:str, input:str, padding_top:int=None):
+    def __init__(self, quote: str, author: str, team_name: str, bg: tuple, fg: tuple, output: str, input: str, padding_top: int = None):
         self.bg_color = tuple(int(a) for a in bg.split(','))
         self.fg_color = tuple(int(a) for a in fg.split(','))
         self.quote = quote.upper()
@@ -58,7 +60,7 @@ class Renderer:
         main_height = final.height - top_padding - bottom_padding
         with Image.open(self.input) as picture:
             picture = resize(picture, main_width, main_height)
-            blackbg = Image.new('RGB', (main_width, main_height), (20,20,20))
+            blackbg = Image.new('RGB', (main_width, main_height), (20, 20, 20))
             gradient(blackbg, GradientDirection.DOWN_TO_UP)
 
         paste(picture, final, top=top_padding)
@@ -79,7 +81,7 @@ class Renderer:
         text_lines.reverse()
         for text_line in text_lines:
             img = text(text_line, self.fg_color, FontFactory.bold(quote_font_size))
-            pos = paste(img, final, top = bottom - img.height)
+            pos = paste(img, final, top=bottom - img.height)
             bottom = pos.top - padding_between
 
         final.save(self.output or 'output/quote.png', quality=95)
@@ -87,12 +89,12 @@ class Renderer:
 
     def _get_author_img(self, author_font_size):
         _logger.info(f'Will use {author_font_size}pt as author font size')
-        author_font = FontFactory.black(author_font_size) # TODO compute auto
+        author_font = FontFactory.black(author_font_size)  # TODO compute auto
         return text(self.author, self.fg_color, author_font, security_padding=5)
 
-####### MAIN
+# MAIN
+
 
 if __name__ == "__main__":
     args = QuoteCommand().parse_args()
     Renderer(args.quote, args.author, args.team, args.bg, args.fg, args.output, args.input, args.padding_top).render()
-

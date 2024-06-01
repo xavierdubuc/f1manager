@@ -1,20 +1,17 @@
+import logging
+import os.path
+from pprint import pformat
+
+from config.config import CHAMPIONSHIPS
 from src.media_generation.generators.exceptions import IncorrectDataException
-from src.media_generation.helpers.renderer import Renderer
 from src.media_generation.helpers.command import Command
 from src.media_generation.helpers.generator_type import GeneratorType
-from pprint import pformat
-from config.config import CHAMPIONSHIPS
-import os.path
-
-import logging
-
+from src.media_generation.helpers.renderer import Renderer
 from src.media_generation.run_config import RUN_CONFIGS, RunConfig
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler()]
-)
+from f1manager.src.logging import setup as setup_logging
+
+setup_logging()
 _logger = logging.getLogger(__name__)
 
 args = Command().parse_args()
