@@ -26,7 +26,6 @@ class GeneratorConfig:
     ranking_title: str = None
     ranking_subtitle: str = None
     metric: str = 'Total'
-    driver_of_the_day: str = None
 
     def find_pilot(self, participant:"Participant") -> Pilot:
         for pname, p in self.pilots.items():

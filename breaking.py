@@ -6,7 +6,7 @@ from src.media_generation.data import teams_idx
 from src.media_generation.font_factory import FontFactory
 from src.media_generation.models import Visual
 from src.media_generation.helpers.transform import *
-from f1manager.src.logging import setup as setup_logging
+from src.logging import setup as setup_logging
 
 setup_logging()
 _logger = logging.getLogger(__name__)
