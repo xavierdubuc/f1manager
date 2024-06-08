@@ -82,7 +82,7 @@ bot.add_cog(ConfirmResultsCog(bot))
 # PILOT
 bot.add_cog(PilotCog(bot))
 
-# SEASON RAKING TODO
+# SEASON RANKING TODO
 # bot.add_cog(SeasonRankingCog(bot))
 
 # TODO idée lisant le calendrier "@vignebot où est la prochaine course ?"

@@ -30,7 +30,6 @@ class BestLapTimeListener(AbstractListener):
         lap_time = timedelta(seconds=best_lap_time/1000)
         formatted_lap_time = session._format_time(lap_time)
  
-        # TODO add position of the pilot
         lap = session.get_current_lap(participant)
         position = str(lap.car_position).rjust(2)
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
