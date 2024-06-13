@@ -19,10 +19,11 @@ class GSheet:
         return [s['properties']['title'] for s in res['sheets']]
 
     def get_sheet_values(self, spreadsheet_id: str, selection_range: str) -> list:
-        return self.get_service().values().get(
+        res =self.get_service().values().get(
             spreadsheetId=spreadsheet_id,
             range=selection_range
-        ).execute()['values']
+        ).execute()
+        return res.get('values')
 
     def set_sheet_values(self, spreadsheet_id: str, selection_range: str, values: List[list]) -> dict:
         return self.get_service().values().update(
@@ -31,6 +32,21 @@ class GSheet:
             valueInputOption='USER_ENTERED',
             body={'values': values}
         ).execute()
+
+    def add_sheet(self, spreadsheet_id:str, sheet_name:str):
+        body = {
+            "requests":[{
+                "addSheet":{
+                    "properties":{
+                        "title": sheet_name
+                    }
+                }
+            }]
+        }
+        return self.get_service().batchUpdate(
+            spreadsheetId=spreadsheet_id, body=body
+        ).execute()
+
 
     def get_service(self):
         if not self.service:

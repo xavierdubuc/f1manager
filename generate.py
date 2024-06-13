@@ -9,7 +9,7 @@ from src.media_generation.helpers.generator_type import GeneratorType
 from src.media_generation.helpers.renderer import Renderer
 from src.media_generation.run_config import RUN_CONFIGS, RunConfig
 
-from f1manager.src.logging import setup as setup_logging
+from src.logging import setup as setup_logging
 
 setup_logging()
 _logger = logging.getLogger(__name__)

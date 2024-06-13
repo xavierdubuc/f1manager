@@ -12,11 +12,9 @@ from src.bot.cogs.lineup_cog import LineupCog
 from src.bot.cogs.presentation_cog import PresentationCog
 from src.bot.cogs.results_cog import ResultsCog
 from src.bot.cogs.twitch_cog import TwitchCog
-from src.media_generation.generators.pilot_generator import PublicException
 from src.bot.vignebot import Vignebot
 
 from src.media_generation.data import teams_idx
-from config import DISCORDS
 
 _logger = logging.getLogger(__name__)
 TEAMS = list(teams_idx.keys())
@@ -99,6 +97,8 @@ bot.add_cog(PilotCog(bot))
 
 @bot.event
 async def on_ready():
+    g = bot.get_guild(FBRT_GUILD_ID)
+    # print(g.emojis)
     _logger.info('Connected !')
 
 

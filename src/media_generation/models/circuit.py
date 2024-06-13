@@ -76,3 +76,8 @@ class Circuit:
 
     def get_assets_url(self, asset_type):
         return f'assets/circuits/{asset_type}/{self.id}.png'
+
+    def get_identifier(self) -> str:
+        if self.city:
+            return f'{self.name}_{self.city}'
+        return self.name
