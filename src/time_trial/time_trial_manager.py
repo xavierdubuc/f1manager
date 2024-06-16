@@ -81,12 +81,11 @@ class TimeTrialManager:
             _logger.info('Waiting for session packet to get circuit...')
             while True:
                 packet = listener.get()
-                print(packet.__class__.__name__)
                 if not circuit:
                     if isinstance(packet, PacketSessionData):
                         track = Track(packet.track_id)
                         circuit = self.circuits_idx[track.get_name()]
-                        _logger.info(f'Circuit {circuit.name} selected !')
+                        _logger.info(f'"{circuit.name}" circuit selected !')
                 else:
                     if isinstance(packet, PacketParticipantsData):
                         if not personal_name:
@@ -114,7 +113,7 @@ class TimeTrialManager:
             _logger.error('No circuit or no lap time registered !')
             return
         values = sorted([(k,v) for k, v in best_laps.items()], key=lambda x:x[1])
-        values_str = [(k, format_time(v)) for (k,v) in values]
+        values_str = [(i+1, k, format_time(v)) for i,(k,v) in enumerate(values)]
         _logger.info('Fetched ranking that will be stored :')
         _logger.info(values_str)
         self._update_circuit_sheet(circuit, values_str)
