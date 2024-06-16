@@ -98,11 +98,11 @@ class TimeTrialManager:
                             _logger.debug(f'Added "{rival_name}" in best laps array')
 
                     elif isinstance(packet, PacketLapData):
-                        if not best_laps[personal_name]:
+                        if personal_name and not best_laps[personal_name]:
                             perso_time = timedelta(seconds=packet.lap_data[packet.time_trial_pb_car_idx].last_lap_time_in_ms/1000)
                             best_laps[personal_name] = perso_time
                             _logger.info(f'Added {format_time(perso_time)} of "{personal_name}"')
-                        if not best_laps[rival_name]:
+                        if rival_name and not best_laps[rival_name]:
                             rival_time = timedelta(seconds=packet.lap_data[packet.time_trial_rival_car_idx].last_lap_time_in_ms/1000)
                             best_laps[rival_name] = rival_time
                             _logger.info(f'Added {format_time(rival_time)} of "{rival_name}"')
