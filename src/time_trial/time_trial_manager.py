@@ -92,7 +92,7 @@ class TimeTrialManager:
                             personal_name = get_participant_name(packet, 0)
                             best_laps[personal_name] = None
                             _logger.debug(f'Added "{personal_name}" in best laps array')
-                        if not rival_name and not rival_name in best_laps:
+                        if not rival_name or not rival_name in best_laps:
                             rival_name = get_participant_name(packet, RIVAL_INDEX)
                             best_laps[rival_name] = None
                             _logger.debug(f'Added "{rival_name}" in best laps array')
