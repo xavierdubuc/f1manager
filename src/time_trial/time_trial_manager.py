@@ -1,9 +1,13 @@
 from dataclasses import dataclass
+from datetime import timedelta
 import logging
 from typing import List
 import tabulate
 
 import disnake
+from f1_24_telemetry.listener import TelemetryListener
+from f1_24_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData
+from src.telemetry.models.enums.track import Track
 from src.bot.vignebot import Vignebot
 from src.gsheet.gsheet import GSheet
 from src.media_generation.models.circuit import Circuit
@@ -23,6 +27,19 @@ TABULATE_FORMAT = 'simple_outline'
 
 _logger = logging.getLogger(__name__)
 
+def get_participant_name(packet: PacketParticipantsData, index=0):
+    name = packet.participants[index].name
+    return name.decode('utf-8') if isinstance(name, bytes) else name
+
+def format_time(obj:timedelta):
+    if obj == timedelta(0):
+        return '--:--.---'
+    minutes = obj.seconds//60
+    minutes_str = f'{obj.seconds//60}:' if minutes > 0 else ''
+    seconds = obj.seconds%60
+    seconds_str = str(seconds).zfill(2) if minutes > 0 else seconds
+    return f'{minutes_str}{seconds_str}.{str(obj.microseconds//1000).zfill(3)}'
+
 
 @dataclass
 class TimeTrialManager:
@@ -35,10 +52,11 @@ class TimeTrialManager:
     def __post_init__(self):
         cell_range = f'{CIRCUITS_VALUES_SHEET_NAME}!{CIRCUITS_VALUES_SHEET_RANGE}'
         circuit_values = self.gsheet.get_sheet_values(SPREADSHEET_ID, cell_range)
-        self.circuits = [
-            CIRCUITS.get(name, Circuit(name, name, None, None, city))
+        self.circuits_idx = {
+            name: CIRCUITS.get(name, Circuit(name, name, None, None, city))
             for name, city in circuit_values
-        ]
+        }
+        self.circuits = list(self.circuits_idx.values())
 
     async def setup(self):
         self.guild = await self.bot.fetch_guild(DISCORD_GUILD_ID)
@@ -51,6 +69,55 @@ class TimeTrialManager:
         self.create_not_existing_sheets()
         _logger.info('Create not existing messages...')
         await self.create_not_existing_messages()
+
+    def fetch_from_game(self, ip='192.168.1.15'):
+        RIVAL_INDEX = 3
+        listener = TelemetryListener(port=20777, host=ip)
+        circuit = None
+        personal_name = None
+        rival_name = None
+        best_laps = {}
+        try:
+            _logger.info('Waiting for session packet to get circuit...')
+            while True:
+                packet = listener.get()
+                print(packet.__class__.__name__)
+                if not circuit:
+                    if isinstance(packet, PacketSessionData):
+                        track = Track(packet.track_id)
+                        circuit = self.circuits_idx[track.get_name()]
+                        _logger.info(f'Circuit {circuit.name} selected !')
+                else:
+                    if isinstance(packet, PacketParticipantsData):
+                        if not personal_name:
+                            personal_name = get_participant_name(packet, 0)
+                            best_laps[personal_name] = None
+                            _logger.debug(f'Added "{personal_name}" in best laps array')
+                        if not rival_name and not rival_name in best_laps:
+                            rival_name = get_participant_name(packet, RIVAL_INDEX)
+                            best_laps[rival_name] = None
+                            _logger.debug(f'Added "{rival_name}" in best laps array')
+
+                    elif isinstance(packet, PacketLapData):
+                        if not best_laps[personal_name]:
+                            perso_time = timedelta(seconds=packet.lap_data[packet.time_trial_pb_car_idx].last_lap_time_in_ms/1000)
+                            best_laps[personal_name] = perso_time
+                            _logger.info(f'Added {format_time(perso_time)} of "{personal_name}"')
+                        if not best_laps[rival_name]:
+                            rival_time = timedelta(seconds=packet.lap_data[packet.time_trial_rival_car_idx].last_lap_time_in_ms/1000)
+                            best_laps[rival_name] = rival_time
+                            _logger.info(f'Added {format_time(rival_time)} of "{rival_name}"')
+        except KeyboardInterrupt:
+            pass
+
+        if not circuit or not best_laps:
+            _logger.error('No circuit or no lap time registered !')
+            return
+        values = sorted([(k,v) for k, v in best_laps.items()], key=lambda x:x[1])
+        values_str = [(k, format_time(v)) for (k,v) in values]
+        _logger.info('Fetched ranking that will be stored :')
+        _logger.info(values_str)
+        self._update_circuit_sheet(circuit, values_str)
 
     # ##################
     # CIRCUIT (SHEET)
@@ -175,8 +242,9 @@ class TimeTrialManager:
         msg = await self.channel.send(msg_txt)
         self._store_message_id(circuit.get_identifier(), msg.id)
 
-    def _update_circuit_sheet(self, circuit: Circuit):
-        pass  # TODO
+    def _update_circuit_sheet(self, circuit: Circuit, values: List[List[str]]):
+        cell_range = f'{circuit.get_identifier()}!{TIME_TRIAL_RANGE}'
+        self.gsheet.set_sheet_values(SPREADSHEET_ID, cell_range, values)
 
     async def _update_circuit_message(self, circuit: Circuit):
         _logger.info(f'Updating "{circuit.name}" message from sheet {circuit.get_identifier()}')
