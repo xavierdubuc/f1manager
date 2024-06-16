@@ -5,8 +5,9 @@ import logging
 from src.time_trial.time_trial_manager import TimeTrialManager
 from src.bot import run as run_discord_bot, bot
 from src.logging import setup as setup_logging
+from src.media_generation.data import circuits as CIRCUITS
 
-setup_logging('debug')
+setup_logging('info')
 
 _logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class Command(argparse.ArgumentParser):
         self.add_argument("-c", "--championship", help="Championship concerned", dest='championship', default='FBRT')
         self.add_argument("-a", "--season", help="Season (only used in standings)",
                           dest='season', default=None, type=int)
-        self.add_argument("-n", "--circuit", help="Circuit name", dest='circuit_name', default=None)
+        self.add_argument("-t", "--circuit", help="Circuit name", dest='circuit_name', default=None)
 
 
 args = Command().parse_args()
@@ -33,17 +34,24 @@ CHAMPIONSHIP_CONFIG = CHAMPIONSHIPS[args.championship]
 
 ttm = TimeTrialManager(bot)
 
+@bot.event
+async def on_ready():
+    _logger.info('Setting up...')
+    await ttm.setup()
+    _logger.info('Create not existing messages...')
+    if args.command == 'reset':
+        _logger.info(f'Reseting all time trial information in sheet and on Discord')
+        await ttm.reset()
+    elif args.command == 'update_all':
+        _logger.info(f'Updating all time trial information on Discord')
+        await ttm.update_all_circuit_messages()
+    elif args.command == 'update':
+        circuit = CIRCUITS.get(args.circuit_name)
+        _logger.info(f'Updating "{circuit.name}" time trial information on Discord')
+        await ttm.update_circuit_message(circuit)
+    await bot.close()
+
 if args.command == 'fetch':
     ttm.fetch_from_game(args.ip)
 else:
-    @bot.event
-    async def on_ready():
-        _logger.info('Setting up...')
-        await ttm.setup()
-        _logger.info('Create not existing messages...')
-        if args.command == 'reset':
-            await ttm.reset()
-        elif args.command == 'update_all':
-            await ttm.update_all_circuit_messages()
-
     run_discord_bot()

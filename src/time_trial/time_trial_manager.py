@@ -170,7 +170,7 @@ class TimeTrialManager:
 
     async def update_all_circuit_messages(self):
         for circuit in self.circuits:
-            await self._update_circuit_message(circuit)
+            await self.update_circuit_message(circuit)
 
     async def _create_message_if_not_existing(self, identifier:str, creation_function:callable, *args, **kwargs) -> disnake.Message:
         message = await self._get_message(identifier)
@@ -245,7 +245,7 @@ class TimeTrialManager:
         cell_range = f'{circuit.get_identifier()}!{TIME_TRIAL_RANGE}'
         self.gsheet.set_sheet_values(SPREADSHEET_ID, cell_range, values)
 
-    async def _update_circuit_message(self, circuit: Circuit):
+    async def update_circuit_message(self, circuit: Circuit):
         _logger.info(f'Updating "{circuit.name}" message from sheet {circuit.get_identifier()}')
         msg = await self._get_circuit_message(circuit)
         new_content = self._get_circuit_message_content(circuit)
