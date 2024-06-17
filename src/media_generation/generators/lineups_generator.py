@@ -31,7 +31,8 @@ class LineupGenerator(AbstractRaceGenerator):
         for team in self.config.teams:
             pilots = self.race.get_pilots(team)
             for j in range(0, len(pilots), 2):
-                lineup_img = team.get_lineup_image(teams_width, teams_height, (pilots[j], pilots[j+1]))
+                team_pilots = (pilots[j], pilots[j+1]) if len(pilots) > j+1 else (pilots[j],)
+                lineup_img = team.get_lineup_image(teams_width, teams_height, team_pilots)
                 teams_pos = paste(lineup_img, base_img, left=teams_left, top=teams_top)
                 if amount_of_treated_teams == amount_of_teams_by_column - 1:
                     teams_top = teams_initial_top
