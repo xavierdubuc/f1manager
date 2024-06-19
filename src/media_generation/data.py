@@ -1,6 +1,5 @@
 # --- CIRCUITS
 
-from src.telemetry.models.enums.track import Track
 from src.media_generation.models.circuit import Circuit
 from src.media_generation.models.team import Team
 
