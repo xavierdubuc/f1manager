@@ -144,7 +144,13 @@ class PilotsRankingGenerator(AbstractGenerator):
         max_pilot_index = (amount_of_columns * amount_by_column) - 1
         previous_points = None
         i = 0
-        for row in self.ranking.rows:
+        previous_ranking = self.ranking.get_previous_ranking()
+        for i, row in enumerate(self.ranking.rows):
+            previous_pos, previous_ranking_row = previous_ranking.find(row.pilot)
+            # TODO TO BE USED LATER
+            delta_position = ((i+1) - previous_pos) if previous_pos is not None else None
+            delta_points = (row.total_points - previous_ranking_row.total_points) if previous_ranking_row else None
+
             pilot = row.pilot
             if not self._pilot_should_be_shown(row):
                 continue

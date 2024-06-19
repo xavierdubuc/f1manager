@@ -11,6 +11,7 @@ class RankingRow:
 @dataclass
 class Ranking:
     rows: List[RankingRow] = None
+    amount_of_races: int = 0
 
     def __post_init__(self):
         self.sort_by_points()

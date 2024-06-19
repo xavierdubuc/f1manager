@@ -38,6 +38,7 @@ class GeneralRankingReader(Reader):
         if self.type == GeneratorType.TEAMS_RANKING:
             ranking_title = f'Saison {self.season} classement équipes'.upper()
             ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper() if max_size > 2 else None
+            ranking.amount_of_races = max_size - 2
         else:
             if self.metric == 'Total':
                 ranking_title = f'Saison {self.season} classement pilotes'.upper()
@@ -46,6 +47,7 @@ class GeneralRankingReader(Reader):
             else:
                 ranking_title = f'Saison {self.season} pilotes points/course'.upper()
             ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper() if max_size > 7 else None
+            ranking.amount_of_races = max_size - 7
 
         config = GeneratorConfig(
             type=self.type,
