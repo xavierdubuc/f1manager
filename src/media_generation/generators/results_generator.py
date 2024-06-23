@@ -1,7 +1,10 @@
+from typing import List
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 import logging
 
+from src.media_generation.models.podium_row_renderer import PodiumRowRenderer
+from src.media_generation.readers.race_reader_models.race_ranking import RaceRankingRow
 from src.media_generation.models.visual import Visual
 from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
 from src.media_generation.generators.exceptions import IncorrectDataException
@@ -24,256 +27,122 @@ class ResultsGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'results'
 
-    # TITLE
-
-    def _get_customized_title_image(self,  base_img: PngImageFile, title_config:dict) -> PngImageFile:
-        img = super()._get_customized_title_image(base_img, title_config)
-
-        txt = self._get_customized_title_text_image(base_img, title_config)
-        left = title_config.get('text_left', False)
-        top = title_config.get('text_top', False)
-        paste(txt, img, left=left, top=top)
-
-        if f1_config := title_config.get('f1_logo', None):
-            f1_logo = self._get_customized_title_f1logo_image(base_img, f1_config)
-            f1_logo_left = f1_config.get('left', base_img.width-f1_logo.width)
-            f1_logo_top = f1_config.get('top', False)
-            paste(f1_logo, img, left=f1_logo_left, top=f1_logo_top)
-
-        champ_config = title_config.get('champ_logo', None)
-        champ_logo = self._get_customized_title_champ_logo_image(base_img, champ_config)
-        champ_logo_left = champ_config.get('left', base_img.width-champ_logo.width)
-        champ_logo_top = champ_config.get('top', False)
-        paste(champ_logo, img, left=champ_logo_left, top=champ_logo_top)
-
-        secondary_config = title_config.get('secondary_logo', None)
-        if secondary_config:
-            secondary_logo = self._get_customized_title_secondary_logo_image(base_img, secondary_config)
-            secondary_logo_left = secondary_config.get('left', base_img.width-secondary_logo.width)
-            secondary_logo_top = secondary_config.get('top', False)
-            paste(secondary_logo, img, left=secondary_logo_left, top=secondary_logo_top)
-
-        return img
-
-    def _get_customized_title_text_image(self,  base_img: PngImageFile, title_config:dict) -> PngImageFile:
-        font = FontFactory.get_font(
-            title_config.get('font'),
-            title_config.get('font_size', 74),
-            FontFactory.black
-        )
-        txt = title_config.get('content', 'Results').upper()
-        color = title_config.get('font_color', (255, 255, 255))
-        return text(txt, color, font)
-
-    def _get_customized_title_f1logo_image(self,  base_img: PngImageFile, config:dict) -> PngImageFile:
-        # F1 23
-        with Visual.get_f1_logo(config['color']) as f1:
-            if w := config.get('width'):
-                logo = resize(f1, width=w)
-            else:
-                logo = resize(f1, height=self._get_visual_title_height())
-        return logo
-
-    def _get_customized_title_champ_logo_image(self,  base_img: PngImageFile, config:dict) -> PngImageFile:
-        # Champ
-        with Image.open(config['path']) as champ:
-            if w := config.get('width'):
-                logo = resize(champ, width=w)
-            else:
-                logo = resize(champ, height=self._get_visual_title_height())
-        return logo
-
-    def _get_customized_title_secondary_logo_image(self,  base_img: PngImageFile, config:dict) -> PngImageFile:
-        # secondary
-        with Image.open(config['path']) as secondary:
-            if w := config.get('width'):
-                logo = resize(secondary, width=w)
-            else:
-                logo = resize(secondary, height=self._get_visual_title_height())
-        return logo
+    def _generate_part_image(self, config_key):
+        config = self.visual_config[config_key]
+        method = getattr(self, f'_generate_{config_key}_image')
+        return method(config['width'], config['height'])
 
     def _add_content(self, final: PngImageFile):
-        title_height = self._get_visual_title_height()
-        paddings = self.visual_config['padding']
-        top_h_padding = paddings['top']
-        available_width = final.width - paddings['left']
-        subtitle_image = self._get_subtitle_image(
-            available_width, self.visual_config['subtitle']['height']
-        )
-        pos = paste(
-            subtitle_image, final, paddings['left'], title_height + top_h_padding
-        )
+        h_padding = self.visual_config['h_padding']
+        v_padding = self.visual_config['v_padding']
 
-        rankings_top = pos.bottom + self.visual_config['content']['padding']['top']
-        rankings_height = final.height - rankings_top
-        rankings_img = self._get_ranking_image(final.width, rankings_height)
-        paste(rankings_img, final, left=0, top=rankings_top)
+        # top3
+        top3_img = self._generate_part_image('top3')
+        top3_pos = paste(top3_img, final, left=h_padding, top=v_padding)
 
-    def _get_subtitle_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        config = self.visual_config['subtitle']
-        padding = config['padding']
-        race_title_width = int(0.35 * width)
+        # top10
+        top10_padding = self.visual_config['top10']['padding_top']
+        top10_img = self._generate_part_image('top10')
+        top10_pos = paste(top10_img, final, left=h_padding, top=top3_pos.bottom+top10_padding)
 
-        circuit_name_cfg = config['circuit_name']
-        name_font = FontFactory.get_font(
-            circuit_name_cfg.get('font'),
-            circuit_name_cfg['font_size'],
-            FontFactory.black
-        )
-        circuit_city_cfg = config['circuit_city']
-        city_font = FontFactory.get_font(
-            circuit_city_cfg.get('font'),
-            circuit_city_cfg['font_size'],
-            FontFactory.black
-        )
-        race_date_cfg = config['race_date']
-        race_date_font = FontFactory.get_font(
-            race_date_cfg.get('font'),
-            race_date_cfg['font_size'],
-            FontFactory.regular
-        )
+        # race & fastestlap
+        race_flap_padding = self.visual_config['race_flap']['padding_top']
+        race_flap_img = self._generate_part_image('race_flap')
+        race_flap_pos = paste(race_flap_img, final, left=final.width-race_flap_img.width - h_padding, top=race_flap_padding)
 
-        round_img = self.race_renderer.get_type_image(height, height, with_txt=False)
-        race_title_image = self.race_renderer.get_circuit_and_date_img(
-            race_title_width,
-            height,
-            name_font=name_font,
-            name_color=circuit_name_cfg.get('color'),
-            city_font=city_font,
-            city_color=circuit_city_cfg.get('color'),
-            date_font=race_date_font,
-            date_color=race_date_cfg.get('color'),
-            name_top=circuit_name_cfg.get('top', 10),
-            city_top=circuit_city_cfg.get('top', 50),
-            date_top=race_date_cfg.get('top', 0),
-        )
-        round_dim = paste(round_img, img, left=padding)
-        if bgcolor := config.get('background'):
-            bg = Image.new('RGBA', (race_title_image.width, race_title_image.height), bgcolor)
-            paste(bg, img, left=round_dim.right)
-        race_pos = paste(race_title_image, img, left=round_dim.right+padding)
+        # top20
+        top20_img = self._generate_part_image('top20')
+        top20_padding = self.visual_config['top20']['padding_top']
+        top20_pos = paste(top20_img, final, left=top3_pos.right+2*h_padding, top=race_flap_pos.bottom+top20_padding)
 
-        fastest_lap_left = race_pos.right + padding
-        fastest_lap_width = width - padding - fastest_lap_left
-        fastest_lap_img = self._get_fastest_lap_image(
-            fastest_lap_width, height
-        )
-        paste(fastest_lap_img, img, fastest_lap_left)
-        return img
+        # logos
+        logo_img = self._generate_part_image('logos')
+        logo_padding = self.visual_config['logos']['padding_top']
+        paste(logo_img, final, left=top20_pos.left, top=top20_pos.bottom+logo_padding)
 
-    def _get_fastest_lap_image(self, width: int, height: int):
-        fl_config = self.visual_config['fastest_lap']
-        bgcolor = fl_config.get('background', (30, 30, 30, 235))
-        img = Image.new('RGBA', (width, height), bgcolor)
+    def _generate_top3_image(self, width, height):
+        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        config = self.visual_config['top3']
+        renderer_config = self.championship_config['settings']['components']['podium_row_renderer']
+        between = 30
+        pilot_width = (width - 2 * between) // 3
 
-        # FASTEST LAP IMG
-        with Image.open(f'assets/fastest_lap.png') as fstst_img:
-            fstst_img = resize(fstst_img, height, height)
-            logo_pos = paste(fstst_img, img, left=0)
+        pilot_1_renderer = PodiumRowRenderer(self.race.race_result.rows[0], renderer_config)
+        pilot_1_img = pilot_1_renderer.render(pilot_width, height)
+        pilot_2_renderer = PodiumRowRenderer(self.race.race_result.rows[1], renderer_config)
+        pilot_2_img = pilot_2_renderer.render(pilot_width, config['2nd_height'])
+        pilot_3_renderer = PodiumRowRenderer(self.race.race_result.rows[2], renderer_config)
+        pilot_3_img = pilot_3_renderer.render(pilot_width, config['3rd_height'])
 
-        # TEAM LOGO
-        pilot = self.race.fastest_lap_pilot
-        if not pilot:
-            raise IncorrectDataException(
-                f'Fastest lap pilot "{self.race.fastest_lap_pilot_name}" is unknown !')
-        team = pilot.team
-        with team.get_results_logo() as team_img:
-            team_img = resize(team_img, height, height)
-            team_pos = paste(team_img, img, left=logo_pos.right+20)
-
-        # PILOT NAME
-        pilot_config = fl_config['pilot']
-        pilot_font = FontFactory.get_font(
-            pilot_config.get('font'),
-            pilot_config['font_size'],
-            FontFactory.bold
-        )
-        pilot_font_color = pilot_config['font_color']
-        pilot_content = self.race.fastest_lap_pilot.name.upper()
-        pilot_txt = text(pilot_content, pilot_font_color, pilot_font)
-        pilot_pos = paste(pilot_txt, img, left=team_pos.right + 30, top=pilot_config['top'])
-
-        # LAP #
-        lap_config = fl_config['lap']
-        lap_font = FontFactory.get_font(
-            lap_config.get('font'),
-            lap_config['font_size'],
-            FontFactory.regular
-        )
-        lap_font_color = lap_config['font_color']
-        lap_txt_content = lap_config['text']
-        if not self.race.fastest_lap_lap:
-            _logger.warning('Fastest lap "LAP" information is not filled in !')
-        lap_content = f'{lap_txt_content} {self.race.fastest_lap_lap}'
-        lap_txt = text(lap_content, lap_font_color, lap_font)
-        lap_left_space = lap_config['left']
-        paste(lap_txt, img, left=pilot_pos.right + lap_left_space, top=lap_config['top'])
-
-        # LAP TIME
-        time_config = fl_config['time']
-        time_font = FontFactory.get_font(
-            time_config.get('font'),
-            time_config['font_size'],
-            FontFactory.bold
-        )
-        time_font_color = time_config['font_color']
-        if not self.race.fastest_lap_time or self.race.fastest_lap_time == DEFAULT_TIME:
-            _logger.warning('Fastest lap "TIME" information is not filled in !')
-        time_txt = text(self.race.fastest_lap_time, time_font_color, time_font)
-        paste(time_txt, img, left=width-time_txt.width-15, top=time_config['top'])
+        pilot2_pos = paste(pilot_2_img, img, left=0, top=height-pilot_2_img.height)
+        pilot1_pos = paste(pilot_1_img, img, left=pilot2_pos.right+between, top=height-pilot_1_img.height)
+        paste(pilot_3_img, img, left=pilot1_pos.right+between, top=height-pilot_3_img.height)
 
         return img
 
-    def _get_ranking_image(self, width: int, height: int):
-        content_config = self.visual_config['content']
-        img = Image.new('RGBA', (width, height), content_config['background'])
-        top = content_config['top']
-        hop_between_position = content_config['hop_between']
-        row_height = content_config['row_height']
-        content_paddings = content_config['padding']
-        padding_left = content_paddings['left']
-        padding_between = content_paddings['between_cols']
-        padding_right = content_paddings['right']
-        col_width = (width - (padding_left+padding_between+padding_right)) // 2
-        first_col_left = padding_left
-        second_col_left = padding_left + col_width + padding_between
+    def _generate_top10_image(self, width, height):
+        return self._generate_pilots_list_image(width, height, self.race.race_result.rows[3:10], 'top10')
 
-        maximum_split_size, maximum_tyre_amount = self._compute_max_split_size_and_tyre_amount()
+    def _generate_top20_image(self, width, height):
+        return self._generate_pilots_list_image(width, height, self.race.race_result.rows[10:], 'top20')
 
-        if not self.race.race_result or not self.race.race_result.rows:
-            raise IncorrectDataException('No race results !')
-        for ranking_row in self.race.race_result.rows:
-            if not ranking_row.pilot:
-                raise IncorrectDataException(f'Invalid pilot "{ranking_row.position}. {ranking_row.pilot_name}"')
-            row_renderer = RankingRowRenderer(
-                ranking_row,
-                self.championship_config['settings']['components']['ranking_row_renderer']
-            )
+    def _generate_race_flap_image(self, width, height):
+        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        flap_config = self.visual_config['race_flap']['fastest_lap']
+        race_info_with = width - flap_config['width']
+        race_info_img = self._generate_race_info_image(race_info_with, height)
+        race_pos = paste(race_info_img, img, left=0)
 
-            left = first_col_left if ranking_row.position % 2 == 1 else second_col_left
-            pilot_result_image = row_renderer.get_details_image(
-                col_width,
-                row_height,
-                maximum_split_size,
-                maximum_tyre_amount
-            )
-            paste(pilot_result_image, img, left, top)
-            top += hop_between_position
+        flap_img = self.race_renderer.get_fastest_lap_image(flap_config['width']-flap_config['left'], flap_config['height'], flap_config)
+        paste(flap_img, img, left=race_pos.right + flap_config['left'])
         return img
 
-    def _compute_max_split_size_and_tyre_amount(self):
-        maximum_split_size = 0
-        maximum_tyre_amount = 0
-        for ranking_row in self.race.race_result.rows:
-            # compute max size of time & split
-            if ranking_row.split is not None:
-                w, _ = text_size(ranking_row.split, small_font)
-                if w > maximum_split_size:
-                    maximum_split_size = w
-            # compute max amount of tyre stints
-            if ranking_row.tyres is not None:
-                tyre_amount = len(ranking_row.tyres)
-                if tyre_amount > maximum_tyre_amount:
-                    maximum_tyre_amount = tyre_amount
-        return maximum_split_size, maximum_tyre_amount
+    ## SUB - SUB - METHODS
+
+    def _generate_pilots_list_image(self, width:int, height: int, race_rows: List[RaceRankingRow], part:str) -> PngImageFile:
+        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        row_renderer_config = self.championship_config['settings']['components']['ranking_row_renderer']
+        top = 0
+        row_height = self.visual_config[part]['rows']['height']
+        for row in race_rows:
+            renderer = RankingRowRenderer(row, row_renderer_config)
+            row_img = renderer.render(width, row_height)
+            paste(row_img, img, left=0, top=top)
+            top += row_height
+        return img
+
+    def _generate_race_info_image(self, width:int, height:int):
+        img = Image.new('RGB', (width, height), (0,0,0))
+        date_config = self.visual_config['race_flap']['date']
+        track_config = self.visual_config['race_flap']['track']
+
+        round_img = self.race_renderer.get_type_image(height, height, with_txt=False, round_font=FontFactory.black(32))
+        race_img = self.race_renderer.get_circuit_and_date_img(width-round_img.width, height, date_config, track_config)
+        round_pos = paste(round_img, img, left=0)
+        paste(race_img, img, left=round_pos.right)
+        return img
+
+    def _generate_logos_image(self, width, height):
+        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        # champ
+        champ_logo = self._get_champ_logo(self.visual_config['logos']['champ'])
+        paste(champ_logo, img, left=0)
+
+        # secondary
+        champ_logo = self._get_champ_logo(self.visual_config['logos']['secondary'])
+        paste(champ_logo, img, left=width - champ_logo.width, top=0)
+
+        # f1
+        f1_logo = self._get_f1_logo(self.visual_config['logos']['f1'])
+        paste(f1_logo, img, left=width-f1_logo.width, top=height-f1_logo.height)
+        return img
+
+    def _get_f1_logo(self, config):
+        with Visual.get_f1_logo(config['color']) as f1:
+            logo = resize(f1, width=config.get('width'))
+        return logo
+
+    def _get_champ_logo(self, config):
+        with Image.open(config['path']) as champ:
+            logo = resize(champ, width=config.get('width'))
+        return logo

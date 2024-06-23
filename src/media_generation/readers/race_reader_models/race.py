@@ -63,3 +63,13 @@ class Race:
 
     def get_pilot(self, pilot_name:str) -> Pilot:
         return self.final_lineup[pilot_name]
+
+    def fastest_lap_point_granted(self) -> bool:
+        if self.type == RaceType.SPRINT_1:
+            return False
+        ranking_row = self.race_result.get_fastest_lap_row()
+        if not ranking_row or ranking_row.split in ('NT', 'DSQ'):
+            return False
+        if self.type in (RaceType.DOUBLE_GRID_1, RaceType.DOUBLE_GRID_2):
+            return ranking_row.position <= 10
+        return ranking_row.position <= 14

@@ -26,3 +26,9 @@ class RaceRanking:
             if r.pilot == pilot:
                 return r
         return None
+
+    def get_fastest_lap_row(self):
+        for r in self.rows:
+            if r.has_fastest_lap:
+                return r
+        return None

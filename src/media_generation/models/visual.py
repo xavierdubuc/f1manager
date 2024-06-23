@@ -27,7 +27,7 @@ class Visual:
     @classmethod
     def get_f1_logo(cls, color=None):
         color_part = f'_{color}' if color is not None else ''
-        return cls._get_logo('f1', f'23{color_part}')
+        return cls._get_logo('f1', f'24{color_part}')
 
     @classmethod
     def get_fif_logo(cls, type='round', color=None):

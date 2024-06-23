@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 class Team:
     name: str
     title: str
-    subtitle: str
+    display_name: str
     main_color: Union[str,tuple] = 'white'
     alternate_main_color: Union[str,tuple] = None
     secondary_color: Union[str,tuple] = 'black'
@@ -69,8 +69,6 @@ class Team:
         }
 
     def get_results_logo(self):
-        if self.name == 'AlphaTauri':
-            return Image.open(self._get_white_logo_path())
         return Image.open(self.get_image())
 
     def get_lineup_logo(self):
