@@ -12,10 +12,15 @@ class SessionType(Enum):
     q3 = 7
     short_q = 8
     one_lap_q = 9
-    race = 10
-    race_2 = 11
-    race_3 = 12
-    clm = 13
+    sprint_q1 = 10
+    sprint_q2 = 11
+    sprint_q3 = 12
+    sprint_short_q = 13
+    sprint_one_shot = 14
+    race = 15
+    race2 = 16
+    race3 = 17
+    clm = 18
 
     def __str__(self):
         if self == SessionType.race:
