@@ -18,8 +18,8 @@ class SessionType(Enum):
     sprint_short_q = 13
     sprint_one_shot = 14
     race = 15
-    race2 = 16
-    race3 = 17
+    race_2 = 16
+    race_3 = 17
     clm = 18
 
     def __str__(self):
