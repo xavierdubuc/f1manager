@@ -136,6 +136,8 @@ class Brain:
     def _send_discord_message(self, msg:Message):
         if self.queue:
             self.queue.put(msg)
+        else:
+            _logger.info(msg.content)
 
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')
