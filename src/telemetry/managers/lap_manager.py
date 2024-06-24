@@ -3,7 +3,7 @@ from ..models.enums.driver_status import DriverStatus
 from ..models.enums.pit_status import PitStatus
 from ..models.enums.result_status import ResultStatus
 from ..models.lap import Lap
-from f1_23_telemetry.packets import LapData
+from f1_24_telemetry.packets import LapData
 
 
 class LapManager(AbstractManager):

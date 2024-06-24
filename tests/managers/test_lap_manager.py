@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from f1_23_telemetry.packets import LapData
+from f1_24_telemetry.packets import LapData
 from managers.lap_manager import LapManager
 
 from models.lap import Lap

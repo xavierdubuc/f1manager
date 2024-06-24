@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from f1_23_telemetry.packets import PacketSessionData, WeatherForecastSample
+from f1_24_telemetry.packets import PacketSessionData, WeatherForecastSample
 from managers.abstract_manager import Change
 from managers.session_manager import SessionManager
 from models.enums.session_type import SessionType

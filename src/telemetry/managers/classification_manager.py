@@ -2,7 +2,7 @@ from typing import Dict
 from .abstract_manager import Change, AbstractManager
 from ..models.classification import Classification
 from ..models.enums.result_status import ResultStatus
-from f1_23_telemetry.packets import FinalClassificationData
+from f1_24_telemetry.packets import FinalClassificationData
 from ..models.enums.tyre import Tyre
 
 from ..models.enums.tyre_compound import TyreCompound

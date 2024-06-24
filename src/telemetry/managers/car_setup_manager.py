@@ -1,5 +1,5 @@
 from typing import Dict
-from f1_23_telemetry.packets import CarSetupData
+from f1_24_telemetry.packets import CarSetupData
 from src.telemetry.models.car_setup import CarSetup
 from .abstract_manager import AbstractManager, Change
 from ..models.enums.tyre import Tyre

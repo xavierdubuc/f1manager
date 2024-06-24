@@ -1,5 +1,5 @@
 from typing import Dict
-from f1_23_telemetry.packets import Packet
+from f1_24_telemetry.packets import Packet
 
 
 class Change:

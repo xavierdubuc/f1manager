@@ -4,7 +4,7 @@ from ..models.enums.original_driver import OriginalDriver
 from ..models.enums.team import Team
 from ..models.participant import Participant
 from .abstract_manager import AbstractManager, Change
-from f1_23_telemetry.packets import PacketParticipantsData
+from f1_24_telemetry.packets import PacketParticipantsData
 
 
 class ParticipantManager(AbstractManager):

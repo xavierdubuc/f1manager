@@ -1,7 +1,7 @@
 import ctypes
 import unittest
 from unittest.mock import Mock, patch
-from f1_23_telemetry.packets import FinalClassificationData
+from f1_24_telemetry.packets import FinalClassificationData
 from managers.abstract_manager import Change
 from managers.classification_manager import ClassificationManager
 from models.classification import Classification

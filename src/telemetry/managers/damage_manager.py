@@ -1,7 +1,7 @@
 from typing import Dict
 from .abstract_manager import AbstractManager, Change
 from ..models.damage import Damage
-from f1_23_telemetry.packets import CarDamageData
+from f1_24_telemetry.packets import CarDamageData
 
 
 class DamageManager(AbstractManager):

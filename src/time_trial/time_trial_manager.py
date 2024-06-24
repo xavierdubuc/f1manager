@@ -5,8 +5,8 @@ from typing import List
 import tabulate
 
 import disnake
-from f1_23_telemetry.listener import TelemetryListener
-from f1_23_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData
+from f1_24_telemetry.listener import TelemetryListener
+from f1_24_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData
 from src.telemetry.models.enums.track import Track
 from src.bot.vignebot import Vignebot
 from src.gsheet.gsheet import GSheet

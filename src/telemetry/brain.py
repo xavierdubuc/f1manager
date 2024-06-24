@@ -6,7 +6,7 @@ from typing import Dict
 import disnake
 
 from disnake.ext import commands
-from f1_23_telemetry.packets import (
+from f1_24_telemetry.packets import (
     Packet,
     PacketCarDamageData,
     PacketCarTelemetryData,

@@ -4,7 +4,7 @@ from ..models.enums.driver_status import DriverStatus
 from ..models.enums.pit_status import PitStatus
 from ..models.enums.result_status import ResultStatus
 from ..models.lap_record import LapRecord
-from f1_23_telemetry.packets import PacketSessionHistoryData
+from f1_24_telemetry.packets import PacketSessionHistoryData
 
 
 class LapRecordManager(AbstractManager):

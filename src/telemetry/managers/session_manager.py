@@ -12,7 +12,7 @@ from ..models.enums.track import Track
 from ..models.enums.weather import Weather
 from ..models.session import Session
 from ..models.weather_forecast import WeatherForecast
-from f1_23_telemetry.packets import PacketSessionData
+from f1_24_telemetry.packets import PacketSessionData
 from datetime import timedelta
 from .abstract_manager import Change, AbstractManager
 

@@ -3,7 +3,7 @@ import pickle
 from datetime import datetime
 from threading import Thread
 from disnake.ext import commands
-from f1_23_telemetry.listener import TelemetryListener
+from f1_24_telemetry.listener import TelemetryListener
 import logging
 from src.telemetry.brain import Brain
 

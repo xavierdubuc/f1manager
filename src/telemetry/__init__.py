@@ -1,6 +1,6 @@
 from multiprocessing import Queue
 from multiprocessing.connection import Connection
-from f1_23_telemetry.listener import TelemetryListener
+from f1_24_telemetry.listener import TelemetryListener
 from src.telemetry.brain import Brain
 
 import logging
