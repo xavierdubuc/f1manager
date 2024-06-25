@@ -6,10 +6,20 @@ from src.telemetry.brain import Brain
 import logging
 _logger = logging.getLogger(__name__)
 
+DEFAULT_EMOJIS = {}
+
 def run(queue: Queue, connection: Connection, config:dict, sheet_name:str, ip:str):
     try:
         _logger.info('Running...')
-        brain = Brain(queue, config, sheet_name)
+        if connection:
+            _logger.info('Waiting for emojis...')
+            setup_data = connection.recv()
+        else:
+            setup_data = {
+                'emojis': DEFAULT_EMOJIS
+            }
+        _logger.info(f'Will use following setup_data {setup_data}')
+        brain = Brain(queue, config, sheet_name, setup_data)
         _logger.info(f'Starting listening on {ip}:20777')
         listener = TelemetryListener(host=ip)
         while True:

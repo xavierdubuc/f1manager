@@ -19,8 +19,7 @@ class NoticeableDamageListener(AbstractListener):
         Event.DAMAGE_UPDATED
     ]
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __post_init__(self):
         self.img_generator = DamageImageGenerator()
 
     def _on_damage_updated(self, damage:Damage, changes:Dict[str, Change], participant:Participant, session:Session) -> List[Message]:

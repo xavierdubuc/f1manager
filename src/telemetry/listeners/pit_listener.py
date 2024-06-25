@@ -35,8 +35,10 @@ class PitListener(AbstractListener):
                 if not car_status:
                     fuel_str = tyres_str = ''
                 else:
+                    tyre_string = car_status.visual_tyre_compound.get_long_string()
+                    tyre_emoji = self.get_emoji(tyre_string.lower(), tyre_string)
                     tyres_age_str = f' ({car_damage.get_max_tyre_damage()} %)' if car_damage else ''
-                    tyres_str = f' avec des pneus {car_status.visual_tyre_compound.get_long_string()}{tyres_age_str}'
+                    tyres_str = f' en {tyre_emoji}{tyres_age_str}'
                     fuel_str = f' et {round(car_status.fuel_remaining_laps, 2)} tours d\'essence'
 
                 stop_time = changes['pit_stop_timer_in_ms'].old if 'pit_stop_timer_in_ms' in changes else None
@@ -44,6 +46,5 @@ class PitListener(AbstractListener):
                 t = f'({round(stop_time/1000,2)}s)' if stop_time else ''
                 tt = f' (Total: {round(lane_time/1000,2)}s)' if lane_time else ''
 
-                # FIXME use emojis ?
                 msg = f'🟢 **{participant}** sort des stands{tyres_str}{fuel_str} {t}{tt}'
                 return [Message(msg, Channel.PIT)]

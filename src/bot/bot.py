@@ -97,8 +97,6 @@ bot.add_cog(PilotCog(bot))
 
 @bot.event
 async def on_ready():
-    g = bot.get_guild(FBRT_GUILD_ID)
-    # print(g.emojis)
     _logger.info('Connected !')
 
 

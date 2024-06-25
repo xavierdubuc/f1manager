@@ -41,8 +41,7 @@ class AllSetupsListener(AbstractListener):
         Event.CAR_SETUP_CREATED,
         Event.CAR_SETUP_UPDATED
     ]
-    def __init__(self) -> None:
-        super().__init__()
+    def __post_init__(self):
         self.ai_setup_notified = False
 
     def _on_car_setup_updated(self, car_setup:CarSetup, changes:Dict[str, Change], participant:Participant, session:Session) -> List[Message]:

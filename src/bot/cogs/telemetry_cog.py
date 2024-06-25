@@ -16,6 +16,16 @@ class TelemetryCog(commands.Cog):
         self.process_queue.start()
         self.sent_messages = {}
 
+    @commands.Cog.listener()
+    async def on_ready(self):
+        self.guild_id = self.bot.championship_config['discord']['default']['guild']
+        self.guild = self.bot.get_guild(self.guild_id)
+        emojis = self.guild.emojis
+        setup_data = {
+            'emojis': {e.name: str(e) for e in emojis}
+        }
+        self.bot.connection.send(setup_data)
+
     @tasks.loop(seconds=INTERVAL)
     async def process_queue(self):
         if not self.bot.queue:

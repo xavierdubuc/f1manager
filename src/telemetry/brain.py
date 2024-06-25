@@ -89,7 +89,7 @@ LISTENER_CLASSES = [
 
 
 class Brain:
-    def __init__(self, queue: Queue = None, championship_config:dict=None, sheet_name:str=None):
+    def __init__(self, queue: Queue = None, championship_config:dict=None, sheet_name:str=None, setup_data:dict=None):
         self.current_session = None
         self.previous_sessions = []
         self.queue = queue
@@ -98,7 +98,7 @@ class Brain:
         self.listeners_by_event = {event: [] for event in Event}
         self.sheet_name = sheet_name
         for Listener in LISTENER_CLASSES:
-            listener = Listener()
+            listener = Listener(setup_data.get('emojis', {}))
             for event in Listener.SUBSCRIBED_EVENTS:
                 self.listeners_by_event[event].append(listener)
 
