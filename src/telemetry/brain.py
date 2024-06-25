@@ -469,6 +469,8 @@ class Brain:
         )
         event_code = ''.join([chr(i) for i in packet.event_string_code]).rstrip('\x00')
         if event_code in supported:
+            print('--------')
+            print(event_code)
             if event_code == 'FTLP':
                 print(packet.event_details.fastest_lap)
             if event_code == 'RTMT':
@@ -491,6 +493,7 @@ class Brain:
                 print(packet.event_details.safety_car)
             if event_code == 'COLL':
                 print(packet.event_details.collision)
+            print('/////////')
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):
