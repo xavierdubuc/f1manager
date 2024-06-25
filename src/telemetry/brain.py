@@ -467,30 +467,29 @@ class Brain:
             'FTLP', 'RTMT', 'DRSE', 'DRSD', 'CHQF', 'RCWN',
             'SPTP', 'RDFL', 'OVTK', 'SCAR', 'COLL'
         )
-        print(packet.event_string_code)
-        print(''.join([chr(i) for i in packet.event_string_code]).rstrip('\x00'))
-        if packet.event_string_code in supported:
-            if packet.event_string_code == 'FTLP':
+        event_code = ''.join([chr(i) for i in packet.event_string_code]).rstrip('\x00')
+        if event_code in supported:
+            if event_code == 'FTLP':
                 print(packet.event_details.fastest_lap)
-            if packet.event_string_code == 'RTMT':
+            if event_code == 'RTMT':
                 print(packet.event_details.retirement)
-            if packet.event_string_code == 'DRSE':
+            if event_code == 'DRSE':
                 print(packet.event_details)
-            if packet.event_string_code == 'DRSD':
+            if event_code == 'DRSD':
                 print(packet.event_details)
-            if packet.event_string_code == 'CHQF':
+            if event_code == 'CHQF':
                 print(packet.event_details)
-            if packet.event_string_code == 'RCWN':
+            if event_code == 'RCWN':
                 print(packet.event_details.race_winner)
-            if packet.event_string_code == 'SPTP':
+            if event_code == 'SPTP':
                 print(packet.event_details.speed_trap)
-            if packet.event_string_code == 'RDFL':
+            if event_code == 'RDFL':
                 print(packet.event_details)
-            if packet.event_string_code == 'OVTK':
+            if event_code == 'OVTK':
                 print(packet.event_details.overtake)
-            if packet.event_string_code == 'SCAR':
+            if event_code == 'SCAR':
                 print(packet.event_details.safety_car)
-            if packet.event_string_code == 'COLL':
+            if event_code == 'COLL':
                 print(packet.event_details.collision)
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
