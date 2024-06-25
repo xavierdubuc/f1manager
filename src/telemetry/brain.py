@@ -467,6 +467,7 @@ class Brain:
             'FTLP', 'RTMT', 'DRSE', 'DRSD', 'CHQF', 'RCWN',
             'SPTP', 'RDFL', 'OVTK', 'SCAR', 'COLL'
         )
+        print(packet.event_string_code)
         if packet.event_string_code in supported:
             if packet.event_string_code == 'FTLP':
                 print(packet.event_details.fastest_lap)
