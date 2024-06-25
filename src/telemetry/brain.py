@@ -463,7 +463,33 @@ class Brain:
                         self._emit(Event.CAR_SETUP_UPDATED, car_setup=self.current_session.car_setups[i], changes=changes, participant=participant, session=self.current_session)
 
     def _handle_received_event_packet(self, packet:PacketEventData):
-        print(packet)
+        supported = (
+            'FTLP', 'RTMT', 'DRSE', 'DRSD', 'CHQF', 'RCWN',
+            'SPTP', 'RDFL', 'OVTK', 'SCAR', 'COLL'
+        )
+        if packet.event_string_code in supported:
+            if packet.event_string_code == 'FTLP':
+                print(packet.event_details.fastest_lap)
+            if packet.event_string_code == 'RTMT':
+                print(packet.event_details.retirement)
+            if packet.event_string_code == 'DRSE':
+                print(packet.event_details)
+            if packet.event_string_code == 'DRSD':
+                print(packet.event_details)
+            if packet.event_string_code == 'CHQF':
+                print(packet.event_details)
+            if packet.event_string_code == 'RCWN':
+                print(packet.event_details.race_winner)
+            if packet.event_string_code == 'SPTP':
+                print(packet.event_details.speed_trap)
+            if packet.event_string_code == 'RDFL':
+                print(packet.event_details)
+            if packet.event_string_code == 'OVTK':
+                print(packet.event_details.overtake)
+            if packet.event_string_code == 'SCAR':
+                print(packet.event_details.safety_car)
+            if packet.event_string_code == 'COLL':
+                print(packet.event_details.collision)
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):
