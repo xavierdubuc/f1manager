@@ -77,6 +77,7 @@ class NoticeableDamageListener(AbstractListener):
                 pos = 'avant gauche'
             else:
                 pos = 'avant droite'
+                # TODO emoji pneu rouge ?
             return f'🔴 🛞 Crevaison ou roue {pos} arrachée !'
 
         damage_keys = {

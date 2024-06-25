@@ -37,6 +37,7 @@ class WeatherForecastListener(AbstractListener):
     def _on_session_updated(self, session:Session, changes:Dict[str, Change])  -> List[Message]:
         if 'weather_forecast' not in changes:
             return []
+        # TODO emoji icônes du jeu
         now = datetime.now()
         log_delta = now - self.last_logged_at if self.last_logged_at else None
         if not log_delta or log_delta.seconds > self.log_delay:

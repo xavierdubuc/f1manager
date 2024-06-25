@@ -133,6 +133,9 @@ class Brain:
         elif packet_type == PacketCarSetupData:
             self._handle_received_car_setup_packet(packet)
 
+        elif packet_type == PacketEventData:
+            self._handle_received_event_packet(packet)
+
     def _send_discord_message(self, msg:Message):
         if self.queue:
             self.queue.put(msg)
@@ -458,6 +461,9 @@ class Brain:
                     changes = CarSetupManager.update(self.current_session.car_setups[i], packet_data)
                     if changes:
                         self._emit(Event.CAR_SETUP_UPDATED, car_setup=self.current_session.car_setups[i], changes=changes, participant=participant, session=self.current_session)
+
+    def _handle_received_event_packet(self, packet:PacketEventData):
+        print(packet)
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):
