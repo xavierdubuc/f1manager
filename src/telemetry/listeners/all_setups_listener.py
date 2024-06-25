@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Dict, List
 from src.telemetry.event import Event
 
@@ -35,6 +36,7 @@ FIELDS_LABELS = {
     'fuel_load': 'Essence'
 }
 
+@dataclass
 class AllSetupsListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.CAR_SETUP_LIST_INITIALIZED,

@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Dict, List
 
 import disnake
@@ -14,6 +15,7 @@ from .abstract_listener import AbstractListener
 
 USE_IMAGE = True
 
+@dataclass
 class NoticeableDamageListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.DAMAGE_UPDATED
