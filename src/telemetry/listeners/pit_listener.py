@@ -46,5 +46,6 @@ class PitListener(AbstractListener):
                 t = f'({round(stop_time/1000,2)}s)' if stop_time else ''
                 tt = f' (Total: {round(lane_time/1000,2)}s)' if lane_time else ''
 
-                msg = f'🟢 **{participant}** sort des stands{tyres_str}{fuel_str} {t}{tt}'
+                teamoji = self.get_emoji(participant.team.as_emoji())
+                msg = f'🟢 {teamoji} **{participant}** sort des stands{tyres_str}{fuel_str} {t}{tt}'
                 return [Message(msg, Channel.PIT)]

@@ -12,5 +12,6 @@ class SafetyCarListener(AbstractListener):
     ]
     def _on_session_updated(self, session:Session, changes:Dict[str, Change]) -> List[Message]:
         if 'safety_car_status' in changes:
+            # emoji SC/VSC/drapeau jaune/rouge
             actual_status = changes['safety_car_status'].actual
             return [Message(content=str(actual_status))]

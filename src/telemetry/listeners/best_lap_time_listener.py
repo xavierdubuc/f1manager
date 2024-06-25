@@ -32,6 +32,7 @@ class BestLapTimeListener(AbstractListener):
  
         lap = session.get_current_lap(participant)
         position = str(lap.car_position).rjust(2)
+        teamoji = self.get_emoji(participant.team.as_emoji())
         if not session.current_fastest_lap or best_lap_time < session.current_fastest_lap:
             if session.current_fastest_lap:
                 difference = timedelta(seconds=(session.current_fastest_lap - best_lap_time)/1000)
@@ -41,7 +42,7 @@ class BestLapTimeListener(AbstractListener):
             session.current_fastest_lap = best_lap_time
             session.current_fastest_lap_driver = participant
             session.current_fastest_lap_lap = session.current_lap
-            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪 `{position}` {participant}  ` {formatted_lap_time}{formatted_difference}`'
+            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪 `{position}` {teamoji} {participant}  ` {formatted_lap_time}{formatted_difference}`'
         else:
             if changes["best_lap_time"].old:
                 difference = timedelta(seconds=(changes["best_lap_time"].old - best_lap_time)/1000)
@@ -53,6 +54,6 @@ class BestLapTimeListener(AbstractListener):
                 formatted_delta_p1 = f' [+{session._format_time(delta_p1)}]'
             else:
                 formatted_delta_p1 = ''
-            msg = f'🕒 🟩 `{position}` **{participant}**  ` {formatted_lap_time}{formatted_difference}{formatted_delta_p1}`'
+            msg = f'🕒 🟩 `{position}` {teamoji} **{participant}**  ` {formatted_lap_time}{formatted_difference}{formatted_delta_p1}`'
 
         return [Message(content=msg, channel=Channel.PACE)]

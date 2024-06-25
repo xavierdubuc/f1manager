@@ -10,4 +10,5 @@ class SessionCreationListener(AbstractListener):
         Event.SESSION_CREATED
     ]
     def _on_session_created(self, current: Session, old: Session)  -> List[Message]:
+        # TODO emoji drapeau circuit ?
         return [Message(content=f'# Début de la session "{current.session_type}" à {current.track}', channel=Channel.BROADCAST)]

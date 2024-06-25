@@ -30,7 +30,8 @@ class NoticeableDamageListener(AbstractListener):
             return []
         if not self._has_noticeable_damage_changes(changes):
             return []
-        main_msg = f'## {participant} → {self._get_changes_description(changes)}'
+        teamoji = self.get_emoji(participant.team.as_emoji())
+        main_msg = f'## {teamoji} {participant} → {self._get_changes_description(changes)}'
         if USE_IMAGE:
             path = self.img_generator.generate(damage, participant)
             return [Message(content=main_msg, file_path=path, channel=Channel.DAMAGE)]

@@ -31,11 +31,13 @@ class PenaltyListener(AbstractListener):
             seconds_of_penalties = changes['penalties'].actual
             seconds_of_penalties_before = changes['penalties'].old
             diff = seconds_of_penalties - seconds_of_penalties_before
+            # TODO emoji drapeau noir/blanc
+            teamoji = self.get_emoji(participant.team.as_emoji())
             if diff > 0:
-                msg = f'🏴 **{participant}** a recu une pénalité de {diff} secondes ! **Total : {seconds_of_penalties} secondes**'
+                msg = f'🏴 {teamoji} **{participant}** a recu une pénalité de {diff} secondes ! **Total : {seconds_of_penalties} secondes**'
             else:
                 diff = -diff
-                msg = f'✅ **{participant}** a purgé une pénalité de {diff} secondes ! **Total : {seconds_of_penalties} secondes**'
+                msg = f'✅ {teamoji} **{participant}** a purgé une pénalité de {diff} secondes ! **Total : {seconds_of_penalties} secondes**'
             messages.append(Message(content=msg, channel=Channel.PENALTY))
         return messages
 

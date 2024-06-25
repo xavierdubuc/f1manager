@@ -27,4 +27,5 @@ class PositionChangeListener(AbstractListener):
             return []
         position_change = lap.get_position_evolution(previous_lap)
         if position_change:
-            return [Message(content=f'{position_change} **{participant}**', channel=Channel.DEFAULT)]
+            teamoji = self.get_emoji(participant.team.as_emoji())
+            return [Message(content=f'{position_change} {teamoji} **{participant}**', channel=Channel.DEFAULT)]

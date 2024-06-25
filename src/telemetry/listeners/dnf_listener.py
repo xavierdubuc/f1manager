@@ -24,6 +24,7 @@ class DNFListener(AbstractListener):
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if 'result_status' in changes:
             result_status = changes['result_status'].actual
-            msg = result_status.get_pilot_result_str(participant)
+            teamoji = self.get_emoji(participant.team.as_emoji())            
+            msg = result_status.get_pilot_result_str(f'{teamoji} **{participant}**')
             if msg:
                 return [Message(content=msg)]

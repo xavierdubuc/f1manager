@@ -16,13 +16,13 @@ class ResultStatus(Enum):
     def is_still_in_the_race(self):
         return self in (ResultStatus.inactive, ResultStatus.active)
 
-    def get_pilot_result_str(self, pilot:Participant):
+    def get_pilot_result_str(self, pilot:str):
         if self == ResultStatus.finished:
-            return f'🏁 **{pilot}**'
+            return f'🏁 {pilot}'
         if self == ResultStatus.dnf:
-            return f'🟥 **{pilot}** a NT'
+            return f'🟥 {pilot} a NT'
         if self == ResultStatus.dsq:
-            return f'🟥 **{pilot}** a été disqualifié'
+            return f'🟥 {pilot} a été disqualifié'
         if self == ResultStatus.retired:
-            return f'🟥 **{pilot}** a abandonné'
+            return f'🟥 {pilot} a abandonné'
         return None
