@@ -32,7 +32,6 @@ class OutOfTrackListener(AbstractListener):
             position = str(lap.car_position).rjust(2)
             amount_was_out_of_track = self._amount_of_rows_out_of_track(old_surfaces)
             amount_out_of_track = self._amount_of_rows_out_of_track(surfaces)
-            print(participant, amount_was_out_of_track, amount_out_of_track)
             
             # Is going off the track
             if amount_out_of_track > amount_was_out_of_track and amount_out_of_track == 4:
