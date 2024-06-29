@@ -38,11 +38,6 @@ class OutOfTrackListener(AbstractListener):
                 msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
                 _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
-            # is going back on track
-            elif amount_out_of_track < amount_was_out_of_track and amount_out_of_track == 0:
-                msg = f"`{position}` {teamoji} {participant} est revenu sur la piste !"
-                _logger.info(f'{participant} : {surfaces}')
-                return [Message(content=msg, channel=Channel.DEFAULT)]
 
     def _amount_of_rows_out_of_track(self, surfaces:List[SurfaceType]) -> int:
         return sum(1 for surface in surfaces if not surface.is_on_track())
