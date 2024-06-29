@@ -28,6 +28,7 @@ from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            RACE_RANKING_RANGE, FASTEST_LAP_PILOT_CELL,
                            FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL, VALUES_SHEET_NAME)
 
+from src.telemetry.models.speed_trap_entry import SpeedTrapEntry
 from src.media_generation.helpers.generator_type import GeneratorType
 from src.media_generation.helpers.reader import Reader
 from src.telemetry.models.lap import Lap
@@ -37,9 +38,11 @@ from src.telemetry.event import Event
 from src.telemetry.listeners.all_setups_listener import AllSetupsListener
 from src.telemetry.listeners.best_lap_time_listener import BestLapTimeListener
 from src.telemetry.listeners.classification_listener import ClassificationListener
+from src.telemetry.listeners.collision_listener import CollisionListener
 from src.telemetry.listeners.dnf_listener import DNFListener
 from src.telemetry.listeners.lap_start_listener import LapStartListener
 from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
+from src.telemetry.listeners.overtake_listener import OvertakeListener
 from src.telemetry.listeners.penalty_listener import PenaltyListener
 from src.telemetry.listeners.pit_listener import PitListener
 from src.telemetry.listeners.position_change_listener import PositionChangeListener
@@ -73,9 +76,11 @@ LISTENER_CLASSES = [
     AllSetupsListener,
     BestLapTimeListener,
     ClassificationListener,
+    CollisionListener,
     DNFListener,
     LapStartListener,
     NoticeableDamageListener,
+    OvertakeListener,
     PenaltyListener,
     PitListener,
     PositionChangeListener,
@@ -471,28 +476,68 @@ class Brain:
         if event_code in supported:
             print('--------')
             print(event_code)
-            if event_code == 'FTLP':
-                print(packet.event_details.fastest_lap)
-            if event_code == 'RTMT':
+            if event_code == 'FTLP': # FASTEST LAP
+                # {
+                #     "lap_time": 79.941,
+                #     "vehicle_idx": 16
+                # }
+                fastest_lap = packet.event_details.fastest_lap
+                participant = self.current_session.participants[fastest_lap.vehicle_idx]
+                self._emit(Event.FASTEST_LAP, participant=participant, lap_time=fastest_lap.lap_time, session=self.current_session)
+            if event_code == 'RTMT': # RETIREMENT
                 print(packet.event_details.retirement)
-            if event_code == 'DRSE':
+            if event_code == 'DRSE': # DRS ENABLED
                 print(packet.event_details)
-            if event_code == 'DRSD':
+            if event_code == 'DRSD': # DRS DISABLED
                 print(packet.event_details)
-            if event_code == 'CHQF':
+            if event_code == 'CHQF': # CHEQUERED FLAG
                 print(packet.event_details)
-            if event_code == 'RCWN':
+            if event_code == 'RCWN': # RACE WINNER
                 print(packet.event_details.race_winner)
-            if event_code == 'SPTP':
-                print(packet.event_details.speed_trap)
-            if event_code == 'RDFL':
+            if event_code == 'SPTP': # SPEED TRAP TRIGGERED
+                # {
+                #     "fastest_speed_in_session": 326.359,
+                #     "fastest_vehicle_idx_in_session": 0,
+                #     "is_driver_fastest_in_session": 0,
+                #     "overall_fastest_in_session": 0,
+                #     "speed": 316.377,
+                #     "vehicle_idx": 16
+                # }
+                speed_trap = packet.event_details.speed_trap
+                participant = self.current_session.participants[speed_trap.vehicle_idx]
+                fastest_participant = self.current_session.participants[speed_trap.fastest_vehicle_idx_in_session]
+                speed_trap_entry = SpeedTrapEntry(
+                    participant=participant,
+                    participant_speed=speed_trap.speed,
+                    participant_is_fastest=speed_trap.overall_fastest_in_session,
+                    speed_is_fastest_for_participant=speed_trap.is_driver_fastest_in_session,
+                    fastest_speed_in_session=speed_trap.fastest_speed_in_session,
+                    fastest_participant=fastest_participant,
+                )
+                self._emit(Event.SPEED_TRAP, speed_trap_entry=speed_trap_entry, session=self.current_session)
+            if event_code == 'RDFL': # RED FLAG
                 print(packet.event_details)
-            if event_code == 'OVTK':
-                print(packet.event_details.overtake)
-            if event_code == 'SCAR':
+            if event_code == 'OVTK': # OVERTAKE
+                # {
+                # "being_overtaken_vehicle_idx": 14,
+                # "overtaking_vehicle_idx": 16
+                # }
+                overtake = packet.event_details.overtake
+                overtaker = self.current_session.participants[overtake.overtaking_vehicle_idx]
+                overtaken = self.current_session.participants[overtake.being_overtaken_vehicle_idx]
+                self._emit(Event.OVERTAKE, overtaker=overtaker, overtaken=overtaken, session=self.current_session)
+            if event_code == 'SCAR': # SAFETY CAR
                 print(packet.event_details.safety_car)
-            if event_code == 'COLL':
-                print(packet.event_details.collision)
+            if event_code == 'COLL': # COLLISION
+                # COLL
+                # {
+                # "vehicle1_idx": 19,
+                # "vehicle2_idx": 3
+                # }
+                collision = packet.event_details.collision
+                participant_1 = self.current_session.participants[collision.vehicle1_idx]
+                participant_2 = self.current_session.participants[collision.vehicle2_idx]
+                self._emit(Event.COLLISION, participant_1=participant_1, participant_2=participant_2, session=self.current_session)
             print('/////////')
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):

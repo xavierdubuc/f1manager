@@ -8,7 +8,7 @@ class Team(Enum):
     williams=3
     aston_martin=4
     alpine=5
-    alpha_tauri=6
+    vcarb=6
     haas=7
     mclaren=8
     kick_sauber=9
@@ -40,8 +40,8 @@ class Team(Enum):
             return 'McLaren'
         if self == Team.haas:
             return 'Haas'
-        if self == Team.alpha_tauri:
-            return 'AlphaTauri'
+        if self == Team.vcarb:
+            return 'VCARB'
         if self == Team.kick_sauber:
             return 'KickSauber'
         if self == Team.alpine:

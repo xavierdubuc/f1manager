@@ -36,4 +36,8 @@ class Event(Enum):
     CAR_SETUP_LIST_INITIALIZED       = 81
     CAR_SETUP_UPDATED                = 82
 
+    FASTEST_LAP                       = 100
+    COLLISION                         = 101
+    OVERTAKE                          = 102
+    SPEED_TRAP                        = 103
     BEST_SECTOR_UPDATED               = 200

@@ -42,7 +42,8 @@ class BestLapTimeListener(AbstractListener):
             session.current_fastest_lap = best_lap_time
             session.current_fastest_lap_driver = participant
             session.current_fastest_lap_lap = session.current_lap
-            msg = f'### 🕒 🟪 MEILLEUR TOUR 🟪 `{position}` {teamoji} {participant}  ` {formatted_lap_time}{formatted_difference}`'
+            flapmoji = self.get_emoji('fastest_lap', '🕒🟪')
+            msg = f'### {flapmoji} MEILLEUR TOUR `{position}` {teamoji} {participant}  ` {formatted_lap_time}{formatted_difference}`'
         else:
             if changes["best_lap_time"].old:
                 difference = timedelta(seconds=(changes["best_lap_time"].old - best_lap_time)/1000)
