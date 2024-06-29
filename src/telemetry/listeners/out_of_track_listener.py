@@ -39,7 +39,7 @@ class OutOfTrackListener(AbstractListener):
                     msg = f"`{position}` {teamoji} {participant} a mis 3 roues dehors !"
                 elif amount_of_tyres_out_of_track == 2:
                     msg = f"`{position}` {teamoji} {participant} a mis 2 roues dehors !"
-                elif amount_of_tyres_out_of_track == 2:
+                else:
                     msg = f"`{position}` {teamoji} {participant} a mis 1 roues dehors !"
                 _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
