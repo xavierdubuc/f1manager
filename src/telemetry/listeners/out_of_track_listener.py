@@ -53,4 +53,4 @@ class OutOfTrackListener(AbstractListener):
                 return [Message(content=msg, channel=Channel.DEFAULT)]
 
     def _amount_of_rows_out_of_track(self, surfaces:List[SurfaceType]) -> int:
-        return sum(1 for surface in surfaces if not surface.is_on_track)
+        return sum(1 for surface in surfaces if not surface.is_on_track())
