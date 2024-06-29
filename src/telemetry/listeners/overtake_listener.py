@@ -1,5 +1,6 @@
 import logging
 from typing import List
+from src.telemetry.models.enums.pit_status import PitStatus
 from src.telemetry.event import Event
 
 from src.telemetry.message import Channel, Message
@@ -16,11 +17,15 @@ class OvertakeListener(AbstractListener):
     def _on_overtake(self, overtaker: Participant, overtaken: Participant, session: Session) -> List[Message]:
         if not session.session_type.is_race():
             return None
-        teamoji_1 = self.get_emoji(overtaker.team.as_emoji())
-        teamoji_2 = self.get_emoji(overtaken.team.as_emoji())
-        overtaker_lap = session.get_current_lap(overtaker)
+        # TODO COUNT OVERTAKES ON SESSION (maybe try to implement restriction from CID)
+        teamoji_overtaken = self.get_emoji(overtaken.team.as_emoji())
         overtaken_lap = session.get_current_lap(overtaken)
-        r_position = str(overtaker_lap.car_position).rjust(2)
+        if overtaken_lap.pit_status != PitStatus.not_in_pit:
+            return []
+
         n_position = str(overtaken_lap.car_position).rjust(2)
-        msg = f'`{r_position}` {teamoji_1} {overtaker} ⏩ `{n_position}` {teamoji_2} {overtaken}'
+        teamoji_overtaker = self.get_emoji(overtaker.team.as_emoji())
+        r_position = str(overtaker_lap.car_position).rjust(2)
+        overtaker_lap = session.get_current_lap(overtaker)
+        msg = f'`{r_position}` {teamoji_overtaker} {overtaker} ⏩ `{n_position}` {teamoji_overtaken} {overtaken}'
         return [Message(content=msg, channel=Channel.DEFAULT)]

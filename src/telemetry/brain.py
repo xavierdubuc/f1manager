@@ -85,7 +85,7 @@ LISTENER_CLASSES = [
     OvertakeListener,
     PenaltyListener,
     PitListener,
-    PositionChangeListener,
+    # PositionChangeListener,
     QualificationSectorsListener,
     SafetyCarListener,
     SessionCreationListener,
@@ -515,14 +515,11 @@ class Brain:
                     fastest_speed_in_session=speed_trap.fastest_speed_in_session,
                     fastest_participant=fastest_participant,
                 )
+                # TODO add listener for ranking of top speed
                 self._emit(Event.SPEED_TRAP, speed_trap_entry=speed_trap_entry, session=self.current_session)
             if event_code == 'RDFL': # RED FLAG
                 print(packet.event_details)
             if event_code == 'OVTK': # OVERTAKE
-                # {
-                # "being_overtaken_vehicle_idx": 14,
-                # "overtaking_vehicle_idx": 16
-                # }
                 overtake = packet.event_details.overtake
                 overtaker = self.current_session.participants[overtake.overtaking_vehicle_idx]
                 overtaken = self.current_session.participants[overtake.being_overtaken_vehicle_idx]
@@ -530,11 +527,6 @@ class Brain:
             if event_code == 'SCAR': # SAFETY CAR
                 print(packet.event_details.safety_car)
             if event_code == 'COLL': # COLLISION
-                # COLL
-                # {
-                # "vehicle1_idx": 19,
-                # "vehicle2_idx": 3
-                # }
                 collision = packet.event_details.collision
                 participant_1 = self.current_session.participants[collision.vehicle1_idx]
                 participant_2 = self.current_session.participants[collision.vehicle2_idx]

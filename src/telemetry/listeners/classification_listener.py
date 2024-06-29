@@ -12,6 +12,7 @@ from .abstract_listener import AbstractListener
 
 _logger = logging.getLogger(__name__)
 
+TABLE_FORMAT = 'simple_outline'
 
 class ClassificationListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
@@ -23,6 +24,7 @@ class ClassificationListener(AbstractListener):
         if session.session_type.is_clm():
             return []
         end_content = f'Fin de la session "{session.session_type}" voici le classement final'
+        # TODO send final penalties in channel.penalty also
         session_end_msg = Message(content=end_content, channel=Channel.CLASSIFICATION)
         return [session_end_msg] + [
             Message(content=f"```\n{m}\n```", channel=Channel.CLASSIFICATION) for m in self._classification_to_messages(session)
@@ -47,7 +49,7 @@ class ClassificationListener(AbstractListener):
             colalign = ('right', 'left', 'right', 'right')
         if len(session.final_classification) > 12:
             return [
-                tabulate(final_ranking[:10], tablefmt='simple_grid', colalign=colalign),
-                tabulate(final_ranking[10:], tablefmt='simple_grid', colalign=colalign)
+                tabulate(final_ranking[:10], tablefmt=TABLE_FORMAT, colalign=colalign),
+                tabulate(final_ranking[10:], tablefmt=TABLE_FORMAT, colalign=colalign)
             ]
-        return [tabulate(final_ranking, tablefmt='simple_grid', colalign=colalign)]
+        return [tabulate(final_ranking, tablefmt=TABLE_FORMAT, colalign=colalign)]

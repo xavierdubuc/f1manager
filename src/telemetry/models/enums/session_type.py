@@ -23,6 +23,20 @@ class SessionType(Enum):
     clm = 18
 
     def __str__(self):
+        if self == SessionType.fp1:
+            return "FP1"
+        if self == SessionType.fp2:
+            return "FP2"
+        if self == SessionType.fp3:
+            return "FP3"
+        if self == SessionType.sprint_q1:
+            return "SQ1"
+        if self == SessionType.sprint_q2:
+            return "SQ2"
+        if self == SessionType.sprint_q3:
+            return "SQ3"
+        if self == SessionType.sprint_short_q:
+            return "Sprint Shootout"
         if self == SessionType.race:
             return "Course"
         if self == SessionType.race_2:
@@ -50,5 +64,8 @@ class SessionType(Enum):
     def is_qualification(self):
         return self in (
             SessionType.one_lap_q, SessionType.q1, SessionType.q2,
-            SessionType.q3, SessionType.short_q
+            SessionType.q3, SessionType.short_q,
+            SessionType.sprint_q1, SessionType.sprint_q2,
+            SessionType.sprint_q3, SessionType.sprint_short_q,
+            SessionType.sprint_one_shot
         )

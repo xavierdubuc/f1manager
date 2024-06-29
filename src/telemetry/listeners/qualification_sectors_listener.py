@@ -119,7 +119,8 @@ class QualificationSectorsListener(AbstractListener):
                 elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str)))
             elements.append('```')
             details = '\n'.join(elements)
-        msg = f'# `{str(lap.car_position).rjust(2)}` {participant} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
+        teamoji = self.get_emoji(participant.team.as_emoji())
+        msg = f'# `{str(lap.car_position).rjust(2)}` {teamoji} {participant} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
         return self._create_message(msg, participant, current_lap)
 
     def _create_message(self, content:str, participant: Participant, lap: Lap):

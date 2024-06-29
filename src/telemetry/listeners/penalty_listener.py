@@ -23,18 +23,18 @@ class PenaltyListener(AbstractListener):
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         messages = []
+        teamoji = self.get_emoji(participant.team.as_emoji())
         if 'corner_cutting_warnings' in changes:
             amount_of_warnings = changes['corner_cutting_warnings'].actual
-            msg = f'🏳️ **{participant}** a recu un avertissement ! **Total : {amount_of_warnings}**'
+            msg = f'🏳️ {teamoji} **{participant}** a recu un avertissement ! **Total : {amount_of_warnings}**'
             messages.append(Message(content=msg, channel=Channel.PENALTY))
         if 'penalties' in changes:
             seconds_of_penalties = changes['penalties'].actual
             seconds_of_penalties_before = changes['penalties'].old
             diff = seconds_of_penalties - seconds_of_penalties_before
-            # TODO emoji drapeau noir/blanc
-            teamoji = self.get_emoji(participant.team.as_emoji())
             if diff > 0:
-                msg = f'🏴 {teamoji} **{participant}** a recu une pénalité de {diff} secondes ! **Total : {seconds_of_penalties} secondes**'
+                flagmoji = self.get_emoji('blackwhiteflag', '🏴')
+                msg = f'{flagmoji} {teamoji} **{participant}** a recu une pénalité de {diff} secondes ! **Total : {seconds_of_penalties} secondes**'
             else:
                 diff = -diff
                 msg = f'✅ {teamoji} **{participant}** a purgé une pénalité de {diff} secondes ! **Total : {seconds_of_penalties} secondes**'
