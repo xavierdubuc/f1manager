@@ -33,18 +33,10 @@ class OutOfTrackListener(AbstractListener):
             amount_was_out_of_track = self._amount_of_rows_out_of_track(old_surfaces)
             amount_out_of_track = self._amount_of_rows_out_of_track(surfaces)
             print(participant, amount_was_out_of_track, amount_out_of_track)
-
-            is_on_track = amount_out_of_track == 0
-            was_on_track = amount_was_out_of_track <= 1
             
-            # Is going more and more off the track
-            if amount_out_of_track > amount_was_out_of_track:
-                if amount_out_of_track == 4:
-                    msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
-                elif amount_out_of_track == 2:
-                    msg = f"`{position}` {teamoji} {participant} a mis 2 roues dehors !"
-                else:
-                    return
+            # Is going off the track
+            if amount_out_of_track > amount_was_out_of_track and amount_out_of_track == 4:
+                msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
                 _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
             # is going back on track
