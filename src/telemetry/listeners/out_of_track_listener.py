@@ -33,10 +33,10 @@ class OutOfTrackListener(AbstractListener):
             was_on_track = all(surface.is_on_track() for surface in old_surfaces)
             if was_on_track and not is_on_track:
                 msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
-                _logger.debug(f'{participant} : {surfaces}')
+                _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
             elif not was_on_track and is_on_track:
                 msg = f"`{position}` {teamoji} {participant} est revenu sur la piste !"
-                _logger.debug(f'{participant} : {surfaces}')
+                _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
             
