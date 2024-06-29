@@ -36,18 +36,19 @@ class OutOfTrackListener(AbstractListener):
 
             is_on_track = amount_out_of_track == 0
             was_on_track = amount_was_out_of_track <= 1
-            if was_on_track and not is_on_track:
+            
+            # Is going more and more off the track
+            if amount_out_of_track > amount_was_out_of_track:
                 if amount_out_of_track == 4:
                     msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
-                elif amount_out_of_track == 3:
-                    msg = f"`{position}` {teamoji} {participant} a mis 3 roues dehors !"
                 elif amount_out_of_track == 2:
                     msg = f"`{position}` {teamoji} {participant} a mis 2 roues dehors !"
                 else:
                     return
                 _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
-            elif not was_on_track and is_on_track:
+            # is going back on track
+            elif amount_out_of_track < amount_was_out_of_track and amount_out_of_track == 0:
                 msg = f"`{position}` {teamoji} {participant} est revenu sur la piste !"
                 _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
