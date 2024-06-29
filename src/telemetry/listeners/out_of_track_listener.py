@@ -1,5 +1,6 @@
 import logging
 from typing import Dict, List
+from src.telemetry.models.enums.surface_type import SurfaceType
 from src.telemetry.models.telemetry import Telemetry
 from src.telemetry.event import Event
 
@@ -29,15 +30,17 @@ class OutOfTrackListener(AbstractListener):
             teamoji = self.get_emoji(participant.team.as_emoji())
             lap = session.get_current_lap(participant)
             position = str(lap.car_position).rjust(2)
-            is_on_track = all(surface.is_on_track() for surface in surfaces)
-            was_on_track = all(surface.is_on_track() for surface in old_surfaces)
+            amount_was_out_of_track = self._amount_of_rows_out_of_track(old_surfaces)
+            amount_out_of_track = self._amount_of_rows_out_of_track(surfaces)
+
+            is_on_track = amount_out_of_track > 1
+            was_on_track = amount_was_out_of_track > 1
             if was_on_track and not is_on_track:
-                amount_of_tyres_out_of_track = sum(1 for surface in surfaces if not surface.is_on_track)
-                if amount_of_tyres_out_of_track == 4:
+                if amount_out_of_track == 4:
                     msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
-                elif amount_of_tyres_out_of_track == 3:
+                elif amount_out_of_track == 3:
                     msg = f"`{position}` {teamoji} {participant} a mis 3 roues dehors !"
-                elif amount_of_tyres_out_of_track == 2:
+                elif amount_out_of_track == 2:
                     msg = f"`{position}` {teamoji} {participant} a mis 2 roues dehors !"
                 else:
                     return
@@ -47,4 +50,6 @@ class OutOfTrackListener(AbstractListener):
                 msg = f"`{position}` {teamoji} {participant} est revenu sur la piste !"
                 _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
-            
+
+    def _amount_of_rows_out_of_track(self, surfaces:List[SurfaceType]) -> int:
+        return sum(1 for surface in surfaces if not surface.is_on_track)
