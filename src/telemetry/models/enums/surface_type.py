@@ -15,3 +15,6 @@ class SurfaceType(Enum):
     metal = 10
     ridge = 11
     other = 12
+
+    def is_on_track(self):
+        return self in (SurfaceType.concrete, SurfaceType.rumble_strip, SurfaceType.tarmac)

@@ -43,6 +43,7 @@ from src.telemetry.listeners.dnf_listener import DNFListener
 from src.telemetry.listeners.lap_start_listener import LapStartListener
 from src.telemetry.listeners.noticeable_damage_listener import NoticeableDamageListener
 from src.telemetry.listeners.overtake_listener import OvertakeListener
+from src.telemetry.listeners.out_of_track_listener import OutOfTrackListener
 from src.telemetry.listeners.penalty_listener import PenaltyListener
 from src.telemetry.listeners.pit_listener import PitListener
 from src.telemetry.listeners.position_change_listener import PositionChangeListener
@@ -80,6 +81,7 @@ LISTENER_CLASSES = [
     DNFListener,
     LapStartListener,
     NoticeableDamageListener,
+    OutOfTrackListener,
     OvertakeListener,
     PenaltyListener,
     PitListener,
@@ -474,7 +476,6 @@ class Brain:
         )
         event_code = ''.join([chr(i) for i in packet.event_string_code]).rstrip('\x00')
         if event_code in supported:
-            print('--------')
             print(event_code)
             if event_code == 'FTLP': # FASTEST LAP
                 # {
@@ -538,7 +539,6 @@ class Brain:
                 participant_1 = self.current_session.participants[collision.vehicle1_idx]
                 participant_2 = self.current_session.participants[collision.vehicle2_idx]
                 self._emit(Event.COLLISION, participant_1=participant_1, participant_2=participant_2, session=self.current_session)
-            print('/////////')
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):
