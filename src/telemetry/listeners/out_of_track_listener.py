@@ -32,7 +32,15 @@ class OutOfTrackListener(AbstractListener):
             is_on_track = all(surface.is_on_track() for surface in surfaces)
             was_on_track = all(surface.is_on_track() for surface in old_surfaces)
             if was_on_track and not is_on_track:
-                msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
+                amount_of_tyres_out_of_track = sum(1 for surface in surfaces if not surface.is_on_track)
+                if amount_of_tyres_out_of_track == 4:
+                    msg = f"`{position}` {teamoji} {participant} est sorti de la piste !"
+                elif amount_of_tyres_out_of_track == 3:
+                    msg = f"`{position}` {teamoji} {participant} a mis 3 roues dehors !"
+                elif amount_of_tyres_out_of_track == 2:
+                    msg = f"`{position}` {teamoji} {participant} a mis 2 roues dehors !"
+                elif amount_of_tyres_out_of_track == 2:
+                    msg = f"`{position}` {teamoji} {participant} a mis 1 roues dehors !"
                 _logger.info(f'{participant} : {surfaces}')
                 return [Message(content=msg, channel=Channel.DEFAULT)]
             elif not was_on_track and is_on_track:
