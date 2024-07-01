@@ -472,10 +472,12 @@ class Brain:
     def _handle_received_event_packet(self, packet:PacketEventData):
         supported = (
             'FTLP', 'RTMT', 'DRSE', 'DRSD', 'CHQF', 'RCWN',
-            'SPTP', 'RDFL', 'OVTK', 'SCAR', 'COLL'
+            'SPTP', 'RDFL', 'OVTK', 'SCAR', 'COLL', 'SEND'
         )
         event_code = ''.join([chr(i) for i in packet.event_string_code]).rstrip('\x00')
         if event_code in supported:
+            if event_code == 'FTLP': # FASTEST LAP
+                self._emit(Event.SESSION_ENDED, session=self.current_session)
             print(event_code)
             if event_code == 'FTLP': # FASTEST LAP
                 # {
@@ -486,15 +488,15 @@ class Brain:
                 participant = self.current_session.participants[fastest_lap.vehicle_idx]
                 self._emit(Event.FASTEST_LAP, participant=participant, lap_time=fastest_lap.lap_time, session=self.current_session)
             if event_code == 'RTMT': # RETIREMENT
-                print(packet.event_details.retirement)
+                print('RETIREMENT', packet.event_details.retirement.vehicle_idx)
             if event_code == 'DRSE': # DRS ENABLED
-                print(packet.event_details)
+                print('---------- DRS ENABLED ! ----------')
             if event_code == 'DRSD': # DRS DISABLED
-                print(packet.event_details)
+                print('---------- DRS DISABLED ! ----------')
             if event_code == 'CHQF': # CHEQUERED FLAG
-                print(packet.event_details)
+                print('---------- CHEQUERED FLAG ! ----------')
             if event_code == 'RCWN': # RACE WINNER
-                print(packet.event_details.race_winner)
+                print('RACE WINNER', packet.event_details.race_winner.vehicle_idx)
             if event_code == 'SPTP': # SPEED TRAP TRIGGERED
                 # {
                 #     "fastest_speed_in_session": 326.359,
@@ -518,14 +520,15 @@ class Brain:
                 # TODO add listener for ranking of top speed
                 self._emit(Event.SPEED_TRAP, speed_trap_entry=speed_trap_entry, session=self.current_session)
             if event_code == 'RDFL': # RED FLAG
-                print(packet.event_details)
+                print('---------- RED FLAG ! ----------')
             if event_code == 'OVTK': # OVERTAKE
                 overtake = packet.event_details.overtake
                 overtaker = self.current_session.participants[overtake.overtaking_vehicle_idx]
                 overtaken = self.current_session.participants[overtake.being_overtaken_vehicle_idx]
                 self._emit(Event.OVERTAKE, overtaker=overtaker, overtaken=overtaken, session=self.current_session)
             if event_code == 'SCAR': # SAFETY CAR
-                print(packet.event_details.safety_car)
+                sc = packet.event_details.safety_car
+                print('SAFETY CAR', sc.safety_car_type, sc.event_type)
             if event_code == 'COLL': # COLLISION
                 collision = packet.event_details.collision
                 participant_1 = self.current_session.participants[collision.vehicle1_idx]

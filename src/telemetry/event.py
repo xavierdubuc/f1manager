@@ -4,6 +4,7 @@ from enum import Enum
 class Event(Enum):
     SESSION_CREATED                    = 0
     SESSION_UPDATED                    = 1
+    SESSION_ENDED                      = 2
 
     PARTICIPANT_CREATED               = 10
     PARTICIPANT_LIST_INITIALIZED      = 11
