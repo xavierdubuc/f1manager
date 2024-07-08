@@ -1,11 +1,8 @@
-import asyncio
 from datetime import timedelta
 import logging
 from multiprocessing import Queue
 from typing import Dict
-import disnake
 
-from disnake.ext import commands
 from f1_24_telemetry.packets import (
     Packet,
     PacketCarDamageData,
@@ -15,14 +12,10 @@ from f1_24_telemetry.packets import (
     PacketLapData,
     PacketSessionData,
     PacketSessionHistoryData,
-    PacketMotionData,
     PacketParticipantsData,
     PacketEventData,
     PacketFinalClassificationData,
-    PacketLobbyInfoData
 )
-from tabulate import tabulate
-
 from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            Q3_RANKING_RANGE, QUALI_RANKING_RANGE,
                            RACE_RANKING_RANGE, FASTEST_LAP_PILOT_CELL,
@@ -65,7 +58,7 @@ from src.telemetry.managers.participant_manager import ParticipantManager
 from src.telemetry.managers.session_manager import SessionManager
 from src.telemetry.managers.telemetry_manager import TelemetryManager
 
-from src.telemetry.message import Channel, Message
+from src.telemetry.message import Message
 from src.telemetry.models.enums.session_type import SessionType
 from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
