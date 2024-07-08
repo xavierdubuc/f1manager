@@ -471,7 +471,6 @@ class Brain:
         if event_code in supported:
             if event_code == 'SEND': # SESSION ENDED
                 self._emit(Event.SESSION_ENDED, session=self.current_session)
-            print(event_code)
             if event_code == 'FTLP': # FASTEST LAP
                 # {
                 #     "lap_time": 79.941,

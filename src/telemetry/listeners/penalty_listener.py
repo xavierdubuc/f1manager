@@ -28,7 +28,7 @@ class PenaltyListener(AbstractListener):
             )
         values = sorted(table_values, key=lambda x: (x[3], x[2], x[1]), reverse=True)
         _logger.info("Fetched ranking that will be stored :")
-        values_str = tabulate.tabulate(values, tablefmt=TABLE_FORMAT)
+        values_str = tabulate(values, tablefmt=TABLE_FORMAT)
         _logger.info(values_str)
         return [Message(content=f"```{values_str}```", channel=Channel.PENALTY)]
 
