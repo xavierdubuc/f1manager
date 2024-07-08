@@ -21,7 +21,7 @@ class SpeedTrapListener(AbstractListener):
         # TODO send classement
         pass
 
-    def _on_speedtrap(self, speed_trap:SpeedTrapEntry, session: Session) -> List[Message]:
+    def _on_speed_trap(self, speed_trap:SpeedTrapEntry, session: Session) -> List[Message]:
         key = speed_trap.participant
         existing_speedtrap = session.speed_traps.get(key)
         if not existing_speedtrap or existing_speedtrap < speed_trap:
