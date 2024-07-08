@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Dict, List, Tuple
+from src.telemetry.models.speed_trap_entry import SpeedTrapEntry
 from src.telemetry.models.car_status import CarStatus
 from src.telemetry.models.car_setup import CarSetup
 from disnake import Message
@@ -88,7 +89,8 @@ class Session:
     current_fastest_sector1: int = None # in ms
     current_fastest_sector2: int = None # in ms
     current_fastest_sector3: int = None # in ms
-    overtakes:List[Tuple[Participant, Participant]] = field(default_factory=list)
+    overtakes: List[Tuple[Participant, Participant]] = field(default_factory=list)
+    speed_traps: Dict[Participant, SpeedTrapEntry] = field(default_factory=dict)
 
     def __eq__(self, other):
         if type(self) != type(other):
