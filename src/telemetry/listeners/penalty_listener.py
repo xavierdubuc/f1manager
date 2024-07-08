@@ -24,7 +24,7 @@ class PenaltyListener(AbstractListener):
         for p in session.participants:
             lap = session.get_current_lap(p)
             table_values.append(
-                str(p), lap.corner_cutting_warnings, lap.total_warnings, lap.penalties
+                (str(p), lap.corner_cutting_warnings, lap.total_warnings, lap.penalties)
             )
         values = sorted(table_values, key=lambda x: (x[3], x[2], x[1]), reverse=True)
         _logger.info("Fetched ranking that will be stored :")

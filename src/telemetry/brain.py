@@ -469,7 +469,7 @@ class Brain:
         )
         event_code = ''.join([chr(i) for i in packet.event_string_code]).rstrip('\x00')
         if event_code in supported:
-            if event_code == 'FTLP': # FASTEST LAP
+            if event_code == 'SEND': # SESSION ENDED
                 self._emit(Event.SESSION_ENDED, session=self.current_session)
             print(event_code)
             if event_code == 'FTLP': # FASTEST LAP
