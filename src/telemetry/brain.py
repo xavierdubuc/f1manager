@@ -512,7 +512,7 @@ class Brain:
                     fastest_participant=fastest_participant,
                 )
                 # TODO add listener for ranking of top speed
-                self._emit(Event.SPEED_TRAP, speed_trap_entry=speed_trap_entry, session=self.current_session)
+                self._emit(Event.SPEED_TRAP, speed_trap=speed_trap_entry, session=self.current_session)
             if event_code == 'RDFL': # RED FLAG
                 print('---------- RED FLAG ! ----------')
             if event_code == 'OVTK': # OVERTAKE
