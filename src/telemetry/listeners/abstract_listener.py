@@ -24,7 +24,7 @@ class AbstractListener:
                 return list(res)
             return res
         else:
-            _logger.debug(f'{self.__class__.__name__}.{method_name} does not exist !')
+            _logger.warning(f'{self.__class__.__name__}.{method_name} does not exist !')
 
     def get_emoji(self, emoji_name:str, str_if_not_found:str = None) -> str:
         return (self.emojis or {}).get(emoji_name, str_if_not_found or emoji_name)
