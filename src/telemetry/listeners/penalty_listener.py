@@ -27,8 +27,8 @@ class PenaltyListener(AbstractListener):
                 (str(p), lap.corner_cutting_warnings, lap.total_warnings, lap.penalties)
             )
         values = sorted(table_values, key=lambda x: (x[3], x[2], x[1]), reverse=True)
-        _logger.info("Fetched ranking that will be stored :")
-        values_str = tabulate(values, tablefmt=TABLE_FORMAT)
+        _logger.info("Penalty ranking:")
+        values_str = tabulate(values, tablefmt=TABLE_FORMAT, headers=('', 'Virages', 'Avert.', 'Péna (s)'))
         _logger.info(values_str)
         return [Message(content=f"```{values_str}```", channel=Channel.PENALTY)]
 
