@@ -143,7 +143,7 @@ class Brain:
             _logger.info(msg.content)
 
     def _emit(self, event:Event, *args, **kwargs):
-        _logger.info(f'{event.name} emitted !')
+        _logger.debug(f'{event.name} emitted !')
         for listener in self.listeners_by_event[event]:
             msgs = listener.on(event, *args, **kwargs)
             if msgs:
