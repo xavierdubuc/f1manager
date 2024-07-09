@@ -30,10 +30,10 @@ class OvertakeListener(AbstractListener):
         if overtaken_lap.pit_status != PitStatus.not_in_pit:
             return []
 
+        overtaker_lap = session.get_current_lap(overtaker)
         n_position = str(overtaken_lap.car_position).rjust(2)
         teamoji_overtaker = self.get_emoji(overtaker.team.as_emoji())
         r_position = str(overtaker_lap.car_position).rjust(2)
-        overtaker_lap = session.get_current_lap(overtaker)
         msg = f'`{r_position}` {teamoji_overtaker} {overtaker} ⏩ `{n_position}` {teamoji_overtaken} {overtaken}'
         return [Message(content=msg, channel=Channel.DEFAULT)]
 
