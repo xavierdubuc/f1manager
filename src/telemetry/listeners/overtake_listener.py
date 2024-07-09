@@ -16,6 +16,8 @@ class OvertakeListener(AbstractListener):
     ]
 
     def _on_session_ended(self, session:Session) -> List[Message]:
+        if not session.session_type.is_race():
+            return None
         msg = f"Total amount of overtakes : {len(session.overtakes)}"
         return [Message(content=msg, channel=Channel.DEFAULT)]
 
