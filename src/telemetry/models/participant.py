@@ -35,7 +35,7 @@ class Participant:
             str(self.network_id),
             str(self.race_number),
             self.name,
-            self.original_driver
+            self.original_driver.name
         ])
 
     def __eq__(self, other):
