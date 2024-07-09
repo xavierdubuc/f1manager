@@ -40,6 +40,7 @@ from src.telemetry.listeners.out_of_track_listener import OutOfTrackListener
 from src.telemetry.listeners.penalty_listener import PenaltyListener
 from src.telemetry.listeners.pit_listener import PitListener
 from src.telemetry.listeners.position_change_listener import PositionChangeListener
+from src.telemetry.listeners.speed_trap_listener import SpeedTrapListener
 from src.telemetry.listeners.qualification_sectors_listener import QualificationSectorsListener
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
@@ -79,6 +80,7 @@ LISTENER_CLASSES = [
     PenaltyListener,
     PitListener,
     # PositionChangeListener,
+    SpeedTrapListener,
     QualificationSectorsListener,
     SafetyCarListener,
     SessionCreationListener,
