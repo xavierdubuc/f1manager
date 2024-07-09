@@ -30,13 +30,13 @@ class Participant:
         return f'Pilote #{self.race_number} ({self.nationality.name}) {self.team.name}'
 
     def __hash__(self) -> int:
-        return '-'.join([
+        return hash((
             self.name_str,
-            str(self.network_id),
-            str(self.race_number),
+            self.network_id,
+            self.race_number,
             self.name,
-            self.original_driver.name
-        ])
+            self.original_driver
+        ))
 
     def __eq__(self, other):
         if type(self) != type(other):
