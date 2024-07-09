@@ -32,8 +32,8 @@ class Participant:
     def __hash__(self) -> int:
         return '-'.join([
             self.name_str,
-            self.network_id,
-            self.race_number,
+            str(self.network_id),
+            str(self.race_number),
             self.name,
             self.original_driver
         ])
