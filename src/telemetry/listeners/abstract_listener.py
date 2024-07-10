@@ -49,7 +49,7 @@ class AbstractListener:
             elements.append(teamoji)
 
         # PARTICIPANT
-        elements.append(participant)
+        elements.append(str(participant))
         return ' '.join(elements)
 
     def tyre(self, tyre: Tyre, damage: int = None, fitted: bool = None):
