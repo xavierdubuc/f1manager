@@ -20,4 +20,6 @@ class SpinListener(AbstractListener):
     def _on_motion_updated(self, motion: Motion, changes: Dict[str, Change], participant: Participant, session: Session):
         if participant.original_driver == OriginalDriver.nico_hulkenberg:
             _logger.info(changes)
-            _logger.warning(motion.yaw, motion.pitch, motion.roll)
+            _logger.warning(motion.yaw)
+            _logger.warning(motion.pitch)
+            _logger.warning(motion.roll)

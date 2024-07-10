@@ -44,7 +44,7 @@ class TyreSetListener(AbstractListener):
 
         if fitted_tyreset:
             elements.append(
-                f'{self.driver(participant, session)} [{self.tyreset_with_id(fitted_tyreset)}]'
+                f'{self.driver(participant, session)} {self.tyreset_with_id(fitted_tyreset)}'
             )
 
         if len(dry_tyresets) != 0:

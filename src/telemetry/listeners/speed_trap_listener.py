@@ -39,7 +39,7 @@ class SpeedTrapListener(AbstractListener):
         lap = session.get_current_lap(speed_trap.participant)
         position = str(lap.car_position).rjust(2)
         teamoji = self.get_emoji(speed_trap.participant.team.as_emoji())
-        msg = f'🚀 `{position}` {teamoji} {speed_trap.participant} {speed_trap.participant_speed} km/h !'
+        msg = f'🚀 `{position}` {teamoji} {speed_trap.participant} {round(speed_trap.participant_speed)} km/h !'
         return Message(content=msg, channel=Channel.CLASSIFICATION, local_id=f'{session.session_identifier}_last_speedtrap_update')
 
     def _get_table_message(self, session: Session) -> Message:
@@ -50,6 +50,7 @@ class SpeedTrapListener(AbstractListener):
         if len(table_values) == 0:
             return
         values = sorted(table_values, key=lambda x: x[1], reverse=True)
+        values = [(v[0], round(v[1])) for v in values]
         _logger.info("Speed trap:")
         values_str = tabulate(values, tablefmt=TABLE_FORMAT, headers=('', 'km/h'))
         _logger.info(values_str)
