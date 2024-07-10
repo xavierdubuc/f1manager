@@ -29,7 +29,7 @@ class TyreSetListener(AbstractListener):
             f'## {self.driver(participant, session)} available tyres'
         ]
         tyres = [
-            self.tyre(tyreset.visual_tyre_compound, 100-tyreset.wear, tyreset.fitted)
+            self.tyre(tyreset.visual_tyre_compound, tyreset.wear, tyreset.fitted)
             for tyreset in tyresets
             if tyreset.available
         ]

@@ -55,10 +55,10 @@ class AbstractListener:
     def tyre(self, tyre: Tyre, damage: int = None, fitted: bool = None):
         tyre_string = tyre.get_long_string()
         tyre_emoji = self.get_emoji(tyre_string.lower(), tyre_string)
-        if damage is None:
+        if damage is None or tyre_damage == 0:
             tyre_damage = ''
         else:
             tyre_damage = f' ({damage} %)'
         if not fitted:
             return f'{tyre_emoji}{tyre_damage}'
-        return f'[{tyre_emoji}{tyre_damage}]'
+        return f'→ {tyre_emoji}{tyre_damage}] ←'
