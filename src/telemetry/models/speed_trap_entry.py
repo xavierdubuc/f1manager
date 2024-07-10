@@ -21,5 +21,11 @@ class SpeedTrapEntry:
     def __gt__(self, other:"SpeedTrapEntry"):
         return self.participant_speed > other.participant_speed
 
+    def __ge__(self, other:"SpeedTrapEntry"):
+        return self.participant_speed >= other.participant_speed
+
+    def __le__(self, other:"SpeedTrapEntry"):
+        return self.participant_speed <= other.participant_speed
+
     def __str__(self):
         return f'{self.participant} : {self.participant_speed} KM/H'
