@@ -58,7 +58,7 @@ class TyreSetListener(AbstractListener):
 
         id = f"{session.session_identifier}_tyreset_{session.session_type.name}_{participant.race_number}"
         return Message(
-            content='\n> '.join(elements),
+            content='\n>`   ` '.join(elements),
             channel=Channel.PIT,
             local_id=id
         )
