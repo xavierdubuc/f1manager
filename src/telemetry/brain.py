@@ -318,7 +318,7 @@ class Brain:
                     has_changes = True
                     self._emit(Event.TYRESET_UPDATED, tyreset, changes, participant, self.current_session)
             if has_changes:
-                self._emit(Event.TYRESET_LIST_UPDATED, tyresets, changes, participant, self.current_session)
+                self._emit(Event.TYRESET_LIST_UPDATED, tyresets, participant, self.current_session)
 
     """
     @emits TELEMETRY_CREATED

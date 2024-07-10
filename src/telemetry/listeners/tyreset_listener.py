@@ -35,23 +35,27 @@ class TyreSetListener(AbstractListener):
         elements = [
             f'## {self.driver(participant, session)} available tyres'
         ]
-        wet_tyres = [
-            self.tyre(tyreset.visual_tyre_compound, tyreset.wear, tyreset.fitted)
-            for tyreset in tyresets
-            if tyreset.available and tyreset.visual_tyre_compound.is_wet()
+
+        tyres_ids = [
+            f'`{str(i).rjust(2)}`' for i in range(1, 21)
         ]
-        dry_tyres = [
-            self.tyre(tyreset.visual_tyre_compound, tyreset.wear, tyreset.fitted)
-            for tyreset in tyresets
-            if tyreset.available and not tyreset.visual_tyre_compound.is_wet()
+        tyres_emojis = [
+            self.get_tyremoji(tyreset.visual_tyre_compound) for tyreset in tyresets
         ]
-        if len(wet_tyres) == 0 and len(dry_tyres) == 0:
+        tyres_wear = [
+            f'{str(tyreset.wear).rjust(3)} %' for tyreset in tyresets
+        ]
+        is_fitted = [
+            '✅' if tyreset.fitted else ' ' for tyreset in tyresets
+        ]
+
+        if len(tyres_emojis) == 0:
             return
 
-        if len(dry_tyres) != 0:
-            elements.append(" ".join(dry_tyres))
-        if len(wet_tyres) != 0:
-            elements.append(" ".join(wet_tyres))
+        elements.append(tyres_ids)
+        elements.append(tyres_emojis)
+        elements.append(tyres_wear)
+        elements.append(is_fitted)
 
         id = f"{session.session_identifier}_tyreset_{session.session_type.name}_{participant.race_number}"
         return Message(

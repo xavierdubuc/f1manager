@@ -37,6 +37,10 @@ class AbstractListener:
     def get_teamoji(self, participant: Participant):
         return self.get_emoji(participant.team.as_emoji()) if participant and participant.team else ''
 
+    def get_tyremoji(self, tyre: Tyre):
+        tyre_string = tyre.get_long_string()
+        return self.get_emoji(tyre_string.lower(), tyre_string)
+
     def driver(self, participant: Participant, session: Session = None) -> str:
         elements = []
         # POSITION
@@ -53,8 +57,7 @@ class AbstractListener:
         return ' '.join(elements)
 
     def tyre(self, tyre: Tyre, damage: int = None, fitted: bool = None):
-        tyre_string = tyre.get_long_string()
-        tyre_emoji = self.get_emoji(tyre_string.lower(), tyre_string)
+        tyre_emoji = self.get_tyremoji(tyre)
         if damage is None or damage == 0:
             tyre_damage = ''
         else:
