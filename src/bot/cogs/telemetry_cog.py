@@ -50,6 +50,10 @@ class TelemetryCog(commands.Cog):
         if not channel:
             return
 
+        if msg.is_empty():
+            _logger.warning('Tried to send an empty message !')
+            return
+
         await self._send_or_edit(msg, channel)
 
     async def _broadcast(self, msg: Message):

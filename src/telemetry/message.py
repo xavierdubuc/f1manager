@@ -41,3 +41,6 @@ class Message:
 
     def __len__(self):
         return len(self.content)
+
+    def is_empty(self):
+        return (not self.content or len(self.content) == 0) and not self.file_path
