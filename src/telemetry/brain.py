@@ -316,7 +316,7 @@ class Brain:
             tyreset_data = packet.tyre_set_data
             for i, tyreset in enumerate(tyresets):
                 changes = TyreSetManager.update(tyreset, tyreset_data[i])
-                if changes:
+                if changes and ('fitted' in changes or 'available' in changes):
                     has_changes = True
                     self._emit(Event.TYRESET_UPDATED, tyreset, changes, participant, self.current_session)
             if has_changes:
