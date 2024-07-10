@@ -61,4 +61,4 @@ class AbstractListener:
             tyre_damage = f' ({damage} %)'
         if not fitted:
             return f'{tyre_emoji}{tyre_damage}'
-        return f'→ {tyre_emoji}{tyre_damage}] ←'
+        return f'→ {tyre_emoji}{tyre_damage} ←'

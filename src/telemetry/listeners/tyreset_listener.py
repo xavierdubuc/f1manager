@@ -18,9 +18,16 @@ TABLE_FORMAT = "simple_outline"
 
 
 class TyreSetListener(AbstractListener):
-    SUBSCRIBED_EVENTS = [Event.TYRESET_LIST_CREATED]
+    SUBSCRIBED_EVENTS = [
+        Event.TYRESET_LIST_CREATED,
+        Event.TYRESET_LIST_UPDATED,
+    ]
 
     def _on_tyreset_list_created(self, tyresets:List[TyreSet], participant:Participant, session:Session):
+        table_message = self._get_table_message(tyresets, participant, session)
+        return [table_message]
+
+    def _on_tyreset_list_updated(self, tyresets:List[TyreSet], participant:Participant, session:Session):
         table_message = self._get_table_message(tyresets, participant, session)
         return [table_message]
 
@@ -46,4 +53,9 @@ class TyreSetListener(AbstractListener):
         if len(wet_tyres) != 0:
             elements.append(" ".join(wet_tyres))
 
-        return Message(content='\n'.join(elements), channel=Channel.PIT)
+        id = f"{session.session_identifier}_tyreset_{session.session_type.name}_{participant.race_number}"
+        return Message(
+            content='\n'.join(elements),
+            channel=Channel.PIT,
+            local_id=id
+        )
