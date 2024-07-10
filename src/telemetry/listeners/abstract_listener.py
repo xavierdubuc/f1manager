@@ -56,12 +56,10 @@ class AbstractListener:
         elements.append(str(participant))
         return ' '.join(elements)
 
-    def tyre(self, tyre: Tyre, damage: int = None, fitted: bool = None):
+    def tyre(self, tyre: Tyre, damage: int = None):
         tyre_emoji = self.get_tyremoji(tyre)
         if damage is None or damage == 0:
             tyre_damage = ''
         else:
             tyre_damage = f' ({damage} %)'
-        if not fitted:
-            return f'{tyre_emoji}{tyre_damage}'
-        return f'→ {tyre_emoji}{tyre_damage} ←'
+        return f'{tyre_emoji}{tyre_damage}'
