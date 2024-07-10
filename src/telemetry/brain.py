@@ -23,6 +23,7 @@ from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            RACE_RANKING_RANGE, FASTEST_LAP_PILOT_CELL,
                            FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL)
 
+from src.telemetry.listeners.spin_listener import SpinListener
 from src.telemetry.listeners.tyreset_listener import TyreSetListener
 from src.telemetry.managers.tyreset_manager import TyreSetManager
 from src.telemetry.models.speed_trap_entry import SpeedTrapEntry
@@ -89,6 +90,7 @@ LISTENER_CLASSES = [
     QualificationSectorsListener,
     SafetyCarListener,
     SessionCreationListener,
+    SpinListener,
     TelemetryPublicListener,
     TyresOldListener,
     TyreSetListener,
