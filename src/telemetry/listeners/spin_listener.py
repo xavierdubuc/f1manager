@@ -19,6 +19,7 @@ class SpinListener(AbstractListener):
 
     def _on_motion_updated(self, motion: Motion, changes: Dict[str, Change], participant: Participant, session: Session):
         if participant.original_driver == OriginalDriver.nico_hulkenberg:
+            _logger.warning('------------------------------------------------------')
             _logger.warning(('POSITION :', round(motion.world_position_x, 2), round(motion.world_position_y, 2), round(motion.world_position_z, 2)))
             _logger.warning(('RIGHT  :', round(motion.world_right_dir_x, 2), round(motion.world_right_dir_y, 2), round(motion.world_right_dir_z, 2)))
             _logger.warning(('FORWARD  :', round(motion.world_forward_dir_x, 2), round(motion.world_forward_dir_y, 2), round(motion.world_forward_dir_z, 2)))
