@@ -52,10 +52,10 @@ class TyreSetListener(AbstractListener):
         if len(tyres_emojis) == 0:
             return
 
-        elements.append(tyres_ids)
-        elements.append(tyres_emojis)
-        elements.append(tyres_wear)
-        elements.append(is_fitted)
+        elements.append(' '.join(tyres_ids))
+        elements.append(' '.join(tyres_emojis))
+        elements.append(' '.join(tyres_wear))
+        elements.append(' '.join(is_fitted))
 
         id = f"{session.session_identifier}_tyreset_{session.session_type.name}_{participant.race_number}"
         return Message(
