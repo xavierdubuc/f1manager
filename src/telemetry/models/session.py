@@ -135,10 +135,11 @@ class Session:
 
     def get_laps(self, participant:Participant) -> Lap:
         index = self.participants.index(participant)
-        return self.laps[index]
+        return self.laps[index] if 0 <= index <= len(self.laps) else None
 
     def get_current_lap(self, participant:Participant) -> Lap:
-        return self.get_laps(participant)[-1]
+        laps = self.get_laps(participant)
+        return laps[-1] if laps and len(laps) > 0 else None
 
     def get_participant_status(self, participant:Participant) -> ResultStatus:
         lap = self.get_current_lap(participant)
