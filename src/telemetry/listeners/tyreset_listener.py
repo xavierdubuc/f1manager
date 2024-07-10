@@ -28,13 +28,22 @@ class TyreSetListener(AbstractListener):
         elements = [
             f'## {self.driver(participant, session)} available tyres'
         ]
-        tyres = [
+        wet_tyres = [
             self.tyre(tyreset.visual_tyre_compound, tyreset.wear, tyreset.fitted)
             for tyreset in tyresets
-            if tyreset.available
+            if tyreset.available and tyreset.visual_tyre_compound.is_wet()
         ]
-        if len(tyres) == 0:
+        dry_tyres = [
+            self.tyre(tyreset.visual_tyre_compound, tyreset.wear, tyreset.fitted)
+            for tyreset in tyresets
+            if tyreset.available and not tyreset.visual_tyre_compound.is_wet()
+        ]
+        if len(wet_tyres) == 0 and len(dry_tyres) == 0:
             return
 
-        elements.append(" ".join(tyres))
+        if len(dry_tyres) != 0:
+            elements.append(" ".join(dry_tyres))
+        if len(wet_tyres) != 0:
+            elements.append(" ".join(wet_tyres))
+
         return Message(content='\n'.join(elements), channel=Channel.PIT)

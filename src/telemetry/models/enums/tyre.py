@@ -41,3 +41,6 @@ class Tyre(Enum):
         if self == Tyre.wet:
             return 'WET'
         return self.name
+
+    def is_wet(self):
+        return self in (Tyre.inter, Tyre.wet, Tyre.f2_wet, Tyre.classic_wet)
