@@ -36,5 +36,5 @@ class TyreSetListener(AbstractListener):
         if len(tyres) == 0:
             return
 
-        elements.append(f'```{tabulate(tyres, tablefmt=TABLE_FORMAT)}```')
+        elements.append(f'```{tabulate([tyres], tablefmt=TABLE_FORMAT)}```')
         return Message(content='\n'.join(elements), channel=Channel.PIT)
