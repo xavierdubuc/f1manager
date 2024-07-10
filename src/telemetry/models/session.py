@@ -134,8 +134,14 @@ class Session:
         return self.damages[index]
 
     def get_laps(self, participant:Participant) -> Lap:
+        if not self.participants:
+            return
+        if not self.laps:
+            return
         index = self.participants.index(participant)
-        return self.laps[index] if 0 <= index <= len(self.laps) else None
+        if not (0 <= index <= len(self.laps)):
+            return
+        return self.laps[index]
 
     def get_current_lap(self, participant:Participant) -> Lap:
         laps = self.get_laps(participant)
