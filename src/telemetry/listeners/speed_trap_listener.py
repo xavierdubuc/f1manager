@@ -36,10 +36,7 @@ class SpeedTrapListener(AbstractListener):
         return messages
 
     def _get_last_update_message(self, speed_trap: SpeedTrapEntry, session: Session) -> Message:
-        lap = session.get_current_lap(speed_trap.participant)
-        position = str(lap.car_position).rjust(2)
-        teamoji = self.get_emoji(speed_trap.participant.team.as_emoji())
-        msg = f'🚀 `{position}` {teamoji} {speed_trap.participant} {round(speed_trap.participant_speed)} km/h !'
+        msg = f'**SPEED TRAP 🚀** `{self.driver(speed_trap.participant)} {round(speed_trap.participant_speed)} km/h !'
         return Message(content=msg, channel=Channel.CLASSIFICATION, local_id=f'{session.session_identifier}_last_speedtrap_update')
 
     def _get_table_message(self, session: Session) -> Message:
@@ -50,8 +47,8 @@ class SpeedTrapListener(AbstractListener):
         if len(table_values) == 0:
             return
         values = sorted(table_values, key=lambda x: x[1], reverse=True)
-        values = [(v[0], round(v[1])) for v in values]
+        values = [(i+1, v[0], f'{round(v[1])} km/h') for i,v in enumerate(values)]
         _logger.info("Speed trap:")
-        values_str = tabulate(values, tablefmt=TABLE_FORMAT, headers=('', 'km/h'))
+        values_str = tabulate(values, tablefmt=TABLE_FORMAT)
         _logger.info(values_str)
-        return Message(content=f"Speed traps\n```{values_str}```", channel=Channel.CLASSIFICATION)
+        return Message(content=f"## Speed trap ranking\n```{values_str}```", channel=Channel.CLASSIFICATION)
