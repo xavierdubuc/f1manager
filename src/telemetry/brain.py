@@ -89,7 +89,6 @@ LISTENER_CLASSES = [
     QualificationSectorsListener,
     SafetyCarListener,
     SessionCreationListener,
-    SpinListener,
     TelemetryPublicListener,
     TyresOldListener,
     TyreSetListener,
