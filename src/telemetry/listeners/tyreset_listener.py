@@ -33,7 +33,7 @@ class TyreSetListener(AbstractListener):
         for i, tyreset in enumerate(tyresets):
             if not tyreset.available:
                 continue
-            tyreset_with_id = (i, tyreset)
+            tyreset_with_id = (i+1, tyreset)
             if tyreset.fitted:
                 fitted_tyreset = tyreset_with_id
             else:
@@ -65,4 +65,4 @@ class TyreSetListener(AbstractListener):
 
     def tyreset_with_id(self, tyreset: Tuple[int, TyreSet]):
         tyre = self.tyre(tyreset[1].visual_tyre_compound, tyreset[1].wear)
-        return f'#{tyreset[0]} {tyre}'
+        return tyre
