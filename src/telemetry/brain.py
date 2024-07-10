@@ -147,8 +147,8 @@ class Brain:
         elif packet_type == PacketEventData:
             self._handle_received_event_packet(packet)
 
-        elif packet_type == PacketMotionData:
-            self._handle_received_motion_packet(packet)
+        # elif packet_type == PacketMotionData:
+        #     self._handle_received_motion_packet(packet)
 
         elif packet_type == PacketTyreSetsData:
             self._handle_received_tyreset_packet(packet)
