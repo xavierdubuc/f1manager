@@ -2,9 +2,9 @@ from enum import Enum
 
 
 class Event(Enum):
-    SESSION_CREATED                    = 0
-    SESSION_UPDATED                    = 1
-    SESSION_ENDED                      = 2
+    SESSION_CREATED                   = 0
+    SESSION_UPDATED                   = 1
+    SESSION_ENDED                     = 2
 
     PARTICIPANT_CREATED               = 10
     PARTICIPANT_LIST_INITIALIZED      = 11
@@ -33,12 +33,22 @@ class Event(Enum):
     CAR_STATUS_LIST_INITIALIZED       = 71
     CAR_STATUS_UPDATED                = 72
 
-    CAR_SETUP_CREATED                = 80
-    CAR_SETUP_LIST_INITIALIZED       = 81
-    CAR_SETUP_UPDATED                = 82
+    CAR_SETUP_CREATED                 = 80
+    CAR_SETUP_LIST_INITIALIZED        = 81
+    CAR_SETUP_UPDATED                 = 82
 
-    FASTEST_LAP                       = 100
-    COLLISION                         = 101
-    OVERTAKE                          = 102
-    SPEED_TRAP                        = 103
-    BEST_SECTOR_UPDATED               = 200
+    MOTION_CREATED                    = 90
+    MOTION_LIST_INITIALIZED           = 91
+    MOTION_UPDATED                    = 92
+
+    TYRESET_CREATED                   = 100
+    TYRESET_UPDATED                   = 101
+    TYRESET_LIST_CREATED              = 102
+    TYRESET_LIST_UPDATED              = 103
+
+    FASTEST_LAP                       = 200
+    COLLISION                         = 201
+    OVERTAKE                          = 202
+    SPEED_TRAP                        = 203
+
+    BEST_SECTOR_UPDATED               = 500

@@ -4,6 +4,7 @@ from src.telemetry.models.enums.pit_status import PitStatus
 from src.telemetry.event import Event
 
 from src.telemetry.message import Channel, Message
+from src.telemetry.models.overtake import Overtake
 from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
 from .abstract_listener import AbstractListener
@@ -22,22 +23,26 @@ class OvertakeListener(AbstractListener):
         return [Message(content=msg, channel=Channel.DEFAULT)]
 
     def _on_overtake(self, overtaker: Participant, overtaken: Participant, session: Session) -> List[Message]:
-        if not session.session_type.is_race():
+        if not self._should_consider_overtake(overtaker, overtaken, session):
             return None
-        if self._should_consider_overtake(overtaker, overtaken, session):
-            session.overtakes += (overtaker, overtaken) # add lap ?
+        session.overtakes += Overtake(
+            overtaker=overtaker,
+            overtaken=overtaken,
+            lap=session.current_lap
+        )
 
-        teamoji_overtaken = self.get_emoji(overtaken.team.as_emoji())
         overtaken_lap = session.get_current_lap(overtaken)
         if overtaken_lap.pit_status != PitStatus.not_in_pit:
             return []
 
-        overtaker_lap = session.get_current_lap(overtaker)
-        n_position = str(overtaken_lap.car_position).rjust(2)
-        teamoji_overtaker = self.get_emoji(overtaker.team.as_emoji())
-        r_position = str(overtaker_lap.car_position).rjust(2)
-        msg = f'`{r_position}` {teamoji_overtaker} {overtaker} ⏩ `{n_position}` {teamoji_overtaken} {overtaken}'
+        msg = f'{self.driver(overtaker, session)} ⏩ {self.driver(overtaken, session)}'
         return [Message(content=msg, channel=Channel.DEFAULT)]
 
-    def _should_consider_overtake(self, overtaker:Participant, overtaken:Participant, session=Session) -> bool:
-        return True # implements Cid's restriction if possible
+    def _should_consider_overtake(self, overtaker:Participant, overtaken:Participant, session:Session) -> bool:
+        if not session.session_type.is_race():
+            return False
+        overtaken_lap = session.get_current_lap(overtaken)
+        if overtaken_lap.pit_status != PitStatus.not_in_pit:
+            return False
+        # TODO implements Cid's restriction if possible
+        return True

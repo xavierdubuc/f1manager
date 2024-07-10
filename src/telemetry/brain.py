@@ -15,12 +15,16 @@ from f1_24_telemetry.packets import (
     PacketParticipantsData,
     PacketEventData,
     PacketFinalClassificationData,
+    PacketMotionData,
+    PacketTyreSetsData
 )
 from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            Q3_RANKING_RANGE, QUALI_RANKING_RANGE,
                            RACE_RANKING_RANGE, FASTEST_LAP_PILOT_CELL,
-                           FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL, VALUES_SHEET_NAME)
+                           FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL)
 
+from src.telemetry.listeners.tyreset_listener import TyreSetListener
+from src.telemetry.managers.tyreset_manager import TyreSetManager
 from src.telemetry.models.speed_trap_entry import SpeedTrapEntry
 from src.media_generation.helpers.generator_type import GeneratorType
 from src.media_generation.helpers.reader import Reader
@@ -54,6 +58,7 @@ from src.telemetry.managers.car_setup_manager import CarSetupManager
 from src.telemetry.managers.classification_manager import ClassificationManager
 from src.telemetry.managers.damage_manager import DamageManager
 from src.telemetry.managers.lap_manager import LapManager
+from src.telemetry.managers.motion_manager import MotionManager
 from src.telemetry.managers.lap_record_manager import LapRecordManager
 from src.telemetry.managers.participant_manager import ParticipantManager
 from src.telemetry.managers.session_manager import SessionManager
@@ -86,6 +91,7 @@ LISTENER_CLASSES = [
     SessionCreationListener,
     TelemetryPublicListener,
     TyresOldListener,
+    TyreSetListener,
     WeatherForecastListener,
 ]
 
@@ -107,6 +113,7 @@ class Brain:
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
         _logger.debug(f'Handling new {packet_type}')
+        # TODO susbscribed packet and handle method or smthg
 
         if packet_type == PacketSessionData:
             self._handle_received_session_packet(packet)
@@ -137,6 +144,12 @@ class Brain:
 
         elif packet_type == PacketEventData:
             self._handle_received_event_packet(packet)
+
+        elif packet_type == PacketMotionData:
+            self._handle_received_motion_packet(packet)
+
+        elif packet_type == PacketTyreSetsData:
+            self._handle_received_tyreset_packet(packet)
 
     def _send_discord_message(self, msg:Message):
         if self.queue:
@@ -234,6 +247,77 @@ class Brain:
                     if changes:
                         participant = self.current_session.participants[i]
                         self._emit(Event.DAMAGE_UPDATED, self.current_session.damages[i], changes, participant, self.current_session)
+
+    """
+    @emits MOTION_CREATED
+    @emits MOTION_LIST_INITIALIZED
+    @emits MOTION_UPDATED
+    """
+    def _handle_received_motion_packet(self, packet:PacketMotionData):
+        if not self.current_session:
+            return # this should not happen
+        if not self.current_session.participants:
+            return # this should not happen neither
+        if self.current_session.session_type == SessionType.clm:
+            return # this has no sense
+        amount_of_pertinent_motions = len(self.current_session.participants)
+        if not self.current_session.motions:
+            self.current_session.motions = [
+                MotionManager.create(packet.car_motion_data[i])
+                for i in range(amount_of_pertinent_motions)
+            ]
+            self._emit(Event.MOTION_LIST_INITIALIZED, session=self.current_session, motions=self.current_session.motions)
+        else:
+            current_amount_of_motion = len(self.current_session.motions)
+            for i in range(amount_of_pertinent_motions):
+                packet_data = packet.car_motion_data[i]
+                if i > current_amount_of_motion - 1:
+                    new_motion = MotionManager.create(packet_data)
+                    self.current_session.motions.append(new_motion)
+                    self._emit(Event.MOTION_CREATED, session=self.current_session, motion=new_motion)
+                else:
+                    changes = MotionManager.update(self.current_session.motions[i], packet_data)
+                    if changes:
+                        participant = self.current_session.participants[i]
+                        self._emit(Event.MOTION_UPDATED, self.current_session.motions[i], changes, participant, self.current_session)
+
+    """
+    @emits TYRESET_CREATED
+    @emits TYRESET_UPDATED
+    @emits PARTICIPANT_TYRESET_CREATED
+    @emits PARTICIPANT_TYRESET_UPDATED
+    """
+    def _handle_received_tyreset_packet(self, packet:PacketTyreSetsData):
+        if not self.current_session:
+            return # this should not happen
+        if not self.current_session.participants:
+            return # this should not happen neither
+        if not self.current_session.tyresets:
+            self.current_session.tyresets = [None] * 20
+        amount_of_participants = len(self.current_session.participants)
+        if packet.car_idx >= amount_of_participants:
+            return
+        if not self.current_session.participants[packet.car_idx]:
+            return # we wait to have the participant first
+        participant = self.current_session.participants[packet.car_idx]
+
+        if not self.current_session.tyresets[packet.car_idx]:
+            for tyreset_data in packet.tyre_set_data:
+                tyreset = TyreSetManager.create(tyreset_data)
+                self.current_session.tyresets[packet.car_idx].append(tyreset)
+                self._emit(Event.TYRESET_CREATED, tyreset=tyreset, participant=participant, session=self.current_session)
+            self._emit(Event.TYRESET_LIST_CREATED, tyresets=self.current_session.tyresets[packet.car_idx], participant=participant, session=self.current_session)
+        else:
+            tyresets = self.current_session.tyresets[packet.car_idx]
+            has_changes = False
+            tyreset_data = packet.tyre_set_data
+            for i, tyreset in enumerate(tyresets):
+                changes = TyreSetManager.update(tyreset, tyreset_data[i])
+                if changes:
+                    has_changes = True
+                    self._emit(Event.TYRESET_UPDATED, tyreset, changes, participant, self.current_session)
+            if has_changes:
+                self._emit(Event.TYRESET_LIST_UPDATED, tyresets, changes, participant, self.current_session)
 
     """
     @emits TELEMETRY_CREATED
@@ -482,15 +566,17 @@ class Brain:
                 participant = self.current_session.participants[fastest_lap.vehicle_idx]
                 self._emit(Event.FASTEST_LAP, participant=participant, lap_time=fastest_lap.lap_time, session=self.current_session)
             if event_code == 'RTMT': # RETIREMENT
-                print('RETIREMENT', packet.event_details.retirement.vehicle_idx)
+                _logger.info('RETIREMENT')
+                _logger.info(packet.event_details.retirement.vehicle_idx)
             if event_code == 'DRSE': # DRS ENABLED
-                print('---------- DRS ENABLED ! ----------')
+                _logger.info('---------- DRS ENABLED ! ----------')
             if event_code == 'DRSD': # DRS DISABLED
-                print('---------- DRS DISABLED ! ----------')
+                _logger.info('---------- DRS DISABLED ! ----------')
             if event_code == 'CHQF': # CHEQUERED FLAG
-                print('---------- CHEQUERED FLAG ! ----------')
+                _logger.info('---------- CHEQUERED FLAG ! ----------')
             if event_code == 'RCWN': # RACE WINNER
-                print('RACE WINNER', packet.event_details.race_winner.vehicle_idx)
+                _logger.info('RACE WINNER')
+                _logger.info(packet.event_details.race_winner.vehicle_idx)
             if event_code == 'SPTP': # SPEED TRAP TRIGGERED
                 # {
                 #     "fastest_speed_in_session": 326.359,
@@ -514,7 +600,7 @@ class Brain:
                 # TODO add listener for ranking of top speed
                 self._emit(Event.SPEED_TRAP, speed_trap=speed_trap_entry, session=self.current_session)
             if event_code == 'RDFL': # RED FLAG
-                print('---------- RED FLAG ! ----------')
+                _logger.info('---------- RED FLAG ! ----------')
             if event_code == 'OVTK': # OVERTAKE
                 overtake = packet.event_details.overtake
                 overtaker = self.current_session.participants[overtake.overtaking_vehicle_idx]
@@ -522,7 +608,9 @@ class Brain:
                 self._emit(Event.OVERTAKE, overtaker=overtaker, overtaken=overtaken, session=self.current_session)
             if event_code == 'SCAR': # SAFETY CAR
                 sc = packet.event_details.safety_car
-                print('SAFETY CAR', sc.safety_car_type, sc.event_type)
+                _logger.info('SAFETY CAR')
+                _logger.info(sc.safety_car_type)
+                _logger.info(sc.event_type)
             if event_code == 'COLL': # COLLISION
                 collision = packet.event_details.collision
                 participant_1 = self.current_session.participants[collision.vehicle1_idx]

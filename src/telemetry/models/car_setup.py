@@ -1,19 +1,8 @@
 import logging
 from dataclasses import dataclass
-from typing import List
-
-from src.telemetry.models.enums.ers_deploy_mode import ERSDeployMode
-from src.telemetry.models.enums.flag import Flag
-from src.telemetry.models.enums.fuel_mix import FuelMix
-from src.telemetry.models.enums.traction_control import TractionControl
-from src.telemetry.models.enums.tyre import Tyre
-from src.telemetry.models.enums.tyre_compound import TyreCompound
-from src.telemetry.models.evolving_model import EvolvingModel
-
-_logger = logging.getLogger(__name__)
 
 @dataclass
-class CarSetup(EvolvingModel):
+class CarSetup:
     front_wing: int = None
     rear_wing: int = None
     differential_on_throttle: int = None

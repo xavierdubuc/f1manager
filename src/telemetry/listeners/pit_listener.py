@@ -35,10 +35,8 @@ class PitListener(AbstractListener):
                 if not car_status:
                     fuel_str = tyres_str = ''
                 else:
-                    tyre_string = car_status.visual_tyre_compound.get_long_string()
-                    tyre_emoji = self.get_emoji(tyre_string.lower(), tyre_string)
-                    tyres_age_str = f' ({car_damage.get_max_tyre_damage()} %)' if car_damage else ''
-                    tyres_str = f' en {tyre_emoji}{tyres_age_str}'
+                    tyre = self.tyre(car_status.visual_tyre_compound, car_damage.get_max_tyre_damage())
+                    tyres_str = f' en {tyre}'
                     fuel_str = f' et {round(car_status.fuel_remaining_laps, 2)} tours d\'essence'
 
                 stop_time = changes['pit_stop_timer_in_ms'].old if 'pit_stop_timer_in_ms' in changes else None

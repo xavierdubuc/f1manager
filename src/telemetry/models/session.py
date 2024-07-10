@@ -1,12 +1,14 @@
 from dataclasses import dataclass, field
 from datetime import timedelta
 from typing import Dict, List, Tuple
+from src.telemetry.models.motion import Motion
+from src.telemetry.models.overtake import Overtake
 from src.telemetry.models.speed_trap_entry import SpeedTrapEntry
 from src.telemetry.models.car_status import CarStatus
 from src.telemetry.models.car_setup import CarSetup
-from disnake import Message
 
 from src.telemetry.models.lap_record import LapRecord
+from src.telemetry.models.tyreset import TyreSet
 
 from .classification import Classification
 from .damage import Damage
@@ -89,8 +91,10 @@ class Session:
     current_fastest_sector1: int = None # in ms
     current_fastest_sector2: int = None # in ms
     current_fastest_sector3: int = None # in ms
-    overtakes: List[Tuple[Participant, Participant]] = field(default_factory=list)
+    overtakes: List[Overtake] = field(default_factory=list)
     speed_traps: Dict[Participant, SpeedTrapEntry] = field(default_factory=dict)
+    motions: List[Motion] = None
+    tyresets: List[TyreSet] = None
 
     def __eq__(self, other):
         if type(self) != type(other):
