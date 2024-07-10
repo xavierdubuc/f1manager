@@ -41,12 +41,11 @@ class AbstractListener:
         elements = []
         # POSITION
         if session is not None:
-            lap = session.get_current_lap(participant)
-            elements.append(f'`{str(lap.car_position).rjust(2)}`')
+            if lap := session.get_current_lap(participant):
+                elements.append(f'`{str(lap.car_position).rjust(2)}`')
 
         # TEAMOJI
-        teamoji = self.get_teamoji(participant)
-        if teamoji:
+        if teamoji := self.get_teamoji(participant):
             elements.append(teamoji)
 
         # PARTICIPANT

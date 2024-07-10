@@ -12,6 +12,7 @@ from src.telemetry.models.session import Session
 from .abstract_listener import AbstractListener
 
 FIELDS_LABELS = {
+    # FIXME add new setups (frein moteur par ex)
     'front_wing': 'Aéro avant',
     'rear_wing': 'Aéro arrière',
     'differential_on_throttle': "Différentiel à l'accélération",
