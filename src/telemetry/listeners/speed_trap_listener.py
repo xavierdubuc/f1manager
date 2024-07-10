@@ -48,7 +48,5 @@ class SpeedTrapListener(AbstractListener):
             return
         values = sorted(table_values, key=lambda x: x[1], reverse=True)
         values = [(i+1, v[0], f'{round(v[1])} km/h') for i,v in enumerate(values)]
-        _logger.info("Speed trap:")
         values_str = tabulate(values, tablefmt=TABLE_FORMAT)
-        _logger.info(values_str)
         return Message(content=f"## Speed trap ranking\n```{values_str}```", channel=Channel.CLASSIFICATION)
