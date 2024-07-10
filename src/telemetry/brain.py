@@ -302,6 +302,7 @@ class Brain:
         participant = self.current_session.participants[packet.car_idx]
 
         if not self.current_session.tyresets[packet.car_idx]:
+            self.current_session.tyresets[packet.car_idx] = []
             for tyreset_data in packet.tyre_set_data:
                 tyreset = TyreSetManager.create(tyreset_data)
                 self.current_session.tyresets[packet.car_idx].append(tyreset)
