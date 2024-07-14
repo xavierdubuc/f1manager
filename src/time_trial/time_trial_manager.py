@@ -19,6 +19,7 @@ CIRCUITS_VALUES_SHEET_NAME = '_circuits'
 CIRCUITS_VALUES_SHEET_RANGE = 'A3:B28'
 MESSAGE_ID_RANGE = 'B1'
 TIME_TRIAL_RANGE = 'A3:F50'
+SAME_TIME_MAX_TRY = 3
 
 DISCORD_GUILD_ID = 923505034778509342
 DISCORD_CHANNEL_ID = 1257435341732712521
@@ -77,7 +78,9 @@ class TimeTrialManager:
         personal_name = None
         rival_name = None
         best_laps = {}
+        last_added_time = None
         state = 'CIRCUIT'
+        same_time_try = 0
         try:
             _logger.info('Waiting for session packet to get circuit...')
             while True:
@@ -93,8 +96,12 @@ class TimeTrialManager:
                     if isinstance(packet, PacketTimeTrialData):
                         pb = packet.personal_best_data_set
                         rival = packet.rival_data_set
-                        print(rival.lap_time_in_ms)
-                        state = 'PARTICIPANT'
+                        if not last_added_time or last_added_time != rival.lap_time_in_ms or same_time_try >= SAME_TIME_MAX_TRY:
+                            state = 'PARTICIPANT'
+                            same_time_try = 0
+                        else:
+                            same_time_try += 1
+                            
 
                 if state == 'PARTICIPANT':
                     if isinstance(packet, PacketParticipantsData):
@@ -111,7 +118,6 @@ class TimeTrialManager:
                             _logger.info(f'Added {format_time(time_values[3])} of "{personal_name}"')
 
                         # ADDING RIVAL
-                        print(rival.car_idx)
                         rival_name = get_participant_name(packet, rival.car_idx)
                         if rival_name and not best_laps.get(rival_name):
                             time_values = [
@@ -120,6 +126,7 @@ class TimeTrialManager:
                                 timedelta(seconds=rival.sector3_time_in_ms/1000),
                                 timedelta(seconds=rival.lap_time_in_ms/1000),
                             ]
+                            last_added_time = rival.lap_time_in_ms
                             best_laps[rival_name] = time_values
                             _logger.info(f'Added {format_time(time_values[3])} of "{rival_name}"')
                         pb = rival = personal_name = rival_name = None
