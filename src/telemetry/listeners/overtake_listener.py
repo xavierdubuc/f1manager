@@ -25,11 +25,11 @@ class OvertakeListener(AbstractListener):
     def _on_overtake(self, overtaker: Participant, overtaken: Participant, session: Session) -> List[Message]:
         if not self._should_consider_overtake(overtaker, overtaken, session):
             return None
-        session.overtakes += Overtake(
+        session.overtakes.append(Overtake(
             overtaker=overtaker,
             overtaken=overtaken,
             lap_num=session.current_lap
-        )
+        ))
 
         overtaken_lap = session.get_current_lap(overtaken)
         if overtaken_lap.pit_status != PitStatus.not_in_pit:
