@@ -93,6 +93,7 @@ class TimeTrialManager:
                     if isinstance(packet, PacketTimeTrialData):
                         pb = packet.personal_best_data_set
                         rival = packet.rival_data_set
+                        print(rival.lap_time_in_ms)
                         state = 'PARTICIPANT'
 
                 if state == 'PARTICIPANT':
@@ -110,6 +111,7 @@ class TimeTrialManager:
                             _logger.info(f'Added {format_time(time_values[3])} of "{personal_name}"')
 
                         # ADDING RIVAL
+                        print(rival.car_idx)
                         rival_name = get_participant_name(packet, rival.car_idx)
                         if rival_name and not best_laps.get(rival_name):
                             time_values = [
