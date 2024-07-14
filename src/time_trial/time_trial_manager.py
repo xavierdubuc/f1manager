@@ -99,7 +99,7 @@ class TimeTrialManager:
                     if isinstance(packet, PacketParticipantsData):
                         # ADDING PB
                         personal_name = get_participant_name(packet, pb.car_idx)
-                        if personal_name and not best_laps[personal_name]:
+                        if personal_name and not best_laps.get(personal_name):
                             time_values = [
                                 timedelta(seconds=pb.sector1_time_in_ms/1000),
                                 timedelta(seconds=pb.sector2_time_in_ms/1000),
@@ -111,7 +111,7 @@ class TimeTrialManager:
 
                         # ADDING RIVAL
                         rival_name = get_participant_name(packet, rival.car_idx)
-                        if rival_name and not best_laps[rival_name]:
+                        if rival_name and not best_laps.get(rival_name):
                             time_values = [
                                 timedelta(seconds=rival.sector1_time_in_ms/1000),
                                 timedelta(seconds=rival.sector2_time_in_ms/1000),
