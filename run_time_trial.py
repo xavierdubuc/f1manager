@@ -7,7 +7,7 @@ from src.bot import run as run_discord_bot, bot
 from src.logging import setup as setup_logging
 from src.media_generation.data import circuits as CIRCUITS
 
-setup_logging('debug')
+setup_logging('info')
 
 _logger = logging.getLogger(__name__)
 

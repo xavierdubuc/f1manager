@@ -102,7 +102,10 @@ class TimeTrialManager:
                             state = 'PARTICIPANT'
                             same_time_try = 0
                         else:
-                            _logger.debug(f"Same time again, won't go into PARTICIPANT now (try: {same_time_try})")
+                            if same_time_try == SAME_TIME_MAX_TRY - 1:
+                                _logger.info("Next try I'll try to add the same time potentially for a different pilot")
+                            else:
+                                _logger.debug(f"Same time again, won't go into PARTICIPANT now (try: {same_time_try})")
                             same_time_try += 1
 
                 if state == 'PARTICIPANT':
