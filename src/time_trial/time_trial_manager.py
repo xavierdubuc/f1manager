@@ -111,7 +111,7 @@ class TimeTrialManager:
                 if state == 'PARTICIPANT':
                     if isinstance(packet, PacketParticipantsData):
                         # ADDING PB
-                        personal_name = get_participant_name(packet, pb.car_idx)
+                        personal_name = get_participant_name(packet, 0)
                         if personal_name and not best_laps.get(personal_name):
                             time_values = [
                                 timedelta(seconds=pb.sector1_time_in_ms/1000),
