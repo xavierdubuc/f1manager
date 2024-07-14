@@ -6,7 +6,7 @@ import tabulate
 
 import disnake
 from f1_24_telemetry.listener import TelemetryListener
-from f1_24_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData
+from f1_24_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData, PacketTimeTrialData
 from src.telemetry.models.enums.track import Track
 from src.bot.vignebot import Vignebot
 from src.gsheet.gsheet import GSheet
@@ -18,7 +18,7 @@ TOC_SHEET_NAME = 'TOC'
 CIRCUITS_VALUES_SHEET_NAME = '_circuits'
 CIRCUITS_VALUES_SHEET_RANGE = 'A3:B28'
 MESSAGE_ID_RANGE = 'B1'
-TIME_TRIAL_RANGE = 'A3:D50'
+TIME_TRIAL_RANGE = 'A3:F50'
 
 DISCORD_GUILD_ID = 923505034778509342
 DISCORD_CHANNEL_ID = 1257435341732712521
@@ -71,49 +71,67 @@ class TimeTrialManager:
         await self.create_not_existing_messages()
 
     def fetch_from_game(self, ip='192.168.1.15'):
-        RIVAL_INDEX = 3
+        # TODO TEST ME
         listener = TelemetryListener(port=20777, host=ip)
         circuit = None
         personal_name = None
         rival_name = None
         best_laps = {}
+        state = 'CIRCUIT'
         try:
             _logger.info('Waiting for session packet to get circuit...')
             while True:
                 packet = listener.get()
-                if not circuit:
+                if state == 'CIRCUIT':
                     if isinstance(packet, PacketSessionData):
                         track = Track(packet.track_id)
                         circuit = self.circuits_idx[track.get_name()]
                         _logger.info(f'"{circuit.name}" circuit selected !')
-                else:
-                    if isinstance(packet, PacketParticipantsData):
-                        if not personal_name:
-                            personal_name = get_participant_name(packet, 0)
-                            best_laps[personal_name] = None
-                            _logger.debug(f'Added "{personal_name}" in best laps array')
-                        rival_name = get_participant_name(packet, RIVAL_INDEX)
-                        if not rival_name or rival_name not in best_laps:
-                            best_laps[rival_name] = None
-                            _logger.debug(f'Added "{rival_name}" in best laps array')
+                        state = 'TIME_TRIAL'
 
-                    elif isinstance(packet, PacketLapData):
+                if state == 'TIME_TRIAL':
+                    if isinstance(packet, PacketTimeTrialData):
+                        pb = packet.personal_best_data_set
+                        rival = packet.rival_data_set
+                        state = 'PARTICIPANT'
+
+                if state == 'PARTICIPANT':
+                    if isinstance(packet, PacketParticipantsData):
+                        # ADDING PB
+                        personal_name = get_participant_name(packet, pb.car_idx)
                         if personal_name and not best_laps[personal_name]:
-                            perso_time = timedelta(seconds=packet.lap_data[packet.time_trial_pb_car_idx].last_lap_time_in_ms/1000)
-                            best_laps[personal_name] = perso_time
-                            _logger.info(f'Added {format_time(perso_time)} of "{personal_name}"')
+                            time_values = [
+                                timedelta(seconds=pb.sector1_time_in_ms/1000),
+                                timedelta(seconds=pb.sector2_time_in_ms/1000),
+                                timedelta(seconds=pb.sector3_time_in_ms/1000),
+                                timedelta(seconds=pb.lap_time_in_ms/1000),
+                            ]
+                            best_laps[personal_name] = time_values
+                            _logger.info(f'Added {format_time(time_values[3])} of "{personal_name}"')
+
+                        # ADDING RIVAL
+                        rival_name = get_participant_name(packet, rival.car_idx)
                         if rival_name and not best_laps[rival_name]:
-                            rival_time = timedelta(seconds=packet.lap_data[packet.time_trial_rival_car_idx].last_lap_time_in_ms/1000)
-                            best_laps[rival_name] = rival_time
-                            _logger.info(f'Added {format_time(rival_time)} of "{rival_name}"')
+                            time_values = [
+                                timedelta(seconds=rival.sector1_time_in_ms/1000),
+                                timedelta(seconds=rival.sector2_time_in_ms/1000),
+                                timedelta(seconds=rival.sector3_time_in_ms/1000),
+                                timedelta(seconds=rival.lap_time_in_ms/1000),
+                            ]
+                            best_laps[rival_name] = time_values
+                            _logger.info(f'Added {format_time(time_values[3])} of "{rival_name}"')
+                        state = 'TIME_TRIAL'
         except KeyboardInterrupt:
             pass
 
         if not circuit or not best_laps:
             _logger.error('No circuit or no lap time registered !')
             return
-        values = sorted([(k,v) for k, v in best_laps.items()], key=lambda x:x[1])
-        values_str = [(i+1, k, format_time(v)) for i,(k,v) in enumerate(values)]
+        values = sorted([(k, s1, s2, s3, lap) for k, (s1, s2, s3, lap) in best_laps.items()], key=lambda x: x[4])
+        values_str = [
+            (i+1, k, format_time(s1), format_time(s2), format_time(s3), format_time(lap))
+            for i, (k, s1, s2, s3, lap) in enumerate(values)
+        ]
         _logger.info('Fetched ranking that will be stored :')
         _logger.info(values_str)
         self._update_circuit_sheet(circuit, values_str)
@@ -136,10 +154,10 @@ class TimeTrialManager:
         self._set_circuit_sheet_headers_values(circuit)
 
     def _set_circuit_sheet_headers_values(self, circuit: Circuit):
-        cell_range = f'{circuit.get_identifier()}!A1:C3'
+        cell_range = f'{circuit.get_identifier()}!A1:C6'
         self.gsheet.set_sheet_values(SPREADSHEET_ID, cell_range, [
             ['Message ID', '', ''],
-            ['Position', 'Pilot', 'Time']
+            ['Position', 'Pilot', 'S1', 'S2', 'S3', 'Time']
         ])
 
     def _get_circuit_ranking(self, circuit: Circuit) -> List[List[str]]:
