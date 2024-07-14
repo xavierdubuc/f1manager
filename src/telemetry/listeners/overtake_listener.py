@@ -28,7 +28,7 @@ class OvertakeListener(AbstractListener):
         session.overtakes += Overtake(
             overtaker=overtaker,
             overtaken=overtaken,
-            lap=session.current_lap
+            lap_num=session.current_lap
         )
 
         overtaken_lap = session.get_current_lap(overtaken)

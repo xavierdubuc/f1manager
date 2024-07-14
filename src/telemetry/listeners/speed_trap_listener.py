@@ -36,7 +36,7 @@ class SpeedTrapListener(AbstractListener):
 
     def _get_last_update_message(self, speed_trap: SpeedTrapEntry, session: Session) -> Message:
         id = f'{session.session_identifier}_{session.session_type.name}_last_speedtrap_update'
-        msg = f'**SPEED TRAP 🚀** `{self.driver(speed_trap.participant)} {round(speed_trap.participant_speed)} km/h !'
+        msg = f'**SPEED TRAP 🚀** `{self.driver(speed_trap.participant)} {round(speed_trap.participant_speed)} km/h !`'
         return Message(content=msg, channel=Channel.CLASSIFICATION, local_id=id)
 
     def _get_table_message(self, session: Session) -> Message:
