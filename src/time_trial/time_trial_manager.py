@@ -101,6 +101,7 @@ class TimeTrialManager:
                             same_time_try = 0
                         else:
                             same_time_try += 1
+                        print('same_time_try', same_time_try)
                             
 
                 if state == 'PARTICIPANT':
