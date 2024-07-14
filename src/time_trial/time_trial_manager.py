@@ -19,7 +19,7 @@ CIRCUITS_VALUES_SHEET_NAME = '_circuits'
 CIRCUITS_VALUES_SHEET_RANGE = 'A3:B28'
 MESSAGE_ID_RANGE = 'B1'
 TIME_TRIAL_RANGE = 'A3:F50'
-SAME_TIME_MAX_TRY = 3
+SAME_TIME_MAX_TRY = 5
 
 DISCORD_GUILD_ID = 923505034778509342
 DISCORD_CHANNEL_ID = 1257435341732712521
@@ -90,6 +90,7 @@ class TimeTrialManager:
                         track = Track(packet.track_id)
                         circuit = self.circuits_idx[track.get_name()]
                         _logger.info(f'"{circuit.name}" circuit selected !')
+                        _logger.debug(f'Entering TIME_TRIAL state')
                         state = 'TIME_TRIAL'
 
                 if state == 'TIME_TRIAL':
@@ -97,12 +98,12 @@ class TimeTrialManager:
                         pb = packet.personal_best_data_set
                         rival = packet.rival_data_set
                         if not last_added_time or last_added_time != rival.lap_time_in_ms or same_time_try >= SAME_TIME_MAX_TRY:
+                            _logger.debug(f'Entering PARTICIPANT state')
                             state = 'PARTICIPANT'
                             same_time_try = 0
                         else:
+                            _logger.debug(f"Same time again, won't go into PARTICIPANT now (try: {same_time_try})")
                             same_time_try += 1
-                        print('same_time_try', same_time_try)
-                            
 
                 if state == 'PARTICIPANT':
                     if isinstance(packet, PacketParticipantsData):
@@ -131,6 +132,7 @@ class TimeTrialManager:
                             best_laps[rival_name] = time_values
                             _logger.info(f'Added {format_time(time_values[3])} of "{rival_name}"')
                         pb = rival = personal_name = rival_name = None
+                        _logger.debug(f'Going back to TIME_TRIAL state')
                         state = 'TIME_TRIAL'
         except KeyboardInterrupt:
             pass
