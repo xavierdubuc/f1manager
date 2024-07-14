@@ -563,9 +563,10 @@ class Brain:
                 #     "lap_time": 79.941,
                 #     "vehicle_idx": 16
                 # }
-                fastest_lap = packet.event_details.fastest_lap
-                participant = self.current_session.participants[fastest_lap.vehicle_idx]
-                self._emit(Event.FASTEST_LAP, participant=participant, lap_time=fastest_lap.lap_time, session=self.current_session)
+                if self.current_session and self.current_session.participants:
+                    fastest_lap = packet.event_details.fastest_lap
+                    participant = self.current_session.participants[fastest_lap.vehicle_idx]
+                    self._emit(Event.FASTEST_LAP, participant=participant, lap_time=fastest_lap.lap_time, session=self.current_session)
             if event_code == 'RTMT': # RETIREMENT
                 _logger.info('RETIREMENT')
                 _logger.info(packet.event_details.retirement.vehicle_idx)
@@ -588,25 +589,26 @@ class Brain:
                 #     "vehicle_idx": 16
                 # }
                 speed_trap = packet.event_details.speed_trap
-                participant = self.current_session.participants[speed_trap.vehicle_idx]
-                fastest_participant = self.current_session.participants[speed_trap.fastest_vehicle_idx_in_session]
-                speed_trap_entry = SpeedTrapEntry(
-                    participant=participant,
-                    participant_speed=speed_trap.speed,
-                    participant_is_fastest=speed_trap.overall_fastest_in_session,
-                    speed_is_fastest_for_participant=speed_trap.is_driver_fastest_in_session,
-                    fastest_speed_in_session=speed_trap.fastest_speed_in_session,
-                    fastest_participant=fastest_participant,
-                )
-                # TODO add listener for ranking of top speed
-                self._emit(Event.SPEED_TRAP, speed_trap=speed_trap_entry, session=self.current_session)
+                if self.current_session and self.current_session.participants:
+                    participant = self.current_session.participants[speed_trap.vehicle_idx]
+                    fastest_participant = self.current_session.participants[speed_trap.fastest_vehicle_idx_in_session]
+                    speed_trap_entry = SpeedTrapEntry(
+                        participant=participant,
+                        participant_speed=speed_trap.speed,
+                        participant_is_fastest=speed_trap.overall_fastest_in_session,
+                        speed_is_fastest_for_participant=speed_trap.is_driver_fastest_in_session,
+                        fastest_speed_in_session=speed_trap.fastest_speed_in_session,
+                        fastest_participant=fastest_participant,
+                    )
+                    self._emit(Event.SPEED_TRAP, speed_trap=speed_trap_entry, session=self.current_session)
             if event_code == 'RDFL': # RED FLAG
                 _logger.info('---------- RED FLAG ! ----------')
             if event_code == 'OVTK': # OVERTAKE
                 overtake = packet.event_details.overtake
-                overtaker = self.current_session.participants[overtake.overtaking_vehicle_idx]
-                overtaken = self.current_session.participants[overtake.being_overtaken_vehicle_idx]
-                self._emit(Event.OVERTAKE, overtaker=overtaker, overtaken=overtaken, session=self.current_session)
+                if self.current_session and self.current_session.participants:
+                    overtaker = self.current_session.participants[overtake.overtaking_vehicle_idx]
+                    overtaken = self.current_session.participants[overtake.being_overtaken_vehicle_idx]
+                    self._emit(Event.OVERTAKE, overtaker=overtaker, overtaken=overtaken, session=self.current_session)
             if event_code == 'SCAR': # SAFETY CAR
                 sc = packet.event_details.safety_car
                 _logger.info('SAFETY CAR')
@@ -614,9 +616,10 @@ class Brain:
                 _logger.info(sc.event_type)
             if event_code == 'COLL': # COLLISION
                 collision = packet.event_details.collision
-                participant_1 = self.current_session.participants[collision.vehicle1_idx]
-                participant_2 = self.current_session.participants[collision.vehicle2_idx]
-                self._emit(Event.COLLISION, participant_1=participant_1, participant_2=participant_2, session=self.current_session)
+                if self.current_session and self.current_session.participants:
+                    participant_1 = self.current_session.participants[collision.vehicle1_idx]
+                    participant_2 = self.current_session.participants[collision.vehicle2_idx]
+                    self._emit(Event.COLLISION, participant_1=participant_1, participant_2=participant_2, session=self.current_session)
 
     def _keep_up_to_date_session_best_sectors(self, changes:Dict[str, Change], participant:Participant = None):
         for sector in ('sector1', 'sector2', 'sector3'):
