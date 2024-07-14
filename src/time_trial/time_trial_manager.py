@@ -92,6 +92,7 @@ class TimeTrialManager:
                 if state == 'TIME_TRIAL':
                     if isinstance(packet, PacketTimeTrialData):
                         pb = packet.personal_best_data_set
+                        print(packet._fields)
                         rival = packet.rival_data_set
                         state = 'PARTICIPANT'
 
