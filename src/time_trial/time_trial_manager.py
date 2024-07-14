@@ -120,6 +120,7 @@ class TimeTrialManager:
                             ]
                             best_laps[rival_name] = time_values
                             _logger.info(f'Added {format_time(time_values[3])} of "{rival_name}"')
+                        pb = rival = personal_name = rival_name = None
                         state = 'TIME_TRIAL'
         except KeyboardInterrupt:
             pass
