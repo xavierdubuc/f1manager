@@ -35,7 +35,9 @@ class SpeedTrapListener(AbstractTableAndMessageListener):
     def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:
         return Channel.CLASSIFICATION
 
-    def _get_update_message(self, session: Session, speed_trap: SpeedTrapEntry, *args, **kwargs) -> Message:
+    def _get_update_message(self, session: Session, speed_trap: SpeedTrapEntry = None, *args, **kwargs) -> Message:
+        if not speed_trap:
+            return
         return f'🚀 **{self.driver(speed_trap.participant)}** {round(speed_trap.participant_speed)} km/h !'
 
     def _get_table(self, session: Session, *args, **kwargs) -> Message:

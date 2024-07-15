@@ -27,7 +27,7 @@ class PenaltyListener(AbstractTableAndMessageListener):
         if "corner_cutting_warnings" not in changes and "penalties" not in changes:
             return
 
-        return self._get_fixed_message(session, changes)
+        return self._get_fixed_message(session, lap, changes, participant)
 
     def _get_fixed_message_id(self, session: Session, *args, **kwargs) -> str:
         return f'{session.session_identifier}_{session.session_type.name}_penalties'
@@ -35,7 +35,7 @@ class PenaltyListener(AbstractTableAndMessageListener):
     def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:
         return Channel.PENALTY
 
-    def _get_update_message(self, session: Session, lap: Lap, changes: Dict[str, Change] = None, participant: Participant = None, *args, **kwargs) -> str:
+    def _get_update_message(self, session: Session, lap: Lap = None, changes: Dict[str, Change] = None, participant: Participant = None, *args, **kwargs) -> str:
         if not changes or not participant:
             return
 
