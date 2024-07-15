@@ -35,7 +35,7 @@ class PenaltyListener(AbstractTableAndMessageListener):
     def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:
         return Channel.PENALTY
 
-    def _get_update_message(self, session: Session, lap: Lap, changes: Dict[str, Change] = None, participant: Participant = None) -> str:
+    def _get_update_message(self, session: Session, lap: Lap, changes: Dict[str, Change] = None, participant: Participant = None, *args, **kwargs) -> str:
         if not changes or not participant:
             return
 
@@ -53,7 +53,7 @@ class PenaltyListener(AbstractTableAndMessageListener):
             amount_of_warnings = changes["corner_cutting_warnings"].actual
             return f"🏳️ **{self.driver(participant)}** a recu un avertissement ! **Total : {amount_of_warnings}**"
 
-    def _get_table(self, session: Session) -> str:
+    def _get_table(self, session: Session, *args, **kwargs) -> str:
         table_values = []
         for p in session.participants:
             lap = session.get_current_lap(p)
