@@ -29,7 +29,7 @@ class SpeedTrapListener(AbstractTableAndMessageListener):
         session.speed_traps[key] = speed_trap
         return self._get_fixed_message(session, speed_trap)
 
-    def _get_fixed_message_id(self, session: Session) -> str:
+    def _get_fixed_message_id(self, session: Session, *args, **kwargs) -> str:
         return f'{session.session_identifier}_{session.session_type.name}_speed_traps'
 
     def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:

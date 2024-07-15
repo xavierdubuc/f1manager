@@ -29,7 +29,7 @@ class PenaltyListener(AbstractTableAndMessageListener):
 
         return self._get_fixed_message(session, changes)
 
-    def _get_fixed_message_id(self, session: Session) -> str:
+    def _get_fixed_message_id(self, session: Session, *args, **kwargs) -> str:
         return f'{session.session_identifier}_{session.session_type.name}_penalties'
 
     def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:
