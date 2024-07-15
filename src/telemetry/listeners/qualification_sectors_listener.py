@@ -17,7 +17,8 @@ _logger = logging.getLogger(__name__)
 
 SECTOR_LENGTH = 10
 
-class QualificationSectorsListener(AbstractListener):
+
+class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed table no ?
     SUBSCRIBED_EVENTS = [
         Event.LAP_CREATED,
         Event.LAP_UPDATED,
@@ -116,8 +117,9 @@ class QualificationSectorsListener(AbstractListener):
                 sep.join((current_s1_str, current_s2_str,current_s3_str, full_lap_str)),
             ]
             if delta_s1 or delta_s2 or delta_s3 or delta_to_pb_str:
-                elements.append(sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str)))
-            elements.append('```')
+                elements.append(f'{sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str))}```')
+            else:
+                elements.append('```')
             details = '\n'.join(elements)
         teamoji = self.get_emoji(participant.team.as_emoji())
         msg = f'# `{str(lap.car_position).rjust(2)}` {teamoji} {participant} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
