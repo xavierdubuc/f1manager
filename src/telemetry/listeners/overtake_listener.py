@@ -13,7 +13,7 @@ from .abstract_listener import AbstractListener
 class OvertakeListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.OVERTAKE,
-        Event.CLASSIFICATION_LIST_INITIALIZED,,
+        Event.CLASSIFICATION_LIST_INITIALIZED,
     ]
 
     def _on_classification_list_initialized(self, session: Session, *args, **kwargs) -> List[Message]:
