@@ -556,7 +556,10 @@ class Brain:
         )
         event_code = ''.join([chr(i) for i in packet.event_string_code]).rstrip('\x00')
         if event_code in supported:
-            if event_code == 'SEND': # SESSION ENDED
+            if event_code == 'SEND': # SESSION ENDED FIXME not fired ?
+                _logger.warning('----------------------------------------------')
+                _logger.warning('SEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEESSSION ENDED !')
+                _logger.warning('----------------------------------------------')
                 self._emit(Event.SESSION_ENDED, session=self.current_session)
             if event_code == 'FTLP': # FASTEST LAP
                 # {
