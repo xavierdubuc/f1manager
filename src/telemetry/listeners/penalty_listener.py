@@ -18,9 +18,9 @@ TABLE_FORMAT = "simple_outline"
 
 
 class PenaltyListener(AbstractTableAndMessageListener):
-    SUBSCRIBED_EVENTS = [Event.LAP_UPDATED, Event.SESSION_ENDED]
+    SUBSCRIBED_EVENTS = [Event.LAP_UPDATED, Event.CLASSIFICATION_LIST_INITIALIZED]
 
-    def _on_session_ended(self, session: Session) -> List[Message]:
+    def _on_classification_list_initialized(self, session: Session, *args, **kwargs) -> List[Message]:
         return self._get_fixed_message(session)
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:

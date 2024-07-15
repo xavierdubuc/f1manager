@@ -15,9 +15,9 @@ TABLE_FORMAT = "plain"
 
 
 class SpeedTrapListener(AbstractTableAndMessageListener):
-    SUBSCRIBED_EVENTS = [Event.SPEED_TRAP, Event.SESSION_ENDED]
+    SUBSCRIBED_EVENTS = [Event.SPEED_TRAP, Event.CLASSIFICATION_LIST_INITIALIZED]
 
-    def _on_session_ended(self, session: Session) -> List[Message]:
+    def _on_classification_list_initialized(self, session: Session, *args, **kwargs) -> List[Message]:
         return self._get_fixed_message(session)
 
     def _on_speed_trap(self, speed_trap:SpeedTrapEntry, session: Session) -> List[Message]:

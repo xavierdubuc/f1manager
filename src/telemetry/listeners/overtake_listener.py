@@ -13,10 +13,10 @@ from .abstract_listener import AbstractListener
 class OvertakeListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.OVERTAKE,
-        Event.SESSION_ENDED
+        Event.CLASSIFICATION_LIST_INITIALIZED,,
     ]
 
-    def _on_session_ended(self, session:Session) -> List[Message]:
+    def _on_classification_list_initialized(self, session: Session, *args, **kwargs) -> List[Message]:
         if not session.session_type.is_race():
             return None
         msg = f"Total amount of overtakes : {len(session.overtakes)}"
