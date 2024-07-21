@@ -31,8 +31,7 @@ class TyresOldListener(AbstractListener):
                     self.notified[participant.name] = True
                     tyres_wear_str = ','.join(f'{str(t).rjust(3)}%' for t in tyres_wear)
                     car_status = session.get_car_status(participant)
-                    tyre_string = car_status.visual_tyre_compound.get_long_string()
-                    tyre_emoji = self.get_emoji(tyre_string.lower(), tyre_string)
-                    msg = f"🆘 Les pneus {tyre_emoji} de **{participant}** sont très usés `{tyres_wear_str}` !"
+                    tyre = car_status.visual_tyre_compound
+                    msg = f"🆘 Les pneus {self.tyre(tyre)} de **{self.driver(participant)}** sont très usés `{tyres_wear_str}` !"
                     return [Message(content=msg, channel=Channel.DAMAGE)]
         return []

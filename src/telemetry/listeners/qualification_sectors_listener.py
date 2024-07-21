@@ -17,6 +17,7 @@ _logger = logging.getLogger(__name__)
 
 SECTOR_LENGTH = 10
 
+#FIXME doesn't seem to work for Sector 3 and final lap time
 
 class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed table no ?
     SUBSCRIBED_EVENTS = [
@@ -80,7 +81,7 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
         current_lap = previous_lap or lap
         if not personal_best_lap:
             personal_best_lap = lap_time
-        personal_best_lap_str = self._format_time(personal_best_lap) if personal_best_lap else '*No time set*'
+        personal_best_lap_str = self._format_time(personal_best_lap) if personal_best_lap else '*Pas de temps*'
         if current_lap.current_lap_invalid:
             details = '🟥🟥🟥 TOUR INVALIDE 🟥🟥🟥'
         else:

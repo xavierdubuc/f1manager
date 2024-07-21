@@ -28,6 +28,8 @@ class Event(Enum):
     LAP_CREATED                       = 60
     LAP_UPDATED                       = 61
     LAP_START_CREATED                 = 62
+    LAPS_LIST_INITIALIZED             = 63
+    LAPS_LIST_UPDATED                 = 64
 
     CAR_STATUS_CREATED                = 70
     CAR_STATUS_LIST_INITIALIZED       = 71

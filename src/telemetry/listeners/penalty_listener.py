@@ -33,7 +33,7 @@ class PenaltyListener(AbstractTableAndMessageListener):
         return f'{session.session_identifier}_{session.session_type.name}_penalties'
 
     def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:
-        return Channel.PENALTY
+        return Channel.CLASSIFICATION
 
     def _get_update_message(self, session: Session, lap: Lap = None, changes: Dict[str, Change] = None, participant: Participant = None, *args, **kwargs) -> str:
         if not changes or not participant:

@@ -24,7 +24,6 @@ class ClassificationListener(AbstractListener):
         if session.session_type.is_clm():
             return []
         end_content = f'Fin de la session "{session.session_type}" voici le classement final'
-        # TODO send final penalties in channel.penalty also
         msg = Message(content=end_content, channel=Channel.CLASSIFICATION)
         return [msg] + [
             Message(content=f"```\n{m}\n```", channel=Channel.CLASSIFICATION) for m in self._classification_to_messages(session)

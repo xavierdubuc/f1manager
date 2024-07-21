@@ -20,7 +20,7 @@ class OvertakeListener(AbstractListener):
         if not session.session_type.is_race():
             return None
         msg = f"Total amount of overtakes : {len(session.overtakes)}"
-        return [Message(content=msg, channel=Channel.DEFAULT)]
+        return [Message(content=msg, channel=Channel.CLASSIFICATION)]
 
     def _on_overtake(self, overtaker: Participant, overtaken: Participant, session: Session) -> List[Message]:
         if not self._should_consider_overtake(overtaker, overtaken, session):

@@ -46,7 +46,7 @@ class TelemetryCog(commands.Cog):
         _logger.info(f'Following msg ({len(msg)} chars) to be sent to Discord ({msg.channel})')
         _logger.info(msg.content)
 
-        channel = self._get_channel_for(msg, use_default=initial_msg is None)
+        channel = self._get_channel_for(msg, is_broadcast=initial_msg is not None)
         if not channel:
             return
 
@@ -86,14 +86,18 @@ class TelemetryCog(commands.Cog):
             self.sent_messages[msg.local_id] = message
         return message
 
-    def _get_channel_for(self, msg: Message, use_default=True):
+    def _get_channel_for(self, msg: Message, is_broadcast=False):
         discord_config = self.bot.championship_config['discord'].get(msg.channel.value)
         if not discord_config:
-            if not use_default:
+            if is_broadcast:
                 _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no specific config for it')
                 return
             _logger.info(f'No discord config for {msg.channel}, will use default')
             discord_config = self.bot.championship_config['discord']['default']
+
+        if is_broadcast and not discord_config.get('broadcast', True):
+            _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no config does not allow it')
+            return
 
         guild = self.bot.get_guild(discord_config['guild'])
         if not guild:

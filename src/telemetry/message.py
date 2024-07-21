@@ -12,7 +12,6 @@ class Channel(Enum):
     CLASSIFICATION = 'classification'
     WEATHER = 'weather'
     PACE = 'pace'
-    PENALTY = 'penalty'
     PIT = 'pit'
     SETUP = 'setup'
 

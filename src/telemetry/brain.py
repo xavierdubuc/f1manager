@@ -441,8 +441,10 @@ class Brain:
                 self.current_session.lap_state_last_start_of_lap.append(start_of_lap)
                 self._emit(Event.LAP_START_CREATED, lap=lap, participant=participant,
                            session=self.current_session, previous_lap=None)
+            self._emit(Event.LAPS_LIST_INITIALIZED, session=self.current_session)
         else:
             current_amount_of_lap = len(self.current_session.laps)
+            has_changes = False
             for i in range(amount_of_pertinent_lap):
                 packet_data = packet.lap_data[i]
                 participant = self.current_session.participants[i]
@@ -459,9 +461,11 @@ class Brain:
                 if self._same_lap(car_last_lap, packet_data):
                     changes = LapManager.update(car_last_lap, packet_data)
                     if changes:
+                        has_changes = True
                         self._emit(Event.LAP_UPDATED, lap=car_last_lap, changes=changes, participant=participant, session=self.current_session)
                 # Pilot just crossed the line
                 else:
+                    has_changes = True
                     # Add the new lap to the car's list of lap
                     new_lap = LapManager.create(packet_data, len(car_laps))
                     self._emit(Event.LAP_CREATED, lap=new_lap, participant=participant, session=self.current_session)
@@ -474,6 +478,8 @@ class Brain:
                     self._emit(Event.LAP_START_CREATED, lap=lap_start,
                                previous_lap=previous_lap,participant=participant,
                                session=self.current_session)
+            if has_changes:
+                self._emit(Event.LAPS_LIST_UPDATED, session=self.current_session)
 
     def _same_lap(self, lap:Lap, packet_data:PacketLapData):
         if not lap:
