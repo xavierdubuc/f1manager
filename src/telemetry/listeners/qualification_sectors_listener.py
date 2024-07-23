@@ -1,23 +1,19 @@
 import logging
-from datetime import datetime, timedelta
 from typing import Dict, List
 from src.telemetry.event import Event
 
 from src.telemetry.managers.abstract_manager import Change
 from src.telemetry.message import Channel, Message
 from src.telemetry.models.enums.driver_status import DriverStatus
+from src.telemetry.models.enums.pit_status import PitStatus
 from src.telemetry.models.lap import Lap
 from src.telemetry.models.lap_record import LapRecord
 from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
-from src.telemetry.models.weather_forecast import WeatherForecast
 from .abstract_listener import AbstractListener
 
-_logger = logging.getLogger(__name__)
 
 SECTOR_LENGTH = 10
-
-#FIXME doesn't seem to work for Sector 3 and final lap time
 
 class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed table no ?
     SUBSCRIBED_EVENTS = [
@@ -49,7 +45,8 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
         lap_record = session.get_lap_record(participant)
         if not lap_record:
             return []
-        
+
+        if lap.pit_status == PitStatus.pitting
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
             return [self._get_lap_repr(lap, lap_record, participant, session)]
 
@@ -84,6 +81,8 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
         personal_best_lap_str = self._format_time(personal_best_lap) if personal_best_lap else '*Pas de temps*'
         if current_lap.current_lap_invalid:
             details = '🟥🟥🟥 TOUR INVALIDE 🟥🟥🟥'
+        elif current_lap.pit_status in (PitStatus.pitting, PitStatus.in_pit):
+            details = '➡️ PIT'
         else:
             current_s1 = current_lap.sector_1_time_in_ms
             current_s2 = current_lap.sector_2_time_in_ms
