@@ -64,8 +64,9 @@ circuits = {
 
 redbull = Team(
     name='RedBull',
-    title='RED BULL',
-    display_name="RED BULL",
+    title='RED BULL RACING',
+    display_name="RED BULL RACING",
+    psd_name="redbull",
     main_color=(215, 190, 50),
     secondary_color=(0, 0, 186),
     box_color=(0, 0, 186),
@@ -83,11 +84,12 @@ mercedes = Team(
     name='Mercedes',
     title='MERCEDES',
     display_name="MERCEDES",
+    psd_name="mercedes",
     main_color=(0, 179, 158),
     secondary_color=(0, 0, 0),
     box_color=(0, 179, 158),
     lineup_bg_color=(70, 161, 156),
-    standing_bg=(0, 161, 156),
+    standing_bg=(0, 245, 211),
     standing_fg=(0, 0, 0),
     transparent_color=(120, 200, 195),
     breaking_bg_color=(0, 210, 190),
@@ -99,6 +101,7 @@ mclaren = Team(
     name='McLaren',
     title='McLAREN',
     display_name='McLAREN',
+    psd_name="mclaren",
     main_color=(224, 146, 12),
     secondary_color=(40, 40, 40),
     box_color=(224, 146, 12),
@@ -116,6 +119,7 @@ haas = Team(
     name='Haas',
     title='HAAS',
     display_name='HAAS',
+    psd_name="haas",
     main_color=(200, 10, 15),
     secondary_color=(211, 211, 211),
     box_color=(211, 211, 211),
@@ -137,6 +141,7 @@ alpine = Team(
     name='Alpine',
     title='ALPINE',
     display_name='ALPINE',
+    psd_name="alpine",
     main_color=(10, 130, 210),
     secondary_color=(0, 0, 0),
     box_color=(9, 118, 193),
@@ -155,6 +160,7 @@ ferrari = Team(
     name='Ferrari',
     title='FERRARI',
     display_name='FERRARI',
+    psd_name="ferrari",
     main_color=(255, 200, 200),
     secondary_color=(255, 0, 0),
     box_color=(167, 8, 6),
@@ -171,11 +177,12 @@ williams = Team(
     name='Williams',
     title='WILLIAMS',
     display_name="WILLIAMS",
+    psd_name="williams",
     main_color=(6, 76, 187),
     secondary_color=(255, 255, 255),
     box_color=(6, 76, 187),
     lineup_bg_color=(13, 28, 67),
-    standing_bg=(4, 30, 66),
+    standing_bg=(0,0, 254),
     standing_fg=(255, 255, 255),
     transparent_color=(120, 160, 195),
     breaking_bg_color=(6, 170, 230),
@@ -185,6 +192,25 @@ williams = Team(
     driver_of_the_day_hsv_offset=160,
     driver_of_the_day_use_grayscale=False,
 )
+aston_martin = Team(
+    name='AstonMartin',
+    title='ASTON MARTIN',
+    display_name='ASTON MARTIN',
+    psd_name="aston",
+    main_color=(14, 104, 88),
+    alternate_main_color=(3, 115, 100),
+    secondary_color=(255, 255, 255),
+    box_color=(14, 104, 88),
+    lineup_bg_color=(36, 89, 79),
+    standing_bg=(2, 87, 79),
+    standing_fg=(255, 255, 255),
+    transparent_color=(100, 175, 110),
+    breaking_bg_color=(2, 87, 79),
+    breaking_line_color=(0, 60, 50),
+    driver_of_the_day_hsv_offset=100,
+    driver_of_the_day_use_grayscale=False,
+)
+# F1 < 2024
 alfa_romeo = Team(
     name='AlfaRomeo',
     title='ALFA ROMEO',
@@ -200,23 +226,6 @@ alfa_romeo = Team(
     breaking_line_color=(120, 0, 0),
     breaking_use_white_logo=True,
     driver_of_the_day_hsv_offset=250,
-    driver_of_the_day_use_grayscale=False,
-)
-aston_martin = Team(
-    name='AstonMartin',
-    title='ASTON MARTIN',
-    display_name='ASTON MARTIN',
-    main_color=(14, 104, 88),
-    alternate_main_color=(3, 115, 100),
-    secondary_color=(255, 255, 255),
-    box_color=(14, 104, 88),
-    lineup_bg_color=(36, 89, 79),
-    standing_bg=(2, 87, 79),
-    standing_fg=(255, 255, 255),
-    transparent_color=(100, 175, 110),
-    breaking_bg_color=(2, 87, 79),
-    breaking_line_color=(0, 60, 50),
-    driver_of_the_day_hsv_offset=100,
     driver_of_the_day_use_grayscale=False,
 )
 alpha_tauri = Team(
@@ -237,6 +246,47 @@ alpha_tauri = Team(
     driver_of_the_day_hsv_offset=140,
     driver_of_the_day_use_grayscale=False,
 )
+# F1 >= 2024
+kick_sauber = Team(
+    name='KickSauber',
+    title='KICK SAUBER',
+    display_name='KICK SAUBER',
+    psd_name="kick",
+    main_color=(114, 4, 5),
+    secondary_color=(255, 255, 255),
+    box_color=(114, 4, 5),
+    lineup_bg_color=(152, 13, 44),
+    standing_bg=(0, 0, 0),
+    standing_fg=(255, 255, 255),
+    transparent_color=(200,120,120),
+    breaking_bg_color=(153, 0, 0),
+    breaking_line_color=(120, 0, 0),
+    breaking_use_white_logo=True,
+    driver_of_the_day_hsv_offset=250,
+    driver_of_the_day_use_grayscale=False,
+)
+vcarb = Team(
+    name="VCARB",
+    title="RB",
+    display_name='RB',
+    psd_name="visa",
+    standing_bg=(20, 52, 203),
+    main_color=(40, 64, 90),
+    secondary_color=(200, 200, 200),
+    box_color=(40, 64, 90),
+    lineup_bg_color=(15, 40, 71),
+    standing_fg=(255, 255, 255),
+    transparent_color=(81, 135, 175),
+    breaking_bg_color=(35, 40, 80),
+    breaking_line_color=(15, 20, 60),
+    alternate_main_color=(40, 64, 90),
+    breaking_use_white_logo=False,
+    driver_of_the_day_hsv_offset=140,
+    driver_of_the_day_use_grayscale=False,
+)
+
+# DEFAULTS
+
 DEFAULT_TEAM = Team(
     name='Default',
     title='Default',
@@ -270,7 +320,9 @@ teams_idx = {
     'Williams': williams,
     'AlfaRomeo': alfa_romeo,
     'AstonMartin': aston_martin,
-    'AlphaTauri': alpha_tauri
+    'AlphaTauri': alpha_tauri,
+    'VCARB': vcarb,
+    'KickSauber': kick_sauber
 }
 
 # --- DEFAULT TEAMS
@@ -284,5 +336,7 @@ teams = [
     williams,
     alfa_romeo,
     aston_martin,
-    alpha_tauri
+    alpha_tauri,
+    vcarb,
+    kick_sauber
 ]
