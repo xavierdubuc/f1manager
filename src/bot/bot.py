@@ -14,10 +14,8 @@ from src.bot.cogs.results_cog import ResultsCog
 from src.bot.cogs.twitch_cog import TwitchCog
 from src.bot.vignebot import Vignebot
 
-from src.media_generation.data import teams_idx
 
 _logger = logging.getLogger(__name__)
-TEAMS = list(teams_idx.keys())
 
 command_sync_flags = commands.CommandSyncFlags.default()
 command_sync_flags.sync_commands_debug = True
