@@ -8,6 +8,7 @@ from src.media_generation.readers.general_ranking_models.pilot_ranking import Pi
 from src.media_generation.readers.general_ranking_models.race_result import RaceResult
 from src.media_generation.readers.general_ranking_models.ranking import Ranking
 from src.media_generation.readers.general_ranking_models.team_ranking import TeamRanking, TeamRankingRow
+from src.media_generation.data import teams_idx as TEAMS
 
 class GeneralRankingReader(Reader):
 
@@ -38,7 +39,7 @@ class GeneralRankingReader(Reader):
         if self.type == GeneratorType.TEAMS_RANKING:
             ranking_title = f'Saison {self.season} classement équipes'.upper()
             ranking_subtitle = f'après {self.data.columns[max_size-1]}'.upper() if max_size > 2 else None
-            ranking.amount_of_races = max_size - 2
+            ranking.amount_of_races = int(self.data.columns[max_size-1].split(' ')[-1])
         else:
             if self.metric == 'Total':
                 ranking_title = f'Saison {self.season} classement pilotes'.upper()
@@ -81,6 +82,7 @@ class GeneralRankingReader(Reader):
             rows=[
                 TeamRankingRow(
                     team_name=row.iloc[0],
+                    team=TEAMS[row.iloc[0]],
                     total_points=int(row.iloc[1].replace(',','.')),
                     race_results=[
                         RaceResult(

@@ -1,131 +1,143 @@
 import copy
 import logging
 from PIL import Image
+
+from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.readers.general_ranking_models.team_ranking import TeamRanking
 from ..generators.abstract_generator import AbstractGenerator
 
 from ..helpers.transform import *
 from ..font_factory import FontFactory
-from ..models import Team, Visual
-from ..data import teams_idx
+from ..models import Team
+from ..data import teams_idx as TEAMS
 
 _logger = logging.getLogger(__name__)
 
 class TeamsRankingGenerator(AbstractGenerator):
+    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
+        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
+        self.ranking: TeamRanking = self.config.ranking
+
     def _get_visual_type(self) -> str:
         return 'teams_ranking'
 
-    def _generate_basic_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
-        _logger.info(f'Output size is {width}px x {height}px')
-        # FIXME use a BG image ?
-        return Image.new('RGB', (width, height), (255,255,255))
-
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        height = 300
-        img = Image.new('RGB', (base_img.width,height), (255,255,255))
+        title_config = self.visual_config.get('title', {})
+        height = title_config.get('height', 300)
+        img = Image.new('RGBA', (base_img.width, height), (0,0,0,0))
 
-        # LEFT LOGO
-        left_logo_config = self.visual_config.get('left_logo')
-        if left_logo_config:
-            with Image.open(left_logo_config['path']) as left_logo:
-                left_logo = resize(left_logo, height=left_logo_config['height'])
-            logo_pos = paste(left_logo, img, left=left_logo_config['left'])
+        # MAIN LOGO
+        main_logo_config = title_config.get('main_logo')
+        if main_logo_config:
+            self.paste_image_from_config(main_logo_config, img)
 
-        # RIGHT LOGO
-        right_logo_config = self.visual_config.get('right_logo')
-        if right_logo_config:
-            right_padding_top = right_logo_config['padding_top']
-            with Image.open(right_logo_config['path']) as right_logo:
-                right_logo = resize(right_logo, height=right_logo_config['height'])
-            paste(right_logo, img, left=img.width-right_logo.width, top=height-right_logo.height - right_padding_top)
+        # SECOND LOGO
+        secondary_logo_config = title_config.get('secondary_logo')
+        if secondary_logo_config:
+            self.paste_image_from_config(secondary_logo_config, img)
 
-        # Main title
-        title_cfg = self.visual_config['title']
-        font_size = title_cfg.get('font_size', 60)
-        font_color = title_cfg.get('font_color', (0,0,0))
-        font_name = title_cfg.get('font')
-        txt_font = FontFactory.get_font(font_name, font_size, FontFactory.black)
+        # MAIN TITLE
+        main_config = title_config.get('main', {})
+        main_texts = [
+            self.text(main_config, f"SAISON {self.season}", FontFactory.black),
+            self.text(main_config, "CLASSEMENT ÉQUIPES"),
+        ]
+        main_top = main_config['top']
+        for main_text in main_texts:
+            main_pos = paste(main_text, img, left=main_config.get('left', 0), top=main_top)
+            main_top = main_pos.bottom + main_config.get('line_space', 10)
 
-        parts = self.config.ranking_title.split(' ')
-        title_parts = [' '.join(parts[:2])] + parts[2:]
-        txt_left = logo_pos.right + title_cfg['padding_left']
-        txt_top = title_cfg['top']
-
-        for title_part in title_parts:
-            big_txt = text(title_part, font_color, txt_font)
-            big_txt_pos = paste(big_txt, img, left=txt_left, top=txt_top)
-            txt_top = big_txt_pos.bottom+10
-
-        # Sub title
-        if self.config.ranking_subtitle:
-            small_font_size = title_cfg.get('small_font_size', 30)
-            small_font_color = title_cfg.get('small_font_color', (0,0,0))
-            small_font_name = title_cfg.get('small_font')
-            small_txt_font = FontFactory.get_font(small_font_name, small_font_size, FontFactory.regular)
-            small_txt = text(self.config.ranking_subtitle, small_font_color, small_txt_font)
-            paste(small_txt, img, left=txt_left, top=big_txt_pos.bottom+20)
+        # SUB TITLE
+        sub_config = title_config.get('sub', {})
+        sub_texts = [
+            self.text(sub_config, "POINTS APRÈS", FontFactory.regular),
+            self.text(sub_config, f"COURSE {self.config.ranking.amount_of_races}", FontFactory.regular),
+        ]
+        sub_top = sub_config['top']
+        for sub_text in sub_texts:
+            sub_left = img.width - sub_text.width - sub_config.get('right', 20)
+            sub_pos = paste(sub_text, img, left=sub_left, top=sub_top)
+            sub_top = sub_pos.bottom + sub_config.get('line_space', 10)
 
         return img
 
     def _add_content(self, base_img: PngImageFile):
-        title_height = 300
-        width = base_img.width - 40
-        padding_between_rows = 25
-        padding_top = 20
-        row_height = ((base_img.height - 300 - padding_top) // 10) - padding_between_rows
-        # row_height = 87
-        current_top = title_height+padding_top
         champ_teams = self.championship_config['settings'].get('teams', {})
-        all_teams = copy.deepcopy(teams_idx)
+        all_teams = copy.deepcopy(TEAMS)
         all_teams.update({name: Team(**champ_teams[name]) for name in champ_teams})
+
+        rows_config = self.visual_config.get('rows', {})
+        left = rows_config.get('left', 30)
+        top = rows_config.get('top', 320)
+        rows_width = rows_config.get('width', base_img.width)
+        rows_height = rows_config.get('height', base_img.height // len(self.config.ranking.rows))
+        background = self._render_image_from_file(rows_config.get('background'), rows_width, rows_height)
+        # TODO use param for this (color & enable or not)
+        gray_filter = Image.new('RGBA', (background.width, background.height), (225, 225, 225, 150))
+        previous_pilot_points = None
+        previous_ranking = self.ranking.get_previous_ranking()
+        print(previous_ranking)
         for i, row in enumerate(self.config.ranking):
+            if background:
+                paste(background, base_img, left, top)
+            if i % 2 == 0:
+                paste(gray_filter, base_img, left, top)
+
             is_champion = False # i == 0 # FIXME
-            team_ranking_img = self._get_team_ranking_img(all_teams, width, row_height, row.team_name, row.total_points, is_champion)
-            pos = paste(team_ranking_img, base_img, top=current_top)
-            current_top = pos.bottom + padding_between_rows
+            # DETERMINE POSITION
+            points = row.total_points
+            if previous_pilot_points is not None and previous_pilot_points == points:
+                position = '-'
+            else:
+                position = str(i+1)
 
-    def _get_team_ranking_img(self, teams, width:int, height:int, team_name, points, is_champion: bool = False):
+            # DETERMINE DELTA FIXME
+            if not previous_ranking:
+                progression = 0
+            else:
+                previous_pos, previous_ranking_row = previous_ranking.find(row.team)
+                progression = (previous_pos - (i+1)) if previous_pos is not None else None
+
+            # GENERATE AND PASTE IMAGE
+            team_ranking_img = self._render_team_ranking_image(all_teams, rows_width, rows_height, position, row.team_name, row.total_points, progression, is_champion)
+            paste(team_ranking_img, base_img, left=left, top=top)
+
+            # UPDATE LOOP VARIABLES
+            top += rows_height
+            previous_pilot_points = row.total_points
+
+    def _render_team_ranking_image(self, teams, width: int, height: int, position: int, team_name: str, points: float, progression: int = 0, is_champion: bool = False) -> PngImageFile:
         img = Image.new('RGBA', (width, height), (0,0,0,0))
+        config = self.visual_config.get('rows', {})
 
-        # TEAM
-        team = teams.get(team_name)
-        team_img = self._get_team_img((2 * width) // 3, height, team)
-        pos = paste(team_img, img, left=0)
+        # POS
+        position_config = config.get('position', {})
+        position_img = self._render_position_image(position, position_config)
+        self.paste_image(position_img, img, position_config)
+
+        # TEAM (LOGO + NAME)
+        team_config = config.get('team', {})
+        team_img = self._render_team_image(team_config.get('width', 700), team_config.get('height', height), teams.get(team_name))
+        self.paste_image(team_img, img, team_config)
+
+        # PROGRESSION
+        prog_config = config.get('progression', {})
+        prog_img = self._render_progression_image(progression, prog_config)
+        self.paste_image(prog_img, img, prog_config)
 
         # POINTS
-        color = (199, 141, 39) if is_champion else (255,255,255)
-        points_txt = self._get_points_img(width // 3, height, points, color)
-        paste(points_txt, img, left=pos.right + 25)
+        points_config = config.get('points', {})
+        points_img = self._render_points_image(points, points_config)
+        self.paste_image(points_img, img, points_config)
 
         return img
 
-    def _get_team_img(self, width:int, height: int, team:Team):
+    def _render_team_image(self, width:int, height: int, team:Team) -> PngImageFile:
         card = team.build_card_image(width, height)
 
-        cfg = self.visual_config['rows']['team']
-        font_name = cfg.get('font')
-        font_size = cfg.get('font_size', 54)
+        cfg = self.visual_config['rows']['name']
         font_color = team.standing_fg
-        font = FontFactory.get_font(font_name, font_size, FontFactory.black)
-        left = cfg.get('left', 0)
-        top = cfg.get('top', False)
-
-        team_name = text(team.title, font_color, font)
-        paste(team_name, card, left=left, top=top)
+        team_name = self.text(cfg, team.title, default_color=font_color)
+        self.paste_image(team_name, card, cfg)
 
         return card
-
-    def _get_points_img(self, width:int, height: int, points:str, color:tuple = None):
-        img = Image.new('RGB', (width, height), (0,0,0))
-
-        cfg = self.visual_config['rows']['points']
-        font_name = cfg.get('font')
-        font_size = cfg.get('font_size', 70)
-        font_color = color or cfg['font_color']
-        font = FontFactory.get_font(font_name, font_size, FontFactory.black)
-
-        points_top = cfg.get('top', 0)
-        points_txt = text(str(points), font_color, font)
-        paste(points_txt, img, top=points_top)
-        return img

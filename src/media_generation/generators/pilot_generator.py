@@ -25,7 +25,9 @@ class PilotGenerator(AbstractGenerator):
 
     def _generate_basic_image(self) -> PngImageFile:
         if self.visual_type == 'whole':
-            size = (380,715)
+            size = (676, 1800)
+        elif self.visual_type == 'face':
+            size = (290, 290)
         elif self.visual_type == 'closeup':
             size = (200,200)
         else:
@@ -71,6 +73,8 @@ class PilotGenerator(AbstractGenerator):
             has_long_pseudo =  pilot_name_length >= 15
             pilot_font = FontFactory.black(24 if has_long_pseudo else 30)
             return pilot.team._get_lineup_pilot_image(pilot, pilot_font, width, height, 138, has_long_pseudo)
+        if self.visual_type == 'face':
+            return pilot.get_face_image()
         if self.visual_type == 'closeup':
             return pilot.get_close_up_image(138)
         if self.visual_type == 'whole':

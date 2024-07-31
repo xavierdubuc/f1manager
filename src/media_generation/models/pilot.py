@@ -10,6 +10,7 @@ from ..helpers.transform import *
 from .team import Team
 
 _logger = logging.getLogger(__name__)
+PSD_PATH = 'assets/pilots/f124.psd'
 
 @dataclass
 class Pilot:
@@ -33,11 +34,19 @@ class Pilot:
 
     @classmethod
     def get_close_up_psd(cls) -> PSDImage:
-        return PSDImage.open('assets/pilots/all.psd')
+        return PSDImage.open(PSD_PATH)
 
     @classmethod
     def get_long_range_psd(cls) -> PSDImage:
-        return PSDImage.open('assets/pilots/all.psd')
+        return PSDImage.open(PSD_PATH)
+
+    def get_face_image(self, width=None, height=None) -> PngImageFile:
+        # Silence all warnings from PSDImage
+        initial_level = logging.getLogger().getEffectiveLevel()
+        logging.getLogger().setLevel(logging.ERROR)
+        psd = self.get_close_up_psd()
+        logging.getLogger().setLevel(initial_level)
+        return self._get_image_from_psd(psd, 0, 1, width, height, cropping_zone=(153, 180, 443, 470))
 
     def get_close_up_image(self, width=None, height=None) -> PngImageFile:
         # Silence all warnings from PSDImage
@@ -167,25 +176,25 @@ class Pilot:
         for i, t in enumerate(clothes):
             if t.name == 'default':
                 default_index = i
-            t.visible = t.name.replace(' ','') == self.team.name if self.team else None
+            t.visible = t.name.replace(' ','') == self.team.psd_name if self.team else None
             if t.visible:
                 clothes_found = t.name
         if clothes_found:
             _logger.debug(f'Using "{clothes_found}" clothes')
         else:
-            _logger.warning(f'No clothes found for team {self.team.name}, using default one')
+            _logger.warning(f'No clothes found for team {self.team.psd_name}, using default one')
             clothes[default_index].visible = True
 
         base = psd.composite(layer_filter=lambda x:x.is_visible())
 
         # resizing
+        if cropping_zone:
+            base = base.crop(cropping_zone)
         if width and not height:
             height = width
         if height and not width:
             width = height
         if width and height:
-            if cropping_zone:
-                base = base.crop(cropping_zone)
             base = resize(base, width, height, keep_ratio=False)
 
         return base

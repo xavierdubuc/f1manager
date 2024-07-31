@@ -28,15 +28,17 @@ class PilotRanking(Ranking):
     def sort_by_mean_points(self):
         self.rows = sorted(self.rows, key=lambda row: row.mean_points, reverse=True)
 
-    def find(self, pilot:Pilot) -> Tuple[int, RankingRow]:
+    def find(self, pilot:Pilot) -> Tuple[int, PilotRankingRow]:
         for i, row in enumerate(self.rows):
             if row.pilot == pilot:
                 return i+1, row
         return None, None
 
-    def get_previous_ranking(self):
+    def get_previous_ranking(self) -> "PilotRanking":
         out_rows = []
         last_race_index = self.amount_of_races
+        if self.amount_of_races <= 1:
+            return None
         for row in self.rows:
             if row.amount_of_races == 0:
                 continue

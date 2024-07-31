@@ -2,7 +2,8 @@ import os
 import logging
 from abc import ABC, abstractmethod
 
-from src.media_generation.helpers.transform import draw_lines_all, paste
+from src.media_generation.font_factory import FontFactory
+from src.media_generation.helpers.transform import Dimension, draw_lines_all, paste, resize, text
 from ..models import Visual
 from ..helpers.generator_config import GeneratorConfig
 from PIL import Image
@@ -19,7 +20,7 @@ class AbstractGenerator(ABC):
         self.visual_config = self.championship_config['settings']['visuals'].get(self._get_visual_type(), {})
         self.identifier = identifier
 
-    def generate(self):
+    def generate(self) -> str:
         base_img = self._generate_basic_image()
         title_img = self._generate_title_image(base_img)
         if title_img:
@@ -70,6 +71,94 @@ class AbstractGenerator(ABC):
         path = os.path.join('assets/backgrounds', self.championship_config['name'], f'{self._get_visual_type()}.png')
         if os.path.exists(path):
             return Image.open(path)
+
+    def text(self, config: dict, content: str,
+             default_font=FontFactory.black,
+             default_font_size=60,
+             default_color=(255, 255, 255)) -> PngImageFile:
+        font_size = config.get('font_size', default_font_size)
+        font_color = config.get('font_color', default_color)
+        font_name = config.get('font')
+        font = FontFactory.get_font(font_name, font_size, default_font)
+        return text(content, font_color, font)
+
+    def paste_image_from_config(self, config:dict, img:PngImageFile) -> Dimension:
+        if not config:
+            return
+        with Image.open(config['path']) as original:
+            img_to_paste = resize(original, height=config['height'])
+        return self.paste_image(img_to_paste, img, config)
+
+    def paste_image(self, img:PngImageFile, on:PngImageFile,  config:dict) -> Dimension:
+        left = config.get('left', False)
+        if not left:
+            right = config.get('right', False)
+            if right is not False:
+                left = on.width - img.width - right
+        top = config.get('top', False)
+        if not top:
+            bottom = config.get('bottom', False)
+            if bottom is not False:
+                top = on.height - img.height - bottom
+
+        return paste(img, on, left=left, top=top)
+
+    def _render_image_from_file(self, path:str, width:int, height: int) -> PngImageFile:
+        if not path:
+            return None
+        with Image.open(path) as original:
+            img = resize(
+                original,
+                height=height,
+                width=width,
+                keep_ratio=False
+            )
+        return img
+
+    def _render_position_image(self, position:int , position_config:dict = None) -> PngImageFile:
+        width = position_config.get('width', 100)
+        height = position_config.get('height', 100)
+        position_container = Image.new('RGBA', (width, height), (0,0,0,0))
+        position_img = self.text(position_config, str(position), default_font_size=70, default_color=(0,0,0))
+        paste(position_img, position_container)
+        return position_container
+
+    def _render_progression_image(self, progression: int, prog_config: dict = None, icon_config: dict = None, text_config: dict = None) -> PngImageFile:
+        icon_config = icon_config or prog_config.get('icon')
+        text_config = text_config or prog_config.get('text')
+        prog_img = Image.new(
+            'RGB',
+            (prog_config.get('width', 90), prog_config.get('height', 105)),
+            prog_config.get('color', (255, 255, 255))
+        )
+        if progression == 0:
+            prog_content = '-'
+            text_config = prog_config.get('text_no_icon', text_config)
+            prog_text = self.text(text_config, prog_content)
+            self.paste_image(prog_text, prog_img, text_config)
+        else:
+            if progression > 0:
+                with Image.open('assets/up.png') as icon:
+                    prog_icon = resize(icon, height=icon_config.get('height'))
+                prog_content = str(progression)
+            elif progression < 0:
+                with Image.open('assets/down.png') as icon:
+                    prog_icon = resize(icon, height=icon_config.get('height'))
+                prog_content = str(-progression)
+            self.paste_image(prog_icon, prog_img, prog_config.get('icon'))
+            prog_text = self.text(text_config, prog_content)
+            self.paste_image(prog_text, prog_img, text_config)
+        return prog_img
+
+    def _render_points_image(self, points:float, config:dict) -> PngImageFile:
+        img = Image.new(
+            'RGB',
+            (config.get('width', 190), config.get('height', 190)),
+            config.get('color', (255, 0, 0))
+        )
+        points_txt = self.text(config, str(points))
+        paste(points_txt, img)
+        return img
 
     @abstractmethod
     def _get_visual_type(self) -> str:

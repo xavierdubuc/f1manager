@@ -17,6 +17,7 @@ class Team:
     name: str
     title: str
     display_name: str
+    psd_name:str = None
     main_color: Union[str,tuple] = 'white'
     alternate_main_color: Union[str,tuple] = None
     secondary_color: Union[str,tuple] = 'black'
@@ -61,6 +62,14 @@ class Team:
         paste(card_logo, img, left=0, with_alpha=False)
         return img
 
+    def render_logo(self, width, height, logo_height=None):
+        logo_height = logo_height or height
+        img = Image.new('RGB', (width, height), self.standing_bg)
+        with self.get_ranking_logo() as card_logo:
+            card_logo = resize(card_logo, height=logo_height)
+        paste(card_logo, img)
+        return img
+
     def get_pole_colors(self):
         return {
             'fg': self.pole_fg_color if self.pole_fg_color else self.breaking_fg_color,
@@ -68,11 +77,20 @@ class Team:
             'line': self.pole_line_color if self.pole_line_color else self.breaking_line_color
         }
 
+    def get_ranking_logo(self):
+        if self.name in ('KickSauber', 'RedBull'):
+            return Image.open(self._get_alt_logo_path())
+        if self.name in ('AstonMartin', 'Williams', 'McLaren', 'Alpine'):
+            return Image.open(self._get_white_logo_path())
+        return Image.open(self.get_image())
+
     def get_results_logo(self):
+        if self.name in ('VCARB',):
+            return Image.open(self._get_alt_logo_path())
         return Image.open(self.get_image())
 
     def get_lineup_logo(self):
-        if self.name in ('Alpine', 'AlfaRomeo', 'AlphaTauri', 'RedBull', 'AstonMartin', 'McLaren', 'Williams', 'Ferrari'):
+        if self.name in ('Alpine', 'AlfaRomeo', 'VCARB', 'RedBull', 'AstonMartin', 'Ferrari'):
             return Image.open(self._get_alt_logo_path())
         return Image.open(self.get_image())
 
@@ -119,6 +137,8 @@ class Team:
         # Logo
         with self.get_lineup_logo() as logo_img:
             logo_img = resize(logo_img, max_logo_width, max_logo_height)
+            if logo_img.mode != 'RGBA':
+                logo_img = logo_img.convert('RGBA')
             logo_pos = paste(logo_img, img, top=(remaining_height-max_logo_height)//2)
 
         # FIXME refactor below + try to open only once the psd
@@ -170,3 +190,10 @@ class Team:
         paste(pilot_img, img, top=0)
 
         return img
+
+    def __eq__(self, value: object) -> bool:
+        if isinstance(value, Team):
+            return value.name == self.name
+        if isinstance(value, str):
+            return self.name == value
+        return False

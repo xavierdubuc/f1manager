@@ -23,153 +23,106 @@ class PilotsRankingGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
         return 'pilots_ranking'
 
-    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return 200 # FIXME use custom title mechanism
-
-    def _generate_basic_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
-        _logger.info(f'Output size is {width}px x {height}px')
-        # FIXME use a BG image ?
-        return Image.new('RGB', (width, height), (255,255,255))
-
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        #                 base_img.width
-        # <---------------------------------------------->
-        # LEFT LOGO        TITLE TEXT        [RIGHT LOGO]
-        height = self._get_visual_title_height()
-        img = Image.new('RGB', (base_img.width,height), (255,255,255))
+        title_config = self.visual_config.get('title', {})
+        height = title_config.get('height', 300)
+        img = Image.new('RGBA', (base_img.width, height), (0,0,0,0))
 
-        # TITLE TEXT
-        title_img, title_pos = self._generate_ranking_title_image(base_img.width, height)
-        paste(title_img, img)
+        # MAIN LOGO
+        main_logo_config = title_config.get('main_logo')
+        if main_logo_config:
+            self.paste_image_from_config(main_logo_config, img)
 
-        # LEFT LOGO
-        left_logo_config = self.visual_config.get('left_logo')
-        if left_logo_config:
-            with Image.open(left_logo_config['path']) as left_logo:
-                left_logo = resize(left_logo, height=left_logo_config['height'])
-            paste(left_logo, img, left=(title_pos.left - left_logo.width) // 2)
+        # SECOND LOGO
+        secondary_logo_config = title_config.get('secondary_logo')
+        if secondary_logo_config:
+            self.paste_image_from_config(secondary_logo_config, img)
 
-        # RIGHT LOGO
-        right_logo_config = self.visual_config.get('right_logo')
-        if right_logo_config:
-            right_padding_top = right_logo_config['padding_top']
-            with Image.open(right_logo_config['path']) as right_logo:
-                right_logo = resize(right_logo, height=right_logo_config['height'])
-            paste(right_logo, img, left=img.width-right_logo.width, top=height-right_logo.height - right_padding_top)
+        # MAIN TITLE
+        main_config = title_config.get('main', {})
+        main_texts = [
+            self.text(main_config, f"SAISON {self.season}", FontFactory.black),
+            self.text(main_config, "CLASSEMENT PILOTES"),
+        ]
+        main_top = main_config['top']
+        for main_text in main_texts:
+            main_pos = paste(main_text, img, left=main_config.get('left', 0), top=main_top)
+            main_top = main_pos.bottom + main_config.get('line_space', 10)
+
+        # SUB TITLE
+        sub_config = title_config.get('sub', {})
+        sub_text = self.text(sub_config, f"POINTS APRÈS COURSE {self.config.ranking.amount_of_races}", FontFactory.regular)
+        sub_top = sub_config['top']
+        sub_left = img.width - sub_text.width - sub_config.get('right', 20)
+        paste(sub_text, img, left=sub_left, top=sub_top)
+
         return img
 
-    def _get_main_title_str(self):
-        if self.identifier == 'reservists':
-            return f'Saison {self.season} classement réservistes'.upper()
-        return self.config.ranking_title
-
-    def _get_subtitle_str(self):
-        return self.config.ranking_subtitle
-
-    def _generate_ranking_title_image(self, width:int, height:int) -> PngImageFile:
-        #                 base_img.width
-        # <---------------------------------------------->
-        #                    BIG TXT
-        #                   SMALL TXT
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
-
-        # Main title
-        big_txt_content = self._get_main_title_str()
-        font_size = self.visual_config['title'].get('font_size', 70)
-        font_color = self.visual_config['title'].get('font_color', (0,0,0))
-        font_name = self.visual_config['title'].get('font')
-        if font_name:
-            big_txt_font = FontFactory.font(font_name, font_size)
-        else:
-            big_txt_font = FontFactory.black(font_size)
-
-        # Sub title
-        small_txt_content = self._get_subtitle_str()
-        if small_txt_content:
-            small_font_size = self.visual_config['title'].get('small_font_size', 70)
-            small_font_color = self.visual_config['title'].get('small_font_color', (0,0,0))
-            small_font_name = self.visual_config['title'].get('small_font')
-            small_txt_font = FontFactory.get_font(small_font_name, small_font_size, FontFactory.regular)
-            _, small_txt_expected_height = text_size(small_txt_content, small_txt_font, img)
-        else:
-            small_txt_expected_height = 0
-
-        # Paste titles
-        _, big_txt_expected_height = text_size(big_txt_content, big_txt_font, img)
-        all_txt_height = big_txt_expected_height + small_txt_expected_height
-
-        # -- main
-        big_txt = text(big_txt_content, font_color, big_txt_font)
-        vertical_adjustment = self.visual_config['title'].get('vertical_adjustment', 0)
-        big_txt_pos = paste(big_txt, img, top=(height-all_txt_height)//2 + vertical_adjustment)
-
-        # -- small
-        if small_txt_content:
-            small_txt = text(small_txt_content, small_font_color, small_txt_font)
-            paste(small_txt, img, top=big_txt_pos.bottom+20)
-        return img, big_txt_pos
-
-    def _get_metric_field(self):
-        if self.config.metric == 'Points par course':
-            self.ranking.sort_by_mean_points()
-            return 'mean_points'
-        return 'total_points'
-
     def _add_content(self, base_img: PngImageFile):
-        #                 base_img.width
-        # <---------------------------------------------->
-        # |    || PILOT | PTS ||    || PILOT | PTS ||    |
-        # <----><-------------><----><-------------><---->
-        #   pds   column_width  pds+  column_width   pds
-        #
-        # <----><-----------------------------------><---->
-        #   pds                 width                  pds
-        #
-        # column_width = width-pds // 2
-        title_height = self._get_visual_title_height()
-        padding_between_rows = 20
-        padding_between_cols = 40
-        padding_side = 20
-        padding_top = 20
-        width = base_img.width - 2 * padding_side
-        row_height = ((base_img.height - title_height - padding_top) // self.rows_config['pilots_by_column']) - padding_between_rows
-        current_top = title_height+padding_top
-        current_left = padding_side
-        amount_of_columns = self.rows_config['amounts_of_column']
-        column_width = ((width - padding_between_cols)// amount_of_columns)
-        field = self._get_metric_field()
+        rows_lefts = self.rows_config['columns']
         amount_by_column = self.rows_config['pilots_by_column']
-        max_pilot_index = (amount_of_columns * amount_by_column) - 1
-        previous_points = None
-        i = 0
+        body_config = self.visual_config.get('body', {})
+        row_index = 0
+        column_index = 0
+        initial_top = top = body_config.get('top', 320)
+        rows_width = self.rows_config.get('width', base_img.width)
+        rows_height = self.rows_config.get('height', base_img.height // len(self.config.ranking.rows))
+        background = self._render_image_from_file(body_config.get('background'), rows_width, rows_height)
+        gray_filter = Image.new('RGBA', (background.width, background.height), (225, 225, 225, 150))
+
+        previous_pilot_points = None
         previous_ranking = self.ranking.get_previous_ranking()
-        for i, row in enumerate(self.ranking.rows):
-            previous_pos, previous_ranking_row = previous_ranking.find(row.pilot)
-            # TODO TO BE USED LATER
-            delta_position = ((i+1) - previous_pos) if previous_pos is not None else None
-            delta_points = (row.total_points - previous_ranking_row.total_points) if previous_ranking_row else None
-
-            pilot = row.pilot
-            if not self._pilot_should_be_shown(row):
+        for i, row in enumerate(self.config.ranking):
+            if column_index >= len(rows_lefts):
                 continue
-            if i % amount_by_column == 0 and i > 0:
-                current_top = title_height+padding_top
-                current_left += column_width + padding_between_cols
 
-            points = getattr(row, field)
-            if previous_points is not None and previous_points == points:
+            # SHOW ROW OR NOT (ex: if identifier is "main" and pilot is reservist)
+            if not self._pilot_should_be_shown(row.pilot):
+                continue
+
+            left = rows_lefts[column_index]
+            if background:
+                paste(background, base_img, left, top)
+            if i % 2 == 0:
+                paste(gray_filter, base_img, left, top)
+
+            is_champion = False # i == 0 # FIXME
+            # DETERMINE POSITION
+            points = row.total_points
+            if previous_pilot_points is not None and previous_pilot_points == points:
                 position = '-'
             else:
-                position = i+1
-            pilot_ranking_img = self._get_pilot_ranking_img(column_width, row_height, pilot, points, position)
-            pilot_ranking_pos = paste(pilot_ranking_img, base_img, left=current_left, top=current_top)
-            current_top = pilot_ranking_pos.bottom + padding_between_rows
-            previous_points = points
-            i += 1
-            if i > max_pilot_index:
-                break
+                position = str(i+1)
+
+            # DETERMINE DELTA
+            if not previous_ranking:
+                progression = 0
+            else:
+                previous_pos, previous_ranking_row = previous_ranking.find(row.pilot)
+                progression = (previous_pos - (i+1)) if previous_pos is not None else None
+
+            # GENERATE AND PASTE IMAGE
+            pilot_config = body_config.get('pilot', {})
+            pilot_ranking_img = self._render_pilot_ranking_image(
+                pilot_config.get('width', rows_width),
+                pilot_config.get('height', rows_height),
+                row.pilot,
+                position,
+                points,
+                progression
+            )
+            paste(pilot_ranking_img, base_img, left, top)
+
+            # UPDATE LOOP VARIABLES
+            previous_pilot_points = points
+            if row_index == amount_by_column - 1:
+                top = initial_top
+                column_index += 1
+                row_index = 0
+            else:
+                top += rows_height
+                row_index += 1
+        return
 
     def _pilot_should_be_shown(self, row:PilotRankingRow) -> bool:
         if self.identifier == 'main':
@@ -178,72 +131,40 @@ class PilotsRankingGenerator(AbstractGenerator):
             return row.pilot.reservist
         return True
 
-    def _get_pilot_ranking_img(self, width:int, height:int, pilot:Pilot, points, pos):
+    def _render_pilot_ranking_image(self, width: int, height: int, pilot: Pilot, position: str, points: float, delta: str, is_champion: bool = False) -> PngImageFile:
         img = Image.new('RGBA', (width, height), (0,0,0,0))
-
-        # [POS] [TEAM CARD + PILOT] [PTS]
-        #  15%        65%            20%
-
-        is_champion = False# pos == 1 # FIXME
-        padding_between = 10
-        effective_width = width - 2 * padding_between
-        position_width = int(0.15 * effective_width)
-        points_width = int(0.2 * effective_width)
-        pilot_width = effective_width - position_width - points_width
+        config = self.visual_config.get('body', {}).get('pilot', {})
 
         # POS
-        pos_txt = self._get_pos_img(position_width, height, pos)
-        pos_position = paste(pos_txt, img, left=0)
+        position_config = config.get('position', {})
+        position_img = self._render_position_image(position, position_config)
+        self.paste_image(position_img, img, position_config)
 
         # TEAM
-        team_card_img = pilot.team.build_card_image(pilot_width, height)
-        team_name_pos = paste(team_card_img, img, left=pos_position.right+padding_between, with_alpha=False)
+        team_config = config.get('team', {})
+        team_card_img = pilot.team.render_logo(
+            team_config.get('width', 190), team_config.get('height', 104), team_config.get('logo_height', 80)
+        )
+        self.paste_image(team_card_img, img, team_config)
 
-        # pilot name
-        pilot_config = self.rows_config['pilot']
-        pilot_font_name = pilot_config.get('font')
-        pilot_font_size = pilot_config['font_size']
-        small_font_size_config = pilot_config.get('small_font')
-        if small_font_size_config:
-            if len(pilot.name) >= small_font_size_config['if']:
-                pilot_font_size = small_font_size_config['size']
-        pilot_font = FontFactory.get_font(pilot_font_name, pilot_font_size, FontFactory.black)
-        team_txt = text(pilot.name.upper(), pilot.team.standing_fg, pilot_font)
-        paste(team_txt, img, team_name_pos.left+pilot_config['left_padding'])
+        # FACE
+        face_config = config.get('face', {})
+        face = pilot.get_face_image(face_config['width'], face_config['height'])
+        self.paste_image(face, img, face_config)
+
+        # NAME
+        name_config = config.get('name', {})
+        name_img = self.text(name_config, pilot.name.upper())
+        self.paste_image(name_img, img, name_config)
+
+        # PROGRESSION
+        prog_config = config.get('progression', {})
+        prog_img = self._render_progression_image(delta, prog_config)
+        self.paste_image(prog_img, img, prog_config)
 
         # POINTS
-        color = (199, 141, 39) if is_champion else (0,0,0)
-        points_txt = self._get_points_img(points_width, height, str(points), color)
-        paste(points_txt, img, left=team_name_pos.right + padding_between)
+        points_config = config.get('points', {})
+        points_img = self._render_points_image(points, points_config)
+        self.paste_image(points_img, img, points_config)
 
         return img
-
-    def _get_points_img(self, width:int, height: int, points:str, color:tuple=(0,0,0)):
-        img = Image.new('RGB', (width, height), (255, 255, 255))
-
-        font_name = self.rows_config['points'].get('font')
-        font_size = self.rows_config['points']['font_size']
-        font = FontFactory.get_font(font_name, font_size, FontFactory.black)
-
-        points_txt = text(points, color, font, security_padding=4)
-        paste(points_txt, img, top=(height-points_txt.height)//2 - 4)
-        return img
-
-    def _get_pos_img(self, width:int, height: int, pos:int):
-        pos = self._pos_to_ordinal(pos) if pos != '-' else pos
-        img = Image.new('RGB', (width, height), (0, 0, 0))
-
-        font_name = self.rows_config['position'].get('font')
-        font_size = self.rows_config['position']['font_size']
-        font = FontFactory.get_font(font_name, font_size, FontFactory.regular)
-        pos_txt = text(pos, (255,255,255), font)
-        paste(pos_txt, img)
-        return img
-
-    def _pos_to_ordinal(self, n):
-        ordinal_lang = self.championship_config['settings'].get('ordinal_lang', 'en')
-        if ordinal_lang == 'en':
-            suffix = {1: 'ST', 2: 'ND', 3: 'RD'}.get(4 if 10 <= n % 100 < 20 else n % 10, "TH")
-        elif ordinal_lang == 'fr':
-            suffix = {1: 'ER'}.get(n, "È")
-        return f'{n}{suffix}'
