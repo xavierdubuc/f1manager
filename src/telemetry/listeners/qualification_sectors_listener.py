@@ -46,7 +46,6 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
         if not lap_record:
             return []
 
-        if lap.pit_status == PitStatus.pitting
         if 'current_lap_invalid' in changes and lap.current_lap_invalid:
             return [self._get_lap_repr(lap, lap_record, participant, session)]
 
