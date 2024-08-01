@@ -19,6 +19,7 @@ class Pilot:
     number: str = 'Re'
     title: str = None
     reservist: bool = False
+    aspirant: bool = False
     trigram: str = None
 
     def __post_init__(self):
@@ -195,7 +196,7 @@ class Pilot:
         if height and not width:
             width = height
         if width and height:
-            base = resize(base, width, height, keep_ratio=False)
+            base = resize(base, width, height)#, keep_ratio=False)
 
         return base
 

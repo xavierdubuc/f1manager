@@ -73,6 +73,8 @@ class AbstractGenerator(ABC):
             return Image.open(path)
 
     def text(self, config: dict, content: str,
+             stroke_fill=None,
+             security_padding=0,
              default_font=FontFactory.black,
              default_font_size=60,
              default_color=(255, 255, 255)) -> PngImageFile:
@@ -80,6 +82,8 @@ class AbstractGenerator(ABC):
         font_color = config.get('font_color', default_color)
         font_name = config.get('font')
         font = FontFactory.get_font(font_name, font_size, default_font)
+        if sw := config.get('stroke_width', False):
+            return text(content, font_color, font, stroke_fill=stroke_fill, stroke_width=sw, security_padding=security_padding or sw)
         return text(content, font_color, font)
 
     def paste_image_from_config(self, config:dict, img:PngImageFile) -> Dimension:

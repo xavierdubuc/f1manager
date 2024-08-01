@@ -252,8 +252,8 @@ kick_sauber = Team(
     title='KICK SAUBER',
     display_name='KICK SAUBER',
     psd_name="kick",
-    main_color=(114, 4, 5),
-    secondary_color=(255, 255, 255),
+    main_color=(0, 255, 0),
+    secondary_color=(0,0,0),
     box_color=(114, 4, 5),
     lineup_bg_color=(152, 13, 44),
     standing_bg=(0, 0, 0),
@@ -261,8 +261,8 @@ kick_sauber = Team(
     transparent_color=(200,120,120),
     breaking_bg_color=(153, 0, 0),
     breaking_line_color=(120, 0, 0),
-    breaking_use_white_logo=True,
-    driver_of_the_day_hsv_offset=250,
+    breaking_use_white_logo=False,
+    driver_of_the_day_hsv_offset=90,
     driver_of_the_day_use_grayscale=False,
 )
 vcarb = Team(
@@ -308,6 +308,17 @@ RESERVIST_TEAM = Team(
     lineup_bg_color=(0, 0, 186),
     standing_bg= (128,128,128),
     standing_fg = (50,50,50)
+)
+ASPIRANT_TEAM = Team(
+    name='Aspirant',
+    title='Aspirant',
+    display_name='ASPIRANT',
+    main_color=(0, 0, 0),
+    secondary_color=(200, 200, 200),
+    box_color=(0, 0, 186),
+    lineup_bg_color=(0, 0, 186),
+    standing_bg= (255, 255, 255),
+    standing_fg = (0,0,0)
 )
 
 teams_idx = {

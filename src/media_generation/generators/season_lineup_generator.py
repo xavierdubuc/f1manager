@@ -1,11 +1,10 @@
-import math
-from PIL import Image, ImageDraw
+from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-from ..models import Pilot, Visual
+from ..models import Pilot
 from ..helpers.transform import *
 from ..generators.abstract_generator import AbstractGenerator
 
-RESERVISTS_MODE = False
+RESERVISTS_MODE = True
 
 class SeasonLineupGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
@@ -16,36 +15,29 @@ class SeasonLineupGenerator(AbstractGenerator):
         reservists_objects = {k:p for i, (k, p) in enumerate(self.config.pilots.items()) if i >= 20 }
         pilots_objects = (main_pilots_objects if not RESERVISTS_MODE else reservists_objects).values()
         if self.visual_config.get('sort'):
-            pilots = sorted(pilots_objects, key=lambda x: int(x.number))
+            pilots = sorted(pilots_objects, key=lambda x: int(x.number) if x.number.isnumeric() else 999)
         else:
             pilots = list(pilots_objects)
-        amount_of_pilots = len(pilots)
+
         title_height = 200
         title_img = self._get_title_img(base_img.width, title_height)
-        title_position = paste(title_img, base_img, top=0)
+        paste(title_img, base_img, top=0)
 
-        left_padding = self.visual_config['padding']['left']
-        top_padding = self.visual_config['padding']['top']
-
-        content_height = base_img.height - title_height - 50
-        padding_h = 20
-        padding_v = 0
-        amount_of_lines = math.ceil(amount_of_pilots / 2)
-        row_height = min(85, (content_height - padding_v*amount_of_lines) // amount_of_lines)
-        pilot_width = (base_img.width - 3 * padding_h)  // 2
-        even_left = left_padding
-        odd_left = pilot_width + 2 * padding_h
-        even_top = title_position.bottom + top_padding
-        odd_top = even_top + row_height // 5
+        row_config = self.visual_config.get('rows', {})
+        even_left, odd_left = row_config.get('columns', [20, 540])
+        even_top = row_config.get('top')
+        odd_top = even_top + row_config.get('vertical_shift', 20)
+        row_width = row_config.get('width', 500)
+        row_height = row_config.get('height', 84)
         for i,pilot in enumerate(pilots):
             top = even_top if i % 2 == 0 else odd_top
             left = even_left if i % 2 == 0 else odd_left
-            pilot_img = self._get_pilot_img(pilot, pilot_width, row_height)
-            pilot_pos = paste(pilot_img, base_img, left=left, top=top)
+            pilot_img = self._render_pilot_image(pilot, row_width, row_height)
+            paste(pilot_img, base_img, left=left, top=top)
             if i % 2 == 0:
-                even_top = pilot_pos.bottom + padding_v
+                even_top += row_height
             else:
-                odd_top = pilot_pos.bottom + padding_v
+                odd_top += row_height
 
     def _get_title_img(self, width:int, height:int) -> PngImageFile:
         img = Image.new('RGBA', (width, height), (0,0,0,0))
@@ -76,45 +68,38 @@ class SeasonLineupGenerator(AbstractGenerator):
         paste(title2_text, img, top=title_pos.bottom+20)
         return img
 
-    def _get_pilot_img(self, pilot:Pilot, width:int, height:int) -> PngImageFile:
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
-        draw = ImageDraw.Draw(img)
-        draw.line(((0, 0), (width, 0)), fill=(0,0,0,80), width=2)
-        left_width = width // 3
-        right_width = width - left_width
-        left_img = Image.new('RGBA', (left_width, height), (0,0,0,0))
-        right_img = Image.new('RGBA', (right_width, height), (0,0,0,0))
+    def _render_pilot_image(self, pilot:Pilot, width:int, height:int) -> PngImageFile:
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        rows_config = self.visual_config.get('rows', {})
+        background_config = rows_config.get('background')
+        background = self._render_image_from_file(background_config.get(
+            'path'), background_config.get('width', width), background_config.get('height', height))
+        self.paste_image(background, img, background_config)
 
-        number_font_config = self.visual_config['rows']['number']
-        number_font_size = number_font_config.get('font_size', 65)
-        number_font_name = number_font_config.get('font')
-        if number_font_name:
-            number_font = FontFactory.font(number_font_name, number_font_size)
-        else:
-            number_font = FontFactory.black(number_font_size)
-        number_text = text(
-            str(pilot.number or '-'),
-            pilot.team.secondary_color,
-            number_font,
-            number_font_config['stroke_width'],
-            pilot.team.main_color,
-            security_padding=4
+        number_config = rows_config.get('number', {})
+        number_container = Image.new('RGBA', (number_config.get('width', width), number_config.get('height', height)))
+        number_img = self.text(number_config, str(pilot.number or '-'),
+                               security_padding=number_config.get('stroke_width', -1) + 1,
+                               stroke_fill=pilot.team.secondary_color, default_color=pilot.team.main_color)
+        paste(number_img, number_container)
+        self.paste_image(number_container, img, number_config)
+
+        # TEAM
+        team_config = rows_config.get('team', {})
+        team_card_img = pilot.team.render_logo(
+            team_config.get('width', 190), team_config.get(
+                'height', height), team_config.get('logo_height', int(.8 * height))
         )
-        paste(number_text, left_img, top=self.visual_config['rows']['number']['top'])
+        self.paste_image(team_card_img, img, team_config)
 
-        pilot_name_font_config = self.visual_config['rows']['pilot_name']
-        pilot_name_font_size = pilot_name_font_config.get('font_size', 60)
-        pilot_name_font_name = pilot_name_font_config.get('font')
-        if pilot_name_font_name:
-            pilot_name_font = FontFactory.font(pilot_name_font_name, pilot_name_font_size)
-        else:
-            pilot_name_font = FontFactory.bold(pilot_name_font_size)
-        name_color = pilot.team.standing_fg if not pilot.reservist else (255, 255, 255)
-        name_text = text(str(pilot.name.upper()), name_color, pilot_name_font)
-        name_bg = Image.new('RGB', (right_width, height-20), pilot.team.main_color)
-        paste(name_text, name_bg)
-        paste(name_bg, right_img, left=0)
+        # FACE
+        face_config = rows_config.get('face', {})
+        face = pilot.get_face_image(face_config.get('width', 100), face_config.get('height', height))
+        self.paste_image(face, img, face_config)
 
-        left_position = paste(left_img, img, left=0)
-        paste(right_img, img, left=left_position.right)
+        # NAME
+        name_config = rows_config.get('name', {})
+        name_img = self.text(name_config, pilot.name.upper())
+        self.paste_image(name_img, img, name_config)
+
         return img

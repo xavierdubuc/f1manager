@@ -49,11 +49,20 @@ class Reader:
     def _build_pilots_list(self, values: pandas.DataFrame, teams: Dict[str, Team]) -> dict:
         default_team = Team(**self.championship_config['settings']['default_team'])
         reservist_team = Team(**self.championship_config['settings']['reservist_team'])
+        aspirant_team = Team(**self.championship_config['settings']['aspirant_team'])
+
+        def _get_fallback_team(row):
+            if row['Ecurie'] == 'A':
+                return aspirant_team
+            if row['Ecurie'] == 'R':
+                return reservist_team
+            return default_team
         return {
             row['Pilotes']: Pilot(
                 name=row['Pilotes'],
-                team=teams.get(row['Ecurie'], reservist_team if row['Ecurie'] == 'R' else default_team),
-                reservist=row['Ecurie'] == 'R',
+                team=teams.get(row['Ecurie'], _get_fallback_team(row)),
+                reservist=row['Ecurie'] in ('A', 'R'),
+                aspirant=row['Ecurie'] == 'A',
                 number=row['Numéro'],
                 trigram=row.get('Trigram')
             ) for _, row in values[values['Pilotes'].notnull()].iterrows()
