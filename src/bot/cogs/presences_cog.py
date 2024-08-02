@@ -25,8 +25,9 @@ class PresencesCog(RaceCog):
     visual_type = 'presentation'
 
     @commands.Cog.listener()
-    async def button_clicked(self, inter: disnake.MessageInteraction):
+    async def on_button_click(self, inter: disnake.MessageInteraction):
         await inter.response.defer()
+        self.last_inter = inter
         if inter.component.custom_id == PRESENT_BUTTON_ID:
             changed = await self._presence_clicked(inter, True)
         elif inter.component.custom_id == ABSENT_BUTTON_ID:
@@ -58,7 +59,7 @@ class PresencesCog(RaceCog):
         ]
         circuit_country = race.circuit.emoji
         roles = []
-        for role_str in ('Titulaire', 'Réserviste', 'Commentateur'):
+        for role_str in ('Titulaire', 'Aspirant', 'Réserviste', 'Commentateur'):
             for r in inter.guild.roles:
                 if r.name == role_str:
                     roles.append(r)
@@ -80,12 +81,9 @@ class PresencesCog(RaceCog):
         photo_path = f'http://xavierdubuc.com/public/circuits/photos/{race.circuit.id}.png'
         embed.set_image(url=photo_path)
 
-        inline = False
         for role in roles:
+            inline = role.name not in ("Titulaire", "Commentateur")
             embed.add_field(name=role.name, inline=inline, value='-')
-            inline = True
-        embed.add_field(name=AWAY_SECTION, inline=False, value='-')
-        embed.add_field(name=VOTING_SECTION, inline=False, value='-')
         embed_dict = await self._configure_embed(embed, inter)
         embed = disnake.Embed.from_dict(embed_dict)
         msg = f"{' '.join(r.mention for r in roles)}\nVeuillez voter !"
@@ -98,30 +96,12 @@ class PresencesCog(RaceCog):
         gsheet = PresenceGSheet(championship_config['seasons'][season]['sheet'])
         changed = False
         presences = gsheet.get(race_name)
-        aways = [m for m in presences if presences[m] == 'N']
-        presents = [m for m in presences if presences[m] == 'Y']
-        didnt_votes = []
-        didntvote_field = None
         for field in embed_dict['fields']:
-            if field['name'].startswith(AWAY_SECTION):
-                new_name = f'{AWAY_SECTION} ({len(aways)})'
-                new_value = self._format_names(aways, field['inline'])
-            else:
-                real_field_name = field['name'].split('(')[0].strip()
-                if real_field_name == VOTING_SECTION:
-                    didntvote_field = field
-                    continue
-                else:
-                    role = await self._get_role_by_name(real_field_name)
-                    present_members = []
-                    for m in role.members:
-                        member_name = m.display_name
-                        if member_name in presents:
-                            present_members.append(member_name)
-                        elif member_name not in aways:
-                            didnt_votes.append(member_name)
-                    new_value = self._format_names(present_members, field['inline'])
-                    new_name = f'{real_field_name} ({len(present_members)})'
+            real_field_name = field['name'].split('(')[0].strip()
+            role = await self._get_role_by_name(real_field_name)
+            amount_of_present_members = sum(1 for m in role.members if presences.get(m.display_name) == 'Y')
+            new_value = self._format_names(role, presences, field['inline'])
+            new_name = f'{real_field_name} ({amount_of_present_members})'
             if new_value and new_value != field['value']:
                 field['value'] = new_value
                 changed = True
@@ -129,42 +109,38 @@ class PresencesCog(RaceCog):
                 field['name'] = new_name
                 changed = True
 
-        if didnt_votes and didntvote_field:
-            new_value = self._format_names(didnt_votes, didntvote_field['inline'])
-            new_name = f'{real_field_name} ({len(didnt_votes)})'
-            changed = True
-            if new_value != didntvote_field['value']:
-                didntvote_field['value'] = new_value
-                changed = True
-            if new_name and new_name != didntvote_field['name']:
-                didntvote_field['name'] = new_name
-                changed = True
-
         if changed:
             return embed_dict
         return None
 
-    def _format_names(self, names: list, inline: bool):
-        if not names:
+    def _format_names(self, role:disnake.Role, presences: dict, inline: bool):
+        if not role.members:
             return '-'
-        if inline:
-            names_str = '\n'.join(names)
-        else:
-            middle = math.ceil(len(names)/2)
-            table = []
-            current_row = None
-            for i, name in enumerate(names):
-                if not current_row:
-                    current_row = [name]
-                    table.append(current_row)
-                else:
-                    current_row.append(name)
-                    current_row = None
-            names_str = tabulate(table, tablefmt='plain')
-        return f'```\n{names_str}\n```'
+        names_str_list = []
+        for member in role.members:
+            presence = presences.get(member.display_name,"")
+            if presence == 'Y':
+                emoji = '✅'
+            elif presence == 'N':
+                emoji = '❌'
+            else:
+                emoji = '❔'
+            names_str_list.append(f'{emoji} {member.display_name}')
+        names_str_list.sort(key=sorting_key)
+        names_str = "\n".join(names_str_list)
+        return f"```{names_str}```"
 
     async def _get_role_by_name(self, role_str: str):
         for r in self.last_inter.guild.roles:
             if r.name == role_str:
                 return r
         return None
+
+def sorting_key(name:str):
+        if name.startswith('✅'):
+            return 1
+        elif name.startswith('❔'):
+            return 2
+        elif name.startswith('❌'):
+            return 3
+        return 4
