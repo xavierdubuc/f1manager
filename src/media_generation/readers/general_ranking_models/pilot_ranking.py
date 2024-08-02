@@ -34,6 +34,16 @@ class PilotRanking(Ranking):
                 return i+1, row
         return None, None
 
+    def _get_sort_by_points_value(self, row: PilotRankingRow):
+        if row.pilot.aspirant:
+            second_criteria = 1
+        elif row.pilot.reservist:
+            second_criteria = 0
+        else:
+            second_criteria = 2
+        # first sort by points, then titular first, then alphabetical
+        return (row.total_points, second_criteria, -ord(row.pilot.name.lower()[0]))
+
     def get_previous_ranking(self) -> "PilotRanking":
         out_rows = []
         last_race_index = self.amount_of_races

@@ -17,7 +17,10 @@ class Ranking:
         self.sort_by_points()
 
     def sort_by_points(self):
-        self.rows = sorted(self.rows, key=lambda row: row.total_points, reverse=True)
+        self.rows = sorted(self.rows, key=lambda row: self._get_sort_by_points_value(row), reverse=True)
+
+    def _get_sort_by_points_value(self, row: RankingRow):
+        return row.total_points
 
     def __iter__(self):
         return iter(self.rows)
