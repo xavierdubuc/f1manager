@@ -50,11 +50,12 @@ class PilotsRankingGenerator(AbstractGenerator):
             main_top = main_pos.bottom + main_config.get('line_space', 10)
 
         # SUB TITLE
-        sub_config = title_config.get('sub', {})
-        sub_text = self.text(sub_config, f"POINTS APRÈS COURSE {self.config.ranking.amount_of_races}", FontFactory.regular)
-        sub_top = sub_config['top']
-        sub_left = img.width - sub_text.width - sub_config.get('right', 20)
-        paste(sub_text, img, left=sub_left, top=sub_top)
+        if self.config.ranking.amount_of_races > 0:
+            sub_config = title_config.get('sub', {})
+            sub_text = self.text(sub_config, f"POINTS APRÈS COURSE {self.config.ranking.amount_of_races}", FontFactory.regular)
+            sub_top = sub_config['top']
+            sub_left = img.width - sub_text.width - sub_config.get('right', 20)
+            paste(sub_text, img, left=sub_left, top=sub_top)
 
         return img
 
