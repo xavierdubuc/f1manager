@@ -22,6 +22,7 @@ class Team:
     alternate_main_color: Union[str,tuple] = None
     secondary_color: Union[str,tuple] = 'black'
     box_color: Union[str,tuple] = 'black'
+    lineup_fg_color: Union[str,tuple] = (255,255,255)
     lineup_bg_color: Union[str,tuple] = 'black'
     standing_bg: Union[str,tuple] = 'black'
     standing_fg: Union[str,tuple] = 'white'
@@ -90,7 +91,7 @@ class Team:
         return Image.open(self.get_image())
 
     def get_lineup_logo(self):
-        if self.name in ('Alpine', 'AlfaRomeo', 'VCARB', 'RedBull', 'AstonMartin', 'Ferrari'):
+        if self.name in ('Alpine', 'AlfaRomeo', 'VCARB', 'RedBull', 'AstonMartin', 'Ferrari', 'McLaren'):
             return Image.open(self._get_alt_logo_path())
         return Image.open(self.get_image())
 

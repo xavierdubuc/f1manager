@@ -50,17 +50,24 @@ class AbstractGenerator(ABC):
         title_img = Image.new('RGBA', (width, height), (0,0,0,0))
         return title_img
 
-    def _generate_basic_image(self) -> PngImageFile:
+    def _render_initial_image(self) -> PngImageFile:
         width = self.visual_config['width']
         height = self.visual_config['height']
         _logger.info(f'Output size is {width}px x {height}px')
         bgcolor = self.visual_config.get('background', (30, 30, 30))
-        img = Image.new('RGB', (width, height), bgcolor)
+        return Image.new('RGB', (width, height), bgcolor)
+
+    def _generate_basic_image(self) -> PngImageFile:
+        img = self._render_initial_image()
+        width = self.visual_config['width']
+        height = self.visual_config['height']
         bg = self._get_background_image()
         if bg:
             with bg:
                 bg = bg.resize((width, height))
-                paste(bg.convert('RGB'), img)
+                if bg.mode not in ('RGB', 'RGBA'):
+                    bg = bg.convert('RGB')
+                paste(bg, img)
 
         lines_config = self.visual_config.get('lines', {})
         if lines_config.get('enabled', False):
@@ -90,7 +97,14 @@ class AbstractGenerator(ABC):
         if not config:
             return
         with Image.open(config['path']) as original:
-            img_to_paste = resize(original, height=config['height'])
+            height = config.get('height', False)
+            width = config.get('width', False)
+            if width and height:
+                img_to_paste = resize(original, width=width, height=height)
+            elif width:
+                img_to_paste = resize(original, width=width)
+            elif height:
+                img_to_paste = resize(original, height=height)
         return self.paste_image(img_to_paste, img, config)
 
     def paste_image(self, img:PngImageFile, on:PngImageFile,  config:dict) -> Dimension:

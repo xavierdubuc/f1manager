@@ -76,16 +76,20 @@ def text_on_gradient(txt: str, text_color, font:ImageFont.FreeTypeFont, padding=
     img.alpha_composite(txt_img, (padding, padding))
     return img
 
-def text(text:str, text_color, font:ImageFont.FreeTypeFont, stroke_width=0, stroke_fill=None, security_padding=0, **kwargs):
+def text(text:str, text_color, font:ImageFont.FreeTypeFont, stroke_width=0, stroke_fill=None, security_padding=0, use_background=(0,0,0,0), **kwargs):
     width, height = text_size(text, font, stroke_width=stroke_width, **kwargs)
-    img = Image.new('RGBA', (width+security_padding, height), (0, 0, 0, 0))
+    if len(use_background) == 3:
+        mode = 'RGB'
+    else:
+        mode = 'RGBA'
+    img = Image.new(mode, (width+security_padding, height), use_background)
     draw = ImageDraw.Draw(img)
     draw.text((security_padding, 0), text, text_color, font, stroke_width=stroke_width, stroke_fill=stroke_fill, **kwargs)
     return img
 
-def text_hi_res(txt: str, text_color, font:ImageFont.FreeTypeFont, width:int, height:int, *args, **kwargs):
+def text_hi_res(txt: str, text_color, font:ImageFont.FreeTypeFont, width:int, height:int, *args, use_background=(0,0,0,0), **kwargs):
     big_font = font.font_variant(size=font.size * 5)
-    big_img = text(txt, text_color, big_font, *args, **kwargs)
+    big_img = text(txt, text_color, big_font, *args, use_background=use_background, **kwargs)
     return resize(big_img, width, height)
 
 def rotated_text(txt_str:str, text_color, font:ImageFont.FreeTypeFont, stroke_width=0, stroke_fill=None, angle=15, **kwargs):

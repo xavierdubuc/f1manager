@@ -55,7 +55,7 @@ class Pilot:
         logging.getLogger().setLevel(logging.ERROR)
         psd = self.get_close_up_psd()
         logging.getLogger().setLevel(initial_level)
-        return self._get_image_from_psd(psd, 0, 1, width, height, cropping_zone=(70, 0, 246, 176))
+        return self._get_image_from_psd(psd, 0, 1, width, height, cropping_zone=(75, 125, 475, 525))
 
     def get_long_range_image(self) -> PngImageFile:
         # Silence all warnings from PSDImage
