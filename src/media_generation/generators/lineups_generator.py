@@ -1,6 +1,8 @@
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
+from src.media_generation.models.pilot import Pilot
+from src.media_generation.models.team import Team
 from src.media_generation.models.visual import Visual
 from ..generators.abstract_race_generator import AbstractRaceGenerator
 from ..helpers.transform import *
@@ -10,120 +12,160 @@ class LineupGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'lineups'
 
-    def _generate_basic_image(self) -> PngImageFile:
-        return Image.new('RGB', (1920, 1080), (255,255,255))
-
-    def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
-        return None
+    def _render_initial_image(self) -> PngImageFile:
+        initial_img = super()._render_initial_image()
+        prll_color = self.visual_config['alt_background']
+        draw = ImageDraw.Draw(initial_img)
+        parallelograms = [
+            (
+                (0, 263),
+                (0, 510),
+                (445, 64),
+                (200, 64),
+            ),
+            (
+                (424, 523),
+                (1158, 523),
+                (605, 1080),
+                (0, 1080),
+                (0, 950),
+            ),
+            (
+                (738, 523),
+                (1468, 523),
+                (1920, 74),
+                (1920, 0),
+                (1256, 0),
+            ),
+            (
+                (1352, 1080),
+                (1920, 1080),
+                (1920, 523),
+                (1908, 523)
+            )
+        ]
+        for parallelogram in parallelograms:
+            draw.polygon(parallelogram, prll_color)
+        return initial_img
 
     def _add_content(self, base_img: PngImageFile):
-        draw_lines_all(base_img, (200,200,200), space_between_lines=7)
-        amount_of_teams_by_column = 5
-        teams_width = int(.38 * base_img.width) #should be near 730
-        teams_height = int(.195 * base_img.height)  # should be near 210
-        teams_left = 5
-        teams_top = teams_initial_top = 2
-        teams_margin = 5
+        self._render_logos(base_img)
+        self._render_teams(base_img)
+        self._render_race(base_img)
+        self._render_date(base_img)
+        self._render_circuit(base_img)
 
-        center_width = base_img.width - teams_width * 2
+    def _render_logos(self, base_img: PngImageFile):
+        logo_configs = self.visual_config.get('logos', [])
+        if not logo_configs:
+            return
+        for logo_config in logo_configs:
+            self.paste_image_from_config(logo_config, base_img)
 
-        amount_of_treated_teams = 0
-        for team in self.config.teams:
-            pilots = self.race.get_pilots(team)
-            for j in range(0, len(pilots), 2):
-                team_pilots = (pilots[j], pilots[j+1]) if len(pilots) > j+1 else (pilots[j],)
-                lineup_img = team.get_lineup_image(teams_width, teams_height, team_pilots)
-                teams_pos = paste(lineup_img, base_img, left=teams_left, top=teams_top)
-                if amount_of_treated_teams == amount_of_teams_by_column - 1:
-                    teams_top = teams_initial_top
-                    teams_left += teams_width + center_width - 10
-                else:
-                    teams_top = teams_pos.bottom + teams_margin
-                amount_of_treated_teams += 1
+    def _render_teams(self, base_img: PngImageFile):
+        teams_positions = self.visual_config.get('teams', [])
+        for team_position_config, team in zip(teams_positions, self.config.teams):
+            self._render_team(base_img, team, team_position_config)
 
-        padding = 25
-        center_img = self._get_center_image(center_width-2*padding, base_img.height)
-        paste(center_img, base_img, left=teams_width + padding)
+    def _render_race(self, base_img:PngImageFile):
+        config = self.visual_config.get('race', {})
 
-    def _get_center_image(self, width:int, height:int) -> PngImageFile:
-        circuit = self.race.circuit
-        img = Image.new('RGB', (width, height), (255,255,255))
-
-        # FBRT
-        logo_size = int(0.8 * width)
-        if self.visual_config.get('logo'):
-            with Image.open(self.visual_config['logo']) as l:
-                logo = l.copy()
-        else:
-            logo = Visual.get_fbrt_round_logo()
-        logo = resize(logo, logo_size)
-        logo_pos = paste(logo, img, top=0)
-
-        # COURSE X + TITLE 'LINE-UP'
-        type_title_top = logo_pos.bottom+50
-        type_size = int(0.35 * width)
-        padding_type_title = 20
+        # TYPE
+        type_config = config.get('type', {})
+        type_w = type_config.get('width', 100)
+        type_h = type_config.get('height', type_w)
         type_img = self.race_renderer.get_type_image(
-            type_size, type_size, text_font=FontFactory.regular(20)
+            type_w, type_h, text_font=FontFactory.regular(20)
         )
-        title_line1_text = 'LINE'
-        title_line2_text = '   UP'
-        title_line1_img = text(title_line1_text, (0,0,0), FontFactory.black(60))
-        title_line2_img = text(title_line2_text, (0,0,0), FontFactory.black(60))
-        whole_line_width = type_img.width + title_line1_img.width+padding_type_title
-        type_pos = paste(type_img, img, left=(width-whole_line_width)//2, top=type_title_top)
-        # TITLE "LINE-UP"
-        space_between_lines = 10
-        title_height = title_line1_img.height+title_line2_img.height+space_between_lines
-        title_line1_pos = paste(title_line1_img, img, left=type_pos.right+padding_type_title, top=type_pos.top + (type_img.height-title_height)//2)
-        paste(title_line2_img, img, left=type_pos.right+padding_type_title, top=title_line1_pos.bottom+space_between_lines)
+        self.paste_image(type_img, base_img, type_config)
 
-        # CIRCUIT FLAG
-        flag_top = type_pos.bottom + 50
-        flag_height = 100
-        with circuit.get_flag() as flag_img:
-            flag_img = resize(flag_img, height=flag_height)
-            flag_pos = paste(flag_img, img, top=flag_top)
+        # TEXT "LINE-UP"
+        text_config = config.get('text', {})
+        content = text_config.get('content', 'LINE-UP').upper()
+        text_img = self.text(text_config, content, default_font=FontFactory.black)
+        self.paste_image(text_img, base_img, text_config)
 
-        # CIRCUIT INFO (NAME + CITY + DATE)
-        circuit_top = flag_pos.bottom + 20
-        circuit_padding = 15
+    def _render_date(self, base_img:PngImageFile):
+        config = self.visual_config.get('date', {})
+        w = config.get('width')
+        h = config.get('height')
+        content = f"{self.race.full_date.day} {month_fr(self.race.full_date.month)}"
+        date_img = text_hi_res(content, config.get('font_color', (255, 255, 255)),
+                    FontFactory.regular(40), w, h, use_background=(0, 0, 0))
+        self.paste_image(date_img, base_img, config)
 
-        # Create image so we can have the needed size for black BG
-        circuit_name_img = circuit.get_name_img(FontFactory.black(34))
-        padding_name_city = 5
-        padding_city_date = 20
-        circuit_city_img = circuit.get_city_img(FontFactory.black(28))
-        date_txt = f'{self.race.day} {date_fr(self.race.month).upper()}'
-        date_img = text(date_txt, (255, 255, 255), FontFactory.regular(30))
-        circuit_height = (
-            circuit_name_img.height
-            + padding_name_city
-            + circuit_city_img.height
-            + padding_city_date
-            + date_img.height
-            + (circuit_padding * 2)
+        hour_config = self.visual_config.get('hour', {})
+        hour_w = config.get('width')
+        hour_h = config.get('height')
+        date_img = text_hi_res(self.race.hour, hour_config.get('font_color', (255, 255, 255)),
+                    FontFactory.regular(40), hour_w, hour_h, use_background=(0, 0, 0))
+        self.paste_image(date_img, base_img, hour_config)
+
+    def _render_circuit(self, base_img:PngImageFile):
+        config = self.visual_config.get('circuit', {})
+        flag_config = config.get('flag', {})
+        flag_w = flag_config.get('width', 100)
+        flag_h = flag_config.get('height', 100)
+        with self.race.circuit.get_flag() as flag_img:
+            flag_img = resize(flag_img, flag_w, flag_h)
+        self.paste_image(flag_img, base_img, flag_config)
+
+        name_config = config.get('name', {})
+        name_content = f'{self.race.circuit.city}'.upper()
+        name_img = text_hi_res(
+            name_content, name_config.get('color', (255,255,255)),
+            FontFactory.regular(40),
+            name_config.get('width', 500), name_config.get('height', 40),
         )
-        # --- BLACK BG
-        circuit_bg = Image.new('RGB', (width, circuit_height), (0,0,0))
-        circuit_bg_pos = paste(circuit_bg, img, top=circuit_top)
+        self.paste_image(name_img, base_img, name_config)
 
-        circuit_name_pos = paste(circuit_name_img, img, top=circuit_bg_pos.top+circuit_padding)
-        city_pos = paste(circuit_city_img, img, top=circuit_name_pos.bottom+padding_name_city)
-        paste(date_img, img, top=city_pos.bottom+padding_city_date)
+    def _render_team(self, base_img:PngImageFile, team:Team, team_position_config: dict):
+        config = self.visual_config.get('team', {})
+        w = config.get('width', 680)
+        h = config.get('height', 200)
+        img = Image.new('RGBA', (w,h), (0,0,0,0))
 
-        # F1
-        f1_logo_size = int(0.7 * width)
-        with Visual.get_f1_logo('black') as f1_logo_img:
-            f1_logo_img = resize(f1_logo_img, f1_logo_size, f1_logo_size)
-            f1_logo_pos = paste(f1_logo_img, img, top=img.height - f1_logo_img.height - 40)
+        # LOGO
+        logo_config = config.get('logo', {})
+        with team.get_lineup_logo() as logo_img:
+            logo_img = resize(logo_img, logo_config.get('width'), logo_config.get('height'))
+            if logo_img.mode != 'RGBA':
+                logo_img = logo_img.convert('RGBA')
+            self.paste_image(logo_img, img, logo_config)
 
-        # FIF
-        if not self.visual_config.get('fif', True):
-            return img
-        fif_logo_size = int(0.7 * width)
-        with Visual.get_fif_logo('wide') as fif_logo_img:
-            fif_logo_img = resize(fif_logo_img, fif_logo_size, fif_logo_size)
-            paste(fif_logo_img, img, top=f1_logo_pos.top - fif_logo_img.height)
-        return img
-    
+        # PILOTS
+        pilots = self.race.get_pilots(team)
+        pilot_configs = config.get('pilots', {})
+        for i, pilot in enumerate(pilots):
+            self._render_pilot(pilot, pilot_configs[i%len(pilot_configs)], img)
+        
+        self.paste_image(img, base_img, team_position_config)
+
+    def _render_pilot(self, pilot:Pilot, config:dict, team_img:PngImageFile):
+        w = config.get('width', 338)
+        h = config.get('height', 200)
+        img = Image.new('RGBA', (w,h), (0,0,0,0))
+
+        # PARALLELOGRAM BOX 
+        box_config = config.get('box', {})
+        box = pilot.team.get_parallelogram(
+            box_config.get('width', w),
+            box_config.get('height', 62)
+        )
+
+        # HEAD
+        face_config = config.get('face', {})
+        face_img = pilot.get_close_up_image(height=face_config['height'])
+        self.paste_image(face_img, img, face_config)
+
+        # PILOT NAME
+        name_config = config.get('name', {})
+        name_width = name_config.get('width', w)
+        name_height = name_config.get('height', h)
+        name = pilot.name.upper()
+        name_img = text_hi_res(name, (pilot.team.lineup_fg_color), FontFactory.black(50), name_width, name_height, use_background=pilot.team.lineup_bg_color)
+        self.paste_image(name_img, box, name_config)
+        self.paste_image(box, img, box_config)
+
+        # Paste image on team image
+        self.paste_image(img, team_img, config)
