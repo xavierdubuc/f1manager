@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from PIL import Image, ImageDraw
 from PIL.PngImagePlugin import PngImageFile
 
-from ..helpers.transform import text, text_hi_res, paste
+from ..helpers.transform import resize, text, text_hi_res, paste
 
 from src.media_generation.font_factory import FontFactory
 
@@ -25,6 +25,14 @@ class Circuit:
 
     def get_map(self) -> PngImageFile:
         return self._get_assets('maps')
+
+    def get_partial_photo(self, width:int, height:int):
+        with self.get_photo() as p:
+            img = resize(p, height=height)
+            crop_left = (img.width - width) // 2
+            crop_top = (img.height - height) // 2
+            img = img.crop((crop_left, crop_top, crop_left+width, crop_top+height))
+        return img
 
     def get_full_name_img(self,
                           width:int,

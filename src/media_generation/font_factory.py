@@ -14,7 +14,7 @@ class FontFactory:
 
     @staticmethod
     def polebg(size=32, **kwargs) -> ImageFont.FreeTypeFont:
-        return FontFactory.font(POLEBG_FONT_NAME, size, ttf=False)
+        return FontFactory.font(POLEBG_FONT_NAME, size)
 
     @staticmethod
     def regular(size=32, **kwargs) -> ImageFont.FreeTypeFont:
@@ -33,9 +33,9 @@ class FontFactory:
         return FontFactory.font(WIDE_FONT_NAME, size)
 
     @staticmethod
-    def font(name: str, size=32, ttf=True, **kwargs) -> ImageFont.FreeTypeFont:
-        if ttf:
-            name = name if name.endswith('ttf') else f'{name}.ttf'
+    def font(name: str, size=32, **kwargs) -> ImageFont.FreeTypeFont:
+        if "." not in name:
+            name = f'{name}.ttf'
         return ImageFont.truetype(FontFactory._get_font_path(name), size, encoding="unic", **kwargs)
 
     @staticmethod

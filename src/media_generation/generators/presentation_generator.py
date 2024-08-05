@@ -1,5 +1,9 @@
-from PIL import Image
+from PIL import Image, ImageOps
+from PIL.PngImagePlugin import PngImageFile
+from src.media_generation.data import RESERVIST_TEAM
 from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
+from src.media_generation.models.pilot import Pilot
+from src.media_generation.readers.race_reader_models import race
 
 from ..font_factory import FontFactory
 
@@ -11,209 +15,290 @@ class PresentationGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'presentation'
 
-    def _add_content(self, final: PngImageFile):
-        vertical_padding = 20
-        left_width = int(0.67 * final.width)
-        initial_top = self._get_visual_title_height()+vertical_padding
-        race_title = self._get_race_title_image(left_width, 180)
-        race_title_pos = paste(
-            race_title, final, left=0,
-            top=initial_top
-        )
-
-        left_height = final.height - race_title_pos.bottom + vertical_padding
-        h_padding = -100
-        left_img = self._get_left_content_image(left_width, left_height)
-        left_pos = paste(
-            left_img, final, left=0, top=race_title_pos.bottom+vertical_padding
-        )
-
-        right_width = final.width - h_padding - left_width
-        right_top_img = self._get_right_top_content_image(final.width - left_width, race_title.height)
-        paste(right_top_img, final, left=left_pos.right, top=initial_top)
-
-        right_img = self._get_right_content_image(right_width, final.height)
-        paste(right_img, final, left=left_pos.right + h_padding, top=race_title_pos.bottom)
-
-    def _get_title_lines_image(self, width:int, height:int):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-
-        # -------- 200
-        #         \
-        #      280 \__________
-        line_width = 5
-        bottom = height - line_width
-        fill = (255, 0, 0)
-
-        # horizontal top line
-        draw.line(((0, 0), (200, 0)), fill=fill, width=line_width)
-        # oblic line
-        draw.line(((200, 0), (280, bottom)), fill=fill, width=line_width)
-        # horizontal bottom line
-        draw.line(((280, bottom), (width, bottom)), fill=fill, width=line_width)
+    def _generate_basic_image(self) -> PngImageFile:
+        img = super()._generate_basic_image()
+        lines = self.visual_config.get('lines', [])
+        if lines:
+            draw = ImageDraw.Draw(img)
+            for line in lines:
+                draw.line(line['coordinates'], line['color'], line['thickness'])
         return img
 
-    def _get_race_title_image(self, width:int, height:int):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        lines_image = self._get_title_lines_image(width, height)
-        paste(lines_image, img)
+    def _add_content(self, base_img: PngImageFile):
+        self._render_date(base_img)
+        self._render_headline(base_img)
+        self._render_circuit_image(base_img)
+        self._render_circuit_location(base_img)
+        self._render_circuit_details(base_img)
+        self._render_race_round(base_img)
+        self._render_fastest_lap(base_img)
+        self._render_last_winner(base_img)
+        self._render_logos(base_img)
+        self._render_description(base_img)
 
-        day_color = (210, 210, 210)
-        day_font = FontFactory.regular(50)
-        month_color = (200, 0, 0)
-        month_font = FontFactory.regular(60)
-        name_color = (200, 0, 0)
-        name_font = FontFactory.black(70)
+    def _render_date(self, base_img:PngImageFile):
+        config = self.visual_config.get('date', {})
+        w = config.get('width')
+        h = config.get('height')
+        content = f"{self.race.full_date.day} {month_fr(self.race.full_date.month-1)}, {self.race.hour}"
+        date_img = text_hi_res(content, config.get('font_color', (255, 255, 255)),
+                    FontFactory.regular(40), w, h, use_background=(255,255,255))
+        self.paste_image(date_img, base_img, config)
 
-        #  80 - 280
-        day = text(str(self.race.day), day_color, day_font)
-        month = text(self.race.month, month_color, month_font)
+    def _render_headline(self, base_img:PngImageFile):
+        config = self.visual_config.get('headline', {})
+        font = FontFactory.get_font(config.get('font'), 40, FontFactory.regular)
+        for part_config in config.get('parts'):
+            w = part_config.get('width')
+            h = part_config.get('height')
+            color = part_config.get('font_color', (255, 255, 255))
+            part_img = text_hi_res(part_config.get('content'), color, font, w, h)
+            self.paste_image(part_img, base_img, part_config)
 
-        day_pos = paste(day, img, left = (280 - day.width) // 2, top=35)
-        paste(month, img, left = (280 - month.width) // 2, top=day_pos.bottom+10)
+    def _render_circuit_image(self, base_img:PngImageFile):
+        config = self.visual_config.get('image', {})
+        w = config.get('width')
+        h = config.get('height')
+        with self.race.circuit.get_partial_photo(w,h) as photo:
+            self.paste_image(photo, base_img, config)
 
-        circuit = self.race.circuit
-        with circuit.get_flag() as flag:
-            flag = resize(flag, 200, 200)
-            flag_pos = paste(flag, img, left=300)
-        circuit_img = circuit.get_full_name_img(
-            width-flag_pos.right,
-            height,
-            name_font=name_font,
-            name_color=name_color,
-            city_font=FontFactory.black(60),
-            name_top=20,
-            city_top=90
+    def _render_circuit_details(self, base_img:PngImageFile):
+        config = self.visual_config.get('map', {})
+        with self.race.circuit.get_map() as map:    
+            map = resize(map, config.get('width', 200), config.get('height', 200))
+            self.paste_image(map, base_img, config)
+
+        lap_config = self.visual_config.get('laps')
+        laps_w = lap_config.get('width', 200)
+        laps_h = lap_config.get('height', 30)
+        laps_img = Image.new('RGBA', (laps_w, laps_h), (0,0,0,0))
+        laps_content = lap_config.get('content', '{lap}').format(lap=self.race.laps)
+        laps_txt = self.text(lap_config.get('text'), laps_content, default_font=FontFactory.regular)
+        self.paste_image(laps_txt, laps_img, lap_config.get('text'))
+        self.paste_image(laps_img, base_img, lap_config)
+
+        length_config = self.visual_config.get('length')
+        length_w = length_config.get('width', 200)
+        length_h = length_config.get('height', 30)
+        length_img = Image.new('RGBA', (length_w, length_h), (0,0,0,0))
+        length_content = length_config.get('content', '{length}').format(length=self.race.circuit.lap_length)
+        length_txt = self.text(length_config.get('text'), length_content, default_font=FontFactory.regular)
+        self.paste_image(length_txt, length_img, length_config.get('text'))
+        self.paste_image(length_img, base_img, length_config)
+
+        total_length_config = self.visual_config.get('total_length')
+        total_length_w = total_length_config.get('width', 200)
+        total_length_h = total_length_config.get('height', 30)
+        total_length_img = Image.new('RGBA', (total_length_w, total_length_h), (0,0,0,0))
+        total_length_content = total_length_config.get('content', '{total_length}').format(total_length=self.race.get_total_length())
+        total_length_txt = self.text(total_length_config.get('text'), total_length_content, default_font=FontFactory.regular)
+        self.paste_image(total_length_txt, total_length_img, total_length_config.get('text'))
+        self.paste_image(total_length_img, base_img, total_length_config)
+
+    def _render_circuit_location(self, base_img:PngImageFile):
+        config = self.visual_config.get('location', {})
+        flag_config = config.get('flag', {})
+        flag_w = flag_config.get('width', 100)
+        flag_h = flag_config.get('height', 100)
+        with self.race.circuit.get_flag() as flag_img:
+            flag_img = resize(flag_img, flag_w, flag_h)
+        self.paste_image(flag_img, base_img, flag_config)
+
+        name_config = config.get('name', {})
+        name_content = f'{self.race.circuit.city}'.upper()
+        name_img = text_hi_res(
+            name_content, name_config.get('font_color', (255,255,255)),
+            FontFactory.regular(40),
+            name_config.get('width', 500), name_config.get('height', 40),
         )
-        paste(circuit_img, img, left=flag_pos.right+30)
+        self.paste_image(name_img, base_img, name_config)
 
-        return img
+    def _render_race_round(self, base_img:PngImageFile):
+        config = self.visual_config.get('round', {})
+        race_round = self.race.round
+        amount_of_races = self.championship_config['seasons'][self.season]['amount_of_races']
+        content = config.get('content', '{i}/{tot}').format(i=race_round, tot=amount_of_races)
+        img = text_hi_res(
+            content, config.get('font_color', (255,255,255)),
+            FontFactory.regular(40),
+            config.get('width', 240), config.get('height', 40),
+        )
+        self.paste_image(img, base_img, config)
 
-    def _get_left_content_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
-        draw = ImageDraw.Draw(img)
-        left_padding = 40
+    def _render_last_winner(self, base_img:PngImageFile):
+        config = self.visual_config.get('last_winner', {})
+        w = config.get('width')
+        h = config.get('height')
+        img = Image.new('RGBA', (w,h), (0,0,0,0))
 
-        # photo
-        img_top = 20
-        remaining_height = height - img_top
-        with self.race.circuit.get_photo() as photo:
-            photo = resize(photo, width-left_padding, remaining_height)
-            paste_rounded(img, photo, (left_padding, img_top))
+        pilot_config = config.get('pilot', {})
+        pilot_name = self.race.circuit_fastest_last_winner_name
+        pilot = self.config.pilots.get(pilot_name) or Pilot(name='?', team=RESERVIST_TEAM)
+        pilot_img = pilot.get_mid_range_image(pilot_config.get('width'), pilot_config.get('height'))        
+        self.paste_image(pilot_img, img, pilot_config)
 
-        padding_photo_txt = -100
-        top = photo.height+padding_photo_txt-40
-        size = photo.height+padding_photo_txt
-        bg = Image.new('RGB', (width, size), (80, 80, 80))
-        alpha = Image.linear_gradient('L').rotate(-90).resize((bg.width, bg.height))
-        alpha = alpha.crop(((alpha.width//4, 0, alpha.width, alpha.height))).resize((alpha.width, alpha.height))
-        bg.putalpha(alpha)
-        paste(bg, img, left_padding, top)
+        # PILOT NAME + TITLE
+        text_config = config.get('text', {})
+        text_w = text_config.get('width', w)
+        text_h = text_config.get('height', h)
+        bgcolor = text_config.get('background', (30, 30, 30, 235))
+        text_img = Image.new('RGBA', (text_w, text_h), bgcolor)
 
-        # TEXT
-        text_font = FontFactory.regular(32)
-        text_lines = textwrap.wrap(self.race.presentation_text, width=67)
+        # PILOT NAME
+        pilot_name_config = text_config.get('name', {})
+        pilot_name_w = pilot_name_config.get('width', w)
+        pilot_name_h = pilot_name_config.get('height', h)
+        pilot_name_color = text_config.get('font_color', (30,30,30))
+        pilot_name_font = FontFactory.black(40)
+        pilot_name_txt = text_hi_res(pilot_name, pilot_name_color, pilot_name_font, pilot_name_w, pilot_name_h, use_background=bgcolor)
+        self.paste_image(pilot_name_txt, text_img, pilot_name_config)
 
-        top -= 50
-        for text_line in text_lines:
-            top += 45
-            draw.text((left_padding+20,  top), text_line, 'white', text_font)
+        # TITLE
+        title_config = text_config.get('title', {})
+        title_w = title_config.get('width', w)
+        title_h = title_config.get('height', h)
+        title_color = text_config.get('font_color', (30,30,30))
+        title_font = FontFactory.regular(40)
+        title_content = title_config.get('content', 'Dernier vainqueur')
+        title_txt = text_hi_res(title_content, title_color, title_font, title_w, title_h, use_background=bgcolor)
+        self.paste_image(title_txt, text_img, title_config)
 
-        return img
+        self.paste_image(text_img, img, text_config)
+        self.paste_image(img, base_img, config)
 
-    def _get_right_top_content_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (255, 0, 0, 0))
+    def _render_fastest_lap(self, base_img:PngImageFile):
+        config = self.visual_config.get('fastest_lap')
+        w = config.get('width')
+        h = config.get('height')
+        img = Image.new('RGBA', (w,h), (0,0,0,0))
+
+        pilot_name = self.race.circuit_fastest_lap_pilot_name
+        lap_time = self.race.circuit_fastest_lap_time
+        if not lap_time or not pilot_name:
+            return
+
+        # PILOT IMG
+        pilot_config = config.get('pilot')
+        pilot = self.config.pilots.get(pilot_name) or Pilot(name='?', team=RESERVIST_TEAM)
+        pilot_img = pilot.get_mid_range_image(pilot_config.get('width'), pilot_config.get('height'))
+        self.paste_image(pilot_img, img, pilot_config)
+
+        # PILOT NAME + TITLE
+        text_config = config.get('text', {})
+        text_w = text_config.get('width', w)
+        text_h = text_config.get('height', h)
+        bgcolor = text_config.get('background', (30, 30, 30, 235))
+        text_img = Image.new('RGBA', (text_w, text_h), bgcolor)
+
+        # PILOT NAME
+        pilot_name_config = text_config.get('name', {})
+        pilot_name_w = pilot_name_config.get('width', w)
+        pilot_name_h = pilot_name_config.get('height', h)
+        pilot_name_color = text_config.get('font_color', (30,30,30))
+        pilot_name_font = FontFactory.black(40)
+        pilot_name_txt = text_hi_res(pilot_name, pilot_name_color, pilot_name_font, pilot_name_w, pilot_name_h, use_background=bgcolor)
+        self.paste_image(pilot_name_txt, text_img, pilot_name_config)
+
+        # TITLE
+        title_config = text_config.get('title', {})
+        title_w = title_config.get('width', w)
+        title_h = title_config.get('height', h)
+        title_color = text_config.get('font_color', (30,30,30))
+        title_font = FontFactory.regular(40)
+        title_content = title_config.get('content', 'Dernier vainqueur')
+        title_txt = text_hi_res(title_content, title_color, title_font, title_w, title_h, use_background=bgcolor)
+        self.paste_image(title_txt, text_img, title_config)
+
+        self.paste_image(text_img, img, text_config)
+
+        # TIME
+        time_config = config.get('time', {})
+        time_w = time_config.get('width', w)
+        time_h = time_config.get('height', h)
+        bgcolor = time_config.get('background', (30, 30, 30, 235))
+        time_img = Image.new('RGBA', (time_w, time_h), bgcolor)
+
+        # FASTEST LAP IMG
+        with Image.open(f'assets/fastest_lap.png') as icon:
+            icon = resize(icon, time_h, time_h)
+            paste(icon, time_img, left=0)
+
+        # LAP TIME
+        lap_config = time_config.get('lap', {})
+        lap_w = lap_config.get('width', w)
+        lap_h = lap_config.get('height', h)
+        lap_color = time_config.get('font_color', (30,30,30))
+        lap_font = FontFactory.black(40)
+        lap_txt = text_hi_res(lap_time, lap_color, lap_font, lap_w, lap_h, use_background=bgcolor)
+        self.paste_image(lap_txt, time_img, lap_config)
+
+        # SEASON
+        if season := self.race.circuit_fastest_lap_season:
+            season_config = time_config.get('season', {})
+            season_content = season_config.get('content', '{season}').format(season=season)
+            season_w = season_config.get('width', w)
+            season_h = season_config.get('height', h)
+            season_color = time_config.get('font_color', (30,30,30))
+            season_font = FontFactory.regular(20)
+            season_txt = text_hi_res(season_content, season_color, season_font, season_w, season_h, use_background=bgcolor)
+            self.paste_image(season_txt, time_img, season_config)
+
+        self.paste_image(time_img, img, time_config)
+        self.paste_image(img, base_img, config)
+
+    def _render_logos(self, base_img:PngImageFile):
+        # TWITCH
+        twitch_config = self.visual_config.get('twitch', {})
+        twitch_w = twitch_config.get('width', 250)
+        twitch_h = twitch_config.get('height', 100)
+        twitch_bg = twitch_config.get('background', (145, 70, 255))
+        twitch_img = Image.new('RGB', (twitch_w, twitch_h), twitch_bg)
         with Image.open('assets/twitch.png') as twitch_logo :
-            twitch_name = text('FBRT_ECHAMP', (255,255,255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
-            left = width-twitch_name.width-40
-            tw_name_pos = paste(twitch_name, img, left=left, top=25)
-            hour_img = text(self.race.hour, (255, 255, 255), FontFactory.black(50), stroke_fill=(145,70,255), stroke_width=4)
-            paste(hour_img, img, left=left, top=tw_name_pos.bottom + 10)
+            logo_config = twitch_config.get('logo')
+            twitch_logo = resize(twitch_logo, height=twitch_h)
+            self.paste_image(twitch_logo, twitch_img, logo_config)
 
-            twitch_logo = resize(twitch_logo, height=int(2*(height/3)))
-            paste(twitch_logo, img, left=tw_name_pos.left - 20 - twitch_logo.width)
-        return img
+            name_config = twitch_config.get('name')
+            name_font = FontFactory.black(name_config.get('font_size'))
+            twitch_name = text('FBRT_ECHAMP', (255,255,255), name_font)
+            self.paste_image(twitch_name, twitch_img, name_config)
 
-    def _get_right_content_image(self, width: int, height: int):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        left = 120
-        circuit = self.race.circuit
+            hour_config = twitch_config.get('hour')
+            hour_font = FontFactory.black(hour_config.get('font_size'))
+            hour_img = text(self.race.hour, (255, 255, 255), hour_font)
+            self.paste_image(hour_img, twitch_img, hour_config)
+        self.paste_image(twitch_img, base_img, twitch_config)
 
-        title_color = (230, 0, 0)
-        value_color = (255, 255, 255)
-        title_font = FontFactory.regular(32)
-        value_font = FontFactory.bold(32)
+        # PRIMARY LOGO
+        prim_logo_config = self.visual_config.get('primary_logo')
+        with Image.open(prim_logo_config['path']) as prim_logo_logo:
+            prim_logo_width = prim_logo_config.get('width', 100)
+            prim_logo_height = prim_logo_config.get('height', 100)
+            prim_logo_logo = resize(prim_logo_logo, height=prim_logo_height, width=prim_logo_width)
+            self.paste_image(prim_logo_logo, base_img, prim_logo_config)
 
-        with circuit.get_map() as map:
-            map = resize(map, width=width-(left+10))
-            prev_pos = paste(map, img, top=0, left=(left-10))
+        # SECONDARY LOGO
+        sec_logo_config = self.visual_config.get('secondary_logo')
+        with Image.open(sec_logo_config['path']) as sec_logo_logo:
+            sec_logo_width = sec_logo_config.get('width', 100)
+            sec_logo_height = sec_logo_config.get('height', 100)
+            sec_logo_logo = resize(sec_logo_logo, height=sec_logo_height, width=sec_logo_width)
+            self.paste_image(sec_logo_logo, base_img, sec_logo_config)
 
-        race_length_label = text('Distance totale', title_color, title_font)
-        race_length_value = text(f'{self.race.get_total_length()} Km', value_color, value_font)
+    def _render_description(self, base_img:PngImageFile):
+        # TEXT
+        description_config = self.visual_config.get('description', {})
+        w = description_config.get("width", 200)
+        h = description_config.get("height", 200)
+        img = Image.new('RGBA', (w,h), (0,0,0,0))
+        text_lines = textwrap.wrap(self.race.presentation_text, width=54)
+        line_height = description_config.get('line_height', 30)
 
-        lap_length_label = text('Longueur', title_color, title_font)
-        lap_length_value = text(f'{circuit.lap_length} Km', value_color, value_font)
+        top = 0
+        for text_line in text_lines:
+            text = self.text(description_config, text_line)
+            top += line_height
+            paste(text, img, top=top)
 
-        lap_amount_label = text('Nombre de tours', title_color, title_font)
-        lap_amount_value = text(f'{self.race.laps}', value_color, value_font)
-
-        best_lap_label = text('Meilleur temps', title_color, title_font)
-        if self.race.circuit_fastest_lap_time:
-            best_lap_value = text(f'{self.race.circuit_fastest_lap_time}', value_color, value_font)
-            # pilot name
-            best_lap_author_value_txt = self.race.circuit_fastest_lap_pilot_name or ''
-            # saison
-            best_lap_season_value_txt = self.race.circuit_fastest_lap_season or ''
-
-            if best_lap_author_value_txt and best_lap_season_value_txt:
-                txt_content = f'{best_lap_author_value_txt} (Saison {best_lap_season_value_txt})'
-            elif best_lap_author_value_txt:
-                txt_content = best_lap_author_value_txt
-            elif best_lap_season_value_txt:
-                txt_content = f'(Saison {best_lap_season_value_txt})'
-            else:
-                txt_content = None
-            if txt_content:
-                best_lap_author_value = text(txt_content, value_color, value_font)
-            else:
-                best_lap_author_value = text(f'',value_color, value_font)
-        else:
-            best_lap_value = text(f'{circuit.best_lap}', value_color, value_font)
-            best_lap_author_value = text(f'',value_color, value_font)
-
-        right = width-40
-        vertical_padding = 40
-        line_padding = 15
-        line_color = (255,255,255)
-        line_step = 2
-        line_space = 10
-        line_height_offset = 5
-
-        top = prev_pos.bottom+vertical_padding//2
-        prev_pos = paste(race_length_label, img, top=top, left = left)
-        paste(race_length_value, img, top=top, left = right - race_length_value.width)
-        line_top = top + race_length_label.height - line_height_offset - (race_length_label.height - race_length_value.height)
-        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - race_length_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
-
-        top = prev_pos.bottom+vertical_padding
-        prev_pos = paste(lap_amount_label, img, top=top, left = left)
-        paste(lap_amount_value, img, top=top, left = right - lap_amount_value.width)
-        line_top = top + lap_amount_label.height - line_height_offset - (lap_amount_label.height - lap_amount_value.height)
-        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - lap_amount_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
-
-        top = prev_pos.bottom+vertical_padding
-        prev_pos = paste(lap_length_label, img, top=top, left = left)
-        paste(lap_length_value, img, top=top, left = right - lap_length_value.width)
-        line_top = top + lap_length_label.height - line_height_offset - (lap_length_label.height - lap_length_value.height)
-        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - lap_length_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
-
-        top = prev_pos.bottom+vertical_padding
-        prev_pos = paste(best_lap_label, img, top=top, left = left)
-        paste(best_lap_value, img, top=top, left = right - best_lap_value.width)
-        line_top = top + best_lap_label.height - line_height_offset - (best_lap_label.height - best_lap_value.height)
-        draw_horizontal_dotted_line(img, ((prev_pos.right+line_padding, line_top), (right - best_lap_value.width-line_padding, line_top)), line_color, step=line_step, space=line_space)
-
-        top = int(prev_pos.bottom+(vertical_padding/2))
-        paste(best_lap_author_value, img, top=top, left=right - best_lap_author_value.width)
+        self.paste_image(img, base_img, description_config)
         return img

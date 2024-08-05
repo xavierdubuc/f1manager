@@ -57,6 +57,14 @@ class Pilot:
         logging.getLogger().setLevel(initial_level)
         return self._get_image_from_psd(psd, 0, 1, width, height, cropping_zone=(75, 125, 475, 525))
 
+    def get_mid_range_image(self, width=None, height=None) -> PngImageFile:
+        # Silence all warnings from PSDImage
+        initial_level = logging.getLogger().getEffectiveLevel()
+        logging.getLogger().setLevel(logging.ERROR)
+        psd = self.get_long_range_psd()
+        logging.getLogger().setLevel(initial_level)
+        return self._get_image_from_psd(psd, 0, 1, width, height, cropping_zone=(0, 50, 700, 1000))
+
     def get_long_range_image(self) -> PngImageFile:
         # Silence all warnings from PSDImage
         initial_level = logging.getLogger().getEffectiveLevel()

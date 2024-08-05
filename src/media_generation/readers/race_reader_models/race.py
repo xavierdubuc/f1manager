@@ -39,6 +39,7 @@ class Race:
     circuit_fastest_lap_time: str = None
     circuit_fastest_lap_pilot_name: str = None
     circuit_fastest_lap_season: int = None
+    circuit_fastest_last_winner_name: str = None
 
     # RESULTS
     qualification_result: RaceRanking = None

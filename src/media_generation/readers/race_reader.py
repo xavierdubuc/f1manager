@@ -99,6 +99,7 @@ class RaceReader(Reader):
             circuit_fastest_lap_time = self.data['B'][20],
             circuit_fastest_lap_pilot_name = self.data['B'][21],
             circuit_fastest_lap_season = self.data['B'][22],
+            circuit_fastest_last_winner_name = self.data['B'][23],
 
             # RESULTS
             qualification_result = RaceRanking([
@@ -109,7 +110,7 @@ class RaceReader(Reader):
                     best_lap=r['C'],
                     pilot=final_lineup[r['B']]
                 )
-                for i, r in self.data[['B','C','D']][24:].iterrows() if r['B']
+                for i, r in self.data[['B','C','D']][25:].iterrows() if r['B']
             ]),
             race_result = RaceRanking([
                 RaceRankingRow(

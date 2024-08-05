@@ -34,13 +34,7 @@ class AbstractGenerator(ABC):
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         title_config = self.visual_config.get('title', {})
-        if title_config.get('use_legacy', False):
-            visual = Visual(self._get_visual_type(), race=self.config.race)
-            width = self._get_visual_title_width(base_img)
-            height = self._get_visual_title_height(base_img)
-            return visual.get_title_image(width, height)
-        else:
-            return self._get_customized_title_image(base_img, title_config)
+        return self._get_customized_title_image(base_img, title_config)
 
     def _get_customized_title_image(self,  base_img: PngImageFile, title_config:dict) -> PngImageFile:
         width = title_config.get('width', base_img.width)
@@ -68,10 +62,6 @@ class AbstractGenerator(ABC):
                 if bg.mode not in ('RGB', 'RGBA'):
                     bg = bg.convert('RGB')
                 paste(bg, img)
-
-        lines_config = self.visual_config.get('lines', {})
-        if lines_config.get('enabled', False):
-            draw_lines_all(img, lines_config['color'], space_between_lines=lines_config['space'], line_width=lines_config['width'])
         return img
 
     def _get_background_image(self) -> PngImageFile:
