@@ -46,7 +46,7 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
         if not lap_record:
             return []
 
-        if 'current_lap_invalid' in changes and lap.current_lap_invalid:
+        if not session.session_type.is_race() and 'current_lap_invalid' in changes and lap.current_lap_invalid:
             return [self._get_lap_repr(lap, lap_record, participant, session)]
 
         if self._lap_should_be_ignored(lap):
@@ -115,7 +115,7 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
                 )),
                 sep.join((current_s1_str, current_s2_str,current_s3_str, full_lap_str)),
             ]
-            if delta_s1 or delta_s2 or delta_s3 or delta_to_pb_str:
+            if delta_s1 or delta_s2 or delta_s3 or delta_to_pb:
                 elements.append(f'{sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str))}```')
             else:
                 elements.append('```')
