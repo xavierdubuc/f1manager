@@ -39,6 +39,9 @@ class TelemetryCog(commands.Cog):
         await self.bot.wait_until_ready()
 
     async def _process(self, msg: Message, initial_msg:Message=None):
+        if not msg.channel:
+            _logger.error(f'Cannot send "{msg.content} as it has no channel !')
+            return
         if msg.channel == Channel.BROADCAST:
             await self._broadcast(msg)
             return
