@@ -167,7 +167,9 @@ class Brain:
             msgs = listener.on(event, *args, **kwargs)
             if msgs:
                 for msg in msgs:
-                    self._send_discord_message(msg)
+                    if not msg:
+                        _logger.error(f'None message recevied from {listener.__class__.__name__} !')
+                        self._send_discord_message(msg)
 
     """
     @emits SESSION_CREATED
