@@ -169,6 +169,7 @@ class Brain:
                 for msg in msgs:
                     if not msg:
                         _logger.error(f'None message recevied from {listener.__class__.__name__} !')
+                    else:
                         self._send_discord_message(msg)
 
     """
