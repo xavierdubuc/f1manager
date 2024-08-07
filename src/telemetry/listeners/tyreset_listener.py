@@ -19,11 +19,11 @@ class TyreSetListener(AbstractListener):
 
     def _on_tyreset_list_created(self, tyresets: List[TyreSet], participant: Participant, session: Session):
         table_message = self._get_driver_message(tyresets, participant, session)
-        return [table_message]
+        return [table_message] if table_message else None
 
     def _on_tyreset_list_updated(self, tyresets: List[TyreSet], participant: Participant, session: Session):
         table_message = self._get_driver_message(tyresets, participant, session)
-        return [table_message]
+        return [table_message] if table_message else None
 
     def _get_driver_message(self, tyresets: List[TyreSet], participant: Participant, session: Session) -> Message:
         elements = []
