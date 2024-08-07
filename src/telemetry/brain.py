@@ -1,6 +1,7 @@
 from datetime import timedelta
 import logging
 from multiprocessing import Queue
+import traceback
 from typing import Dict
 
 from f1_24_telemetry.packets import (
@@ -152,6 +153,9 @@ class Brain:
             self._handle_received_tyreset_packet(packet)
 
     def _send_discord_message(self, msg:Message):
+        if not msg:
+            _logger.error('Trying to send a None message !')
+            traceback.print_stack()
         if self.queue:
             self.queue.put(msg)
         else:
