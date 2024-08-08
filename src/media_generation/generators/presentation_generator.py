@@ -42,7 +42,7 @@ class PresentationGenerator(AbstractRaceGenerator):
         h = config.get('height')
         content = f"{self.race.full_date.day} {month_fr(self.race.full_date.month-1)}, {self.race.hour}"
         date_img = text_hi_res(content, config.get('font_color', (255, 255, 255)),
-                    FontFactory.regular(40), w, h, use_background=(255,255,255))
+                    FontFactory.regular(40), w, h)
         self.paste_image(date_img, base_img, config)
 
     def _render_headline(self, base_img:PngImageFile):
@@ -132,7 +132,7 @@ class PresentationGenerator(AbstractRaceGenerator):
         img = Image.new('RGBA', (w,h), (0,0,0,0))
 
         pilot_config = config.get('pilot', {})
-        pilot_name = self.race.circuit_fastest_last_winner_name
+        pilot_name = self.race.circuit_last_winner_name
         pilot = self.config.pilots.get(pilot_name) or Pilot(name='?', team=RESERVIST_TEAM)
         pilot_img = pilot.get_mid_range_image(pilot_config.get('width'), pilot_config.get('height'))        
         self.paste_image(pilot_img, img, pilot_config)
@@ -162,6 +162,16 @@ class PresentationGenerator(AbstractRaceGenerator):
         title_content = title_config.get('content', 'Dernier vainqueur')
         title_txt = text_hi_res(title_content, title_color, title_font, title_w, title_h, use_background=bgcolor)
         self.paste_image(title_txt, text_img, title_config)
+
+        # SEASON
+        season_config = text_config.get('season', {})
+        season_w = season_config.get('width', w)
+        season_h = season_config.get('height', h)
+        season_color = text_config.get('font_color', (30,30,30))
+        season_font = FontFactory.regular(40)
+        season_content = season_config.get('content', '{season}').format(season=self.config.race.circuit_last_winner_season)
+        season_txt = text_hi_res(season_content, season_color, season_font, season_w, season_h, use_background=bgcolor)
+        self.paste_image(season_txt, text_img, season_config)
 
         self.paste_image(text_img, img, text_config)
         self.paste_image(img, base_img, config)
@@ -269,21 +279,12 @@ class PresentationGenerator(AbstractRaceGenerator):
             self.paste_image(hour_img, twitch_img, hour_config)
         self.paste_image(twitch_img, base_img, twitch_config)
 
-        # PRIMARY LOGO
-        prim_logo_config = self.visual_config.get('primary_logo')
-        with Image.open(prim_logo_config['path']) as prim_logo_logo:
-            prim_logo_width = prim_logo_config.get('width', 100)
-            prim_logo_height = prim_logo_config.get('height', 100)
-            prim_logo_logo = resize(prim_logo_logo, height=prim_logo_height, width=prim_logo_width)
-            self.paste_image(prim_logo_logo, base_img, prim_logo_config)
-
-        # SECONDARY LOGO
-        sec_logo_config = self.visual_config.get('secondary_logo')
-        with Image.open(sec_logo_config['path']) as sec_logo_logo:
-            sec_logo_width = sec_logo_config.get('width', 100)
-            sec_logo_height = sec_logo_config.get('height', 100)
-            sec_logo_logo = resize(sec_logo_logo, height=sec_logo_height, width=sec_logo_width)
-            self.paste_image(sec_logo_logo, base_img, sec_logo_config)
+        for logo_config in self.visual_config.get('logos'):
+            with Image.open(logo_config['path']) as logo_img:
+                logo_width = logo_config.get('width', 100)
+                logo_height = logo_config.get('height', 100)
+                logo_img = resize(logo_img, height=logo_height, width=logo_width)
+                self.paste_image(logo_img, base_img, logo_config)
 
     def _render_description(self, base_img:PngImageFile):
         # TEXT
@@ -291,7 +292,8 @@ class PresentationGenerator(AbstractRaceGenerator):
         w = description_config.get("width", 200)
         h = description_config.get("height", 200)
         img = Image.new('RGBA', (w,h), (0,0,0,0))
-        text_lines = textwrap.wrap(self.race.presentation_text, width=54)
+        chars_by_line = description_config.get('chars_by_line', 54)
+        text_lines = textwrap.wrap(self.race.presentation_text, width=chars_by_line)
         line_height = description_config.get('line_height', 30)
 
         top = 0

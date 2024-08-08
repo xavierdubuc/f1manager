@@ -11,6 +11,8 @@ from src.telemetry.models.tyreset import TyreSet
 from .abstract_listener import AbstractListener
 
 
+# FIXME en ligne on reçoit pas les tyresets du joueur ?
+
 class TyreSetListener(AbstractListener):
     SUBSCRIBED_EVENTS = [
         Event.TYRESET_LIST_CREATED,
