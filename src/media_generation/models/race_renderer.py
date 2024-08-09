@@ -67,6 +67,7 @@ class RaceRenderer:
         round_font: ImageFont.FreeTypeFont = FontFactory.black(36),
         text_font: ImageFont.FreeTypeFont = FontFactory.regular(16)
     ) -> PngImageFile:
+        # DEPRECATED
         if self.race.type in (RaceType.SPRINT_1, RaceType.SPRINT_2):
             type_txt = 'SPRINT'
             color = (0, 200, 200, 240)
@@ -95,6 +96,73 @@ class RaceRenderer:
                 paste(type_txt_img, img, top=10)
                 type_txt_img = text('GRID', (255, 255, 255), text_font)
                 paste(type_txt_img, img, top=height-type_txt_img.height - 10)
+
+        return img
+
+    def get_race_type_image(
+        self,
+        config: dict,
+    ) -> PngImageFile:
+        bgs = config.get('backgrounds', {})
+        colors = config.get('colors', {})
+        if self.race.type in (RaceType.SPRINT_1, RaceType.SPRINT_2):
+            type_content = 'SPRINT'
+            color = colors.get("SPRINT", (255, 255, 255, 255))
+            bg = bgs.get("SPRINT", (0, 200, 200, 240))
+        elif self.race.type in (RaceType.DOUBLE_GRID_1, RaceType.DOUBLE_GRID_2):
+            type_content = 'DOUBLE GRID'
+            color = colors.get("'DOUBLE GRID'", (255, 255, 255, 255))
+            bg = bgs.get("'DOUBLE GRID'", (200, 200, 0, 240))
+        elif self.race.type == RaceType.FULL_LENGTH:
+            type_content = '100%'
+            color = colors.get("100%", (255, 255, 255, 255))
+            bg = bgs.get("100%", (200, 100, 200, 240))
+        else:
+            color = colors.get("default", (255, 255, 255, 255))
+            bg = bgs.get("default", (220, 0, 0, 240))
+            type_content = None
+        if 'width' not in config and 'height' not in config:
+            raise Exception("I need at least the width and the height")
+        width = config.get('width')
+        height = config.get('height')
+        img = Image.new('RGBA', (width, height), bg)
+
+        # round (R)
+        round_config = config.get('race_round', {})
+        round_content = round_config.get('content', '{round}').format(round=self.race.round)
+        round_font = FontFactory.get_font(round_config.get('font'), 50, FontFactory.black)
+        round_w = round_config.get('width', width)
+        round_h = round_config.get('height', height)
+        round_img = text_hi_res(round_content, color, round_font, round_w, round_h, use_background=bg)
+        round_l = round_config.get('left', False)
+        round_t = round_config.get('top', False)
+        paste(round_img, img, left=round_l, top=round_t)
+
+        # top & bottom text
+        if config.get('show_text', True) and type_content:
+            type_config = config.get('race_type')
+            type_w = type_config.get('width', width)
+            type_h = type_config.get('height', height)
+            type_font = FontFactory.get_font(type_config.get('font'), 50, FontFactory.regular)
+            if type_content in ('SPRINT', '100%'):
+                type_img = text_hi_res(type_content, color, type_font, type_w, type_h, use_background=bg)
+                type_specific_config = type_config.get(type_content, [{"top": 10 }])[0]
+                type_left = type_specific_config.get('left', False)
+                type_top = type_specific_config.get('top', False)
+                paste(type_img, img, left=type_left, top=type_top)
+            elif type_content == 'DOUBLE GRID':
+                type_specific_configs = type_config.get(type_content, [{"top": 10 }, {"top": 70 }])
+                type_specific_config = type_specific_configs[0]
+                type_img = text_hi_res('DOUBLE', color, type_font, type_w, type_h, use_background=bg)
+                type_left = type_specific_config.get('left', False)
+                type_top = type_specific_config.get('top', False)
+                paste(type_img, img, left=type_left, top=type_top)
+
+                type_specific_config = type_specific_configs[1]
+                type_img = text_hi_res('GRID', color, type_font, type_w, type_h, use_background=bg)
+                type_left = type_specific_config.get('left', False)
+                type_top = type_specific_config.get('top', False)
+                paste(type_img, img, left=type_left, top=type_top)
 
         return img
 
