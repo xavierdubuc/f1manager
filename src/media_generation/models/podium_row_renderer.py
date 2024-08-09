@@ -32,8 +32,10 @@ class PodiumRowRenderer(RankingRowRenderer):
         paste(position_img, img, left=position_config['left'], top=position_config['top'])
 
         # PILOT IMG
+        face_config = self.visual_config.get('face')
         pilot_img = self.pilot.get_long_range_image()
-        paste(pilot_img, img, top=0, left=0)
+        pilot_img = resize(pilot_img, height=int(1.25 * height))
+        paste(pilot_img, img, top=face_config.get('top', False), left=face_config.get('left', False))
 
         # DELTA PTS
         deltyrepoints_config = self.visual_config['deltyrepoints']
