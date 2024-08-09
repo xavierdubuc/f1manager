@@ -1,5 +1,5 @@
 from typing import List
-from PIL import Image
+from PIL import Image, ImageFilter
 from PIL.PngImagePlugin import PngImageFile
 import logging
 
@@ -26,6 +26,12 @@ _logger = logging.getLogger(__name__)
 class ResultsGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'results'
+
+    def _get_background_image(self) -> PngImageFile:
+        bg = super()._get_background_image()
+        if not bg:
+            return bg
+        return bg.filter(ImageFilter.GaussianBlur(5))
 
     def _generate_part_image(self, config_key):
         config = self.visual_config[config_key]
@@ -123,10 +129,12 @@ class ResultsGenerator(AbstractRaceGenerator):
         return img
 
     def _generate_logos_image(self, width, height):
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        img = Image.new('RGBA', (width, height), (0,0,0,150))
+        img = img.filter(ImageFilter.GaussianBlur(radius=10))
+
         # champ
         champ_logo = self._get_champ_logo(self.visual_config['logos']['champ'])
-        paste(champ_logo, img, left=0)
+        paste(champ_logo, img, left=20)
 
         # secondary
         champ_logo = self._get_champ_logo(self.visual_config['logos']['secondary'])
