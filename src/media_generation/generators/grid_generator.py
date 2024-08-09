@@ -1,5 +1,5 @@
 import logging
-from PIL import Image
+from PIL import Image, ImageFilter
 
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRanking
@@ -17,117 +17,67 @@ class GridGenerator(AbstractRaceGenerator):
     def _get_visual_type(self) -> str:
         return 'grid'
 
-    def _add_content(self, final: PngImageFile):
-        left_content_width = self.visual_config.get('left_content_width', 250)
-        padding_left = self.visual_config.get('padding_left', 20)
-        padding_between = self.visual_config.get('padding_between_left_and_right_content', 20)
-        left_content_img = self._get_left_content(left_content_width, final.height)
-        left_content_pos = paste(left_content_img, final, padding_left, 0)
+    def _get_background_image(self) -> PngImageFile:
+        bg = super()._get_background_image()
+        if not bg:
+            return bg
+        return bg.filter(ImageFilter.GaussianBlur(5))
 
+    def _add_content(self, final: PngImageFile):
         right_content_width = self.visual_config.get('right_content_width', 1585)
         right_content_img = self._get_right_content(right_content_width, final.height)
-        right_content_pos = paste(right_content_img, final, left_content_pos.right+padding_between, 0)
+        right_content_left = self.visual_config.get('right_content', {}).get('left', 270)
+        paste(right_content_img, final, right_content_left, 0)
 
-    def _get_left_content(self, width: int, height: int) -> PngImageFile:
-        content_config = self.visual_config['left_content']
-        default_padding = 20
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        self._render_logos(final)
+        self._render_circuit(final)
+        self._render_round(final)
+        self._render_thegrid_title(final)
 
-        # FBRT
-        logo_size = int(0.8 * width)
-        if self.visual_config.get('logo'):
-            with Image.open(self.visual_config['logo']) as l:
-                logo = l.copy()
-        else:
-            logo = Visual.get_fbrt_round_logo()
-        logo = resize(logo, logo_size)
-        logo_pos = paste(logo, img, top=0)
+    def _render_circuit(self, base_img:PngImageFile):
+        config = self.visual_config.get('circuit', {})
+        flag_config = config.get('flag', {})
+        flag_w = flag_config.get('width', 100)
+        flag_h = flag_config.get('height', 100)
+        with self.race.circuit.get_flag() as flag_img:
+            flag_img = resize(flag_img, flag_w, flag_h)
+        self.paste_image(flag_img, base_img, flag_config)
 
-        # F1
-        f1_logo_size = width
-        with Visual.get_f1_logo('black') as f1_logo_img:
-            f1_logo_img = resize(f1_logo_img, f1_logo_size, f1_logo_size)
-            f1_logo_pos = paste(f1_logo_img, img, top=img.height - f1_logo_img.height - 40)
+        name_config = config.get('name', {})
+        name_content = f'{self.race.circuit.city}'.upper()
+        name_img = text_hi_res(
+            name_content, name_config.get('color', (255,255,255)),
+            FontFactory.regular(40),
+            name_config.get('width', 500), name_config.get('height', 40),
+        )
+        self.paste_image(name_img, base_img, name_config)
 
-        # FIF
-        if self.visual_config.get('fif', True):
-            fif_logo_size = width
-            with Visual.get_fif_logo('wide') as fif_logo_img:
-                fif_logo_img = resize(fif_logo_img, fif_logo_size, fif_logo_size)
-                fif_logo_pos = paste(fif_logo_img, img, top=f1_logo_pos.top - fif_logo_img.height)
+    def _render_logos(self, base_img: PngImageFile):
+        logo_configs = self.visual_config.get('logos', [])
+        if not logo_configs:
+            return
+        for logo_config in logo_configs:
+            self.paste_image_from_config(logo_config, base_img)
 
-        # R
-        round_config = content_config.get('round', {})
-        round_size = int(0.5 * width)
-        round = self.race_renderer.get_type_image(round_size, round_size)
-        round_pos = paste(round, img, top = logo_pos.bottom + round_config.get('padding_top', default_padding))
+    def _render_round(self, base_img: PngImageFile):
+        round_config = self.visual_config.get('round', {})
+        round_img = self.race_renderer.get_race_type_image(round_config)
+        self.paste_image(round_img, base_img, round_config)
 
+    def _render_thegrid_title(self, base_img: PngImageFile):
         # THE GRID title
-        the_grid_config = content_config.get('the_grid', {})
-        the_grid_font = FontFactory.get_font(the_grid_config.get('font_name'),
-                                             the_grid_config.get('font_size', 60),
-                                             FontFactory.black)
-        the_grid_color = the_grid_config.get('font_color', (0,0,0))
-        padding_between_round_and_title = the_grid_config.get('padding_top', default_padding)
-        the_img = text('THE', the_grid_color, the_grid_font)
-        the_pos = paste(the_img, img, top=round_pos.bottom + padding_between_round_and_title)
-        grid_img = text('GRID', the_grid_color, the_grid_font)
-        grid_pos = paste(grid_img, img, top=the_pos.bottom+5)
-
-        # FLAG
-        flag_config = content_config.get('flag', {})
-        with self.race.circuit.get_flag() as flag:
-            flag = resize(flag, int(0.8*width))
-            flag_pos = paste(flag, img,top= grid_pos.bottom + flag_config.get('padding_top', default_padding))
-
-        # CIRCUIT NAME
-        circuit_name_config = content_config.get('circuit_name', {})
-        circuit_name_font = FontFactory.get_font(circuit_name_config.get('font_name'),
-                                             circuit_name_config.get('font_size', 34),
-                                             FontFactory.black)
-        circuit_name_color = circuit_name_config.get('font_color', (230,0,0))
-        circuit_name_img = self.race.circuit.get_name_img(circuit_name_font, circuit_name_color)
-        circuit_name_ptop = circuit_name_config.get('padding_top', default_padding)
-
-        # CIRCUIT CITY
-        circuit_city_config = content_config.get('circuit_city', {})
-        circuit_city_font = FontFactory.get_font(circuit_city_config.get('font_name'),
-                                             circuit_city_config.get('font_size', 28),
-                                             FontFactory.black)
-        circuit_city_color = circuit_city_config.get('font_color', (255, 255, 255))
-        circuit_city_img = self.race.circuit.get_city_img(circuit_city_font, circuit_city_color)
-        circuit_city_ptop = circuit_city_config.get('padding_top', 5)
-
-        # RACE DATE
-        date_txt = f'{self.race.day} {date_fr(self.race.month).upper()}'
-        date_config = content_config.get('date', {})
-        date_font = FontFactory.get_font(date_config.get('font_name'),
-                                         date_config.get('font_size', 30),
-                                         FontFactory.regular)
-        date_color = date_config.get('font_color', (255, 255, 255))
-        date_img = text(date_txt, date_color, date_font)
-        date_ptop = date_config.get('padding_top', 20)
-        date_pbot = date_config.get('padding_bottom', 20)
-
-        # --- BLACK BG
-        black_bg_config = content_config.get('black_bg', {})
-        black_bg_height = sum((
-            circuit_name_ptop,
-            circuit_name_img.height,
-            circuit_city_ptop,
-            circuit_city_img.height,
-            date_ptop,
-            date_img.height,
-            date_pbot,
-        ))
-        black_bg = Image.new('RGB', (width, black_bg_height), (0,0,0))
-        black_bg_pos = paste(black_bg, img, left=0, top=flag_pos.bottom + black_bg_config.get('padding_top', 20))
-
-        circuit_name_pos = paste(circuit_name_img, img, top=black_bg_pos.top+circuit_name_ptop)
-        circuit_city_pos = paste(circuit_city_img, img, top=circuit_name_pos.bottom+circuit_city_ptop)
-        circuit_date_pos = paste(date_img, img, top=circuit_city_pos.bottom+date_ptop)
-
-        return img
+        config = self.visual_config.get('the_grid', {})
+        w = config.get('width')
+        h = config.get('width')
+        bg = config.get('background', (0,0,0,255))
+        font = FontFactory.get_font(
+            config.get('font_name'), 50, FontFactory.black
+        )
+        the_grid_color = config.get('font_color', (255, 255, 255))
+        the_img = text_hi_res('THE', the_grid_color, font, w, h, use_background=bg)
+        grid_img = text_hi_res('GRID', the_grid_color, font, w, h, use_background=bg)
+        self.paste_image(the_img, base_img, config.get("the", {}))
+        self.paste_image(grid_img, base_img, config.get("grid", {}))
 
     def _get_right_content(self, width: int, height: int) -> PngImageFile:
         img = Image.new('RGBA', (width, height), (0,0,0,0))
@@ -138,8 +88,6 @@ class GridGenerator(AbstractRaceGenerator):
         padding_between_rows = content_config.get('padding_between_rows', 43)
         position_height = rows_config.get('', 65)
         position_width = (width - padding_between_cols) // 2
-        starting_grid_img = self._get_starting_grid_img()
-        starting_grid_pos = paste(starting_grid_img, img, (width - starting_grid_img.width), top=content_config.get('starting_grid', {}).get('padding_top', 22))
         left_column_left = 0
         right_column_left = left_column_left + position_width + padding_between_cols
         initial_left_top = content_config.get('padding_top', 50)
@@ -157,24 +105,17 @@ class GridGenerator(AbstractRaceGenerator):
 
         return img
 
-    def _get_starting_grid_img(self):
-        config = self.visual_config['right_content'].get('starting_grid', {})
-        font = FontFactory.get_font(config.get('font_name'),
-                                             config.get('font_size', 50),
-                                             FontFactory.black)
-        color = config.get('font_color', (0,0,0))
-        return text('STARTING GRID', color, font)
-
     def _get_result_img(self, width:int, height:int, result:RaceRankingRow):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         rows_config = self.visual_config['right_content'].get('rows', {})
         pos_config = rows_config.get('position', {})
+        pos_bg = pos_config.get("background", (255, 255, 255))
         
-        pos_img = Image.new('RGB', (pos_config.get('width', 156), height), (0,0,0))
+        pos_img = Image.new('RGB', (pos_config.get('width', 156), height), pos_bg)
         font = FontFactory.get_font(pos_config.get('font_name'), pos_config.get('font_size', 30),
-                                    FontFactory.regular)
+                                    FontFactory.black)
         font_color = pos_config.get('font_color', (255,255,255))
-        pos_txt = get_ordinal_img_with_font(result.position, font, font_color)
+        pos_txt = text(str(result.position), font_color, font)
         paste(pos_txt, pos_img)
         position_pos = paste(pos_img, img, left = 0)
 
@@ -188,7 +129,7 @@ class GridGenerator(AbstractRaceGenerator):
         # pilot name
         pilot_config = rows_config.get('pilot', {})
 
-        pilot_font = FontFactory.get_font(pos_config.get('font_name'), pos_config.get('font_size', 30),
+        pilot_font = FontFactory.get_font(pilot_config.get('font_name'), pilot_config.get('font_size', 30),
                                     FontFactory.black)
 
         team_txt = text(pilot.name.upper(), pilot.team.standing_fg, pilot_font)
