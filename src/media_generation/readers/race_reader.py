@@ -27,7 +27,7 @@ class RaceReader(Reader):
         return config
 
     def _get_data_sheet_from_gsheet(self):
-        race_vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f"'{self.sheet_name}'!A1:M45")
+        race_vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f"'{self.sheet_name}'!A1:M47")
         columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L','M']
         return pandas.DataFrame(race_vals[1:], columns=columns)
 
@@ -107,7 +107,7 @@ class RaceReader(Reader):
             # RESULTS
             qualification_result = RaceRanking([
                 RaceRankingRow(
-                    position=i-23,
+                    position=i-25,
                     pilot_name=r['B'],
                     split=r['D'],
                     best_lap=r['C'],
