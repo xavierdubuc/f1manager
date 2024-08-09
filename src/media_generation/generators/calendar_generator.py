@@ -1,14 +1,15 @@
-import math
 from typing import List
+
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-
 from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.models.circuit import Circuit
 from src.media_generation.models.race_renderer import RaceRenderer
 from src.media_generation.readers.race_reader_models.race import Race, RaceType
-from ..helpers.transform import *
+
 from ..generators.abstract_generator import AbstractGenerator
-from ..models import Visual
+from ..helpers.transform import *
+
 
 class CalendarGenerator(AbstractGenerator):
     def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
@@ -18,90 +19,97 @@ class CalendarGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
         return 'calendar'
 
-    def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
-        return 355 # FIXME use custom title mechanism
-
     def _add_content(self, base_img: PngImageFile):
-        title_width = base_img.width
-        title_height = self._get_visual_title_height(base_img)
-        title = self._get_title_image(title_width, title_height)
-        title_position = paste(title, base_img, top=0)
+        self._render_title(base_img)
+        self._render_body(base_img)
 
-        left = 40
-        initial_top = title_position.bottom + 20
-        top = initial_top
-        width = 478
-        height = 100
+    def _render_title(self, base_img: PngImageFile):
+        for logo_config in self.visual_config.get('logos'):
+            with Image.open(logo_config['path']) as logo_img:
+                logo_width = logo_config.get('width', 100)
+                logo_height = logo_config.get('height', 100)
+                logo_img = resize(logo_img, height=logo_height, width=logo_width)
+                self.paste_image(logo_img, base_img, logo_config)
+
+        for title_config in self.visual_config.get('titles'):
+            content = title_config.get('content', "{season}").format(season=self.season)
+            title_img = self.text(title_config, content, default_font=FontFactory.black)
+            self.paste_image(title_img, base_img, title_config)
+
+    def _render_body(self, base_img: PngImageFile):
+        config = self.visual_config.get('body')
+        w = config.get('width', base_img.width)
+        h = config.get('height', base_img.height)
+        img = Image.new('RGBA', (w, h), config.get('background', (0, 0, 0, 0)))
         races = [
             race for race in self.races
             if race.type not in (RaceType.SPRINT_1, RaceType.DOUBLE_GRID_2)
         ]
-        amount_of_races = len(races)
-        halfway = math.ceil(amount_of_races / 2)
-        for i, race in enumerate(races):
-            race_img = self._get_race_image(race, width, height)
-            race_position = paste(race_img, base_img, left, top)
-            if i == halfway - 1:
-                left = 560
-                top = initial_top
-            else:
-                top = race_position.bottom + 15
+        for race in races:
+            self._render_race(race, len(races), img)
 
-    def _get_race_image(self, race:Race, width: int, height: int) -> PngImageFile:
+        self.paste_image(img, base_img, config)
+
+    def _render_race(self, race: Race, amount_of_races: int, base_img: PngImageFile):
+        config = self.visual_config.get('race')
+        w = config.get('width')
+        h = config.get('height')
+        space_between = config.get('space_between')
+        bg = config.get('background', (255, 255, 255, 255))
+        img = Image.new('RGBA', (w, h), bg)
+
+        # RACE ROUND
         race_renderer = RaceRenderer(race)
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
-        left_width = int(0.20 * width)
-        right_width = width - left_width
+        round_config = config.get('round', {})
+        round_img = race_renderer.get_race_type_image(round_config)  # FIXME badly rendered
+        self.paste_image(round_img, img, round_config)
 
-        # left_part
-        left_img = race_renderer.get_type_image(left_width, height)
-
-        # right part
-        right_img = Image.new('RGB', (right_width, height), (31,31,31))
+        # RACE CIRCUIT
         circuit = race.circuit
         if circuit:
+            # - FLAG
+            flag_config = config.get('flag', {})
+            flag_w = flag_config.get('width')
+            flag_h = flag_config.get('height')
             with circuit.get_flag() as circuit_flag:
-                flag = resize(circuit_flag, 65, 65, keep_ratio=True)
-                flag_position = paste(flag, right_img, left=15)
-            info_left = flag_position.right + 15
+                flag = resize(circuit_flag, flag_w, flag_h)
+                self.paste_image(flag, img, flag_config)
+
+        if not circuit:
+            circuit = Circuit("?", "?", 0.0, "?", "?")
+        # - COUNTRY & CITY
+        countcity_config = config.get('countcity', {})
+        countcity_w = countcity_config.get('width')
+        countcity_h = countcity_config.get('height')
+        countcity_img = circuit.get_full_name_img_hi_res(
+            countcity_w, countcity_h, countcity_config.get('track'), use_background=bg
+        )
+        self.paste_image(countcity_img, img, countcity_config)
+
+        # RACE DATE
+        date_content = race.full_date.strftime('%d %b').upper()  # FIXME french it up
+        date_config = config.get('date', {})
+        date_font = FontFactory.get_font(date_config.get('font'), 50, FontFactory.regular)
+        date_color = date_config.get('color', (0, 0, 0))
+        date_w = date_config.get('width', w)
+        date_h = date_config.get('height', h)
+        date_img = text_hi_res(date_content, date_color, date_font, date_w, date_h, use_background=bg)
+        self.paste_image(date_img, img, date_config)
+
+        # paste
+        lefts = config.get('left', [0, 540])
+        halfway = amount_of_races // 2
+        round = int(race.round)
+        if round <= halfway:
+            row = round - 1
+            left = lefts[0]
         else:
-            info_left = 95
+            row = (round - halfway) - 1
+            left = lefts[1]
 
-        info_top = 15
-        date_txt = race.full_date.strftime('%d %b').upper() # FIXME french it up
-        date_img = text(date_txt, (255, 255, 255), FontFactory.regular(18))
-        date_position = paste(date_img, right_img, left=info_left, top=info_top)
+        if round == 1:
+            top = 0
+        else:
+            top = row * (h + space_between)
 
-        if circuit:
-            circuit_img = circuit.get_full_name_img(right_width, height-date_position.bottom-8)
-            paste(circuit_img, right_img, left=info_left, top = date_position.bottom)
-
-        # paste parts
-        left_img_position = paste(left_img, img, left=0)
-        paste(right_img, img, left=left_img_position.right)
-        return img
-
-    def _get_title_image(self, width: int, height: int) -> PngImageFile:
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
-        left = 50
-        color = (31, 31, 31)
-        font = FontFactory.black(100)
-
-        # logo
-        top = 10
-        with Visual.get_fbrt_round_logo() as logo_fbrt:
-            logo = resize(logo_fbrt, height=150)
-            logo_position = paste(logo, img, left=left, top=top)
-
-        with Visual.get_fif_logo('wide') as fif_logo_img:
-            fif_logo_img = resize(fif_logo_img, height=80)
-            paste(fif_logo_img, img, top=height-fif_logo_img.height,  left=width - fif_logo_img.width - 10)
-
-        # "Season X"
-        season_txt = text(f'SAISON {self.config.season}', color, font)
-        season_position = paste(season_txt, img, left=left, top=logo_position.bottom + 5)
-
-        # "Calendar"
-        calendar_txt = text('CALENDRIER', color, font)
-        paste(calendar_txt, img, left=left, top=season_position.bottom - 5)
-        return img
+        paste(img, base_img, left=left, top=top)
