@@ -48,16 +48,17 @@ class TeamsRankingGenerator(AbstractGenerator):
             main_top = main_pos.bottom + main_config.get('line_space', 10)
 
         # SUB TITLE
-        sub_config = title_config.get('sub', {})
-        sub_texts = [
-            self.text(sub_config, "POINTS APRÈS", FontFactory.regular),
-            self.text(sub_config, f"COURSE {self.config.ranking.amount_of_races}", FontFactory.regular),
-        ]
-        sub_top = sub_config['top']
-        for sub_text in sub_texts:
-            sub_left = img.width - sub_text.width - sub_config.get('right', 20)
-            sub_pos = paste(sub_text, img, left=sub_left, top=sub_top)
-            sub_top = sub_pos.bottom + sub_config.get('line_space', 10)
+        if self.config.ranking.amount_of_races > 0:
+            sub_config = title_config.get('sub', {})
+            sub_texts = [
+                self.text(sub_config, "POINTS APRÈS", FontFactory.regular),
+                self.text(sub_config, f"COURSE {self.config.ranking.amount_of_races}", FontFactory.regular),
+            ]
+            sub_top = sub_config['top']
+            for sub_text in sub_texts:
+                sub_left = img.width - sub_text.width - sub_config.get('right', 20)
+                sub_pos = paste(sub_text, img, left=sub_left, top=sub_top)
+                sub_top = sub_pos.bottom + sub_config.get('line_space', 10)
 
         return img
 
@@ -76,7 +77,6 @@ class TeamsRankingGenerator(AbstractGenerator):
         gray_filter = Image.new('RGBA', (background.width, background.height), (225, 225, 225, 150))
         previous_pilot_points = None
         previous_ranking = self.ranking.get_previous_ranking()
-        print(previous_ranking)
         for i, row in enumerate(self.config.ranking):
             if background:
                 paste(background, base_img, left, top)
