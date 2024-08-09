@@ -16,7 +16,7 @@ class LicensePointsGenerator(PilotsRankingGenerator):
         return 'license_points'
 
     def _get_main_title_str(self):
-        return f'Saison {self.season} points de permis'.upper()
+        return 'POINTS DE PERMIS'
 
     def _get_metric_field(self):
         return 'license_points'
@@ -39,7 +39,8 @@ class LicensePointsGenerator(PilotsRankingGenerator):
 
         # ranking rows
         rows = [
-            row for row in self.ranking.rows if self._pilot_should_be_shown(row)]
+            row for row in self.ranking.rows if self._pilot_should_be_shown(row)
+        ]
         first_card_left = lateral_padding
         current_left = first_card_left
         current_top = initial_top + self.rows_config.get('padding_top', 30)
@@ -56,7 +57,7 @@ class LicensePointsGenerator(PilotsRankingGenerator):
                 current_left += card_width + space_between_pilots
 
     def _pilot_should_be_shown(self, row: PilotRankingRow) -> bool:
-        if row.amount_of_races == 0:
+        if self.config.ranking.amount_of_races > 0 and row.amount_of_races == 0:
             return False
         return super()._pilot_should_be_shown(row)
 

@@ -42,9 +42,9 @@ class PilotsRankingGenerator(AbstractGenerator):
         main_config = title_config.get('main', {})
         main_texts = [
             self.text(main_config, f"SAISON {self.season}", FontFactory.black),
-            self.text(main_config, "CLASSEMENT PILOTES"),
+            self.text(main_config, self._get_main_title_str()),
         ]
-        main_top = main_config['top']
+        main_top = main_config.get('top', 0)
         for main_text in main_texts:
             main_pos = paste(main_text, img, left=main_config.get('left', 0), top=main_top)
             main_top = main_pos.bottom + main_config.get('line_space', 10)
@@ -58,6 +58,9 @@ class PilotsRankingGenerator(AbstractGenerator):
             paste(sub_text, img, left=sub_left, top=sub_top)
 
         return img
+
+    def _get_main_title_str(self):
+        return "CLASSEMENT PILOTES"
 
     def _add_content(self, base_img: PngImageFile):
         rows_lefts = self.rows_config['columns']
