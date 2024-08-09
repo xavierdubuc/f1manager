@@ -55,7 +55,7 @@ class DriverOfTheDayGenerator(AbstractRaceGenerator):
         pilot_name_img = text(driver.name, (255, 255, 255), pilot_name_font)
         pilot_name_pos = paste(pilot_name_img, final,
               left=center_pos.left+20,
-              top=center_pos.bottom-pilot_name_img.height-20)
+              top=center_pos.bottom-pilot_name_img.height-40)
         with Image.open(driver.team.get_breaking_logo()) as logo:
             logo = resize(logo, 100, 100)
             paste(logo, final, left=center_pos.left + 20,
