@@ -31,11 +31,14 @@ class GridLinesGenerator(GridGenerator):
         path = os.path.dirname(self.config.output)
         left_pilot = right_pilot = None
         row = 1
-        for result in self.race.qualification_result.rows:
+        for i, result in enumerate(self.race.qualification_result.rows):
             if not left_pilot:
                 left_pilot = result
-                continue
-            right_pilot = result
+                if i < len(self.race.qualification_result.rows) - 1:
+                    continue
+                right_pilot = None
+            else:
+                right_pilot = result
             img = self._generate_row_image(row, left_pilot, right_pilot)
             filename = os.path.join(path, f'row_{row}.png')
             img.save(filename, quality=100)
@@ -49,16 +52,17 @@ class GridLinesGenerator(GridGenerator):
 
         middle_width = self.visual_config['middle_grid']['width']
         side_width = (img.width - middle_width) // 2
-        middle_img = self._generate_middle_image(row, middle_width, img.height)
+        middle_img = self._generate_middle_image(row, middle_width, img.height, bool(right))
         left_pilot_img = self._generate_row_pilot_image(left, side_width, img.height)
-        right_pilot_img = self._generate_row_pilot_image(right, side_width, img.height)
 
         left_pos = paste(left_pilot_img, img, left=0)
         layer = Image.new('RGBA', (img.width, img.height))
         middle_pos = paste(middle_img, layer, left=left_pos.right)
         img.alpha_composite(layer)
 
-        paste(right_pilot_img, img, left=middle_pos.right)
+        if right:
+            right_pilot_img = self._generate_row_pilot_image(right, side_width, img.height)
+            paste(right_pilot_img, img, left=middle_pos.right)
 
         return img
 
@@ -77,7 +81,7 @@ class GridLinesGenerator(GridGenerator):
         paste(position_img, img, left=pos_left, top=position_config['top'])
 
         # image
-        pilot_img = row.pilot.get_long_range_image()
+        pilot_img = resize(row.pilot.get_long_range_image(), height=height)
         side = image_config['side']
         top = image_config['top']
         left = side if is_left else img.width - pilot_img.width - side
@@ -155,7 +159,7 @@ class GridLinesGenerator(GridGenerator):
 
         return img
 
-    def _generate_middle_image(self, row:int, width:int, height:int):
+    def _generate_middle_image(self, row:int, width:int, height:int, has_pilot_on_right=True):
         img = Image.new('RGBA', (width, height), (0,0,0,0))
         first_to_last = False
         # 1 -> 0, 1
@@ -164,7 +168,8 @@ class GridLinesGenerator(GridGenerator):
         current_left_index = 2 * (row-1 )
         current_right_index = current_left_index+1
         current_left = self.race.qualification_result.rows[current_left_index]
-        current_right = self.race.qualification_result.rows[current_right_index]
+        if has_pilot_on_right:
+            current_right = self.race.qualification_result.rows[current_right_index]
         tile_width = width//2
         tile_height = 60
         top = 100
@@ -190,17 +195,23 @@ class GridLinesGenerator(GridGenerator):
         cl_pos = paste(current_left_img, img, left=0, top=top)
         top = cl_pos.bottom
 
-        current_right_img = self._generate_middle_tile(current_right, tile_width, tile_height)
-        cr_pos = paste(current_right_img, img, left=left_2nd_col, top=top)
-        top = cr_pos.bottom
+        if has_pilot_on_right:
+            current_right_img = self._generate_middle_tile(current_right, tile_width, tile_height)
+            cr_pos = paste(current_right_img, img, left=left_2nd_col, top=top)
+            top = cr_pos.bottom
 
         if first_to_last:
-            empty_spots = self._generate_empty_spots(current_right.position+1, tile_width, tile_height)
+            empty_spots = self._generate_empty_spots(current_left.position+2, tile_width, tile_height)
             paste(empty_spots, img, top=top, left=0)
         else:
-            for i in range(current_right.position, 20, 2):
+            for i in range(current_left.position+1, 20, 2):
+                if i >= len(self.race.qualification_result.rows):
+                    continue
                 left = self.race.qualification_result.rows[i]
-                right = self.race.qualification_result.rows[i+1]
+                if i+1 < len(self.race.qualification_result.rows):
+                    right = self.race.qualification_result.rows[i+1] if i+1 < len(self.race.qualification_result.rows) else None
+                else:
+                    right = None
                 if left or right:
                     next = self._generate_blurred_row(left, right, width, 2*tile_height, tile_width, tile_height)
                     next_pos = paste(next, img, left=0 if i % 2 == 0 else tile_width, top=top)
