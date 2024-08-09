@@ -57,9 +57,10 @@ class Circuit:
     def get_full_name_img_hi_res(self,
                           width:int,
                           height:int,
-                          track_config:dict
+                          track_config:dict,
+                          use_background=(0,0,0,0)
         ) -> PngImageFile:
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        img = Image.new('RGBA', (width, height), use_background)
         name_font = FontFactory.get_font(track_config.get('name_font'), 40, DefaultFont=FontFactory.black)
         city_font = FontFactory.get_font(track_config.get('city_font'), 40, DefaultFont=FontFactory.black)
         name_color=track_config['name_color']
@@ -68,8 +69,8 @@ class Circuit:
         security_margin = 5 # to be sure the text is fully inside
         txt_width = width - security_margin
         txt_height = int(.4 * height)
-        name_img = text_hi_res(self.name.upper(), name_color, name_font, txt_width, txt_height)
-        city_img = text_hi_res(self.city.upper(), city_color, city_font, txt_width, txt_height)
+        name_img = text_hi_res(self.name.upper(), name_color, name_font, txt_width, txt_height, use_background=use_background)
+        city_img = text_hi_res(self.city.upper(), city_color, city_font, txt_width, txt_height, use_background=use_background)
 
         name_top = (height - (name_img.height+city_img.height+track_config['between'])) // 2
         name_top += track_config.get('top', 0) or 0
