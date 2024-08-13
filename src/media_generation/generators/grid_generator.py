@@ -1,16 +1,12 @@
 import logging
 from PIL import Image, ImageFilter
 
-from src.media_generation.helpers.generator_config import GeneratorConfig
-from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRanking
 from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
 from src.media_generation.readers.race_reader_models.race_ranking import RaceRankingRow
 
 from ..helpers.transform import *
 from ..font_factory import FontFactory
-from ..models import Pilot, Team, Visual
 
-_logger = logging.getLogger(__name__)
 
 
 class GridGenerator(AbstractRaceGenerator):

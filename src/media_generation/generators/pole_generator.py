@@ -7,7 +7,8 @@ from src.media_generation.generators.abstract_race_generator import AbstractRace
 
 from ..font_factory import FontFactory
 from ..helpers.transform import *
-from ..models import Pilot, Visual
+from ..models.pilot import Pilot
+from ..models.visual import Visual
 
 _logger = logging.getLogger(__name__)
 

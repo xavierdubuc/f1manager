@@ -63,6 +63,8 @@ class Race:
         return '{:.3f}'.format(self.laps * self.circuit.lap_length)
 
     def get_pilots(self, team:Team) -> List[Pilot]:
+        if not self.final_lineup:
+            raise Exception(f'No final lineup on race, cannot find pilots for team {team.name}')
         return [pilot for pilot in self.final_lineup.pilots.values() if pilot and pilot.team == team]
 
     def get_pilot(self, pilot_name:str) -> Pilot:

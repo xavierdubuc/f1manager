@@ -3,7 +3,7 @@ import enum
 class GeneratorType(enum.Enum):
     # RACE
     PRESENTATION = 'presentation'
-    LINEUP ='lineups'
+    LINEUP ='lineup'
     POLE = 'pole'
     GRID_VID = 'grid_ribbon'
     GRID_LINES = 'grid_lines'

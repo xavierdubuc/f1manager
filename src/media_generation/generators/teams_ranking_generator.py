@@ -8,7 +8,7 @@ from ..generators.abstract_generator import AbstractGenerator
 
 from ..helpers.transform import *
 from ..font_factory import FontFactory
-from ..models import Team
+from ..models.team import Team
 from ..data import teams_idx as TEAMS
 
 _logger = logging.getLogger(__name__)

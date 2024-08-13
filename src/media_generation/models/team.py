@@ -90,10 +90,13 @@ class Team:
             return Image.open(self._get_alt_logo_path())
         return Image.open(self.get_image())
 
-    def get_lineup_logo(self):
+    def get_lineup_logo_path(self):
         if self.name in ('Alpine', 'AlfaRomeo', 'VCARB', 'RedBull', 'AstonMartin', 'Ferrari', 'McLaren'):
-            return Image.open(self._get_alt_logo_path())
-        return Image.open(self.get_image())
+            return self._get_alt_logo_path()
+        return self.get_image()
+
+    def get_lineup_logo(self):
+        return Image.open(self.get_lineup_logo_path())
 
     def get_image(self):
         return os.path.join(ASSETS_PATH, f'{self.name}.png')

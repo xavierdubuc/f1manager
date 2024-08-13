@@ -6,7 +6,7 @@ from src.media_generation.generators.driver_of_the_day_generator import DriverOf
 from src.media_generation.generators.grid_generator import GridGenerator
 from src.media_generation.generators.grid_lines_generator import GridLinesGenerator
 from src.media_generation.generators.license_points_generator import LicensePointsGenerator
-from src.media_generation.generators.lineups_generator import LineupGenerator
+from src.media_generation.generators.lineup_generator import LineupGenerator
 from src.media_generation.generators.numbers_generator import NumbersGenerator
 from src.media_generation.generators.pilot_generator import PilotGenerator
 from src.media_generation.generators.pilots_ranking_generator import PilotsRankingGenerator

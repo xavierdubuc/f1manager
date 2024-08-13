@@ -4,7 +4,7 @@ from src.bot.cogs.race_cog import RACE_NUMBER_PARAM, RaceCog
 
 
 class LineupCog(RaceCog):
-    visual_type = 'lineups'
+    visual_type = 'lineup'
 
     @commands.slash_command(name="lineup", description='Lineup pour la course désirée')
     async def run(self, inter: disnake.ApplicationCommandInteraction,

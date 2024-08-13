@@ -2,12 +2,13 @@ import logging
 from PIL import Image
 
 from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.models.pilot import Pilot
 from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRanking, PilotRankingRow
 from ..generators.abstract_generator import AbstractGenerator
 
 from ..helpers.transform import *
 from ..font_factory import FontFactory
-from ..models import Pilot, Team, Visual
+
 
 _logger = logging.getLogger(__name__)
 

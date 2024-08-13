@@ -333,11 +333,11 @@ teams_idx = {
     'Alpine': alpine,
     'Ferrari': ferrari,
     'Williams': williams,
-    'AlfaRomeo': alfa_romeo,
     'AstonMartin': aston_martin,
-    'AlphaTauri': alpha_tauri,
     'VCARB': vcarb,
-    'KickSauber': kick_sauber
+    'KickSauber': kick_sauber,
+    'AlfaRomeo': alfa_romeo,
+    'AlphaTauri': alpha_tauri,
 }
 
 # --- DEFAULT TEAMS

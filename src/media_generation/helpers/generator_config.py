@@ -2,9 +2,10 @@ from dataclasses import dataclass
 from typing import Dict, List
 from src.media_generation.helpers.generator_type import GeneratorType
 
-from src.media_generation.models import Pilot, Race
+from src.media_generation.models.pilot import Pilot
 from src.media_generation.models.team import Team
 from src.media_generation.readers.general_ranking_models.ranking import Ranking
+from src.media_generation.readers.race_reader_models.race import Race
 
 
 @dataclass

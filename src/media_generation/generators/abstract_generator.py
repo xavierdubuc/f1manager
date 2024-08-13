@@ -3,8 +3,8 @@ import logging
 from abc import ABC, abstractmethod
 
 from src.media_generation.font_factory import FontFactory
-from src.media_generation.helpers.transform import Dimension, draw_lines_all, paste, resize, text
-from ..models import Visual
+from src.media_generation.helpers.transform import Dimension, paste, resize, text
+from src.media_generation.layout.layout import Layout
 from ..helpers.generator_config import GeneratorConfig
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
@@ -18,19 +18,30 @@ class AbstractGenerator(ABC):
         self.config = config
         self.season = season
         self.visual_config = self.championship_config['settings']['visuals'].get(self._get_visual_type(), {})
+        self.layout:Layout = self.championship_config['settings'].get('layouts', {}).get(self._get_visual_type(), {})
         self.identifier = identifier
 
     def generate(self) -> str:
-        base_img = self._generate_basic_image()
-        title_img = self._generate_title_image(base_img)
-        if title_img:
-            if title_img.mode == 'RGB':
-                base_img.paste(title_img)
-            else:
-                base_img.paste(title_img, title_img)
-        self._add_content(base_img)
-        base_img.save(self.config.output, quality=100)
+        if self.layout:
+            _logger.info('Using layout method...')
+            img = self.layout.render(context=self._get_layout_context())
+        else:
+            _logger.info('Using legacy method...')
+            img = self._generate_basic_image()
+            title_img = self._generate_title_image(img)
+            if title_img:
+                if title_img.mode == 'RGB':
+                    img.paste(title_img)
+                else:
+                    img.paste(title_img, title_img)
+            self._add_content(img)
+        img.save(self.config.output, quality=100)
         return self.config.output
+
+    def _get_layout_context(self):
+        return {
+            'config': self.config,
+        }
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         title_config = self.visual_config.get('title', {})
@@ -178,6 +189,5 @@ class AbstractGenerator(ABC):
     def _get_visual_title_width(self, base_img:PngImageFile = None) -> int:
         return base_img.width
 
-    @abstractmethod
     def _add_content(self, base_img: PngImageFile):
         pass

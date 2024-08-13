@@ -1,6 +1,6 @@
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-from ..models import Pilot
+from ..models.pilot import Pilot
 from ..helpers.transform import *
 from ..generators.abstract_generator import AbstractGenerator
 

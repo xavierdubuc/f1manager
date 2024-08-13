@@ -9,7 +9,7 @@ from src.media_generation.readers.race_reader_models.race import Race
 from src.media_generation.readers.season_ranking_reader import SeasonRankingGeneratorConfig
 from ..helpers.transform import *
 from ..generators.abstract_generator import AbstractGenerator
-from ..models import Visual
+from ..models.visual import Visual
 
 _logger = logging.getLogger(__name__)
 
