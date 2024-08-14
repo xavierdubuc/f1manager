@@ -90,4 +90,7 @@ class Layout:
     def _paste_children(self, img: PngImageFile, context: dict = {}):
         for key, child in self.children.items():
             _logger.debug(f'Pasting {key} on layout {self.__class__.__name__}')
-            child.paste_on(img, context)
+            child.paste_on(img, self._get_children_context(context))
+
+    def _get_children_context(self, context: dict= {}):
+        return context

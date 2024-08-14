@@ -1,30 +1,32 @@
 import copy
 import logging
+from dataclasses import dataclass
+
 from PIL import Image
+from src.media_generation.readers.general_ranking_models.team_ranking import \
+    TeamRanking
 
-from src.media_generation.helpers.generator_config import GeneratorConfig
-from src.media_generation.readers.general_ranking_models.team_ranking import TeamRanking
-from ..generators.abstract_generator import AbstractGenerator
-
-from ..helpers.transform import *
-from ..font_factory import FontFactory
-from ..models.team import Team
 from ..data import teams_idx as TEAMS
+from ..font_factory import FontFactory
+from ..generators.abstract_generator import AbstractGenerator
+from ..helpers.transform import *
+from ..models.team import Team
 
 _logger = logging.getLogger(__name__)
 
-class TeamsRankingGenerator(AbstractGenerator):
-    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
-        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
-        self.ranking: TeamRanking = self.config.ranking
 
-    def _get_visual_type(self) -> str:
-        return 'teams_ranking'
+@dataclass
+class TeamsRankingGenerator(AbstractGenerator):
+    visual_type: str = 'teams_ranking'
+
+    def __post_init__(self):
+        super().__post_init__()
+        self.ranking: TeamRanking = self.config.ranking
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         title_config = self.visual_config.get('title', {})
         height = title_config.get('height', 300)
-        img = Image.new('RGBA', (base_img.width, height), (0,0,0,0))
+        img = Image.new('RGBA', (base_img.width, height), (0, 0, 0, 0))
 
         # MAIN LOGO
         main_logo_config = title_config.get('main_logo')
@@ -83,7 +85,7 @@ class TeamsRankingGenerator(AbstractGenerator):
             if i % 2 == 0:
                 paste(gray_filter, base_img, left, top)
 
-            is_champion = False # i == 0 # FIXME
+            is_champion = False  # i == 0 # FIXME
             # DETERMINE POSITION
             points = row.total_points
             if previous_pilot_points is not None and previous_pilot_points == points:
@@ -99,7 +101,8 @@ class TeamsRankingGenerator(AbstractGenerator):
                 progression = (previous_pos - (i+1)) if previous_pos is not None else None
 
             # GENERATE AND PASTE IMAGE
-            team_ranking_img = self._render_team_ranking_image(all_teams, rows_width, rows_height, position, row.team_name, row.total_points, progression, is_champion)
+            team_ranking_img = self._render_team_ranking_image(
+                all_teams, rows_width, rows_height, position, row.team_name, row.total_points, progression, is_champion)
             paste(team_ranking_img, base_img, left=left, top=top)
 
             # UPDATE LOOP VARIABLES
@@ -107,7 +110,7 @@ class TeamsRankingGenerator(AbstractGenerator):
             previous_pilot_points = row.total_points
 
     def _render_team_ranking_image(self, teams, width: int, height: int, position: int, team_name: str, points: float, progression: int = 0, is_champion: bool = False) -> PngImageFile:
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         config = self.visual_config.get('rows', {})
 
         # POS
@@ -117,7 +120,8 @@ class TeamsRankingGenerator(AbstractGenerator):
 
         # TEAM (LOGO + NAME)
         team_config = config.get('team', {})
-        team_img = self._render_team_image(team_config.get('width', 700), team_config.get('height', height), teams.get(team_name))
+        team_img = self._render_team_image(team_config.get(
+            'width', 700), team_config.get('height', height), teams.get(team_name))
         self.paste_image(team_img, img, team_config)
 
         # PROGRESSION
@@ -132,7 +136,7 @@ class TeamsRankingGenerator(AbstractGenerator):
 
         return img
 
-    def _render_team_image(self, width:int, height: int, team:Team) -> PngImageFile:
+    def _render_team_image(self, width: int, height: int, team: Team) -> PngImageFile:
         card = team.build_card_image(width, height)
 
         cfg = self.visual_config['rows']['name']

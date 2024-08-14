@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 from ..generators.abstract_race_generator import AbstractRaceGenerator
 
 
+@dataclass
 class LineupGenerator(AbstractRaceGenerator):
-    def _get_visual_type(self) -> str:
-        return 'lineup'
+    visual_type: str = 'lineup'

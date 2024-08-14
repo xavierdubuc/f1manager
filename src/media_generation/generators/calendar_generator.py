@@ -1,8 +1,8 @@
+from dataclasses import dataclass
 from typing import List
 
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.models.circuit import Circuit
 from src.media_generation.models.race_renderer import RaceRenderer
 from src.media_generation.readers.race_reader_models.race import Race, RaceType
@@ -11,13 +11,13 @@ from ..generators.abstract_generator import AbstractGenerator
 from ..helpers.transform import *
 
 
+@dataclass
 class CalendarGenerator(AbstractGenerator):
-    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
-        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
-        self.races: List[Race] = self.config.races
+    visual_type: str = 'calendar'
 
-    def _get_visual_type(self) -> str:
-        return 'calendar'
+    def __post_init__(self):
+        super().__post_init__()
+        self.races: List[Race] = self.config.races
 
     def _add_content(self, base_img: PngImageFile):
         self._render_title(base_img)

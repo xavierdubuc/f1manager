@@ -1,19 +1,22 @@
+from dataclasses import dataclass
+
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-from src.media_generation.helpers.generator_config import GeneratorConfig
-from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRankingRow
-from src.media_generation.generators.pilots_ranking_generator import PilotsRankingGenerator
+from src.media_generation.generators.pilots_ranking_generator import \
+    PilotsRankingGenerator
+from src.media_generation.readers.general_ranking_models.pilot_ranking import \
+    PilotRankingRow
 
 from ..helpers.transform import *
 
 
+@dataclass
 class LicensePointsGenerator(PilotsRankingGenerator):
-    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
-        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
-        self.ranking.sort_by_license_points()
+    visual_type: str = 'license_points'
 
-    def _get_visual_type(self) -> str:
-        return 'license_points'
+    def __post_init__(self):
+        super().__post_init__()
+        self.ranking.sort_by_license_points()
 
     def _get_main_title_str(self):
         return 'POINTS DE PERMIS'

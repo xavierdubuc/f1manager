@@ -1,4 +1,5 @@
 
+from dataclasses import dataclass
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 from ..models.pilot import Pilot
@@ -32,10 +33,9 @@ OFFICIAL_PILOTS_NUMBERS = {
     '81': 'Piastri'
 }
 
-
+@dataclass
 class NumbersGenerator(AbstractGenerator):
-    def _get_visual_type(self) -> str:
-        return 'numbers'
+    visual_type: str = 'numbers'
 
     def _get_pilot_font(self, name):
         size = self.visual_config['rows']['pilot_name']['font_size']

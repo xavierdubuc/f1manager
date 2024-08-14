@@ -23,4 +23,5 @@ class GeneratorType(enum.Enum):
     # _values SHEET
     NUMBERS = 'numbers'
     PILOT = 'pilot'
-    SEASON_LINEUP = 'season_lineup'
+    SEASON_PILOTS = 'season_pilots'
+    SEASON_TEAMS = 'season_teams'

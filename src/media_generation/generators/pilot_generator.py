@@ -1,5 +1,6 @@
 import logging
 import os
+from dataclasses import dataclass
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.helpers.generator_config import GeneratorConfig
@@ -14,11 +15,10 @@ _logger = logging.getLogger(__name__)
 class PublicException(Exception):
     pass
 
+@dataclass
 class PilotGenerator(AbstractGenerator):
-    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
-        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
-        self.forced_team = kwargs.get('team')
-        self.visual_type = kwargs.get('visual_type', 'lineup')
+    forced_team:str = None
+    visual_type:str = 'lineup'
 
     def _get_visual_type(self) -> str:
         return 'pilot'

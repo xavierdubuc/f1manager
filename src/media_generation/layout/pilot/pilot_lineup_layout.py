@@ -18,3 +18,8 @@ class PilotLineupLayout(Layout):
         else:
             updated_context = context
         super()._paste_children(img, updated_context)
+
+    def _get_children_context(self, context: dict= {}):
+        if self.pilot:
+            return dict(context, pilot=self.pilot)
+        return super()._get_children_context(context)

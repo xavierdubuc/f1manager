@@ -14,7 +14,7 @@ class Polygon:
 
 
 @dataclass
-class PolygonsBgLayout(Layout):
+class PolygonsLayout(Layout):
     polygons: List[Polygon] = None
 
     def __post_init__(self):

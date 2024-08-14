@@ -1,33 +1,33 @@
 import logging
+from dataclasses import dataclass
+
 from PIL import Image
-
-from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.models.pilot import Pilot
-from src.media_generation.readers.general_ranking_models.pilot_ranking import PilotRanking, PilotRankingRow
-from ..generators.abstract_generator import AbstractGenerator
+from src.media_generation.readers.general_ranking_models.pilot_ranking import (
+    PilotRanking, PilotRankingRow)
 
-from ..helpers.transform import *
 from ..font_factory import FontFactory
-
+from ..generators.abstract_generator import AbstractGenerator
+from ..helpers.transform import *
 
 _logger = logging.getLogger(__name__)
 
 
+@dataclass
 class PilotsRankingGenerator(AbstractGenerator):
-    def __init__(self, championship_config: dict, config: GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
-        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
+    visual_type: str = 'pilots_ranking'
+
+    def __post_init__(self):
+        super().__post_init__()
         key = self.identifier or 'default'
         cfg = self.visual_config['body']
         self.rows_config = cfg.get(key, cfg['default'])
         self.ranking: PilotRanking = self.config.ranking
 
-    def _get_visual_type(self) -> str:
-        return 'pilots_ranking'
-
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         title_config = self.visual_config.get('title', {})
         height = title_config.get('height', 300)
-        img = Image.new('RGBA', (base_img.width, height), (0,0,0,0))
+        img = Image.new('RGBA', (base_img.width, height), (0, 0, 0, 0))
 
         # MAIN LOGO
         main_logo_config = title_config.get('main_logo')
@@ -53,7 +53,8 @@ class PilotsRankingGenerator(AbstractGenerator):
         # SUB TITLE
         if self.config.ranking.amount_of_races > 0:
             sub_config = title_config.get('sub', {})
-            sub_text = self.text(sub_config, f"POINTS APRÈS COURSE {self.config.ranking.amount_of_races}", FontFactory.regular)
+            sub_text = self.text(
+                sub_config, f"POINTS APRÈS COURSE {self.config.ranking.amount_of_races}", FontFactory.regular)
             sub_top = sub_config['top']
             sub_left = img.width - sub_text.width - sub_config.get('right', 20)
             paste(sub_text, img, left=sub_left, top=sub_top)
@@ -91,7 +92,7 @@ class PilotsRankingGenerator(AbstractGenerator):
             if i % 2 == 0:
                 paste(gray_filter, base_img, left, top)
 
-            is_champion = False # i == 0 # FIXME
+            is_champion = False  # i == 0 # FIXME
             # DETERMINE POSITION
             points = row.total_points
             if previous_pilot_points is not None and previous_pilot_points == points:
@@ -129,7 +130,7 @@ class PilotsRankingGenerator(AbstractGenerator):
                 row_index += 1
         return
 
-    def _pilot_should_be_shown(self, row:PilotRankingRow) -> bool:
+    def _pilot_should_be_shown(self, row: PilotRankingRow) -> bool:
         if self.identifier == 'main':
             return not row.pilot.reservist
         if self.identifier == 'reservists':
@@ -137,7 +138,7 @@ class PilotsRankingGenerator(AbstractGenerator):
         return True
 
     def _render_pilot_ranking_image(self, width: int, height: int, pilot: Pilot, position: str, points: float, delta: str, is_champion: bool = False) -> PngImageFile:
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         config = self.visual_config.get('body', {}).get('pilot', {})
 
         # POS

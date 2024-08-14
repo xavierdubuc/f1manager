@@ -1,17 +1,20 @@
+import logging
+from dataclasses import dataclass
 from typing import List
+
 from PIL import Image, ImageFilter
 from PIL.PngImagePlugin import PngImageFile
-import logging
-
-from src.media_generation.models.podium_row_renderer import PodiumRowRenderer
-from src.media_generation.readers.race_reader_models.race_ranking import RaceRankingRow
-from src.media_generation.models.visual import Visual
-from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
+from src.media_generation.generators.abstract_race_generator import \
+    AbstractRaceGenerator
 from src.media_generation.generators.exceptions import IncorrectDataException
+from src.media_generation.models.podium_row_renderer import PodiumRowRenderer
 from src.media_generation.models.ranking_row_renderer import RankingRowRenderer
-from ..helpers.transform import *
+from src.media_generation.models.visual import Visual
+from src.media_generation.readers.race_reader_models.race_ranking import \
+    RaceRankingRow
 
 from ..font_factory import FontFactory
+from ..helpers.transform import *
 
 DEFAULT_TIME = '-:--.---'
 
@@ -23,9 +26,9 @@ pilot_font = FontFactory.bold(30)
 _logger = logging.getLogger(__name__)
 
 
+@dataclass
 class ResultsGenerator(AbstractRaceGenerator):
-    def _get_visual_type(self) -> str:
-        return 'results'
+    visual_type: str = 'results'
 
     def _get_background_image(self) -> PngImageFile:
         bg = super()._get_background_image()
@@ -54,7 +57,8 @@ class ResultsGenerator(AbstractRaceGenerator):
         # race & fastestlap
         race_flap_padding = self.visual_config['race_flap']['padding_top']
         race_flap_img = self._generate_part_image('race_flap')
-        race_flap_pos = paste(race_flap_img, final, left=final.width-race_flap_img.width - h_padding, top=race_flap_padding)
+        race_flap_pos = paste(race_flap_img, final, left=final.width -
+                              race_flap_img.width - h_padding, top=race_flap_padding)
 
         # top20
         top20_img = self._generate_part_image('top20')
@@ -67,7 +71,7 @@ class ResultsGenerator(AbstractRaceGenerator):
         paste(logo_img, final, left=top20_pos.left, top=top20_pos.bottom+logo_padding)
 
     def _generate_top3_image(self, width, height):
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         config = self.visual_config['top3']
         renderer_config = self.championship_config['settings']['components']['podium_row_renderer']
         between = 30
@@ -93,20 +97,22 @@ class ResultsGenerator(AbstractRaceGenerator):
         return self._generate_pilots_list_image(width, height, self.race.race_result.rows[10:], 'top20')
 
     def _generate_race_flap_image(self, width, height):
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         flap_config = self.visual_config['race_flap']['fastest_lap']
         race_info_with = width - flap_config['width']
         race_info_img = self._generate_race_info_image(race_info_with, height)
         race_pos = paste(race_info_img, img, left=0)
 
-        flap_img = self.race_renderer.get_fastest_lap_image(flap_config['width']-flap_config['left'], flap_config['height'], flap_config)
-        paste(flap_img, img, left=race_pos.right + flap_config['left'])
+        flap_img = self.race_renderer.get_fastest_lap_image(
+            flap_config['width']-flap_config['left'], flap_config['height'], flap_config)
+        if flap_img:
+            paste(flap_img, img, left=race_pos.right + flap_config['left'])
         return img
 
-    ## SUB - SUB - METHODS
+    # SUB - SUB - METHODS
 
-    def _generate_pilots_list_image(self, width:int, height: int, race_rows: List[RaceRankingRow], part:str) -> PngImageFile:
-        img = Image.new('RGBA', (width, height), (0,0,0,0))
+    def _generate_pilots_list_image(self, width: int, height: int, race_rows: List[RaceRankingRow], part: str) -> PngImageFile:
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         row_renderer_config = self.championship_config['settings']['components']['ranking_row_renderer']
         top = 0
         row_height = self.visual_config[part]['rows']['height']
@@ -117,8 +123,8 @@ class ResultsGenerator(AbstractRaceGenerator):
             top += row_height
         return img
 
-    def _generate_race_info_image(self, width:int, height:int):
-        img = Image.new('RGB', (width, height), (0,0,0))
+    def _generate_race_info_image(self, width: int, height: int):
+        img = Image.new('RGB', (width, height), (0, 0, 0))
         date_config = self.visual_config['race_flap']['date']
         track_config = self.visual_config['race_flap']['track']
 
@@ -129,7 +135,7 @@ class ResultsGenerator(AbstractRaceGenerator):
         return img
 
     def _generate_logos_image(self, width, height):
-        img = Image.new('RGBA', (width, height), (0,0,0,150))
+        img = Image.new('RGBA', (width, height), (0, 0, 0, 150))
         img = img.filter(ImageFilter.GaussianBlur(radius=10))
 
         # champ

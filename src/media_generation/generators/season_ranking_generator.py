@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 from typing import List
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
@@ -13,9 +14,12 @@ from ..models.visual import Visual
 
 _logger = logging.getLogger(__name__)
 
+@dataclass
 class SeasonRankingGenerator(AbstractGenerator):
-    def __init__(self, championship_config: dict, config: SeasonRankingGeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
-        super().__init__(championship_config, config, season, identifier, *args, **kwargs)
+    visual_type:str = 'season_ranking'
+
+    def __post_init__(self):
+        super().__post_init__()
         self.races: List[Race] = self.config.races
         self.future_races = set()
         for race in self.races:
@@ -23,9 +27,6 @@ class SeasonRankingGenerator(AbstractGenerator):
                 self.future_races.add(race.round)
         self.identifier = self.identifier or 'main'
         self.ranking = self._build_ranking()
-
-    def _get_visual_type(self) -> str:
-        return 'season_ranking'
 
     def _add_content(self, base_img: PngImageFile):
         pilot_name_width = self.visual_config['rows']['pilot'].get('width', 240)

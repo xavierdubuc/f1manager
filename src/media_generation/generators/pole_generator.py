@@ -1,5 +1,6 @@
 import logging
 
+from dataclasses import dataclass
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
@@ -12,12 +13,12 @@ from ..models.visual import Visual
 
 _logger = logging.getLogger(__name__)
 
+@dataclass
 class PoleGenerator(AbstractRaceGenerator):
+    visual_type: str = 'pole'
+
     def _get_pole_pilot(self) -> Pilot:
         return self.race.qualification_result.rows[0].pilot
-
-    def _get_visual_type(self) -> str:
-        return 'pole'
 
     def _generate_title_image(self, base_img: PngImageFile) -> PngImageFile:
         return None

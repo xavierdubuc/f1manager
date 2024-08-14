@@ -14,5 +14,6 @@ class PilotFaceLayout(Layout):
     def _render_base_image(self, context: dict = ...) -> PngImageFile:
         pilot:Pilot = context.get('pilot')
         if not pilot:
+            # TODO get default image
             return super()._render_base_image(context)
         return pilot.get_close_up_image(height=self.height, width=self.width)

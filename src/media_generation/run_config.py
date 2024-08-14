@@ -13,7 +13,8 @@ from src.media_generation.generators.pilots_ranking_generator import PilotsRanki
 from src.media_generation.generators.pole_generator import PoleGenerator
 from src.media_generation.generators.presentation_generator import PresentationGenerator
 from src.media_generation.generators.results_generator import ResultsGenerator
-from src.media_generation.generators.season_lineup_generator import SeasonLineupGenerator
+from src.media_generation.generators.season_pilots_generator import SeasonPilotsGenerator
+from src.media_generation.generators.season_teams_generator import SeasonTeamsGenerator
 from src.media_generation.generators.season_ranking_generator import SeasonRankingGenerator
 from src.media_generation.generators.teams_ranking_generator import TeamsRankingGenerator
 from src.media_generation.helpers.generator_type import GeneratorType
@@ -81,8 +82,11 @@ RUN_CONFIGS: Dict[GeneratorType, RunConfig] = {
     GeneratorType.NUMBERS : RunConfig(
         Generator=NumbersGenerator
     ),
-    GeneratorType.SEASON_LINEUP : RunConfig(
-        Generator=SeasonLineupGenerator
+    GeneratorType.SEASON_PILOTS : RunConfig(
+        Generator=SeasonPilotsGenerator
+    ),
+    GeneratorType.SEASON_TEAMS : RunConfig(
+        Generator=SeasonTeamsGenerator
     ),
     GeneratorType.PILOT : RunConfig(
         Generator=PilotGenerator

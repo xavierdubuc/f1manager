@@ -1,14 +1,16 @@
+from dataclasses import dataclass
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 from ..models.pilot import Pilot
 from ..helpers.transform import *
 from ..generators.abstract_generator import AbstractGenerator
 
-RESERVISTS_MODE = True
+RESERVISTS_MODE = False
 
-class SeasonLineupGenerator(AbstractGenerator):
+@dataclass
+class SeasonPilotsGenerator(AbstractGenerator):
     def _get_visual_type(self) -> str:
-        return 'season_lineup'
+        return 'season_pilots'
 
     def _add_content(self, base_img: PngImageFile):
         main_pilots_objects = {k:p for i, (k, p) in enumerate(self.config.pilots.items()) if i < 20 }

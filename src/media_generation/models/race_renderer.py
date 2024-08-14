@@ -179,8 +179,7 @@ class RaceRenderer:
         team_config = config['team']
         pilot = self.race.fastest_lap_pilot
         if not pilot:
-            raise IncorrectDataException(
-                f'Fastest lap pilot "{self.race.fastest_lap_pilot_name}" is unknown !')
+            return
         team = pilot.team
         with team.get_results_logo() as team_img:
             team_img = resize(team_img, int(.4*height), int(.4*height))

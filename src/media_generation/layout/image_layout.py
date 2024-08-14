@@ -9,12 +9,12 @@ from src.media_generation.layout.layout import Layout
 
 
 @dataclass
-class BgImageLayout(Layout):
-    bg_path: str = None
+class ImageLayout(Layout):
+    path: str = None
 
     def _get_path(self, context: dict = {}) -> str:
         try:
-            return self.bg_path.format(**context)
+            return self.path.format(**context)
         except KeyError as e:
             raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
 

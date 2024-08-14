@@ -1,6 +1,8 @@
 import os
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
+
+from dataclasses import dataclass
 
 from src.media_generation.font_factory import FontFactory
 from src.media_generation.helpers.transform import Dimension, paste, resize, text
@@ -12,14 +14,20 @@ from PIL.PngImagePlugin import PngImageFile
 
 _logger = logging.getLogger(__name__)
 
-class AbstractGenerator(ABC):
-    def __init__(self, championship_config: dict, config:GeneratorConfig, season: int, identifier: str = None, *args, **kwargs):
-        self.championship_config = championship_config
-        self.config = config
-        self.season = season
+
+@dataclass
+class AbstractGenerator:
+    championship_config: dict
+    config: GeneratorConfig
+    season: int
+    identifier: str = None
+    visual_type: str = None
+    layout: Layout = None
+    visual_config: dict = None
+
+    def __post_init__(self):
         self.visual_config = self.championship_config['settings']['visuals'].get(self._get_visual_type(), {})
-        self.layout:Layout = self.championship_config['settings'].get('layouts', {}).get(self._get_visual_type(), {})
-        self.identifier = identifier
+        self.layout: Layout = self.championship_config['settings'].get('layouts', {}).get(self._get_visual_type(), {})
 
     def generate(self) -> str:
         if self.layout:
@@ -40,6 +48,8 @@ class AbstractGenerator(ABC):
 
     def _get_layout_context(self):
         return {
+            'identifier': self.identifier,
+            'season': self.season,
             'config': self.config,
         }
 
@@ -47,12 +57,12 @@ class AbstractGenerator(ABC):
         title_config = self.visual_config.get('title', {})
         return self._get_customized_title_image(base_img, title_config)
 
-    def _get_customized_title_image(self,  base_img: PngImageFile, title_config:dict) -> PngImageFile:
+    def _get_customized_title_image(self,  base_img: PngImageFile, title_config: dict) -> PngImageFile:
         width = title_config.get('width', base_img.width)
         height = title_config.get('height', 180)
         if height == 0 or width == 0:
             return
-        title_img = Image.new('RGBA', (width, height), (0,0,0,0))
+        title_img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
         return title_img
 
     def _render_initial_image(self) -> PngImageFile:
@@ -94,7 +104,7 @@ class AbstractGenerator(ABC):
             return text(content, font_color, font, stroke_fill=stroke_fill, stroke_width=sw, security_padding=security_padding or sw)
         return text(content, font_color, font)
 
-    def paste_image_from_config(self, config:dict, img:PngImageFile) -> Dimension:
+    def paste_image_from_config(self, config: dict, img: PngImageFile) -> Dimension:
         if not config:
             return
         with Image.open(config['path']) as original:
@@ -108,7 +118,7 @@ class AbstractGenerator(ABC):
                 img_to_paste = resize(original, height=height)
         return self.paste_image(img_to_paste, img, config)
 
-    def paste_image(self, img:PngImageFile, on:PngImageFile,  config:dict) -> Dimension:
+    def paste_image(self, img: PngImageFile, on: PngImageFile,  config: dict) -> Dimension:
         left = config.get('left', False)
         if not left:
             right = config.get('right', False)
@@ -122,7 +132,7 @@ class AbstractGenerator(ABC):
 
         return paste(img, on, left=left, top=top)
 
-    def _render_image_from_file(self, path:str, width:int, height: int) -> PngImageFile:
+    def _render_image_from_file(self, path: str, width: int, height: int) -> PngImageFile:
         if not path:
             return None
         with Image.open(path) as original:
@@ -134,11 +144,11 @@ class AbstractGenerator(ABC):
             )
         return img
 
-    def _render_position_image(self, position:int , position_config:dict = None) -> PngImageFile:
+    def _render_position_image(self, position: int, position_config: dict = None) -> PngImageFile:
         width = position_config.get('width', 100)
         height = position_config.get('height', 100)
-        position_container = Image.new('RGBA', (width, height), (0,0,0,0))
-        position_img = self.text(position_config, str(position), default_font_size=70, default_color=(0,0,0))
+        position_container = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        position_img = self.text(position_config, str(position), default_font_size=70, default_color=(0, 0, 0))
         paste(position_img, position_container)
         return position_container
 
@@ -169,7 +179,7 @@ class AbstractGenerator(ABC):
             self.paste_image(prog_text, prog_img, text_config)
         return prog_img
 
-    def _render_points_image(self, points:float, config:dict) -> PngImageFile:
+    def _render_points_image(self, points: float, config: dict) -> PngImageFile:
         img = Image.new(
             'RGB',
             (config.get('width', 190), config.get('height', 190)),
@@ -179,14 +189,13 @@ class AbstractGenerator(ABC):
         paste(points_txt, img)
         return img
 
-    @abstractmethod
     def _get_visual_type(self) -> str:
-        pass
+        return self.visual_type
 
     def _get_visual_title_height(self, base_img: PngImageFile = None) -> int:
         return self.visual_config.get('title', {}).get('height', 180)
 
-    def _get_visual_title_width(self, base_img:PngImageFile = None) -> int:
+    def _get_visual_title_width(self, base_img: PngImageFile = None) -> int:
         return base_img.width
 
     def _add_content(self, base_img: PngImageFile):

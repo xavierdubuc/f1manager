@@ -1,5 +1,6 @@
 import logging
 import os
+from dataclasses import dataclass
 from PIL import Image
 from src.media_generation.generators.grid_generator import GridGenerator
 
@@ -11,9 +12,9 @@ from ..font_factory import FontFactory
 _logger = logging.getLogger(__name__)
 
 
+@dataclass
 class GridLinesGenerator(GridGenerator):
-    def _get_visual_type(self) -> str:
-        return 'grid_lines'
+    visual_type: str = 'grid_lines'
 
     def _generate_basic_image(self) -> PngImageFile:
         width = self.visual_config['width']

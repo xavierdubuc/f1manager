@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Tuple
 from src.media_generation.helpers.generator_type import GeneratorType
 
 from src.media_generation.models.pilot import Pilot
@@ -37,3 +37,6 @@ class GeneratorConfig:
                 if int(participant.race_number) == int(p.number):
                     return p
         return None
+
+    def get_pilots(self, team:Team) -> Tuple[Pilot, Pilot]:
+        return [pilot for pilot in self.pilots.values() if pilot and pilot.team == team]

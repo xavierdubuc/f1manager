@@ -9,9 +9,9 @@ from ..font_factory import FontFactory
 
 BG_COLOR = (20, 20, 30)
 
+@dataclass
 class DriverOfTheDayGenerator(AbstractRaceGenerator):
-    def _get_visual_type(self) -> str:
-        return 'driver_of_the_day'
+    visual_type: str = 'driver_of_the_day'
 
     def _generate_basic_image(self) -> PngImageFile:
         width = self.visual_config['width']

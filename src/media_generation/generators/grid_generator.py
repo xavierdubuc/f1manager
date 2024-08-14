@@ -1,4 +1,4 @@
-import logging
+from dataclasses import dataclass
 from PIL import Image, ImageFilter
 
 from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
@@ -8,10 +8,9 @@ from ..helpers.transform import *
 from ..font_factory import FontFactory
 
 
-
+@dataclass
 class GridGenerator(AbstractRaceGenerator):
-    def _get_visual_type(self) -> str:
-        return 'grid'
+    visual_type: str = 'grid'
 
     def _get_background_image(self) -> PngImageFile:
         bg = super()._get_background_image()
