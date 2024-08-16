@@ -28,6 +28,7 @@ class TextLayout(Layout):
     stroke_fill: Tuple[int,int,int,int] = None
     underscore_top:int = None
     long_top:int = None
+    center:bool = False
 
     @property
     def text_position(self):
@@ -65,7 +66,17 @@ class TextLayout(Layout):
             self.text_position, content, self.fg, self.font,
             stroke_width=self.stroke_width, stroke_fill=self.stroke_fill
         )
-        return resize(img, self.width, self.height)
+        text_img = resize(img, self.width, self.height)
+        if not self.center:
+            return text_img
+
+        left = (self.width-img.width) // 2
+        top = (self.height-img.height) // 2
+        container = Image.new('RGBA', self.size, self.bg)
+        container.paste(text_img, (left, top), text_img)
+        return container
+
+            
 
     def _estimate_size(self, content: str) -> Tuple[int, int]:
         _, _, w, h = SANDBOX.textbbox((0, 0), content, self.font)

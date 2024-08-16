@@ -11,6 +11,7 @@ from src.media_generation.layout.layout import Layout
 @dataclass
 class ImageLayout(Layout):
     path: str = None
+    keep_ratio: bool = True
 
     def _get_path(self, context: dict = {}) -> str:
         if not self.path:
@@ -26,6 +27,10 @@ class ImageLayout(Layout):
             if not path:
                 return super()._render_base_image(context)
             with Image.open(path) as bg:
-                return resize(bg, height=self.height, width=self.width)
+                if self.width and self.height:
+                    return resize(bg, height=self.height, width=self.width, keep_ratio=self.keep_ratio)
+                elif self.width:
+                    return resize(bg, width=self.width, keep_ratio=self.keep_ratio)
+                return resize(bg, height=self.height, keep_ratio=self.keep_ratio)
         except Exception as e:
             raise Exception(f'A problem occured in layout "{self.name}" : {str(e)}') from e
