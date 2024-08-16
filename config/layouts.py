@@ -1,3 +1,4 @@
+from src.media_generation.layout.identifier_dependant_text_layout import IdentifierDependantTextLayout
 from src.media_generation.layout.image_layout import ImageLayout
 from src.media_generation.layout.layout import Layout
 from src.media_generation.layout.pilot.pilot_box_layout import PilotBoxLayout
@@ -6,6 +7,7 @@ from src.media_generation.layout.pilot.pilot_face_layout import PilotFaceLayout
 from src.media_generation.layout.pilot.pilot_lineup_layout import PilotLineupLayout
 from src.media_generation.layout.pilot.pilot_number_layout import PilotNumberLayout
 from src.media_generation.layout.pilot.pilot_numbers_layout import PilotNumbersLayout
+from src.media_generation.layout.pilot.season_pilots_layout import SeasonPilotsLayout
 from src.media_generation.layout.polygons_layout import Polygon, PolygonsLayout
 from src.media_generation.layout.race.round_layout import RoundLayout
 from src.media_generation.layout.team.team_lineup_layout import TeamLineupLayout
@@ -25,28 +27,28 @@ FBRT = {
                 width=1880,  # 1920 - 2 * 20
                 height=1052,  # 1080 - 2 * 14
                 locked_numbers={
-                    1: '-',
-                    2: 'Sargeant',
-                    3: 'Ricciardo',
-                    4: 'Norris',
-                    10: 'Gasly',
-                    11: 'Perez',
-                    14: 'Alonso',
-                    16: 'Leclerc',
-                    17: '/',
-                    18: 'Stroll',
-                    20: 'Magnussen',
-                    22: 'Tsunoda',
-                    23: 'Albon',
-                    24: 'Zhou',
-                    27: 'Hulkenberg',
-                    31: 'Ocon',
-                    33: 'Verstappen',
-                    44: 'Hamilton',
-                    55: 'Sainz',
-                    63: 'Russell',
-                    77: 'Bottas',
-                    81: 'Piastri'
+                    1: "-",
+                    2: "Sargeant",
+                    3: "Ricciardo",
+                    4: "Norris",
+                    10: "Gasly",
+                    11: "Perez",
+                    14: "Alonso",
+                    16: "Leclerc",
+                    17: "/",
+                    18: "Stroll",
+                    20: "Magnussen",
+                    22: "Tsunoda",
+                    23: "Albon",
+                    24: "Zhou",
+                    27: "Hulkenberg",
+                    31: "Ocon",
+                    33: "Verstappen",
+                    44: "Hamilton",
+                    55: "Sainz",
+                    63: "Russell",
+                    77: "Bottas",
+                    81: "Piastri"
                 },
                 children={
                     # children are used once for each number/position
@@ -71,13 +73,13 @@ FBRT = {
                                 height=45,
                                 left=60,
                                 children={
-                                    'logo_container': Layout(
+                                    "logo_container": Layout(
                                         name="logo_container",
                                         left=0,
                                         width=65,
                                         height=45,
                                         children={
-                                            'logo': ImageLayout(
+                                            "logo": ImageLayout(
                                                 name="logo",
                                                 path="{team_logo_path}",
                                                 width=65,
@@ -85,7 +87,7 @@ FBRT = {
                                             ),
                                         }
                                     ),
-                                    'pilot_name': TextLayout(
+                                    "pilot_name": TextLayout(
                                         name="pilot_name",
                                         content="{pilot_name}",
                                         width=205,
@@ -239,7 +241,7 @@ FBRT = {
                 height=35,
                 bottom=16,
                 right=10,
-                font_name='regular',
+                font_name="regular",
                 bg=(10, 8, 32),
                 fg=(255, 255, 255, 255)
             ),
@@ -250,7 +252,7 @@ FBRT = {
                 height=35,
                 bottom=60,
                 right=10,
-                font_name='regular',
+                font_name="regular",
                 bg=(10, 8, 32),
                 fg=(255, 255, 255, 255)
             ),
@@ -261,7 +263,7 @@ FBRT = {
                 height=35,
                 left=300,
                 bottom=16,
-                font_name='regular',
+                font_name="regular",
                 bg=(10, 8, 32),
                 fg=(255, 255, 255, 255)
             ),
@@ -314,38 +316,38 @@ FBRT = {
                 width=1920,
                 height=1080,
                 children={  # children are used once for each team
-                    'team': TeamLineupLayout(
+                    "team": TeamLineupLayout(
                         name="team",
                         width=680,
                         height=200,
                         children={
-                            'logo': ImageLayout(
+                            "logo": ImageLayout(
                                 name="logo",
                                 width=220,
                                 height=90,
                                 top=30
                             ),
-                            'pilot_1': PilotLineupLayout(
+                            "pilot_1": PilotLineupLayout(
                                 name="pilot_1",
                                 left=0,
                                 top=0,
                                 width=368,
                                 height=200,
                                 children={
-                                    'face': PilotFaceLayout(
+                                    "face": PilotFaceLayout(
                                         name="face",
                                         width=368,
                                         height=143,
                                         top=5,
                                     ),
-                                    'box': PilotBoxLayout(
+                                    "box": PilotBoxLayout(
                                         name="box",
                                         width=368,
                                         height=62,
                                         left=0,
                                         top=138,
                                         children={
-                                            'name': TextLayout(
+                                            "name": TextLayout(
                                                 content="{pilot_name}",
                                                 name="name",
                                                 height=28,
@@ -355,27 +357,27 @@ FBRT = {
                                     ),
                                 }
                             ),
-                            'pilot_2': PilotLineupLayout(
+                            "pilot_2": PilotLineupLayout(
                                 name="pilot_2",
                                 left=312,
                                 top=0,
                                 width=368,
                                 height=200,
                                 children={
-                                    'face': PilotFaceLayout(
+                                    "face": PilotFaceLayout(
                                         name="face",
                                         width=368,
                                         height=143,
                                         top=5,
                                     ),
-                                    'box': PilotBoxLayout(
+                                    "box": PilotBoxLayout(
                                         name="box",
                                         width=368,
                                         height=62,
                                         left=0,
                                         top=138,
                                         children={
-                                            'name': TextLayout(
+                                            "name": TextLayout(
                                                 content="{pilot_name}",
                                                 name="name",
                                                 height=28,
@@ -389,16 +391,16 @@ FBRT = {
                     )
                 },
                 positions=[
-                    {'left': 295, 'top': 2},
-                    {'left': 938, 'top': 2},
-                    {'left': 150, 'top': 204},
-                    {'left': 1095, 'top': 204},
-                    {'left': 32, 'top': 406},
-                    {'left': 1203, 'top': 406},
-                    {'left': 150, 'top': 608},
-                    {'left': 1098, 'top': 608},
-                    {'left': 295, 'top': 810},
-                    {'left': 938, 'top': 810},
+                    {"left": 295, "top": 2},
+                    {"left": 938, "top": 2},
+                    {"left": 150, "top": 204},
+                    {"left": 1095, "top": 204},
+                    {"left": 32, "top": 406},
+                    {"left": 1203, "top": 406},
+                    {"left": 150, "top": 608},
+                    {"left": 1098, "top": 608},
+                    {"left": 295, "top": 810},
+                    {"left": 938, "top": 810},
                 ]
             )
         },
@@ -442,6 +444,185 @@ FBRT = {
                 color=230
             )
         ]
+    ),
+    "season_pilots": PolygonsLayout(
+        name="season_pilots",
+        width=1080,
+        height=1080,
+        bg=255,
+        polygons=[
+            Polygon(
+                edges=(
+                    (0, 263),
+                    (0, 510),
+                    (505, 0),
+                    (260, 0),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (424, 523),
+                    (1158, 523),
+                    (605, 1080),
+                    (0, 1080),
+                    (0, 950),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (738, 523),
+                    (1468, 523),
+                    (1920, 74),
+                    (1920, 0),
+                    (1256, 0),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (1352, 1080),
+                    (1920, 1080),
+                    (1920, 523),
+                    (1908, 523)
+                ),
+                color=230
+            )
+        ],
+        children={
+            "fbrt": ImageLayout(
+                "fbrt",
+                path="assets/logos/FBRT/unbordered.png",
+                width=175,
+                top=20,
+                left=40,
+            ),
+            "saison_text": TextLayout(
+                name="text",
+                content="SAISON {season}",
+                width=440,
+                height=60,
+                fg=(0, 0, 0),
+                top=40
+            ),
+            "line_up_text": IdentifierDependantTextLayout(
+                name="pilots_text",
+                top=110,
+                width=380,
+                height=60,
+                content={
+                    "default": "PILOTES",
+                    "reservists": "RÉSERVISTES",
+                    "reservist": "RÉSERVISTES"
+                },
+                font_name="black",
+                fg=(0, 0, 0),
+            ),
+            "fif": ImageLayout(
+                "fif",
+                path="assets/logos/fif/wide_black.png",
+                width=175,
+                right=40,
+                top=120,
+            ),
+            "pilots": SeasonPilotsLayout(
+                name="pilots",
+                width=1000,
+                height=860,
+                top=200,
+                # FIXME use another keyword than children like "reused layout"
+                children={
+                    # children are used once for each number/position
+                    "pilot_number": PilotNumberLayout(
+                        name="pilot_number",
+                        width=480,
+                        height=75,
+                        children={
+                            "number": TextLayout(
+                                name="number",
+                                content="{number}",
+                                width=90,
+                                height=60,
+                                left=0,
+                                stroke_width=18,
+                                text_top=-10,
+                                text_left=15,
+                                center=True
+                            ),
+                            "card": PilotCardLayout(
+                                name="card",
+                                width=380,
+                                height=75,
+                                left=100,
+                                children={
+                                    "logo_container": Layout(
+                                        name="logo_container",
+                                        left=0,
+                                        width=120,
+                                        height=75,
+                                        children={
+                                            "logo": ImageLayout(
+                                                name="logo",
+                                                path="{team_logo_path}",
+                                                height=80
+                                            ),
+                                        }
+                                    ),
+                                    "pilot_row": ImageLayout(
+                                        name="pilot_row",
+                                        path="assets/backgrounds/FBRT/ranking_row_bg.png",
+                                        width=280,
+                                        height=75,
+                                        left=100,
+                                        top=0,
+                                        keep_ratio=False,
+                                        children={
+                                            "pilot_name": TextLayout(
+                                                name="pilot_name",
+                                                content="{pilot_name}",
+                                                width=215,
+                                                height=30,
+                                                left=60,
+                                            ),
+                                        }
+                                    ),
+                                    "face": PilotFaceLayout(
+                                        name="face",
+                                        width=820,
+                                        height=115,
+                                        left=45,
+                                        top=-15
+                                    ),
+                                }
+                            )
+                        }
+                    ),
+                },
+                positions=[
+                    {"left": 0, "top": 0},
+                    {"left": 520, "top": 20},
+                    {"left": 0, "top": 85},
+                    {"left": 520, "top": 105},
+                    {"left": 0, "top": 170},
+                    {"left": 520, "top": 190},
+                    {"left": 0, "top": 255},
+                    {"left": 520, "top": 275},
+                    {"left": 0, "top": 340},
+                    {"left": 520, "top": 360},
+                    {"left": 0, "top": 425},
+                    {"left": 520, "top": 445},
+                    {"left": 0, "top": 510},
+                    {"left": 520, "top": 530},
+                    {"left": 0, "top": 595},
+                    {"left": 520, "top": 615},
+                    {"left": 0, "top": 680},
+                    {"left": 520, "top": 700},
+                    {"left": 0, "top": 765},
+                    {"left": 520, "top": 785},
+                ]
+            )
+        },
     ),
     "season_teams": PolygonsLayout(
         name="lineup",
@@ -493,38 +674,38 @@ FBRT = {
                 width=1920,
                 height=1080,
                 children={
-                    'team': TeamLineupLayout(
+                    "team": TeamLineupLayout(
                         name="team",
                         width=680,
                         height=200,
                         children={
-                            'logo': ImageLayout(
+                            "logo": ImageLayout(
                                 name="logo",
                                 width=220,
                                 height=90,
                                 top=30
                             ),
-                            'pilot_1': PilotLineupLayout(
+                            "pilot_1": PilotLineupLayout(
                                 name="pilot_1",
                                 left=0,
                                 top=0,
                                 width=368,
                                 height=200,
                                 children={
-                                    'face': PilotFaceLayout(
+                                    "face": PilotFaceLayout(
                                         name="face",
                                         width=368,
                                         height=143,
                                         top=5,
                                     ),
-                                    'box': PilotBoxLayout(
+                                    "box": PilotBoxLayout(
                                         name="box",
                                         width=368,
                                         height=62,
                                         left=0,
                                         top=138,
                                         children={
-                                            'name': TextLayout(
+                                            "name": TextLayout(
                                                 content="{pilot_name}",
                                                 name="name",
                                                 height=28,
@@ -534,27 +715,27 @@ FBRT = {
                                     ),
                                 }
                             ),
-                            'pilot_2': PilotLineupLayout(
+                            "pilot_2": PilotLineupLayout(
                                 name="pilot_2",
                                 left=312,
                                 top=0,
                                 width=368,
                                 height=200,
                                 children={
-                                    'face': PilotFaceLayout(
+                                    "face": PilotFaceLayout(
                                         name="face",
                                         width=368,
                                         height=143,
                                         top=5,
                                     ),
-                                    'box': PilotBoxLayout(
+                                    "box": PilotBoxLayout(
                                         name="box",
                                         width=368,
                                         height=62,
                                         left=0,
                                         top=138,
                                         children={
-                                            'name': TextLayout(
+                                            "name": TextLayout(
                                                 content="{pilot_name}",
                                                 name="name",
                                                 height=28,
@@ -568,16 +749,16 @@ FBRT = {
                     )
                 },
                 positions=[
-                    {'left': 295, 'top': 2},
-                    {'left': 938, 'top': 2},
-                    {'left': 150, 'top': 204},
-                    {'left': 1095, 'top': 204},
-                    {'left': 32, 'top': 406},
-                    {'left': 1203, 'top': 406},
-                    {'left': 150, 'top': 608},
-                    {'left': 1098, 'top': 608},
-                    {'left': 295, 'top': 810},
-                    {'left': 938, 'top': 810},
+                    {"left": 295, "top": 2},
+                    {"left": 938, "top": 2},
+                    {"left": 150, "top": 204},
+                    {"left": 1095, "top": 204},
+                    {"left": 32, "top": 406},
+                    {"left": 1203, "top": 406},
+                    {"left": 150, "top": 608},
+                    {"left": 1098, "top": 608},
+                    {"left": 295, "top": 810},
+                    {"left": 938, "top": 810},
                 ]
             )
         },

@@ -7,7 +7,7 @@ from src.media_generation.models.pilot import Pilot
 from src.media_generation.models.team import Team
 from src.media_generation.readers.race_reader_models.lineup import LineUp
 from src.media_generation.readers.race_reader_models.race import Race, RaceType
-from src.media_generation.data import circuits, teams_idx
+from src.media_generation.data import ASPIRANT_TEAM, RESERVIST_TEAM, circuits, teams_idx
 
 
 class TestLayouts(unittest.TestCase):
@@ -38,7 +38,9 @@ class TestLayouts(unittest.TestCase):
                 'OVR_Kayzor': Pilot(name='OVR_Kayzor', team=teams_idx["Haas"], number='15', title=None, reservist=False, aspirant=False, trigram='KAY'),
                 'FBRT_b0sstyl3': Pilot(name='FBRT_b0sstyl3', team=teams_idx["Haas"], number='8', title=None, reservist=False, aspirant=False, trigram='BOS'),
                 'Prolactron': Pilot(name='Prolactron', team=teams_idx["Alpine"], number='26', title=None, reservist=False, aspirant=False, trigram='PRO'),
-                'MoonLight_RR': Pilot(name='MoonLight_RR', team=teams_idx["Alpine"], number='98', title=None, reservist=False, aspirant=False, trigram='MOO')
+                'MoonLight_RR': Pilot(name='MoonLight_RR', team=teams_idx["Alpine"], number='98', title=None, reservist=False, aspirant=False, trigram='MOO'),
+                'Stewen': Pilot(name='Stewen', team=ASPIRANT_TEAM, number='95', title=None, reservist=False, aspirant=True, trigram='STE'),
+                'Redaym': Pilot(name='Redaym', team=RESERVIST_TEAM, number='62', title=None, reservist=True, aspirant=False, trigram='RED'),
             })
         self.race = Race(
             circuit=circuits['Qatar'],
@@ -54,6 +56,22 @@ class TestLayouts(unittest.TestCase):
             replacements=None,
             type=RaceType.NORMAL
         )
+
+    def test_season_pilots_layout(self):
+        config = GeneratorConfig(
+            GeneratorType.SEASON_PILOTS,
+            'tests/test.png',
+            self.race.final_lineup.pilots,
+            teams=teams_idx,
+        )
+        context = {
+            'season': 9,
+            'config': config,
+            'identifier': 'main'
+        }
+        layout = layouts.FBRT["season_pilots"]
+        img = layout.render(context=context)
+        img.save('tests/_outputs/season_pilots.png', quality=100)
 
     def test_lineup_layout(self):
         config = GeneratorConfig(
