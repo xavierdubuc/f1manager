@@ -1,7 +1,11 @@
 from src.media_generation.layout.image_layout import ImageLayout
+from src.media_generation.layout.layout import Layout
 from src.media_generation.layout.pilot.pilot_box_layout import PilotBoxLayout
+from src.media_generation.layout.pilot.pilot_card_layout import PilotCardLayout
 from src.media_generation.layout.pilot.pilot_face_layout import PilotFaceLayout
 from src.media_generation.layout.pilot.pilot_lineup_layout import PilotLineupLayout
+from src.media_generation.layout.pilot.pilot_number_layout import PilotNumberLayout
+from src.media_generation.layout.pilot.pilot_numbers_layout import PilotNumbersLayout
 from src.media_generation.layout.polygons_layout import Polygon, PolygonsLayout
 from src.media_generation.layout.race.round_layout import RoundLayout
 from src.media_generation.layout.team.team_lineup_layout import TeamLineupLayout
@@ -9,6 +13,197 @@ from src.media_generation.layout.team.teams_layout import TeamsLayout
 from src.media_generation.layout.text_layout import TextLayout
 
 FBRT = {
+    "numbers": ImageLayout(
+        name="bg",
+        path="assets/backgrounds/FBRT/numbers.png",
+        width=1920,
+        height=1080,
+        bg=255,
+        children={
+            "numbers": PilotNumbersLayout(
+                name="numbers",
+                width=1880,  # 1920 - 2 * 20
+                height=1052,  # 1080 - 2 * 14
+                locked_numbers={
+                    1: '-',
+                    2: 'Sargeant',
+                    3: 'Ricciardo',
+                    4: 'Norris',
+                    10: 'Gasly',
+                    11: 'Perez',
+                    14: 'Alonso',
+                    16: 'Leclerc',
+                    17: '/',
+                    18: 'Stroll',
+                    20: 'Magnussen',
+                    22: 'Tsunoda',
+                    23: 'Albon',
+                    24: 'Zhou',
+                    27: 'Hulkenberg',
+                    31: 'Ocon',
+                    33: 'Verstappen',
+                    44: 'Hamilton',
+                    55: 'Sainz',
+                    63: 'Russell',
+                    77: 'Bottas',
+                    81: 'Piastri'
+                },
+                children={
+                    # children are used once for each number/position
+                    "pilot_number": PilotNumberLayout(
+                        name="pilot_number",
+                        width=360,  # 360 * 5 + (4*20) = 1880
+                        height=45,  # 45 * 20 = 900 -> + (19 * 8) = 1052
+                        children={
+                            "number": TextLayout(
+                                name="number",
+                                content="{number}",
+                                width=45,
+                                height=35,
+                                left=0,
+                                stroke_width=18,
+                                text_top=-10,
+                                text_left=15,
+                            ),
+                            "card": PilotCardLayout(
+                                name="card",
+                                width=300,
+                                height=45,
+                                left=60,
+                                children={
+                                    'logo_container': Layout(
+                                        name="logo_container",
+                                        left=0,
+                                        width=65,
+                                        height=45,
+                                        children={
+                                            'logo': ImageLayout(
+                                                name="logo",
+                                                path="{team_logo_path}",
+                                                width=65,
+                                                height=45
+                                            ),
+                                        }
+                                    ),
+                                    'pilot_name': TextLayout(
+                                        name="pilot_name",
+                                        content="{pilot_name}",
+                                        width=205,
+                                        height=22,
+                                        left=80,
+                                        top=10,
+                                        underscore_top=12,
+                                        long_top=15,
+                                    ),
+                                }
+                            )
+                        }
+                    )
+                },
+                positions=[
+                    {"left": 0, "top": 0},  # 1
+                    {"left": 0, "top": 53},  # 2
+                    {"left": 0, "top": 106},  # 3
+                    {"left": 0, "top": 159},  # 4
+                    {"left": 0, "top": 212},  # 5
+                    {"left": 0, "top": 265},  # 6
+                    {"left": 0, "top": 318},  # 7
+                    {"left": 0, "top": 371},  # 8
+                    {"left": 0, "top": 424},  # 9
+                    {"left": 0, "top": 477},  # 10
+                    {"left": 0, "top": 530},  # 11
+                    {"left": 0, "top": 583},  # 12
+                    {"left": 0, "top": 636},  # 13
+                    {"left": 0, "top": 689},  # 14
+                    {"left": 0, "top": 742},  # 15
+                    {"left": 0, "top": 795},  # 16
+                    {"left": 0, "top": 848},  # 17
+                    {"left": 0, "top": 901},  # 18
+                    {"left": 0, "top": 954},  # 19
+                    {"left": 0, "top": 1007},  # 20
+                    {"left": 380, "top": 0},  # 21
+                    {"left": 380, "top": 53},  # 22
+                    {"left": 380, "top": 106},  # 23
+                    {"left": 380, "top": 159},  # 24
+                    {"left": 380, "top": 212},  # 25
+                    {"left": 380, "top": 265},  # 26
+                    {"left": 380, "top": 318},  # 27
+                    {"left": 380, "top": 371},  # 28
+                    {"left": 380, "top": 424},  # 29
+                    {"left": 380, "top": 477},  # 30
+                    {"left": 380, "top": 530},  # 31
+                    {"left": 380, "top": 583},  # 32
+                    {"left": 380, "top": 636},  # 33
+                    {"left": 380, "top": 689},  # 34
+                    {"left": 380, "top": 742},  # 35
+                    {"left": 380, "top": 795},  # 36
+                    {"left": 380, "top": 848},  # 37
+                    {"left": 380, "top": 901},  # 38
+                    {"left": 380, "top": 954},  # 39
+                    {"left": 380, "top": 1007},  # 40
+                    {"left": 760, "top": 0},  # 41
+                    {"left": 760, "top": 53},  # 42
+                    {"left": 760, "top": 106},  # 43
+                    {"left": 760, "top": 159},  # 44
+                    {"left": 760, "top": 212},  # 45
+                    {"left": 760, "top": 265},  # 46
+                    {"left": 760, "top": 318},  # 47
+                    {"left": 760, "top": 371},  # 48
+                    {"left": 760, "top": 424},  # 49
+                    {"left": 760, "top": 477},  # 50
+                    {"left": 760, "top": 530},  # 51
+                    {"left": 760, "top": 583},  # 52
+                    {"left": 760, "top": 636},  # 53
+                    {"left": 760, "top": 689},  # 54
+                    {"left": 760, "top": 742},  # 55
+                    {"left": 760, "top": 795},  # 56
+                    {"left": 760, "top": 848},  # 57
+                    {"left": 760, "top": 901},  # 58
+                    {"left": 760, "top": 954},  # 59
+                    {"left": 760, "top": 1007},  # 60
+                    {"left": 1140, "top": 0},  # 61
+                    {"left": 1140, "top": 53},  # 62
+                    {"left": 1140, "top": 106},  # 63
+                    {"left": 1140, "top": 159},  # 64
+                    {"left": 1140, "top": 212},  # 65
+                    {"left": 1140, "top": 265},  # 66
+                    {"left": 1140, "top": 318},  # 67
+                    {"left": 1140, "top": 371},  # 68
+                    {"left": 1140, "top": 424},  # 69
+                    {"left": 1140, "top": 477},  # 70
+                    {"left": 1140, "top": 530},  # 71
+                    {"left": 1140, "top": 583},  # 72
+                    {"left": 1140, "top": 636},  # 73
+                    {"left": 1140, "top": 689},  # 74
+                    {"left": 1140, "top": 742},  # 75
+                    {"left": 1140, "top": 795},  # 76
+                    {"left": 1140, "top": 848},  # 77
+                    {"left": 1140, "top": 901},  # 78
+                    {"left": 1140, "top": 954},  # 79
+                    {"left": 1140, "top": 1007},  # 80
+                    {"left": 1520, "top": 0},  # 81
+                    {"left": 1520, "top": 53},  # 82
+                    {"left": 1520, "top": 106},  # 83
+                    {"left": 1520, "top": 159},  # 84
+                    {"left": 1520, "top": 212},  # 85
+                    {"left": 1520, "top": 265},  # 86
+                    {"left": 1520, "top": 318},  # 87
+                    {"left": 1520, "top": 371},  # 88
+                    {"left": 1520, "top": 424},  # 89
+                    {"left": 1520, "top": 477},  # 90
+                    {"left": 1520, "top": 530},  # 91
+                    {"left": 1520, "top": 583},  # 92
+                    {"left": 1520, "top": 636},  # 93
+                    {"left": 1520, "top": 689},  # 94
+                    {"left": 1520, "top": 742},  # 95
+                    {"left": 1520, "top": 795},  # 96
+                    {"left": 1520, "top": 848},  # 97
+                    {"left": 1520, "top": 901},  # 98
+                    {"left": 1520, "top": 954},  # 99
+                ],
+            )
+        }
+    ),
     "lineup": PolygonsLayout(
         name="lineup",
         width=1920,
@@ -72,7 +267,7 @@ FBRT = {
             ),
             "circuit_flag": ImageLayout(
                 name="flag_layout",
-                path="assets/circuits/flags/{circuit.id}.png",
+                path="assets/circuits/flags/{race.circuit.id}.png",
                 width=60,
                 height=35,
                 left=230,
@@ -118,7 +313,7 @@ FBRT = {
                 name="teams",
                 width=1920,
                 height=1080,
-                children={
+                children={  # children are used once for each team
                     'team': TeamLineupLayout(
                         name="team",
                         width=680,

@@ -22,7 +22,9 @@ class TeamsLayout(Layout):
         if config and config.teams:
             teams:List[Team] = config.teams
         else:
-            teams:List[Team] = context.get('teams', {}).values()
+            teams:List[Team] = context.get('teams', [])
+        if isinstance(teams, dict):
+            teams = teams.values()
             
         for team, position in zip(teams, self.positions):
             for key, child in self.children.items():

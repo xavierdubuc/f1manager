@@ -13,6 +13,8 @@ class ImageLayout(Layout):
     path: str = None
 
     def _get_path(self, context: dict = {}) -> str:
+        if not self.path:
+            return
         try:
             return self.path.format(**context)
         except KeyError as e:
@@ -21,6 +23,8 @@ class ImageLayout(Layout):
     def _render_base_image(self, context: dict = {}) -> PngImageFile:
         try:
             path = self._get_path(context)
+            if not path:
+                return super()._render_base_image(context)
             with Image.open(path) as bg:
                 return resize(bg, height=self.height, width=self.width)
         except Exception as e:

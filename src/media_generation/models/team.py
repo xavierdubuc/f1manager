@@ -79,11 +79,14 @@ class Team:
         }
 
     def get_ranking_logo(self):
+        return Image.open(self.get_ranking_logo_path())
+
+    def get_ranking_logo_path(self):
         if self.name in ('KickSauber', 'RedBull'):
-            return Image.open(self._get_alt_logo_path())
+            return self._get_alt_logo_path()
         if self.name in ('AstonMartin', 'Williams', 'McLaren', 'Alpine'):
-            return Image.open(self._get_white_logo_path())
-        return Image.open(self.get_image())
+            return self._get_white_logo_path()
+        return self.get_image()
 
     def get_results_logo(self):
         if self.name in ('VCARB',):

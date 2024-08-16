@@ -57,7 +57,7 @@ class Layout:
             if left is None and self.right is not None:
                 left = on.width - img.width - self.right
 
-            top = self.top
+            top = self._get_top(context)
             if top is None and self.bottom is not None:
                 top = on.height - img.height - self.bottom
 
@@ -73,6 +73,9 @@ class Layout:
         except Exception as e:
             raise Exception(f'A problem occured when pasting layout "{self.name}" : {str(e)}') from e
 
+    def _get_top(self, context: dict = {}) -> int:
+        return self.top
+
     def _ensure_rgba(self, value):
         if value is None:
             return DEFAULT_BG
@@ -85,12 +88,21 @@ class Layout:
     def _render_base_image(self, context: dict = {}) -> PngImageFile:
         if not self.width or not self.height:
             raise Exception(f'Layout "{self.name}" has no size')
-        return Image.new('RGBA', self.size, self.bg)
+        return Image.new('RGBA', self.size, self._get_bg(context))
 
     def _paste_children(self, img: PngImageFile, context: dict = {}):
         for key, child in self.children.items():
-            _logger.debug(f'Pasting {key} on layout {self.__class__.__name__}')
-            child.paste_on(img, self._get_children_context(context))
+            self._paste_child(img, key, child, context)
+
+    def _paste_child(self, img: PngImageFile, key:str, child: "Layout", context: dict = {}):
+        _logger.debug(f'Pasting {key} on layout {self.__class__.__name__}')
+        child.paste_on(img, self._get_children_context(context))
+
+    def _get_bg(self, context: dict={}):
+        return self.bg
+
+    def _get_fg(self, context: dict={}):
+        return self.fg
 
     def _get_children_context(self, context: dict= {}):
         return context

@@ -26,6 +26,8 @@ class TextLayout(Layout):
     text_top: int = 0
     stroke_width: int = 0
     stroke_fill: Tuple[int,int,int,int] = None
+    underscore_top:int = None
+    long_top:int = None
 
     @property
     def text_position(self):
@@ -34,6 +36,10 @@ class TextLayout(Layout):
     def __post_init__(self):
         super().__post_init__()
         self.font = self._compute_font()
+        if self.underscore_top is None:
+            self.underscore_top = self.top
+        if self.long_top is None:
+            self.long_top = self.top
 
     def _compute_font(self):
         if self.font_name in METHOD_FONTS:
@@ -53,7 +59,7 @@ class TextLayout(Layout):
         if not content:
             return None
         size = self._estimate_size(content)
-        img = Image.new('RGBA', size, self.bg)
+        img = Image.new('RGBA', [d+self.stroke_width for d in size], self.bg)
         text_draw = ImageDraw.Draw(img)
         text_draw.text(
             self.text_position, content, self.fg, self.font,
@@ -64,3 +70,11 @@ class TextLayout(Layout):
     def _estimate_size(self, content: str) -> Tuple[int, int]:
         _, _, w, h = SANDBOX.textbbox((0, 0), content, self.font)
         return w+self.text_left,h+self.text_top
+
+    def _get_top(self, context: dict = {}) -> int:
+        txt = self._get_text(context)
+        if '_' in txt:
+            return self.underscore_top
+        if len(txt) > 14:
+            return self.long_top
+        return self.top

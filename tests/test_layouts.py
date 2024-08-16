@@ -1,6 +1,8 @@
 from datetime import datetime
 import unittest
 from config import layouts
+from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.helpers.generator_type import GeneratorType
 from src.media_generation.models.pilot import Pilot
 from src.media_generation.models.team import Team
 from src.media_generation.readers.race_reader_models.lineup import LineUp
@@ -43,7 +45,7 @@ class TestLayouts(unittest.TestCase):
             laps=12,
             full_date=datetime.now(),
             day=2,
-            month=10,
+            month=9,
             hour="20:45",
             round=1,
             presentation_text="",
@@ -54,11 +56,38 @@ class TestLayouts(unittest.TestCase):
         )
 
     def test_lineup_layout(self):
+        config = GeneratorConfig(
+            GeneratorType.LINEUP,
+            'tests/test.png',
+            self.race.final_lineup.pilots,
+            teams=teams_idx,
+            race=self.race
+        )
         context = {
+            'season': 9,
+            'config': config,
             'month_fr': 'Septembre',
             'race': self.race,
-            'teams': teams_idx
+            'circuit': self.race.circuit,
+            'circuit_city': 'LOSAIL',
+            'teams': teams_idx.values()
         }
-        layout = layouts.FBRT["settings"]["layouts"]["lineup"]
+        layout = layouts.FBRT["lineup"]
         img = layout.render(context=context)
-        img.save('tests/test.png', quality=100)
+        img.save('tests/_outputs/lineup.png', quality=100)
+
+    def test_numbers_layout(self):
+        config = GeneratorConfig(
+            GeneratorType.NUMBERS,
+            'tests/test.png',
+            self.race.final_lineup.pilots,
+            teams=teams_idx.values(),
+        )
+        context = {
+            'season': 9,
+            'config': config,
+            'identifier': 'main'
+        }
+        layout = layouts.FBRT["numbers"]
+        img = layout.render(context=context)
+        img.save('tests/_outputs/numbers.png', quality=100)
