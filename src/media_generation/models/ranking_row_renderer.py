@@ -118,9 +118,9 @@ class RankingRowRenderer:
         )
         with team.get_results_logo() as orig:
             logo = resize(orig, logo_width, int(.65*height))
-        logo_pos = paste(logo, img, left=team_config['text_left'])
+        logo_pos = paste(logo, img, left=0)
         text_img = text(team.display_name, self.fg_color, font)
-        paste(text_img, img, left=logo_pos.right + team_config['text_left'])
+        paste(text_img, img, left=logo_pos.right + team_config['text_left'], top=team_config.get('text_top', False))
         return img
 
     def _render_split(self, width:int, height: int):

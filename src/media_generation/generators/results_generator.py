@@ -135,20 +135,25 @@ class ResultsGenerator(AbstractRaceGenerator):
         return img
 
     def _generate_logos_image(self, width, height):
-        img = Image.new('RGBA', (width, height), (0, 0, 0, 150))
+        logo_config = self.visual_config.get('logos', {})
+        bg = logo_config.get('background', (0, 0, 0, 150))
+        img = Image.new('RGBA', (width, height), bg)
         img = img.filter(ImageFilter.GaussianBlur(radius=10))
 
         # champ
-        champ_logo = self._get_champ_logo(self.visual_config['logos']['champ'])
-        paste(champ_logo, img, left=20)
+        champ_logo_dict = logo_config.get('champ', {})
+        champ_logo = self._get_champ_logo(champ_logo_dict)
+        self.paste_image(champ_logo, img, champ_logo_dict)
 
         # secondary
-        champ_logo = self._get_champ_logo(self.visual_config['logos']['secondary'])
-        paste(champ_logo, img, left=width - champ_logo.width, top=0)
+        if second_logo_config := logo_config.get('secondary'):
+            second_logo = self._get_champ_logo(second_logo_config)
+            paste(second_logo, img, left=width - second_logo.width, top=0)
 
         # f1
-        f1_logo = self._get_f1_logo(self.visual_config['logos']['f1'])
-        paste(f1_logo, img, left=width-f1_logo.width, top=height-f1_logo.height)
+        f1_config = logo_config['f1']
+        f1_logo = self._get_f1_logo(f1_config)
+        self.paste_image(f1_logo, img, f1_config)
         return img
 
     def _get_f1_logo(self, config):

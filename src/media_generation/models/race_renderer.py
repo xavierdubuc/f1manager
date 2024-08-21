@@ -234,7 +234,7 @@ class RaceRenderer:
             )
             point_content = f"+1 {point_config['text']}"
             point_font_color = point_config['font_color']
-            point_txt = text_hi_res(point_content, point_font_color, point_font, point_config['width'], point_config['height'])
+            point_txt = text_hi_res(point_content, point_font_color, point_font, point_config['width'], point_config['height'], use_background=bgcolor)
             paste(point_txt, img, left=width - (point_config['width'] + point_config['right']), top=point_config['top'])
 
         return img
