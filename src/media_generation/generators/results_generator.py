@@ -6,7 +6,6 @@ from PIL import Image, ImageFilter
 from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.generators.abstract_race_generator import \
     AbstractRaceGenerator
-from src.media_generation.generators.exceptions import IncorrectDataException
 from src.media_generation.models.podium_row_renderer import PodiumRowRenderer
 from src.media_generation.models.ranking_row_renderer import RankingRowRenderer
 from src.media_generation.models.visual import Visual
@@ -34,7 +33,11 @@ class ResultsGenerator(AbstractRaceGenerator):
         bg = super()._get_background_image()
         if not bg:
             return bg
-        return bg.filter(ImageFilter.GaussianBlur(5))
+        bg_overlay = Image.new('RGBA', bg.size, (0,0,0,100))
+        paste(bg_overlay, bg)
+        bg = bg.filter(ImageFilter.GaussianBlur(5))
+        return bg
+
 
     def _generate_part_image(self, config_key):
         config = self.visual_config[config_key]

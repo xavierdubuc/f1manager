@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from PIL.PngImagePlugin import PngImageFile
 
@@ -13,26 +13,20 @@ _logger = logging.getLogger(__name__)
 
 @dataclass
 class PilotNumbersLayout(Layout):
-    locked_numbers: Dict[str, str] = None
-    positions: List[Dict[str, int]] = None
+    locked_numbers: Dict[str, str] = field(default_factory=dict)
 
-    def _paste_children(self, img: PngImageFile, context: dict = {}):
+    def _get_template_instance_context(self, i: int, context: Dict[str, Any] = {}):
         config = context.get('config', None)
         if not config:
-            return
-        if not config.pilots:
-            return
-        pilots: Dict[int, Pilot] = {
-            int(p.number): p for p in config.pilots.values() if p.number and p.number != 'Re'
-        }
-        official_pilots: Dict[int, str] = self.locked_numbers
-        for i, position in enumerate(self.positions):
-            number = i+1
-            context['number'] = number
-            context['pilot'] = pilots.get(number)
-            context['official_pilot'] = official_pilots.get(number)
-            for key, child in self.children.items():
-                child.left = position['left']
-                child.top = position['top']
-                _logger.debug(f'Pasting {key} on layout {self.__class__.__name__} for number {i}')
-                child.paste_on(img, context)
+            return {}
+        ctx = {'number': i+1}
+        if self.locked_numbers:
+            ctx['official_pilot'] = self.locked_numbers.get(i+1)
+
+        ctx['pilot'] = None
+        if config.pilots:
+            for p in config.pilots.values():
+                if p.number.isnumeric() and int(p.number) == i+1:
+                    ctx['pilot'] = p
+
+        return ctx

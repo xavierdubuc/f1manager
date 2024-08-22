@@ -1,36 +1,44 @@
 from dataclasses import dataclass
+from typing import Any, Dict, List
 
 from PIL.PngImagePlugin import PngImageFile
 
 
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.layout.layout import Layout
+from src.media_generation.models.pilot import Pilot
 from src.media_generation.models.team import Team
 from src.media_generation.readers.race_reader_models.race import Race
 
 
 @dataclass
 class TeamLineupLayout(Layout):
-    team: Team = None
+    pilots: List[Pilot] = None
 
-    def _render_base_image(self, context: dict = {}) -> PngImageFile:
-        if not self.team:
-            self.children = {}
-            return super()._render_base_image(context)
-        self.children['logo'].path = self.team.get_lineup_logo_path()
-        race:Race = context.get('race')
-        if race:
-            pilots = race.get_pilots(self.team)
-        else:
-            config: GeneratorConfig = context.get('config')
-            pilots = config.get_pilots(self.team)
-        if 'pilot_1' in self.children:
-            self.children['pilot_1'].pilot = pilots[0] if pilots and len(pilots) > 0 else None
-        if 'pilot_2' in self.children:
-            self.children['pilot_2'].pilot = pilots[1] if pilots and len(pilots) > 1 else None
-        return super()._render_base_image(context)
+    def _get_pilots(self, context: Dict[str, Any] = {}) -> List[Pilot]:
+        if not self.pilots:
+            team = context.get('team')
+            if not team:
+                self.pilots = []
+            race: Race = context.get('race')
+            if race:
+                self.pilots = race.get_pilots(team)
+            else:
+                config: GeneratorConfig = context.get('config')
+                self.pilots = config.get_pilots(team) if config else []
+        return self.pilots
 
-    def _get_children_context(self, context: dict= {}):
-        if self.team:
-            return dict(context, team=self.team)
-        return super()._get_children_context(context)
+    def _paste_child(self, img: PngImageFile, key: str, child: Layout, context: Dict[str, Any] = {}):
+        team: Team = context.get('team')
+        if not team:
+            return  # if no team, then don't paste anything
+
+        if key == 'logo':
+            child.path = team.get_lineup_logo_path()
+        elif key == 'pilot_1':
+            pilots = self._get_pilots(context)
+            context['pilot'] = pilots[0] if pilots and len(pilots) > 0 else None
+        elif key == 'pilot_2':
+            pilots = self._get_pilots(context)
+            context['pilot'] = pilots[1] if pilots and len(pilots) > 1 else None
+        return super()._paste_child(img, key, child, context)

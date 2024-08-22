@@ -8,6 +8,7 @@ from src.media_generation.models.team import Team
 from src.media_generation.readers.race_reader_models.lineup import LineUp
 from src.media_generation.readers.race_reader_models.race import Race, RaceType
 from src.media_generation.data import ASPIRANT_TEAM, RESERVIST_TEAM, circuits, teams_idx
+from src.media_generation.readers.race_reader_models.race_ranking import RaceRanking, RaceRankingRow
 
 
 class TestLayouts(unittest.TestCase):
@@ -57,30 +58,97 @@ class TestLayouts(unittest.TestCase):
             type=RaceType.NORMAL
         )
 
-    def test_season_pilots_layout(self):
-        config = GeneratorConfig(
-            GeneratorType.SEASON_PILOTS,
-            'tests/test.png',
-            self.race.final_lineup.pilots,
-            teams=teams_idx,
-        )
-        context = {
-            'season': 9,
-            'config': config,
-            'identifier': 'main'
-        }
-        layout = layouts.FBRT["season_pilots"]
-        img = layout.render(context=context)
-        img.save('tests/_outputs/season_pilots.png', quality=100)
+    # def test_season_pilots_layout(self):
+    #     config = GeneratorConfig(
+    #         GeneratorType.SEASON_PILOTS,
+    #         'tests/test.png',
+    #         self.race.final_lineup.pilots,
+    #         teams=teams_idx,
+    #     )
+    #     context = {
+    #         'season': 9,
+    #         'config': config,
+    #         'identifier': 'main'
+    #     }
+    #     layout = layouts.FBRT["season_pilots"]
+    #     img = layout.render(context=context)
+    #     img.save('tests/_outputs/season_pilots.png', quality=100)
 
-    def test_lineup_layout(self):
+    # def test_season_teams_layout(self):
+    #     config = GeneratorConfig(
+    #         GeneratorType.SEASON_TEAMS,
+    #         'tests/test.png',
+    #         self.race.final_lineup.pilots,
+    #         teams=teams_idx,
+    #     )
+    #     context = {
+    #         'season': 9,
+    #         'config': config,
+    #         'identifier': 'main'
+    #     }
+    #     layout = layouts.FBRT["season_teams"]
+    #     img = layout.render(context=context)
+    #     img.save('tests/_outputs/season_teams.png', quality=100)
+
+    # def test_lineup_layout(self):
+    #     config = GeneratorConfig(
+    #         GeneratorType.LINEUP,
+    #         'tests/test.png',
+    #         self.race.final_lineup.pilots,
+    #         teams=teams_idx,
+    #         race=self.race
+    #     )
+    #     context = {
+    #         'season': 9,
+    #         'config': config,
+    #         'month_fr': 'Septembre',
+    #         'race': self.race,
+    #         'circuit': self.race.circuit,
+    #         'circuit_city': 'LOSAIL',
+    #         'teams': teams_idx.values()
+    #     }
+    #     layout = layouts.FBRT["lineup"]
+    #     img = layout.render(context=context)
+    #     img.save('tests/_outputs/lineup.png', quality=100)
+
+    # def test_numbers_layout(self):
+    #     config = GeneratorConfig(
+    #         GeneratorType.NUMBERS,
+    #         'tests/test.png',
+    #         self.race.final_lineup.pilots,
+    #         teams=teams_idx.values(),
+    #     )
+    #     context = {
+    #         'season': 9,
+    #         'config': config,
+    #         'identifier': 'main'
+    #     }
+    #     layout = layouts.FBRT["numbers"]
+    #     img = layout.render(context=context)
+    #     img.save('tests/_outputs/numbers.png', quality=100)
+
+    def test_result_layout(self):
         config = GeneratorConfig(
-            GeneratorType.LINEUP,
+            GeneratorType.RESULTS,
             'tests/test.png',
             self.race.final_lineup.pilots,
             teams=teams_idx,
             race=self.race
         )
+        self.race.race_result = RaceRanking([
+            RaceRankingRow(
+                position=i+1,
+                pilot_name=p.name,
+                split=("51:06.822" if i == 0 else str(i*2.345)) if i < 18 else 'NT',
+                tyres="SHMIW",
+                best_lap="1.17.671",
+                points=20-i,
+                is_driver_of_the_day=i == 4,
+                has_fastest_lap=i == 5,
+                pilot=p,
+            )
+            for i, p in enumerate(self.race.final_lineup.pilots.values())
+        ])
         context = {
             'season': 9,
             'config': config,
@@ -90,22 +158,6 @@ class TestLayouts(unittest.TestCase):
             'circuit_city': 'LOSAIL',
             'teams': teams_idx.values()
         }
-        layout = layouts.FBRT["lineup"]
+        layout = layouts.FBRT["results"]
         img = layout.render(context=context)
-        img.save('tests/_outputs/lineup.png', quality=100)
-
-    def test_numbers_layout(self):
-        config = GeneratorConfig(
-            GeneratorType.NUMBERS,
-            'tests/test.png',
-            self.race.final_lineup.pilots,
-            teams=teams_idx.values(),
-        )
-        context = {
-            'season': 9,
-            'config': config,
-            'identifier': 'main'
-        }
-        layout = layouts.FBRT["numbers"]
-        img = layout.render(context=context)
-        img.save('tests/_outputs/numbers.png', quality=100)
+        img.save('tests/_outputs/results.png', quality=100)

@@ -1,7 +1,7 @@
 import logging
 
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from PIL.PngImagePlugin import PngImageFile
 
@@ -15,21 +15,22 @@ _logger = logging.getLogger(__name__)
 
 @dataclass
 class TeamsLayout(Layout):
-    positions: List[Dict[str, int]] = None
+    teams: List[Team] = None
 
-    def _paste_children(self, img: PngImageFile, context: dict = {}):
-        config = context.get('config', None)
-        if config and config.teams:
-            teams:List[Team] = config.teams
-        else:
-            teams:List[Team] = context.get('teams', [])
-        if isinstance(teams, dict):
-            teams = teams.values()
-            
-        for team, position in zip(teams, self.positions):
-            for key, child in self.children.items():
-                child.team = team
-                child.left = position['left']
-                child.top = position['top']
-                _logger.debug(f'Pasting {key} on layout {self.__class__.__name__} for team {team.name}')
-                child.paste_on(img, context)
+    def _get_teams(self, context: Dict[str, Any] = {}) -> List[Team]:
+        if self.teams is None:
+            config = context.get('config')
+            if config and config.teams:
+                teams:List[Team] = config.teams
+            else:
+                teams:List[Team] = context.get('teams', [])
+            self.teams = list(teams.values()) if isinstance(teams, dict) else teams
+        return self.teams
+
+    def _get_template_instance_context(self, i: int, context: Dict[str, Any] = {}):
+        teams = self._get_teams(context)
+        if not teams:
+            return super()._get_template_instance_context(i, context)
+        return {
+            'team': teams[i] if 0 <= i < len(teams) else None
+        }

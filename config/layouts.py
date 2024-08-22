@@ -1,20 +1,7 @@
-from src.media_generation.layout.identifier_dependant_text_layout import IdentifierDependantTextLayout
-from src.media_generation.layout.image_layout import ImageLayout
-from src.media_generation.layout.layout import Layout
-from src.media_generation.layout.pilot.pilot_box_layout import PilotBoxLayout
-from src.media_generation.layout.pilot.pilot_card_layout import PilotCardLayout
-from src.media_generation.layout.pilot.pilot_face_layout import PilotFaceLayout
-from src.media_generation.layout.pilot.pilot_lineup_layout import PilotLineupLayout
-from src.media_generation.layout.pilot.pilot_number_layout import PilotNumberLayout
-from src.media_generation.layout.pilot.pilot_numbers_layout import PilotNumbersLayout
-from src.media_generation.layout.pilot.season_pilots_layout import SeasonPilotsLayout
-from src.media_generation.layout.polygons_layout import Polygon, PolygonsLayout
-from src.media_generation.layout.race.round_layout import RoundLayout
-from src.media_generation.layout.team.team_lineup_layout import TeamLineupLayout
-from src.media_generation.layout.team.teams_layout import TeamsLayout
-from src.media_generation.layout.text_layout import TextLayout
+from src.media_generation.layout import *
 
 FBRT = {
+    # just _values
     "numbers": ImageLayout(
         name="bg",
         path="assets/backgrounds/FBRT/numbers.png",
@@ -50,162 +37,524 @@ FBRT = {
                     77: "Bottas",
                     81: "Piastri"
                 },
-                children={
-                    # children are used once for each number/position
-                    "pilot_number": PilotNumberLayout(
-                        name="pilot_number",
-                        width=360,  # 360 * 5 + (4*20) = 1880
-                        height=45,  # 45 * 20 = 900 -> + (19 * 8) = 1052
-                        children={
-                            "number": TextLayout(
-                                name="number",
-                                content="{number}",
-                                width=45,
-                                height=35,
-                                left=0,
-                                stroke_width=18,
-                                text_top=-10,
-                                text_left=15,
-                            ),
-                            "card": PilotCardLayout(
-                                name="card",
-                                width=300,
-                                height=45,
-                                left=60,
-                                children={
-                                    "logo_container": Layout(
-                                        name="logo_container",
-                                        left=0,
-                                        width=65,
-                                        height=45,
-                                        children={
-                                            "logo": ImageLayout(
-                                                name="logo",
-                                                path="{team_logo_path}",
-                                                width=65,
-                                                height=45
-                                            ),
-                                        }
-                                    ),
-                                    "pilot_name": TextLayout(
-                                        name="pilot_name",
-                                        content="{pilot_name}",
-                                        width=205,
-                                        height=22,
-                                        left=80,
-                                        top=10,
-                                        underscore_top=12,
-                                        long_top=15,
-                                    ),
-                                }
-                            )
-                        }
+                templates={
+                    "pilot_number": LayoutTemplate(
+                        layout=PilotNumberLayout(
+                            name="pilot_number",
+                            width=360,  # 360 * 5 + (4*20) = 1880
+                            height=45,  # 45 * 20 = 900 -> + (19 * 8) = 1052
+                            children={
+                                "number": TextLayout(
+                                    name="number",
+                                    content="{number}",
+                                    width=45,
+                                    height=35,
+                                    left=0,
+                                    stroke_width=18,
+                                    text_top=-10,
+                                    text_left=15,
+                                ),
+                                "card": PilotCardLayout(
+                                    name="card",
+                                    width=300,
+                                    height=45,
+                                    left=60,
+                                    children={
+                                        "logo_container": Layout(
+                                            name="logo_container",
+                                            left=0,
+                                            width=65,
+                                            height=45,
+                                            children={
+                                                "logo": ImageLayout(
+                                                    name="logo",
+                                                    path="{team_logo_path}",
+                                                    width=65,
+                                                    height=45
+                                                ),
+                                            }
+                                        ),
+                                        "pilot_name": TextLayout(
+                                            name="pilot_name",
+                                            content="{pilot_name}",
+                                            width=205,
+                                            height=22,
+                                            left=80,
+                                            top=10,
+                                            underscore_top=12,
+                                            long_top=15,
+                                        ),
+                                    }
+                                )
+                            }
+                        ),
+                        instances=[
+                            {"left": 0, "top": 0},  # 1
+                            {"left": 0, "top": 53},  # 2
+                            {"left": 0, "top": 106},  # 3
+                            {"left": 0, "top": 159},  # 4
+                            {"left": 0, "top": 212},  # 5
+                            {"left": 0, "top": 265},  # 6
+                            {"left": 0, "top": 318},  # 7
+                            {"left": 0, "top": 371},  # 8
+                            {"left": 0, "top": 424},  # 9
+                            {"left": 0, "top": 477},  # 10
+                            {"left": 0, "top": 530},  # 11
+                            {"left": 0, "top": 583},  # 12
+                            {"left": 0, "top": 636},  # 13
+                            {"left": 0, "top": 689},  # 14
+                            {"left": 0, "top": 742},  # 15
+                            {"left": 0, "top": 795},  # 16
+                            {"left": 0, "top": 848},  # 17
+                            {"left": 0, "top": 901},  # 18
+                            {"left": 0, "top": 954},  # 19
+                            {"left": 0, "top": 1007},  # 20
+                            {"left": 380, "top": 0},  # 21
+                            {"left": 380, "top": 53},  # 22
+                            {"left": 380, "top": 106},  # 23
+                            {"left": 380, "top": 159},  # 24
+                            {"left": 380, "top": 212},  # 25
+                            {"left": 380, "top": 265},  # 26
+                            {"left": 380, "top": 318},  # 27
+                            {"left": 380, "top": 371},  # 28
+                            {"left": 380, "top": 424},  # 29
+                            {"left": 380, "top": 477},  # 30
+                            {"left": 380, "top": 530},  # 31
+                            {"left": 380, "top": 583},  # 32
+                            {"left": 380, "top": 636},  # 33
+                            {"left": 380, "top": 689},  # 34
+                            {"left": 380, "top": 742},  # 35
+                            {"left": 380, "top": 795},  # 36
+                            {"left": 380, "top": 848},  # 37
+                            {"left": 380, "top": 901},  # 38
+                            {"left": 380, "top": 954},  # 39
+                            {"left": 380, "top": 1007},  # 40
+                            {"left": 760, "top": 0},  # 41
+                            {"left": 760, "top": 53},  # 42
+                            {"left": 760, "top": 106},  # 43
+                            {"left": 760, "top": 159},  # 44
+                            {"left": 760, "top": 212},  # 45
+                            {"left": 760, "top": 265},  # 46
+                            {"left": 760, "top": 318},  # 47
+                            {"left": 760, "top": 371},  # 48
+                            {"left": 760, "top": 424},  # 49
+                            {"left": 760, "top": 477},  # 50
+                            {"left": 760, "top": 530},  # 51
+                            {"left": 760, "top": 583},  # 52
+                            {"left": 760, "top": 636},  # 53
+                            {"left": 760, "top": 689},  # 54
+                            {"left": 760, "top": 742},  # 55
+                            {"left": 760, "top": 795},  # 56
+                            {"left": 760, "top": 848},  # 57
+                            {"left": 760, "top": 901},  # 58
+                            {"left": 760, "top": 954},  # 59
+                            {"left": 760, "top": 1007},  # 60
+                            {"left": 1140, "top": 0},  # 61
+                            {"left": 1140, "top": 53},  # 62
+                            {"left": 1140, "top": 106},  # 63
+                            {"left": 1140, "top": 159},  # 64
+                            {"left": 1140, "top": 212},  # 65
+                            {"left": 1140, "top": 265},  # 66
+                            {"left": 1140, "top": 318},  # 67
+                            {"left": 1140, "top": 371},  # 68
+                            {"left": 1140, "top": 424},  # 69
+                            {"left": 1140, "top": 477},  # 70
+                            {"left": 1140, "top": 530},  # 71
+                            {"left": 1140, "top": 583},  # 72
+                            {"left": 1140, "top": 636},  # 73
+                            {"left": 1140, "top": 689},  # 74
+                            {"left": 1140, "top": 742},  # 75
+                            {"left": 1140, "top": 795},  # 76
+                            {"left": 1140, "top": 848},  # 77
+                            {"left": 1140, "top": 901},  # 78
+                            {"left": 1140, "top": 954},  # 79
+                            {"left": 1140, "top": 1007},  # 80
+                            {"left": 1520, "top": 0},  # 81
+                            {"left": 1520, "top": 53},  # 82
+                            {"left": 1520, "top": 106},  # 83
+                            {"left": 1520, "top": 159},  # 84
+                            {"left": 1520, "top": 212},  # 85
+                            {"left": 1520, "top": 265},  # 86
+                            {"left": 1520, "top": 318},  # 87
+                            {"left": 1520, "top": 371},  # 88
+                            {"left": 1520, "top": 424},  # 89
+                            {"left": 1520, "top": 477},  # 90
+                            {"left": 1520, "top": 530},  # 91
+                            {"left": 1520, "top": 583},  # 92
+                            {"left": 1520, "top": 636},  # 93
+                            {"left": 1520, "top": 689},  # 94
+                            {"left": 1520, "top": 742},  # 95
+                            {"left": 1520, "top": 795},  # 96
+                            {"left": 1520, "top": 848},  # 97
+                            {"left": 1520, "top": 901},  # 98
+                            {"left": 1520, "top": 954},  # 99
+                        ]
                     )
-                },
-                positions=[
-                    {"left": 0, "top": 0},  # 1
-                    {"left": 0, "top": 53},  # 2
-                    {"left": 0, "top": 106},  # 3
-                    {"left": 0, "top": 159},  # 4
-                    {"left": 0, "top": 212},  # 5
-                    {"left": 0, "top": 265},  # 6
-                    {"left": 0, "top": 318},  # 7
-                    {"left": 0, "top": 371},  # 8
-                    {"left": 0, "top": 424},  # 9
-                    {"left": 0, "top": 477},  # 10
-                    {"left": 0, "top": 530},  # 11
-                    {"left": 0, "top": 583},  # 12
-                    {"left": 0, "top": 636},  # 13
-                    {"left": 0, "top": 689},  # 14
-                    {"left": 0, "top": 742},  # 15
-                    {"left": 0, "top": 795},  # 16
-                    {"left": 0, "top": 848},  # 17
-                    {"left": 0, "top": 901},  # 18
-                    {"left": 0, "top": 954},  # 19
-                    {"left": 0, "top": 1007},  # 20
-                    {"left": 380, "top": 0},  # 21
-                    {"left": 380, "top": 53},  # 22
-                    {"left": 380, "top": 106},  # 23
-                    {"left": 380, "top": 159},  # 24
-                    {"left": 380, "top": 212},  # 25
-                    {"left": 380, "top": 265},  # 26
-                    {"left": 380, "top": 318},  # 27
-                    {"left": 380, "top": 371},  # 28
-                    {"left": 380, "top": 424},  # 29
-                    {"left": 380, "top": 477},  # 30
-                    {"left": 380, "top": 530},  # 31
-                    {"left": 380, "top": 583},  # 32
-                    {"left": 380, "top": 636},  # 33
-                    {"left": 380, "top": 689},  # 34
-                    {"left": 380, "top": 742},  # 35
-                    {"left": 380, "top": 795},  # 36
-                    {"left": 380, "top": 848},  # 37
-                    {"left": 380, "top": 901},  # 38
-                    {"left": 380, "top": 954},  # 39
-                    {"left": 380, "top": 1007},  # 40
-                    {"left": 760, "top": 0},  # 41
-                    {"left": 760, "top": 53},  # 42
-                    {"left": 760, "top": 106},  # 43
-                    {"left": 760, "top": 159},  # 44
-                    {"left": 760, "top": 212},  # 45
-                    {"left": 760, "top": 265},  # 46
-                    {"left": 760, "top": 318},  # 47
-                    {"left": 760, "top": 371},  # 48
-                    {"left": 760, "top": 424},  # 49
-                    {"left": 760, "top": 477},  # 50
-                    {"left": 760, "top": 530},  # 51
-                    {"left": 760, "top": 583},  # 52
-                    {"left": 760, "top": 636},  # 53
-                    {"left": 760, "top": 689},  # 54
-                    {"left": 760, "top": 742},  # 55
-                    {"left": 760, "top": 795},  # 56
-                    {"left": 760, "top": 848},  # 57
-                    {"left": 760, "top": 901},  # 58
-                    {"left": 760, "top": 954},  # 59
-                    {"left": 760, "top": 1007},  # 60
-                    {"left": 1140, "top": 0},  # 61
-                    {"left": 1140, "top": 53},  # 62
-                    {"left": 1140, "top": 106},  # 63
-                    {"left": 1140, "top": 159},  # 64
-                    {"left": 1140, "top": 212},  # 65
-                    {"left": 1140, "top": 265},  # 66
-                    {"left": 1140, "top": 318},  # 67
-                    {"left": 1140, "top": 371},  # 68
-                    {"left": 1140, "top": 424},  # 69
-                    {"left": 1140, "top": 477},  # 70
-                    {"left": 1140, "top": 530},  # 71
-                    {"left": 1140, "top": 583},  # 72
-                    {"left": 1140, "top": 636},  # 73
-                    {"left": 1140, "top": 689},  # 74
-                    {"left": 1140, "top": 742},  # 75
-                    {"left": 1140, "top": 795},  # 76
-                    {"left": 1140, "top": 848},  # 77
-                    {"left": 1140, "top": 901},  # 78
-                    {"left": 1140, "top": 954},  # 79
-                    {"left": 1140, "top": 1007},  # 80
-                    {"left": 1520, "top": 0},  # 81
-                    {"left": 1520, "top": 53},  # 82
-                    {"left": 1520, "top": 106},  # 83
-                    {"left": 1520, "top": 159},  # 84
-                    {"left": 1520, "top": 212},  # 85
-                    {"left": 1520, "top": 265},  # 86
-                    {"left": 1520, "top": 318},  # 87
-                    {"left": 1520, "top": 371},  # 88
-                    {"left": 1520, "top": 424},  # 89
-                    {"left": 1520, "top": 477},  # 90
-                    {"left": 1520, "top": 530},  # 91
-                    {"left": 1520, "top": 583},  # 92
-                    {"left": 1520, "top": 636},  # 93
-                    {"left": 1520, "top": 689},  # 94
-                    {"left": 1520, "top": 742},  # 95
-                    {"left": 1520, "top": 795},  # 96
-                    {"left": 1520, "top": 848},  # 97
-                    {"left": 1520, "top": 901},  # 98
-                    {"left": 1520, "top": 954},  # 99
-                ],
+                }
             )
         }
     ),
+    "season_pilots": PolygonsLayout(
+        name="season_pilots",
+        width=1080,
+        height=1080,
+        bg=255,
+        polygons=[
+            Polygon(
+                edges=(
+                    (0, 263),
+                    (0, 510),
+                    (505, 0),
+                    (260, 0),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (424, 523),
+                    (1158, 523),
+                    (605, 1080),
+                    (0, 1080),
+                    (0, 950),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (738, 523),
+                    (1468, 523),
+                    (1920, 74),
+                    (1920, 0),
+                    (1256, 0),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (1352, 1080),
+                    (1920, 1080),
+                    (1920, 523),
+                    (1908, 523)
+                ),
+                color=230
+            )
+        ],
+        children={
+            "fbrt": ImageLayout(
+                "fbrt",
+                path="assets/logos/FBRT/unbordered.png",
+                width=175,
+                top=20,
+                left=40,
+            ),
+            "saison_text": TextLayout(
+                name="text",
+                content="SAISON {season}",
+                width=440,
+                height=60,
+                fg=(0, 0, 0),
+                top=40
+            ),
+            "line_up_text": IdentifierDependantTextLayout(
+                name="pilots_text",
+                top=110,
+                width=380,
+                height=60,
+                content={
+                    "default": "PILOTES",
+                    "reservists": "RÉSERVISTES",
+                    "reservist": "RÉSERVISTES"
+                },
+                font_name="black",
+                fg=(0, 0, 0),
+            ),
+            "fif": ImageLayout(
+                "fif",
+                path="assets/logos/fif/wide_black.png",
+                width=175,
+                right=40,
+                top=120,
+            ),
+            "pilots": SeasonPilotsLayout(
+                name="pilots",
+                width=1000,
+                height=860,
+                top=200,
+                templates={
+                    "pilot_number": LayoutTemplate(
+                        layout=PilotNumberLayout(
+                            name="pilot_number",
+                            width=480,
+                            height=75,
+                            children={
+                                "number": TextLayout(
+                                    name="number",
+                                    content="{number}",
+                                    width=90,
+                                    height=60,
+                                    left=0,
+                                    stroke_width=18,
+                                    text_top=-10,
+                                    text_left=15,
+                                    center=True
+                                ),
+                                "card": PilotCardLayout(
+                                    name="card",
+                                    width=380,
+                                    height=75,
+                                    left=100,
+                                    children={
+                                        "logo_container": Layout(
+                                            name="logo_container",
+                                            left=0,
+                                            width=120,
+                                            height=75,
+                                            children={
+                                                "logo": ImageLayout(
+                                                    name="logo",
+                                                    path="{team_logo_path}",
+                                                    height=80
+                                                ),
+                                            }
+                                        ),
+                                        "pilot_row": ImageLayout(
+                                            name="pilot_row",
+                                            path="assets/backgrounds/FBRT/ranking_row_bg.png",
+                                            width=280,
+                                            height=75,
+                                            left=100,
+                                            top=0,
+                                            keep_ratio=False,
+                                            children={
+                                                "pilot_name": TextLayout(
+                                                    name="pilot_name",
+                                                    content="{pilot_name}",
+                                                    width=215,
+                                                    height=30,
+                                                    left=60,
+                                                ),
+                                            }
+                                        ),
+                                        "face": PilotFaceLayout(
+                                            name="face",
+                                            width=820,
+                                            height=115,
+                                            left=45,
+                                            top=-15
+                                        ),
+                                    }
+                                )
+                            }
+                        ),
+                        instances=[
+                            {"left": 0, "top": 0},
+                            {"left": 520, "top": 20},
+                            {"left": 0, "top": 85},
+                            {"left": 520, "top": 105},
+                            {"left": 0, "top": 170},
+                            {"left": 520, "top": 190},
+                            {"left": 0, "top": 255},
+                            {"left": 520, "top": 275},
+                            {"left": 0, "top": 340},
+                            {"left": 520, "top": 360},
+                            {"left": 0, "top": 425},
+                            {"left": 520, "top": 445},
+                            {"left": 0, "top": 510},
+                            {"left": 520, "top": 530},
+                            {"left": 0, "top": 595},
+                            {"left": 520, "top": 615},
+                            {"left": 0, "top": 680},
+                            {"left": 520, "top": 700},
+                            {"left": 0, "top": 765},
+                            {"left": 520, "top": 785},
+                        ]
+                    )
+                },
+            )
+        },
+    ),
+    "season_teams": PolygonsLayout(
+        name="lineup",
+        width=1920,
+        height=1080,
+        bg=255,
+        children={
+            "black_rows": ImageLayout(
+                "black_rows",
+                path="assets/backgrounds/FBRT/lineup.png",
+                width=1920,
+                height=1080,
+                top=0,
+                left=0,
+            ),
+            "fbrt": ImageLayout(
+                "fbrt",
+                path="assets/logos/FBRT/unbordered.png",
+                width=175,
+                left=1740,
+                top=0,
+            ),
+            "fif": ImageLayout(
+                "fif",
+                path="assets/logos/fif/wide_black.png",
+                width=175,
+                left=0,
+                top=1010,
+            ),
+            "line_up_text": TextLayout(
+                name="line_up_text",
+                top=600,
+                width=380,
+                height=75,
+                content="LINE-UP",
+                font_name="black",
+                fg=(0, 0, 0),
+            ),
+            "saison_text": TextLayout(
+                name="text",
+                content="SAISON {season}",
+                width=440,
+                height=150,
+                fg=(200, 0, 0),
+                top=505
+            ),
+            "teams": TeamsLayout(
+                name="teams",
+                width=1920,
+                height=1080,
+                templates={
+                    "team": LayoutTemplate(
+                        layout=TeamLineupLayout(
+                            name="team",
+                            width=680,
+                            height=200,
+                            children={
+                                "logo": ImageLayout(
+                                    name="logo",
+                                    width=220,
+                                    height=90,
+                                    top=30
+                                ),
+                                "pilot_1": Layout(
+                                    name="pilot_1",
+                                    left=0,
+                                    top=0,
+                                    width=368,
+                                    height=200,
+                                    children={
+                                        "face": PilotFaceLayout(
+                                            name="face",
+                                            width=368,
+                                            height=143,
+                                            top=5,
+                                        ),
+                                        "box": PilotBoxLayout(
+                                            name="box",
+                                            width=368,
+                                            height=62,
+                                            left=0,
+                                            top=138,
+                                            children={
+                                                "name": TextLayout(
+                                                    content="{pilot_name}",
+                                                    name="name",
+                                                    height=28,
+                                                    width=250
+                                                )
+                                            }
+                                        ),
+                                    }
+                                ),
+                                "pilot_2": Layout(
+                                    name="pilot_2",
+                                    left=312,
+                                    top=0,
+                                    width=368,
+                                    height=200,
+                                    children={
+                                        "face": PilotFaceLayout(
+                                            name="face",
+                                            width=368,
+                                            height=143,
+                                            top=5,
+                                        ),
+                                        "box": PilotBoxLayout(
+                                            name="box",
+                                            width=368,
+                                            height=62,
+                                            left=0,
+                                            top=138,
+                                            children={
+                                                "name": TextLayout(
+                                                    content="{pilot_name}",
+                                                    name="name",
+                                                    height=28,
+                                                    width=250
+                                                )
+                                            }
+                                        ),
+                                    }
+                                ),
+                            }
+                        ),
+                        instances=[
+                            {"left": 295, "top": 2},
+                            {"left": 938, "top": 2},
+                            {"left": 150, "top": 204},
+                            {"left": 1095, "top": 204},
+                            {"left": 32, "top": 406},
+                            {"left": 1203, "top": 406},
+                            {"left": 150, "top": 608},
+                            {"left": 1098, "top": 608},
+                            {"left": 295, "top": 810},
+                            {"left": 938, "top": 810},
+                        ]
+                    )
+                }
+            )
+        },
+        polygons=[
+            Polygon(
+                edges=(
+                    (0, 263),
+                    (0, 510),
+                    (445, 64),
+                    (200, 64),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (424, 523),
+                    (1158, 523),
+                    (605, 1080),
+                    (0, 1080),
+                    (0, 950),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (738, 523),
+                    (1468, 523),
+                    (1920, 74),
+                    (1920, 0),
+                    (1256, 0),
+                ),
+                color=230
+            ),
+            Polygon(
+                edges=(
+                    (1352, 1080),
+                    (1920, 1080),
+                    (1920, 523),
+                    (1908, 523)
+                ),
+                color=230
+            )
+        ]
+    ),
+    # RaceReader
     "lineup": PolygonsLayout(
         name="lineup",
         width=1920,
@@ -315,93 +664,95 @@ FBRT = {
                 name="teams",
                 width=1920,
                 height=1080,
-                children={  # children are used once for each team
-                    "team": TeamLineupLayout(
-                        name="team",
-                        width=680,
-                        height=200,
-                        children={
-                            "logo": ImageLayout(
-                                name="logo",
-                                width=220,
-                                height=90,
-                                top=30
-                            ),
-                            "pilot_1": PilotLineupLayout(
-                                name="pilot_1",
-                                left=0,
-                                top=0,
-                                width=368,
-                                height=200,
-                                children={
-                                    "face": PilotFaceLayout(
-                                        name="face",
-                                        width=368,
-                                        height=143,
-                                        top=5,
-                                    ),
-                                    "box": PilotBoxLayout(
-                                        name="box",
-                                        width=368,
-                                        height=62,
-                                        left=0,
-                                        top=138,
-                                        children={
-                                            "name": TextLayout(
-                                                content="{pilot_name}",
-                                                name="name",
-                                                height=28,
-                                                width=250
-                                            )
-                                        }
-                                    ),
-                                }
-                            ),
-                            "pilot_2": PilotLineupLayout(
-                                name="pilot_2",
-                                left=312,
-                                top=0,
-                                width=368,
-                                height=200,
-                                children={
-                                    "face": PilotFaceLayout(
-                                        name="face",
-                                        width=368,
-                                        height=143,
-                                        top=5,
-                                    ),
-                                    "box": PilotBoxLayout(
-                                        name="box",
-                                        width=368,
-                                        height=62,
-                                        left=0,
-                                        top=138,
-                                        children={
-                                            "name": TextLayout(
-                                                content="{pilot_name}",
-                                                name="name",
-                                                height=28,
-                                                width=250
-                                            )
-                                        }
-                                    ),
-                                }
-                            ),
-                        }
+                templates={
+                    "team": LayoutTemplate(
+                        layout=TeamLineupLayout(
+                            name="team",
+                            width=680,
+                            height=200,
+                            children={
+                                "logo": ImageLayout(
+                                    name="logo",
+                                    width=220,
+                                    height=90,
+                                    top=30
+                                ),
+                                "pilot_1": Layout(
+                                    name="pilot_1",
+                                    left=0,
+                                    top=0,
+                                    width=368,
+                                    height=200,
+                                    children={
+                                        "face": PilotFaceLayout(
+                                            name="face",
+                                            width=368,
+                                            height=143,
+                                            top=5,
+                                        ),
+                                        "box": PilotBoxLayout(
+                                            name="box",
+                                            width=368,
+                                            height=62,
+                                            left=0,
+                                            top=138,
+                                            children={
+                                                "name": TextLayout(
+                                                    content="{pilot_name}",
+                                                    name="name",
+                                                    height=28,
+                                                    width=250
+                                                )
+                                            }
+                                        ),
+                                    }
+                                ),
+                                "pilot_2": Layout(
+                                    name="pilot_2",
+                                    left=312,
+                                    top=0,
+                                    width=368,
+                                    height=200,
+                                    children={
+                                        "face": PilotFaceLayout(
+                                            name="face",
+                                            width=368,
+                                            height=143,
+                                            top=5,
+                                        ),
+                                        "box": PilotBoxLayout(
+                                            name="box",
+                                            width=368,
+                                            height=62,
+                                            left=0,
+                                            top=138,
+                                            children={
+                                                "name": TextLayout(
+                                                    content="{pilot_name}",
+                                                    name="name",
+                                                    height=28,
+                                                    width=250
+                                                )
+                                            }
+                                        ),
+                                    }
+                                ),
+                            }
+                        ),
+                        instances=[
+                            {"left": 295, "top": 2},
+                            {"left": 938, "top": 2},
+                            {"left": 150, "top": 204},
+                            {"left": 1095, "top": 204},
+                            {"left": 32, "top": 406},
+                            {"left": 1203, "top": 406},
+                            {"left": 150, "top": 608},
+                            {"left": 1098, "top": 608},
+                            {"left": 295, "top": 810},
+                            {"left": 938, "top": 810},
+                        ]
                     )
                 },
-                positions=[
-                    {"left": 295, "top": 2},
-                    {"left": 938, "top": 2},
-                    {"left": 150, "top": 204},
-                    {"left": 1095, "top": 204},
-                    {"left": 32, "top": 406},
-                    {"left": 1203, "top": 406},
-                    {"left": 150, "top": 608},
-                    {"left": 1098, "top": 608},
-                    {"left": 295, "top": 810},
-                    {"left": 938, "top": 810},
-                ]
             )
         },
         polygons=[
@@ -445,362 +796,75 @@ FBRT = {
             )
         ]
     ),
-    "season_pilots": PolygonsLayout(
-        name="season_pilots",
-        width=1080,
-        height=1080,
-        bg=255,
-        polygons=[
-            Polygon(
-                edges=(
-                    (0, 263),
-                    (0, 510),
-                    (505, 0),
-                    (260, 0),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (424, 523),
-                    (1158, 523),
-                    (605, 1080),
-                    (0, 1080),
-                    (0, 950),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (738, 523),
-                    (1468, 523),
-                    (1920, 74),
-                    (1920, 0),
-                    (1256, 0),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (1352, 1080),
-                    (1920, 1080),
-                    (1920, 523),
-                    (1908, 523)
-                ),
-                color=230
-            )
-        ],
-        children={
-            "fbrt": ImageLayout(
-                "fbrt",
-                path="assets/logos/FBRT/unbordered.png",
-                width=175,
-                top=20,
-                left=40,
-            ),
-            "saison_text": TextLayout(
-                name="text",
-                content="SAISON {season}",
-                width=440,
-                height=60,
-                fg=(0, 0, 0),
-                top=40
-            ),
-            "line_up_text": IdentifierDependantTextLayout(
-                name="pilots_text",
-                top=110,
-                width=380,
-                height=60,
-                content={
-                    "default": "PILOTES",
-                    "reservists": "RÉSERVISTES",
-                    "reservist": "RÉSERVISTES"
-                },
-                font_name="black",
-                fg=(0, 0, 0),
-            ),
-            "fif": ImageLayout(
-                "fif",
-                path="assets/logos/fif/wide_black.png",
-                width=175,
-                right=40,
-                top=120,
-            ),
-            "pilots": SeasonPilotsLayout(
-                name="pilots",
-                width=1000,
-                height=860,
-                top=200,
-                # FIXME use another keyword than children like "reused layout"
-                children={
-                    # children are used once for each number/position
-                    "pilot_number": PilotNumberLayout(
-                        name="pilot_number",
-                        width=480,
-                        height=75,
-                        children={
-                            "number": TextLayout(
-                                name="number",
-                                content="{number}",
-                                width=90,
-                                height=60,
-                                left=0,
-                                stroke_width=18,
-                                text_top=-10,
-                                text_left=15,
-                                center=True
-                            ),
-                            "card": PilotCardLayout(
-                                name="card",
-                                width=380,
-                                height=75,
-                                left=100,
-                                children={
-                                    "logo_container": Layout(
-                                        name="logo_container",
-                                        left=0,
-                                        width=120,
-                                        height=75,
-                                        children={
-                                            "logo": ImageLayout(
-                                                name="logo",
-                                                path="{team_logo_path}",
-                                                height=80
-                                            ),
-                                        }
-                                    ),
-                                    "pilot_row": ImageLayout(
-                                        name="pilot_row",
-                                        path="assets/backgrounds/FBRT/ranking_row_bg.png",
-                                        width=280,
-                                        height=75,
-                                        left=100,
-                                        top=0,
-                                        keep_ratio=False,
-                                        children={
-                                            "pilot_name": TextLayout(
-                                                name="pilot_name",
-                                                content="{pilot_name}",
-                                                width=215,
-                                                height=30,
-                                                left=60,
-                                            ),
-                                        }
-                                    ),
-                                    "face": PilotFaceLayout(
-                                        name="face",
-                                        width=820,
-                                        height=115,
-                                        left=45,
-                                        top=-15
-                                    ),
-                                }
-                            )
-                        }
-                    ),
-                },
-                positions=[
-                    {"left": 0, "top": 0},
-                    {"left": 520, "top": 20},
-                    {"left": 0, "top": 85},
-                    {"left": 520, "top": 105},
-                    {"left": 0, "top": 170},
-                    {"left": 520, "top": 190},
-                    {"left": 0, "top": 255},
-                    {"left": 520, "top": 275},
-                    {"left": 0, "top": 340},
-                    {"left": 520, "top": 360},
-                    {"left": 0, "top": 425},
-                    {"left": 520, "top": 445},
-                    {"left": 0, "top": 510},
-                    {"left": 520, "top": 530},
-                    {"left": 0, "top": 595},
-                    {"left": 520, "top": 615},
-                    {"left": 0, "top": 680},
-                    {"left": 520, "top": 700},
-                    {"left": 0, "top": 765},
-                    {"left": 520, "top": 785},
-                ]
-            )
-        },
-    ),
-    "season_teams": PolygonsLayout(
-        name="lineup",
+    "results": ImageLayout(
+        name="results",
         width=1920,
         height=1080,
-        bg=255,
+        path="assets/backgrounds/FBRT/results.png",
+        gaussian_blur=5,
         children={
-            "black_rows": ImageLayout(
-                "black_rows",
-                path="assets/backgrounds/FBRT/lineup.png",
+            "bg_overlay": Layout(
+                name="bg_overlay",
                 width=1920,
                 height=1080,
-                top=0,
-                left=0,
+                bg=(0, 0, 0, 100)
             ),
-            "fbrt": ImageLayout(
-                "fbrt",
-                path="assets/logos/FBRT/unbordered.png",
-                width=175,
-                left=1740,
-                top=0,
-            ),
-            "fif": ImageLayout(
-                "fif",
-                path="assets/logos/fif/wide_black.png",
-                width=175,
-                left=0,
-                top=1010,
-            ),
-            "line_up_text": TextLayout(
-                name="line_up_text",
-                top=600,
-                width=380,
-                height=75,
-                content="LINE-UP",
-                font_name="black",
-                fg=(0, 0, 0),
-            ),
-            "saison_text": TextLayout(
-                name="text",
-                content="SAISON {season}",
-                width=440,
-                height=150,
-                fg=(200, 0, 0),
-                top=505
-            ),
-            "teams": TeamsLayout(
-                name="teams",
-                width=1920,
-                height=1080,
-                children={
-                    "team": TeamLineupLayout(
-                        name="team",
-                        width=680,
-                        height=200,
-                        children={
-                            "logo": ImageLayout(
-                                name="logo",
-                                width=220,
-                                height=90,
-                                top=30
-                            ),
-                            "pilot_1": PilotLineupLayout(
-                                name="pilot_1",
-                                left=0,
-                                top=0,
-                                width=368,
-                                height=200,
-                                children={
-                                    "face": PilotFaceLayout(
-                                        name="face",
-                                        width=368,
-                                        height=143,
-                                        top=5,
-                                    ),
-                                    "box": PilotBoxLayout(
-                                        name="box",
-                                        width=368,
-                                        height=62,
-                                        left=0,
-                                        top=138,
-                                        children={
-                                            "name": TextLayout(
-                                                content="{pilot_name}",
-                                                name="name",
-                                                height=28,
-                                                width=250
-                                            )
-                                        }
-                                    ),
-                                }
-                            ),
-                            "pilot_2": PilotLineupLayout(
-                                name="pilot_2",
-                                left=312,
-                                top=0,
-                                width=368,
-                                height=200,
-                                children={
-                                    "face": PilotFaceLayout(
-                                        name="face",
-                                        width=368,
-                                        height=143,
-                                        top=5,
-                                    ),
-                                    "box": PilotBoxLayout(
-                                        name="box",
-                                        width=368,
-                                        height=62,
-                                        left=0,
-                                        top=138,
-                                        children={
-                                            "name": TextLayout(
-                                                content="{pilot_name}",
-                                                name="name",
-                                                height=28,
-                                                width=250
-                                            )
-                                        }
-                                    ),
-                                }
-                            ),
-                        }
+            "top3": PodiumLayout(
+                name="top3",
+                width=900,
+                height=545,
+                left=30,
+                top=30,
+                bg=0,
+                templates={
+                    "full_size_pilots": LayoutTemplate(
+                        FullSizeRankingRowLayout(
+                            name="full_size_pilots",
+                            width=280,
+                            height=465,
+                            bg=(255, 0, 0),
+                            bottom=0
+                        ),
+                        instances=[
+                            {"left": 310, "height": 545},  # 2
+                            {"left": 0, "height": 465},  # 1
+                            {"left": 620, "height": 465},  # 3
+                        ]
                     )
-                },
-                positions=[
-                    {"left": 295, "top": 2},
-                    {"left": 938, "top": 2},
-                    {"left": 150, "top": 204},
-                    {"left": 1095, "top": 204},
-                    {"left": 32, "top": 406},
-                    {"left": 1203, "top": 406},
-                    {"left": 150, "top": 608},
-                    {"left": 1098, "top": 608},
-                    {"left": 295, "top": 810},
-                    {"left": 938, "top": 810},
-                ]
+                }
+            ),
+            "logos": Layout(
+                name="logos",
+                width=905,
+                height=280,
+                right=20,
+                bottom=20,
+                bg=(25, 25, 25, 150),
+                children={
+                    "fbrt": ImageLayout(
+                        name="fbrt",
+                        path="assets/logos/FBRT/unbordered.png",
+                        height=260,
+                        left=40,
+                        top=15,
+                    ),
+                    "fif": ImageLayout(
+                        name="fif",
+                        path="assets/logos/fif/wide_white.png",
+                        height=140,
+                        right=40,
+                        top=20,
+                    ),
+                    "f1": ImageLayout(
+                        name="f1",
+                        path="assets/logos/f1/24_white.png",
+                        height=140,
+                        width=450,
+                        right=40,
+                        bottom=30,
+                    ),
+                }
             )
-        },
-        polygons=[
-            Polygon(
-                edges=(
-                    (0, 263),
-                    (0, 510),
-                    (445, 64),
-                    (200, 64),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (424, 523),
-                    (1158, 523),
-                    (605, 1080),
-                    (0, 1080),
-                    (0, 950),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (738, 523),
-                    (1468, 523),
-                    (1920, 74),
-                    (1920, 0),
-                    (1256, 0),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (1352, 1080),
-                    (1920, 1080),
-                    (1920, 523),
-                    (1908, 523)
-                ),
-                color=230
-            )
-        ]
+        }
     )
 }

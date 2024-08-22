@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import logging
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from PIL.PngImagePlugin import PngImageFile
 
@@ -13,26 +13,35 @@ _logger = logging.getLogger(__name__)
 
 @dataclass
 class SeasonPilotsLayout(Layout):
-    positions: List[Dict[str, int]] = None
+    pilots: List[Pilot] = None
 
-    def _paste_children(self, img: PngImageFile, context: dict = {}):
-        config = context.get('config', None)
-        if not config:
-            return
-        if not config.pilots:
-            return
-        pilots: List[Pilot] = list(config.pilots.values())
-        identifier = context.get('identifier', 'all')
-        if identifier == 'main':
-            pilots = pilots[:20]
-        elif identifier in ('reservist', 'reservists'):
-            pilots = pilots[20:]
+    def _get_pilots(self, context: Dict[str, Any] = {}) -> List[Pilot]:
+        if self.pilots is None:
+            config = context.get('config')
+            if not config:
+                return []
+            if not config.pilots:
+                return []
+            pilots: List[Pilot] = list(config.pilots.values())
+            identifier = context.get('identifier', 'all')
+            if identifier == 'main':
+                pilots = pilots[:20]
+            elif identifier in ('reservist', 'reservists'):
+                pilots = pilots[20:]
+            self.pilots = pilots
+        return self.pilots
 
-        for pilot, position in zip(pilots, self.positions):
-            context['number'] = pilot.number
-            context['pilot'] = pilot
-            for key, child in self.children.items():
-                child.left = position['left']
-                child.top = position['top']
-                _logger.debug(f'Pasting {key} on layout {self.__class__.__name__} for {pilot.number} {pilot.name}')
-                child.paste_on(img, context)
+    def _get_template_instance_context(self, i: int, context: Dict[str, Any] = {}):
+        pilots = self._get_pilots(context)
+        if not pilots:
+            return super()._get_template_instance_context(i, context)
+        if 0 <= i < len(pilots):
+            pilot = pilots[i]
+            return {
+                'number': pilot.number,
+                'pilot': pilot
+            }
+        return {
+            'number': None,
+            'pilot': None
+        }
