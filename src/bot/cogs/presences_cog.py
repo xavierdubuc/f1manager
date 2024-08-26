@@ -85,9 +85,10 @@ class PresencesCog(RaceCog):
             inline = role.name not in ("Titulaire", "Commentateur")
             embed.add_field(name=role.name, inline=inline, value='-')
         embed_dict = await self._configure_embed(embed, inter)
-        embed = disnake.Embed.from_dict(embed_dict)
-        msg = f"{' '.join(r.mention for r in roles)}\nVeuillez voter !"
-        await channel.send(msg, embed=embed, components=components)
+        if embed_dict:
+            embed = disnake.Embed.from_dict(embed_dict)
+            msg = f"{' '.join(r.mention for r in roles)}\nVeuillez voter !"
+            await channel.send(msg, embed=embed, components=components)
 
     async def _configure_embed(self, embed: disnake.Embed, inter: disnake.ApplicationCommandInteraction):
         race_name = embed.title
