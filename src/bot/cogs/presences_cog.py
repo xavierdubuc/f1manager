@@ -42,7 +42,8 @@ class PresencesCog(RaceCog):
         gsheet = PresenceGSheet(championship_config['seasons'][season]['sheet'])
         gsheet.set(inter.user.display_name, race_name, is_present)
         embed_dict = await self._configure_embed(embed, inter)
-        await inter.message.edit(embed=disnake.Embed.from_dict(embed_dict))
+        if embed_dict:
+            await inter.message.edit(embed=disnake.Embed.from_dict(embed_dict))
         return bool(embed_dict)
 
     @commands.slash_command(name="presences", description='Lancer le sondage de présence pour la course désirée')
@@ -85,10 +86,9 @@ class PresencesCog(RaceCog):
             inline = role.name not in ("Titulaire", "Commentateur")
             embed.add_field(name=role.name, inline=inline, value='-')
         embed_dict = await self._configure_embed(embed, inter)
-        if embed_dict:
-            embed = disnake.Embed.from_dict(embed_dict)
-            msg = f"{' '.join(r.mention for r in roles)}\nVeuillez voter !"
-            await channel.send(msg, embed=embed, components=components)
+        embed = disnake.Embed.from_dict(embed_dict)
+        msg = f"{' '.join(r.mention for r in roles)}\nVeuillez voter !"
+        await channel.send(msg, embed=embed, components=components)
 
     async def _configure_embed(self, embed: disnake.Embed, inter: disnake.ApplicationCommandInteraction):
         race_name = embed.title
