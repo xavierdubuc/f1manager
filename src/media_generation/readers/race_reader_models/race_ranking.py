@@ -17,6 +17,14 @@ class RaceRankingRow:
     # COMPUTED
     pilot: Pilot = None
 
+    @property
+    def delta(self):
+        if self.position == 1:
+            return self.split
+        if self.split in ('NT', 'DSQ'):
+            return self.split
+        return f"+ {self.split}"
+
 @dataclass
 class RaceRanking:
     rows: List[RaceRankingRow]

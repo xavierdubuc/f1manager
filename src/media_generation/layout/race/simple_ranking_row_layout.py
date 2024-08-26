@@ -10,18 +10,11 @@ from src.media_generation.readers.race_reader_models.race_ranking import RaceRan
 
 
 @dataclass
-class FullSizeRankingRowLayout(Layout):
+class SimpleRankingRowLayout(Layout):
     fastest_lap_bg: Tuple[int, int, int, int] = ()
     driver_of_the_day_bg: Tuple[int, int, int, int] = ()
-    default_bg: Tuple[int, int, int, int] = ()
-    bg_transparency: int = 50
-
-    def _paste_child(self, img: PngImageFile, key: str, child: Layout, context: Dict[str, Any] = dict):
-        race_ranking_row: RaceRankingRow = context.get('race_ranking_row')
-        pilot: Pilot = race_ranking_row.pilot
-        if pilot and pilot.team and key == "bg":
-            child.bg = pilot.team.standing_bg+(self.bg_transparency,)
-        return super()._paste_child(img, key, child, context)
+    even_bg: Tuple[int, int, int, int] = ()
+    odd_bg: Tuple[int, int, int, int] = ()
 
     def _get_children_context(self, context: Dict[str, Any] = ...) -> Dict[str, Any]:
         ctx = super()._get_children_context(context)
@@ -33,6 +26,6 @@ class FullSizeRankingRowLayout(Layout):
         elif race_ranking_row.has_fastest_lap: # what about half/half if both ? FIXME
             bg_color = self.fastest_lap_bg
         else:
-            bg_color = self.default_bg
+            bg_color = self.odd_bg if race_ranking_row.position % 2 == 1 else self.even_bg
         ctx['bg_color'] = bg_color
         return ctx

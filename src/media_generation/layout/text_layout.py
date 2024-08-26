@@ -25,10 +25,12 @@ class TextLayout(Layout):
     text_left: int = 0
     text_top: int = 0
     stroke_width: int = 0
-    stroke_fill: Tuple[int,int,int,int] = None
-    underscore_top:int = None
-    long_top:int = None
-    center:bool = False
+    stroke_fill: Tuple[int, int, int, int] = None
+    underscore_top: int = None
+    long_top: int = None
+    center: bool = False
+    text_width: int = None
+    text_height: int = None
 
     @property
     def text_position(self):
@@ -41,6 +43,10 @@ class TextLayout(Layout):
             self.underscore_top = self.top
         if self.long_top is None:
             self.long_top = self.top
+        if self.text_width is None:
+            self.text_width = self.width
+        if self.text_height is None:
+            self.text_height = self.height
 
     def _compute_font(self):
         if self.font_name in METHOD_FONTS:
@@ -60,27 +66,25 @@ class TextLayout(Layout):
         if not content:
             return None
         size = self._estimate_size(content)
-        img = Image.new('RGBA', [d+self.stroke_width for d in size], self.bg)
+        img = Image.new('RGBA', [d+self.stroke_width for d in size], self._get_bg(context))
         text_draw = ImageDraw.Draw(img)
         text_draw.text(
-            self.text_position, content, self.fg, self.font,
+            self.text_position, content, self._get_fg(context), self.font,
             stroke_width=self.stroke_width, stroke_fill=self.stroke_fill
         )
-        text_img = resize(img, self.width, self.height)
+        text_img = resize(img, self.text_width, self.text_height)
         if not self.center:
             return text_img
 
         left = (self.width-img.width) // 2
         top = (self.height-img.height) // 2
-        container = Image.new('RGBA', self.size, self.bg)
+        container = Image.new('RGBA', self.size, self._get_bg(context))
         container.paste(text_img, (left, top), text_img)
         return container
 
-            
-
     def _estimate_size(self, content: str) -> Tuple[int, int]:
         _, _, w, h = SANDBOX.textbbox((0, 0), content, self.font)
-        return w+self.text_left,h+self.text_top
+        return w+self.text_left, h+self.text_top
 
     def _get_top(self, context: dict = {}) -> int:
         txt = self._get_text(context)

@@ -1,4 +1,5 @@
 from src.media_generation.layout import *
+from src.media_generation.layout.pilot.pilot_photo_layout import WHOLE
 
 FBRT = {
     # just _values
@@ -335,7 +336,7 @@ FBRT = {
                                                 ),
                                             }
                                         ),
-                                        "face": PilotFaceLayout(
+                                        "face": PilotPhotoLayout(
                                             name="face",
                                             width=820,
                                             height=115,
@@ -442,7 +443,7 @@ FBRT = {
                                     width=368,
                                     height=200,
                                     children={
-                                        "face": PilotFaceLayout(
+                                        "face": PilotPhotoLayout(
                                             name="face",
                                             width=368,
                                             height=143,
@@ -472,7 +473,7 @@ FBRT = {
                                     width=368,
                                     height=200,
                                     children={
-                                        "face": PilotFaceLayout(
+                                        "face": PilotPhotoLayout(
                                             name="face",
                                             width=368,
                                             height=143,
@@ -684,7 +685,7 @@ FBRT = {
                                     width=368,
                                     height=200,
                                     children={
-                                        "face": PilotFaceLayout(
+                                        "face": PilotPhotoLayout(
                                             name="face",
                                             width=368,
                                             height=143,
@@ -714,7 +715,7 @@ FBRT = {
                                     width=368,
                                     height=200,
                                     children={
-                                        "face": PilotFaceLayout(
+                                        "face": PilotPhotoLayout(
                                             name="face",
                                             width=368,
                                             height=143,
@@ -799,36 +800,253 @@ FBRT = {
     "results": ImageLayout(
         name="results",
         width=1920,
-        height=1080,
+        height=1200,
         path="assets/backgrounds/FBRT/results.png",
         gaussian_blur=5,
         children={
             "bg_overlay": Layout(
                 name="bg_overlay",
                 width=1920,
-                height=1080,
+                height=1200,
                 bg=(0, 0, 0, 100)
             ),
-            "top3": PodiumLayout(
+            "top3": RaceRankingLayout(
                 name="top3",
                 width=900,
-                height=545,
+                height=615,
                 left=30,
                 top=30,
-                bg=0,
                 templates={
                     "full_size_pilots": LayoutTemplate(
                         FullSizeRankingRowLayout(
                             name="full_size_pilots",
                             width=280,
-                            height=465,
-                            bg=(255, 0, 0),
-                            bottom=0
+                            bottom=0,
+                            default_bg=(241, 241, 241, 255),
+                            driver_of_the_day_bg=(246, 212, 136, 255),
+                            fastest_lap_bg=(191, 140, 210, 255),
+                            children={
+                                "bg": RoundedLayout(
+                                    name="bg",
+                                    width=280,
+                                    children={
+                                        "position": TextLayout(
+                                            name="position",
+                                            width=122,
+                                            height=142,
+                                            fg=255,
+                                            left=20,
+                                            top=10,
+                                            content="{race_ranking_row.position}"
+                                        ),
+                                        "face": PilotPhotoLayout(
+                                            photo_type=WHOLE,
+                                            name="face",
+                                            width=500,
+                                            height=730,
+                                            left=45,
+                                            top=-15
+                                        ),
+                                        "pilot_name": TextLayout(
+                                            name="pilot_name",
+                                            fg="{race_ranking_row.pilot.team.standing_fg}",
+                                            bg="{race_ranking_row.pilot.team.standing_bg}",
+                                            content="{pilot_name}",
+                                            font_name="bold",
+                                            height=55,
+                                            text_width=200,
+                                            text_height=35,
+                                            width=280,
+                                            left=0,
+                                            bottom=55,
+                                            center=True,
+                                        ),
+                                        "result_row_bg": DottedImageLayout(
+                                            name="result_row_bg",
+                                            height=55,
+                                            width=225,
+                                            left=0,
+                                            bottom=0,
+                                            bg="{bg_color}",
+                                            round_bottom_left=True,
+                                            left_part_width=0,
+                                            children={
+                                                'delta': TextLayout(
+                                                    name="delta",
+                                                    font_name="regular",
+                                                    content="{race_ranking_row.delta}",
+                                                    top=5,
+                                                    fg=(0, 0, 0, 255),
+                                                    bg="{bg_color}",
+                                                    height=18,
+                                                    width=225,
+                                                ),
+                                                'tyres': TyresLayout(
+                                                    name="tyres",
+                                                    height=20,
+                                                    tyre_spacing=1,
+                                                    width=225,
+                                                    bottom=5
+                                                )
+                                            },
+                                        ),
+                                    },
+                                ),
+                                'points': RoundedLayout(
+                                    name="points",
+                                    height=55,
+                                    width=55,
+                                    bg=0,
+                                    radius=20,
+                                    right=0,
+                                    bottom=0,
+                                    round_bottom_left=False,
+                                    round_top_left=False,
+                                    round_top_right=False,
+                                    round_bottom_right=True,
+                                    children={
+                                        "points_txt": TextLayout(
+                                            content="+{race_ranking_row.points}",
+                                            name="points_txt",
+                                            height=40,
+                                            width=40,
+                                            fg=255,
+                                            bg=0,
+                                        ),
+                                    }
+                                ),
+                            }
                         ),
                         instances=[
-                            {"left": 310, "height": 545},  # 2
-                            {"left": 0, "height": 465},  # 1
-                            {"left": 620, "height": 465},  # 3
+                            {"left": 310, "height": 575},  # 1
+                            {"left": 0, "height": 495},  # 2
+                            {"left": 620, "height": 495},  # 3
+                        ]
+                    )
+                }
+            ),
+            "top20": RaceRankingLayout(
+                name="top20",
+                width=1920,
+                height=1200,
+                initial_position=4,
+                children={
+                    # FIXME put here 4th, 10th, 11th & 20th to handle differencies
+                },
+                templates={
+                    "ranking_result_row": LayoutTemplate(
+                        SimpleRankingRowLayout(
+                            name="ranking_result_row",
+                            width=900,
+                            height=72,
+                            even_bg=(241, 241, 241, 255),
+                            odd_bg=(227, 227, 227, 255),
+                            driver_of_the_day_bg=(246, 212, 136, 255),
+                            fastest_lap_bg=(191, 140, 210, 255),
+                            children={
+                                # TODO Handle NT color (text + bg)
+                                "result_row_bg": DottedImageLayout(
+                                    name="result_row_bg",
+                                    height=72,
+                                    width=900,
+                                    left=0,
+                                    bottom=0,
+                                    bg="{bg_color}",
+                                    round_top_left="race_ranking_row.position in (4,11)",
+                                    round_top_right="race_ranking_row.position in (4,11)",
+                                    round_bottom_left="race_ranking_row.position in (10, 20)",
+                                    round_bottom_right="race_ranking_row.position in (10, 20)",
+                                    crosses_positions="[(74, 71), (430, 71)] if race_ranking_row.position in (4, 11) else ([(74, -1), (430, -1)] if race_ranking_row.position in (10, 20) else [(74, -1), (74, 71), (430, -1), (430, 71)])",
+                                    crosses_color=(80, 80, 80),
+                                    crosses_thickness=2,
+                                    crosses_size=5,
+                                    dots_color=(200, 200, 200, 255),
+                                    dots_size=2,
+                                    left_part_width=75,
+                                    children={
+                                        "position": TextLayout(
+                                            name="position",
+                                            font_name="bold",
+                                            width=75,
+                                            height=26,
+                                            fg=0,
+                                            left=0,
+                                            center=True,
+                                            content="{race_ranking_row.position}"
+                                        ),
+                                        "pilot_name": TextLayout(
+                                            font_name="bold",
+                                            name="pilot_name",
+                                            width=290,
+                                            height=20,
+                                            content="{pilot_name}",
+                                            left=100
+                                        ),
+                                        'delta': TextLayout(
+                                            name="delta",
+                                            font_name="regular",
+                                            content="{race_ranking_row.delta}",
+                                            top=10,
+                                            fg=(0, 0, 0, 255),
+                                            bg="{bg_color}",
+                                            height=18,
+                                            width=225,
+                                            right=85,
+                                        ),
+                                        'tyres': TyresLayout(
+                                            name="tyres",
+                                            height=20,
+                                            tyre_spacing=-3,
+                                            tyre_size=18,
+                                            width=225,
+                                            bottom=8,
+                                            right=85
+                                        ),
+                                        'points': RoundedLayout(
+                                            name="points",
+                                            height=72,
+                                            width=72,
+                                            bg=0,
+                                            radius=20,
+                                            right=0,
+                                            bottom=0,
+                                            round_top_left=False,
+                                            round_top_right="race_ranking_row.position in (4,11)",
+                                            round_bottom_left=False,
+                                            round_bottom_right="race_ranking_row.position in (10, 20)",
+                                            children={
+                                                "points_txt": TextLayout(
+                                                    content="+{race_ranking_row.points}",
+                                                    name="points_txt",
+                                                    height=30,
+                                                    width=38,
+                                                    fg=255,
+                                                    bg=0,
+                                                ),
+                                            }
+                                        ),
+                                    },
+                                ),
+                            }
+                        ),
+                        instances=[
+                            {"left": 30, "top": 660},  # 4
+                            {"left": 30, "top": 732},  # 5
+                            {"left": 30, "top": 804},  # 6
+                            {"left": 30, "top": 876},  # 7
+                            {"left": 30, "top": 948},  # 8
+                            {"left": 30, "top": 1020},  # 9
+                            {"left": 30, "top": 1092},  # 10
+                            {"left": 990, "top": 124, 'height': 72},  # 11
+                            {"left": 990, "top": 196, 'height': 72},  # 12
+                            {"left": 990, "top": 268, 'height': 72},  # 13
+                            {"left": 990, "top": 340, 'height': 72},  # 14
+                            {"left": 990, "top": 412, 'height': 72},  # 14
+                            {"left": 990, "top": 484, 'height': 72},  # 14
+                            {"left": 990, "top": 556, 'height': 72},  # 14
+                            {"left": 990, "top": 628, 'height': 72},  # 14
+                            {"left": 990, "top": 700, 'height': 72},  # 14
+                            {"left": 990, "top": 772, 'height': 72},  # 14
                         ]
                     )
                 }

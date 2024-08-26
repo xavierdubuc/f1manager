@@ -3,6 +3,7 @@ import unittest
 from config import layouts
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.helpers.generator_type import GeneratorType
+from src.media_generation.layout.dotted_image_layout import DottedImageLayout
 from src.media_generation.models.pilot import Pilot
 from src.media_generation.models.team import Team
 from src.media_generation.readers.race_reader_models.lineup import LineUp
@@ -21,7 +22,7 @@ class TestLayouts(unittest.TestCase):
             ],
             pilots={
                 'xCheetah7': Pilot(name='xCheetah7', team=teams_idx['RedBull'], number='89', title=None, reservist=False, aspirant=False, trigram='CHE'),
-                'FBRT_CiD16': Pilot(name='FBRT_CiD16', team=teams_idx['RedBull'], number='61', title=None, reservist=False, aspirant=False, trigram='CID'),
+                'FBRT_CiD16': Pilot(name='FBRT_CiD16', team=teams_idx['Haas'], number='61', title=None, reservist=False, aspirant=False, trigram='CID'),
                 'Iceman7301': Pilot(name='Iceman7301', team=teams_idx['Ferrari'], number='69', title=None, reservist=False, aspirant=False, trigram='ICE'),
                 'FBRT_Dinaz-LCK': Pilot(name='FBRT_Dinaz-LCK', team=teams_idx['Ferrari'], number='50', title=None, reservist=False, aspirant=False, trigram='DNZ'),
                 'Gros-Nain-Vert': Pilot(name='Gros-Nain-Vert', team=teams_idx['VCARB'], number='5', title=None, reservist=False, aspirant=False, trigram='GRO'),
@@ -37,7 +38,7 @@ class TestLayouts(unittest.TestCase):
                 'Enakozi': Pilot(name='Enakozi', team=teams_idx["KickSauber"], number='28', title=None, reservist=False, aspirant=False, trigram='ENA'),
                 'FBRT_DimDim91270': Pilot(name='FBRT_DimDim91270', team=teams_idx["KickSauber"], number='91', title=None, reservist=False, aspirant=False, trigram='DIM'),
                 'OVR_Kayzor': Pilot(name='OVR_Kayzor', team=teams_idx["Haas"], number='15', title=None, reservist=False, aspirant=False, trigram='KAY'),
-                'FBRT_b0sstyl3': Pilot(name='FBRT_b0sstyl3', team=teams_idx["Haas"], number='8', title=None, reservist=False, aspirant=False, trigram='BOS'),
+                'FBRT_b0sstyl3': Pilot(name='FBRT_b0sstyl3', team=teams_idx["RedBull"], number='8', title=None, reservist=False, aspirant=False, trigram='BOS'),
                 'Prolactron': Pilot(name='Prolactron', team=teams_idx["Alpine"], number='26', title=None, reservist=False, aspirant=False, trigram='PRO'),
                 'MoonLight_RR': Pilot(name='MoonLight_RR', team=teams_idx["Alpine"], number='98', title=None, reservist=False, aspirant=False, trigram='MOO'),
                 'Stewen': Pilot(name='Stewen', team=ASPIRANT_TEAM, number='95', title=None, reservist=False, aspirant=True, trigram='STE'),
@@ -139,12 +140,12 @@ class TestLayouts(unittest.TestCase):
             RaceRankingRow(
                 position=i+1,
                 pilot_name=p.name,
-                split=("51:06.822" if i == 0 else str(i*2.345)) if i < 18 else 'NT',
+                split=("51:06.822" if i == 0 else str(round(i*2.345, 3))) if i < 18 else 'NT',
                 tyres="SHMIW",
                 best_lap="1.17.671",
                 points=20-i,
-                is_driver_of_the_day=i == 4,
-                has_fastest_lap=i == 5,
+                is_driver_of_the_day=i in (1,4),
+                has_fastest_lap=i in (2, 5),
                 pilot=p,
             )
             for i, p in enumerate(self.race.final_lineup.pilots.values())
@@ -161,3 +162,13 @@ class TestLayouts(unittest.TestCase):
         layout = layouts.FBRT["results"]
         img = layout.render(context=context)
         img.save('tests/_outputs/results.png', quality=100)
+
+    def test_dotted_image_layout(self):
+        dil = DottedImageLayout(
+            name='dotted', width=1000, height=90, bg=241,
+            dots_first_left_top=(20, 14),
+            round_bottom_left=False,
+            round_bottom_right=False,
+        )
+        img = dil.render()
+        img.save('tests/_outputs/test.png', quality=100)

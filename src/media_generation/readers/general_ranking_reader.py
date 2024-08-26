@@ -116,7 +116,7 @@ class GeneralRankingReader(Reader):
                         )
                         for race_name, result in row.iloc[7:].items()
                     ]
-                ) for i, row in dataset.iterrows()
+                ) for i, row in dataset.iterrows() if row.iloc[1] is not None
             ]
         )
 

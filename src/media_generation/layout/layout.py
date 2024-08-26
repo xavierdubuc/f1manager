@@ -1,3 +1,4 @@
+import copy
 import logging
 from PIL.PngImagePlugin import PngImageFile
 from PIL import Image
@@ -44,12 +45,19 @@ class Layout:
         self.fg = self._ensure_rgba(self.fg)
 
     def render(self, context: Dict[str, Any] = {}) -> PngImageFile:
+        self.width = self.width or context.get('width')
+        self.height = self.height or context.get('height')
         img = self._render_base_image(context)
-        if self.templates:
-            self._process_templates(img, context)
-        if self.children:
-            self._paste_children(img, context)
-        return img
+        if img:
+            context.update({
+                'width': img.width,
+                'height': img.height,
+            })
+            if self.templates:
+                self._process_templates(img, context)
+            if self.children:
+                self._paste_children(img, context)
+            return img
 
     def paste_on(self, on: PngImageFile, context: Dict[str, Any] = {}) -> Dimension:
         try:
@@ -71,6 +79,11 @@ class Layout:
                 on.paste(img, (left, top))
             else:
                 on.paste(img, (left, top), img)
+                if on.mode == 'RGBA' == img.mode:
+                    # img.alpha_composite(on, (left, top))
+                    on.alpha_composite(img, (left, top))
+                else:
+                    on.paste(img, (left, top), img)
 
             return Dimension(left, top, left+img.width, top+img.height)
         except Exception as e:
@@ -97,7 +110,10 @@ class Layout:
         for key, child in self.children.items():
             if key.startswith(TEMPLATE_PREFIX):
                 i, child = child
-                context.update(self._get_template_instance_context(i, context))
+                child_ctx = self._get_template_instance_context(i, context)
+                if not child_ctx:
+                    continue
+                context.update(child_ctx)
             self._paste_child(img, key, child, context)
 
     def _process_templates(self, img: PngImageFile, context: Dict[str, Any] = {}):
@@ -110,9 +126,20 @@ class Layout:
         child.paste_on(img, self._get_children_context(context))
 
     def _get_bg(self, context: Dict[str, Any] = {}) -> Tuple[int, int, int, int]:
+        if isinstance(self.bg, str):
+            try:
+                return eval(self.bg.format(**context))
+            except KeyError as e:
+                print(context.keys())
+                raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
         return self.bg
 
     def _get_fg(self, context: Dict[str, Any] = {}) -> Tuple[int, int, int, int]:
+        if isinstance(self.fg, str):
+            try:
+                return eval(self.fg.format(**context))
+            except KeyError as e:
+                raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
         return self.fg
 
     def _get_children_context(self, context: Dict[str, Any] = {}) -> Dict[str, Any]:
@@ -121,14 +148,27 @@ class Layout:
     def _get_template_instance_context(self, i:int, context: Dict[str, Any] = {}):
         return {}
 
+    def _get_ctx_attr(self, attr_name:str, context: Dict[str, Any] = {}) -> Any:
+        attr = getattr(self, attr_name)
+        if isinstance(attr, str):
+            try:
+                return eval(attr, context)
+            except KeyError as e:
+                print(context.keys())
+                raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
+        return attr
+
 @dataclass
 class LayoutTemplate:
     layout: Layout
     instances: List[Dict[str, int]]
 
     def get_layouts(self) -> Dict[str, Tuple[int, Layout]]:
-        x = {
-            f'{TEMPLATE_PREFIX}{self.layout.name}_{i}': (i,replace(self.layout, name=f'{self.layout.name}_{i}', **instance_values))
-            for i, instance_values in enumerate(self.instances)
-        }
-        return x
+        out = {}
+        for i, instance_values in enumerate(self.instances):
+            instance = copy.deepcopy(self.layout)
+            instance.name = f'{self.layout.name}_{i}'
+            for field, value in instance_values.items():
+                setattr(instance, field, value)
+            out[f'{TEMPLATE_PREFIX}{instance.name}'] = (i,instance)
+        return out
