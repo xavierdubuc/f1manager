@@ -22,7 +22,7 @@ TIME_TRIAL_RANGE = 'A3:F50'
 SAME_TIME_MAX_TRY = 5
 
 DISCORD_GUILD_ID = 923505034778509342
-DISCORD_CHANNEL_ID = 1257435341732712521
+DISCORD_CHANNEL_ID = 1278409029902663690
 
 TABULATE_FORMAT = 'simple_outline'
 
@@ -170,7 +170,7 @@ class TimeTrialManager:
         self._set_circuit_sheet_headers_values(circuit)
 
     def _set_circuit_sheet_headers_values(self, circuit: Circuit):
-        cell_range = f'{circuit.get_identifier()}!A1:C6'
+        cell_range = f'{circuit.get_identifier()}!A1:G6'
         self.gsheet.set_sheet_values(SPREADSHEET_ID, cell_range, [
             ['Message ID', '', ''],
             ['Position', 'Pilot', 'S1', 'S2', 'S3', 'Time']

@@ -1,10 +1,11 @@
-import math
 import disnake
 from disnake.ext import commands
-from tabulate import tabulate
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.gsheet.gsheet import PresenceGSheet
 from src.bot.cogs.race_cog import RACE_NUMBER_PARAM, RaceCog
+
+from logging import getLogger
+_logger = getLogger(__name__)
 
 PRESENT_BUTTON_ID = 'present'
 ABSENT_BUTTON_ID = 'absent'
@@ -14,10 +15,7 @@ AWAY_SECTION = 'Absent(s)'
 ADDITIONAL_SECTIONS = (AWAY_SECTION, VOTING_SECTION)
 
 # TODO REFACTOR THAT SHIT
-# IDEE : Liste des titulaires avec un ✅, un ❔(ou rien) ou un ❌
-# Liste des réservistes : pareil
-# chaque liste étant ordonné par présents en haut/absents en bas & puis par
-# écurie ou ordre alphabétique. Afficher l'écurie éventuellement aussi ?
+# IDEE : Afficher l'écurie éventuellement aussi ?
 # style la "carte" comme dans grid ribbon ou dans results
 # potentiellement utiliser le trigramme pour gagner de la place ?
 
@@ -44,6 +42,8 @@ class PresencesCog(RaceCog):
         embed_dict = await self._configure_embed(embed, inter)
         if embed_dict:
             await inter.message.edit(embed=disnake.Embed.from_dict(embed_dict))
+        else:
+            _logger.info("No changes in embed, message won't be edited")
         return bool(embed_dict)
 
     @commands.slash_command(name="presences", description='Lancer le sondage de présence pour la course désirée')
