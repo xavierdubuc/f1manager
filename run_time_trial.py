@@ -16,7 +16,7 @@ class Command(argparse.ArgumentParser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.add_argument("command", help="Command to execute (fetch/reset/update)")
-        self.add_argument("-i", '--ip', help="Ip address", default='192.168.1.15')
+        self.add_argument("-i", '--ip', help="Ip address", default='192.168.1.59')
         self.add_argument("-c", "--championship", help="Championship concerned", dest='championship', default='FBRT')
         self.add_argument("-t", "--circuit", help="Circuit name", dest='circuit_name', default=None)
 
