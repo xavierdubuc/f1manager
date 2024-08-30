@@ -21,15 +21,18 @@ class Pilot:
     reservist: bool = False
     aspirant: bool = False
     trigram: str = None
+    psd_name: str = None
 
     def __post_init__(self):
         if not self.trigram:
-            for prefix in ('FBRT_', 'WSC_', 'VRA-', 'x0-', 'APX_', 'F1TEAM_', 'GT10_', 'RSC-'):
+            for prefix in ('FBRT_', 'WSC_', 'VRA-', 'x0-', 'APX_', 'F1TEAM_', 'GT10_', 'RSC-', 'VR1_'):
                 if self.name.startswith(prefix):
                     self.trigram = self.name[len(prefix):len(prefix)+3].upper()
                     break
             else:
                 self.trigram = self.name[:3].upper()
+        if not self.psd_name:
+            self.psd_name = self.name
 
     # IMAGES FROM PSD
 
@@ -162,13 +165,13 @@ class Pilot:
 
         face_found = None
         for v in faces:
-            v.visible = v.name == self.name
+            v.visible = v.name == self.psd_name
             if v.visible:
                 face_found = v.name
         if face_found: 
             _logger.debug(f'Using "{face_found}" face')
         else:
-            _logger.warning(f'No face found for pilot {self.name}, using default one')
+            _logger.warning(f'No face found for pilot {self.name} ({self.psd_name}), using default one')
             faces[0].visible = True # enable 'default' layer
 
         # CLOTHES

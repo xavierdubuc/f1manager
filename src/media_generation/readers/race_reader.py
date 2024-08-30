@@ -69,7 +69,8 @@ class RaceReader(Reader):
                         p.number,
                         p.title,
                         p.reservist,
-                        p.trigram
+                        p.trigram,
+                        psd_name=p.psd_name
                     )
         final_lineup = LineUp(
             pilot_names=list(self.data['F'][:20]),

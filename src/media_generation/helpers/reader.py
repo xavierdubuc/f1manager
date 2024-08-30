@@ -64,7 +64,8 @@ class Reader:
                 reservist=row['Ecurie'] in ('A', 'R'),
                 aspirant=row['Ecurie'] == 'A',
                 number=row['Numéro'],
-                trigram=row.get('Trigram')
+                trigram=row.get('Trigram'),
+                psd_name=row.get('PSD')
             ) for _, row in values[values['Pilotes'].notnull()].iterrows()
         }
 
@@ -85,10 +86,13 @@ class Reader:
 
     def _determine_pilots_and_teams(self, sheet_values) -> Tuple[dict, list]:
         if sheet_values is not None:
+            pilots_keys = ['Pilotes', 'Numéro']
             if 'Trigram' in sheet_values.columns:
-                pilots_values = sheet_values[['Pilotes', 'Numéro', 'Trigram', 'Ecurie']]
-            else:
-                pilots_values = sheet_values[['Pilotes', 'Numéro', 'Ecurie']]
+                pilots_keys.append('Trigram')
+            if 'PSD' in sheet_values.columns:
+                pilots_keys.append('PSD')
+            pilots_keys.append('Ecurie')
+            pilots_values = sheet_values[pilots_keys]
             champ_teams = self.championship_config['settings'].get('teams', {})
             all_teams = copy.deepcopy(teams_idx)
             all_teams.update({name: Team(**champ_teams[name]) for name in champ_teams})
@@ -104,7 +108,7 @@ class Reader:
         sheet_names = self.google_sheet_service.get_sheet_names(self.spreadsheet_id)
 
         if self.VALUES_SHEET_NAME in sheet_names:
-            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f'{self.VALUES_SHEET_NAME}!A1:H100')
+            vals = self.google_sheet_service.get_sheet_values(self.spreadsheet_id, f'{self.VALUES_SHEET_NAME}!A1:I100')
             sheet_values = pandas.DataFrame(vals[1:], columns=vals[0])
         else:
             sheet_values = None
@@ -139,4 +143,4 @@ class Reader:
         all_columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L']
         if self.type in ('results',):
             return all_columns
-        return all_columns[:8]  # -> H
+        return all_columns[:9]  # -> I

@@ -83,7 +83,7 @@ class PilotsRankingGenerator(AbstractGenerator):
                 continue
 
             # SHOW ROW OR NOT (ex: if identifier is "main" and pilot is reservist)
-            if not self._pilot_should_be_shown(row.pilot):
+            if not self._pilot_should_be_shown(row):
                 continue
 
             left = rows_lefts[column_index]
