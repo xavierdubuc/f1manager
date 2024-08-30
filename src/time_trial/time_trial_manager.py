@@ -272,8 +272,14 @@ class TimeTrialManager:
 
     async def _create_circuit_message(self, circuit: Circuit):
         _logger.debug(f'Creating message for {circuit.city} ...')
-        msg_txt = self._get_circuit_message_content(circuit, use_image=True)
-        msg = await self.channel.send(msg_txt)
+        use_image = True
+        msg_values = self._get_circuit_message_content(circuit, use_image=use_image)
+        if use_image and msg_values['filepath']:
+            with open(msg_values['filepath'], 'rb') as f:
+                picture = disnake.File(f)
+            msg = await self.channel.send(msg_values['content'], file=picture)
+        else:
+            msg = await self.channel.send(msg_values['content'])
         self._store_message_id(circuit.get_identifier(), msg.id)
 
     def _update_circuit_sheet(self, circuit: Circuit, values: List[List[str]]):
