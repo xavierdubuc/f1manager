@@ -1084,5 +1084,225 @@ FBRT = {
                 }
             )
         }
+    ),
+    "time_trial": PolygonsLayout(
+        name="time_trial",
+        width=1200,
+        height=1080,
+        bg=20,
+        children={
+            "fbrt": ImageLayout(
+                name="fbrt",
+                path="assets/logos/FBRT/unbordered.png",
+                width=1200,
+                height=1080,
+            ),
+            "bg": Layout(
+                name="bg",
+                width=1140,
+                height=1040,
+                left=30,
+                top=20,
+                bg=(20, 20, 20, 80),
+                children={
+                    "headers": Layout(
+                        name="headers",
+                        width=1200,
+                        height=80,
+                        left=0,
+                        top=0,
+                        children={
+                            "circuit_flag": ImageLayout(
+                                name="flag_layout",
+                                path="assets/circuits/flags/{circuit.id}.png",
+                                width=60,
+                                height=80,
+                                left=25,
+                                top=25
+                            ),
+                            "pilot_header": TextLayout(
+                                name="pilot_header",
+                                content="PILOTE",
+                                font_name="bold",
+                                fg=255,
+                                width=200,
+                                left=120,
+                                height=40
+                            ),
+                            "s1_header": TextLayout(
+                                name="s1_header",
+                                content="S1",
+                                font_name="bold",
+                                fg=255,
+                                width=200,
+                                left=500,
+                                height=40
+                            ),
+                            "s2_header": TextLayout(
+                                name="s2_header",
+                                content="S2",
+                                font_name="bold",
+                                fg=255,
+                                width=200,
+                                left=650,
+                                height=40
+                            ),
+                            "s3_header": TextLayout(
+                                name="s3_header",
+                                content="S3",
+                                font_name="bold",
+                                fg=255,
+                                width=200,
+                                left=800,
+                                height=40
+                            ),
+                        }
+                    ),
+                    "body": TimingRowsLayout(
+                        name="body",
+                        width=1140,
+                        height=900,
+                        top=100,
+                        left=0,
+                        fastest_fg=(142, 135, 188, 255),
+                        templates={
+                            'row': LayoutTemplate(
+                                layout=Layout(
+                                    name="time_trial_row",
+                                    width=1220,
+                                    height=45,
+                                    left=0,
+                                    bg="{bg_color}",
+                                    children={
+                                        "position_wrapper": Layout(
+                                            name="position_wrapper",
+                                            width=50,
+                                            left=20,
+                                            children={
+                                                "position": TextLayout(
+                                                    name="position",
+                                                    width=38,
+                                                    font_name="regular",
+                                                    fg=255,
+                                                    height=24,
+                                                    right=0,
+                                                    content="{row[0]}"
+                                                ),
+                                            }
+                                        ),
+                                        "pilot": TextLayout(
+                                            name="pilot",
+                                            content="{row[1]}",
+                                            height=24,
+                                            width=250,
+                                            fg=255,
+                                            left=120,
+                                            font_name="regular",
+                                        ),
+                                        "s1": TextLayout(
+                                            name="s1",
+                                            content="{row[2]}",
+                                            height=24,
+                                            width=90,
+                                            fg="{s1_fg}",
+                                            left=500,
+                                            font_name="regular",
+                                        ),
+                                        "s2": TextLayout(
+                                            name="s2",
+                                            content="{row[3]}",
+                                            height=24,
+                                            width=90,
+                                            fg="{s2_fg}",
+                                            left=650,
+                                            font_name="regular",
+                                        ),
+                                        "s3": TextLayout(
+                                            name="s3",
+                                            content="{row[4]}",
+                                            height=24,
+                                            width=90,
+                                            fg="{s3_fg}",
+                                            left=800,
+                                            font_name="regular",
+                                        ),
+                                        "lap": TextLayout(
+                                            name="lap",
+                                            content="{row[5]}",
+                                            height=24,
+                                            width=250,
+                                            fg="{lap_fg}",
+                                            left=975,
+                                            font_name="regular",
+                                        ),
+                                    }
+                                ),
+                                instances=[
+                                    {"top": 0},
+                                    {"top": 45},
+                                    {"top": 90},
+                                    {"top": 135},
+                                    {"top": 180},
+                                    {"top": 225},
+                                    {"top": 270},
+                                    {"top": 315},
+                                    {"top": 360},
+                                    {"top": 405},
+                                    {"top": 450},
+                                    {"top": 495},
+                                    {"top": 540},
+                                    {"top": 585},
+                                    {"top": 630},
+                                    {"top": 675},
+                                    {"top": 720},
+                                    {"top": 765},
+                                    {"top": 810},
+                                    {"top": 855},
+                                ])
+                        }
+                    )
+                }
+            ),
+        },
+        polygons=[
+            Polygon(
+                edges=(
+                    (0, 263),
+                    (0, 510),
+                    (505, 0),
+                    (260, 0),
+                ),
+                color=60
+            ),
+            Polygon(
+                edges=(
+                    (424, 523),
+                    (1158, 523),
+                    (605, 1080),
+                    (0, 1080),
+                    (0, 950),
+                ),
+                color=60
+            ),
+            Polygon(
+                edges=(
+                    (738, 523),
+                    (1468, 523),
+                    (1920, 74),
+                    (1920, 0),
+                    (1256, 0),
+                ),
+                color=60
+            ),
+            Polygon(
+                edges=(
+                    (1352, 1080),
+                    (1920, 1080),
+                    (1920, 523),
+                    (1908, 523)
+                ),
+                color=60
+            )
+        ],
     )
 }

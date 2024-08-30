@@ -5,6 +5,7 @@ from typing import List
 import tabulate
 
 import disnake
+from config import layouts
 from f1_24_telemetry.listener import TelemetryListener
 from f1_24_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData, PacketTimeTrialData
 from src.telemetry.models.enums.track import Track
@@ -71,7 +72,7 @@ class TimeTrialManager:
         _logger.info('Create not existing messages...')
         await self.create_not_existing_messages()
 
-    def fetch_from_game(self, ip='192.168.1.15'):
+    def fetch_from_game(self, ip='192.168.1.59'):
         # TODO TEST ME
         listener = TelemetryListener(port=20777, host=ip)
         circuit = None
@@ -271,7 +272,7 @@ class TimeTrialManager:
 
     async def _create_circuit_message(self, circuit: Circuit):
         _logger.debug(f'Creating message for {circuit.city} ...')
-        msg_txt = self._get_circuit_message_content(circuit)
+        msg_txt = self._get_circuit_message_content(circuit, use_image=True)
         msg = await self.channel.send(msg_txt)
         self._store_message_id(circuit.get_identifier(), msg.id)
 
@@ -282,21 +283,41 @@ class TimeTrialManager:
     async def update_circuit_message(self, circuit: Circuit):
         _logger.info(f'Updating "{circuit.name}" message from sheet {circuit.get_identifier()}')
         msg = await self._get_circuit_message(circuit)
-        new_content = self._get_circuit_message_content(circuit)
-        await msg.edit(new_content)
+        use_image = True
+        new_content = self._get_circuit_message_content(circuit, use_image=use_image)
+        if use_image and new_content['filepath']:
+            with open(new_content['filepath'], 'rb') as f:
+                picture = disnake.File(f)
+            await msg.edit(new_content['content'], attachments=[], file=picture)
+            return
+        await msg.edit(new_content['content'], attachments=[])
 
-    def _get_circuit_message_content(self, circuit: Circuit):
+    def _get_circuit_message_content(self, circuit: Circuit, use_image=True):
         msg_parts = [
             f'## {circuit.emoji} {circuit.city.upper()} {circuit.emoji}',
-            '```'
         ]
+        out = {}
         circuit_ranking = self._get_circuit_ranking(circuit)
-        if circuit_ranking:
-            msg_parts.append(tabulate.tabulate(circuit_ranking, tablefmt=TABULATE_FORMAT))
+        if use_image and circuit_ranking:
+            layout = layouts.FBRT["time_trial"] # TODO use championship param ?
+            context = {
+                "circuit": circuit,
+                "ranking": circuit_ranking,
+            }
+            img = layout.render(context=context)
+            filepath = 'output/time_trial.png'
+            img.save(filepath, quality=100)
+            out["filepath"] = filepath
         else:
-            msg_parts.append('Aucun temps encore synchronisé')
-        msg_parts.append('```')
-        return '\n'.join(msg_parts)
+            out["filepath"] = None
+            msg_parts.append('```')
+            if circuit_ranking:
+                msg_parts.append(tabulate.tabulate(circuit_ranking, tablefmt=TABULATE_FORMAT))
+            else:
+                msg_parts.append('Aucun temps encore synchronisé')
+            msg_parts.append('```')
+        out["content"] = '\n'.join(msg_parts)
+        return out
 
     # ########
     # HELPERS

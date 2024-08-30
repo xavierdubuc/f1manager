@@ -35,9 +35,8 @@ ttm = TimeTrialManager(bot)
 async def on_ready():
     _logger.info('Setting up...')
     await ttm.setup()
-    _logger.info('Create not existing messages...')
     if args.command == 'reset':
-        _logger.info(f'Reseting all time trial information in sheet and on Discord')
+        _logger.info(f'Resetting all time trial information in sheet and on Discord')
         await ttm.reset()
     elif args.command == 'update_all':
         _logger.info(f'Updating all time trial information on Discord')

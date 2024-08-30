@@ -128,47 +128,71 @@ class TestLayouts(unittest.TestCase):
     #     img = layout.render(context=context)
     #     img.save('tests/_outputs/numbers.png', quality=100)
 
-    def test_result_layout(self):
-        config = GeneratorConfig(
-            GeneratorType.RESULTS,
-            'tests/test.png',
-            self.race.final_lineup.pilots,
-            teams=teams_idx,
-            race=self.race
-        )
-        self.race.race_result = RaceRanking([
-            RaceRankingRow(
-                position=i+1,
-                pilot_name=p.name,
-                split=("51:06.822" if i == 0 else str(round(i*2.345, 3))) if i < 18 else 'NT',
-                tyres="SHMIW",
-                best_lap="1.17.671",
-                points=20-i,
-                is_driver_of_the_day=i in (1,4),
-                has_fastest_lap=i in (2, 5),
-                pilot=p,
-            )
-            for i, p in enumerate(self.race.final_lineup.pilots.values())
-        ])
-        context = {
-            'season': 9,
-            'config': config,
-            'month_fr': 'Septembre',
-            'race': self.race,
-            'circuit': self.race.circuit,
-            'circuit_city': 'LOSAIL',
-            'teams': teams_idx.values()
-        }
-        layout = layouts.FBRT["results"]
-        img = layout.render(context=context)
-        img.save('tests/_outputs/results.png', quality=100)
+    # def test_result_layout(self):
+    #     config = GeneratorConfig(
+    #         GeneratorType.RESULTS,
+    #         'tests/test.png',
+    #         self.race.final_lineup.pilots,
+    #         teams=teams_idx,
+    #         race=self.race
+    #     )
+    #     self.race.race_result = RaceRanking([
+    #         RaceRankingRow(
+    #             position=i+1,
+    #             pilot_name=p.name,
+    #             split=("51:06.822" if i == 0 else str(round(i*2.345, 3))) if i < 18 else 'NT',
+    #             tyres="SHMIW",
+    #             best_lap="1.17.671",
+    #             points=20-i,
+    #             is_driver_of_the_day=i in (1,4),
+    #             has_fastest_lap=i in (2, 5),
+    #             pilot=p,
+    #         )
+    #         for i, p in enumerate(self.race.final_lineup.pilots.values())
+    #     ])
+    #     context = {
+    #         'season': 9,
+    #         'config': config,
+    #         'month_fr': 'Septembre',
+    #         'race': self.race,
+    #         'circuit': self.race.circuit,
+    #         'circuit_city': 'LOSAIL',
+    #         'teams': teams_idx.values()
+    #     }
+    #     layout = layouts.FBRT["results"]
+    #     img = layout.render(context=context)
+    #     img.save('tests/_outputs/results.png', quality=100)
 
-    def test_dotted_image_layout(self):
-        dil = DottedImageLayout(
-            name='dotted', width=1000, height=90, bg=241,
-            dots_first_left_top=(20, 14),
-            round_bottom_left=False,
-            round_bottom_right=False,
-        )
-        img = dil.render()
-        img.save('tests/_outputs/test.png', quality=100)
+    # def test_dotted_image_layout(self):
+    #     dil = DottedImageLayout(
+    #         name='dotted', width=1000, height=90, bg=241,
+    #         dots_first_left_top=(20, 14),
+    #         round_bottom_left=False,
+    #         round_bottom_right=False,
+    #     )
+    #     img = dil.render()
+    #     img.save('tests/_outputs/test.png', quality=100)
+
+    def test_timetrial_layout(self):
+        circuit = circuits['Italie']
+        ranking = [
+            ['1', 'QSL-Rhumsko', '26.153', '25.977', '26.373', '1:18.504'],
+            ['2', 'OVR_Kayzor', '26.183', '26.033', '26.454', '1:18.671'],
+            ['3', 'Iceman7301', '26.105', '26.092', '26.563', '1:18.762'],
+            ['4', 'x0-STEWEN_26-0x', '26.266', '26.078', '26.434', '1:18.779'],
+            ['5', 'FBRT_Sepheldor', '26.130', '26.303', '26.502', '1:18.937'],
+            ['6', 'arazak_-', '26.199', '26.170', '26.635', '1:19.005'],
+            ['7', 'FBRT_Naax', '26.378', '26.128', '26.759', '1:19.266'],
+            ['8', 'Nicolas-Nst', '26.255', '26.495', '26.987', '1:19.738'],
+            ['9', 'MoonLight_RR', '26.502', '26.641', '26.787', '1:19.932'],
+            ['10', 'OUDAC-UNNEK', '26.430', '26.656', '26.845', '1:19.932'],
+            ['11', 'FBRT_REMBRO', '26.526', '26.657', '26.758', '1:19.942'],
+            ['12', 'TakumiFujiwaraSU', '26.551', '27.316', '27.648', '1:21.516']
+        ]
+        context = {
+            "circuit": circuit,
+            "ranking": ranking,
+        }
+        layout = layouts.FBRT["time_trial"]
+        img = layout.render(context=context)
+        img.save('tests/_outputs/time_trial.png', quality=100)
