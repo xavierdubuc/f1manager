@@ -68,7 +68,7 @@ class Track(Enum):
         if self == Track.suzuka:
             return 'Japon'
         if self == Track.abudhabi:
-            return 'Abu Dhabo'
+            return 'Abu Dhabi'
         if self == Track.texas:
             return 'Etats-Unis'
         if self == Track.brazil:
