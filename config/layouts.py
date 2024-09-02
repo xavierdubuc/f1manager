@@ -1306,3 +1306,5 @@ FBRT = {
         ],
     )
 }
+
+del FBRT['results']  # FIXME
