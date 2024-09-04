@@ -8,6 +8,7 @@ from src.logging import setup as setup_logging
 from src.media_generation.data import circuits as CIRCUITS
 
 setup_logging('info')
+BUVETTE = 923516154402709554
 
 _logger = logging.getLogger(__name__)
 
@@ -45,6 +46,11 @@ async def on_ready():
         circuit = CIRCUITS.get(args.circuit_name)
         _logger.info(f'Updating "{circuit.name}" time trial information on Discord')
         await ttm.update_circuit_message(circuit)
+        # TODO parametrize a little bit what's below
+        msg = await ttm._get_circuit_message(circuit)
+        jump_url = msg.jump_url
+        buvette = await ttm.guild.fetch_channel(BUVETTE)
+        await buvette.send(f"CLM pour {circuit.name} mis à jour ({jump_url})")
     await bot.close()
 
 if args.command == 'fetch':
