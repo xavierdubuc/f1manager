@@ -47,3 +47,8 @@ class VignebotCog(commands.Cog):
         config = discord_config[feed]
         guild = self.bot.get_guild(config['guild'])
         return guild.get_channel(config['chann'])
+
+    async def _fetch_channel(self, discord_config:dict, feed:str):
+        config = discord_config[feed]
+        guild = await self.bot.fetch_guild(config['guild'])
+        return await guild.fetch_channel(config['chann'])

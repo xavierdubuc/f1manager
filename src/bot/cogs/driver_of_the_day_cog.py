@@ -31,7 +31,7 @@ class DriverOfTheDayCog(RaceCog):
     # TODO may be improved (pour l'instant ca choppe juste le dernier msg dans le channel)
     async def compute(self, championship_config: dict, race: Race, season: int=None):
         discord_config = championship_config['discord']
-        channel = self._get_channel(discord_config, 'driver_vote')
+        channel = await self._fetch_channel(discord_config, 'driver_vote')
         bot_messages = channel.history().filter(lambda m: m.author == self.bot.user and len(m.reactions) > 0)
         sondage_msg = (await bot_messages.flatten())[0]
         reactions = [r for r in sondage_msg.reactions if r.count > 1]
