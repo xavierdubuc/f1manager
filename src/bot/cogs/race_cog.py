@@ -47,13 +47,13 @@ class RaceCog(VignebotCog):
                           season, f'output/race_{visual}.png', sheet_name).read()
 
     async def _run(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: GeneratorConfig):
-        await self._send_title(channel, race_number, championship_config, season, config)
-        await self._send_generated_media(channel, race_number, championship_config, season, config)
+        title = self._get_title(race_number, championship_config, season, config)
+        await self._send_generated_media(channel, race_number, championship_config, season, config, title)
 
-    async def _send_title(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: GeneratorConfig):
-        pass
+    def _get_title(self, race_number: str, championship_config: dict, season: int, config: GeneratorConfig):
+        return None
 
-    async def _send_generated_media(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: GeneratorConfig):
+    async def _send_generated_media(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: GeneratorConfig, title:str):
         _logger.info('Rendering image...')
         media_path = self.renderer.render(config, championship_config, season)
-        await self._send_media(channel, media_path)
+        await self._send_media(channel, media_path, msg=title)

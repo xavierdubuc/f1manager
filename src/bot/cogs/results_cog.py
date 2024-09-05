@@ -16,10 +16,10 @@ class ResultsCog(RaceCog):
         await super().run(inter, race_number, **kwargs)
 
     async def _run(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: GeneratorConfig, is_provisional: bool = False):
-        await self._send_title(channel, race_number, championship_config, season, config, is_provisional)
-        await self._send_generated_media(channel, race_number, championship_config, season, config)
+        title = self._get_title(race_number, championship_config, season, config, is_provisional)
+        await self._send_generated_media(channel, race_number, championship_config, season, config, title)
 
-    async def _send_title(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: GeneratorConfig, is_provisional: bool = False):
+    def _get_title(self, race_number: str, championship_config: dict, season: int, config: GeneratorConfig, is_provisional: bool = False):
         final_str = '' if not is_provisional else ' (provisoires)'
         suffix = ''
         if config.race.type == RaceType.SPRINT_1:
@@ -30,4 +30,4 @@ class ResultsCog(RaceCog):
             suffix = ' (Première)'
         elif config.race.type == RaceType.DOUBLE_GRID_2:
             suffix = ' (Inversée)'
-        await channel.send(f'# Résultats{final_str} Course {config.race.round}{suffix} {config.race.circuit.emoji}')
+        return f'# Résultats{final_str} Course {config.race.round}{suffix} {config.race.circuit.emoji}'

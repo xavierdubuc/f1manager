@@ -11,6 +11,6 @@ class LineupCog(RaceCog):
                   race_number: str = RACE_NUMBER_PARAM, **kwargs):
         await super().run(inter, race_number, **kwargs)
 
-    async def _send_title(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: dict):
+    def _get_title(self, race_number: str, championship_config: dict, season: int, config: dict):
         circuit_country = config.race.circuit.emoji
-        await channel.send(f'# Line-Up Course {config.race.round} {circuit_country}')
+        return f'# Line-Up Course {config.race.round} {circuit_country}'
