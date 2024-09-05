@@ -25,15 +25,7 @@ class ConfirmResultsCog(CompositeRaceCog):
         first_race_number, first_race_config, second_race_number, second_race_config = self._get_first_and_second_race_configs(
             race_number, config, championship_config, season)
 
-        # RACE i RESULTS
-        results_channel = self._get_channel(discord_config, 'results')
-        results_cog:ResultsCog = self.bot.get_cog('ResultsCog')
-        await results_cog._run(results_channel, first_race_number, championship_config, season, first_race_config, is_provisional=False)
-        if first_race_number != second_race_number:
-            await results_cog._run(results_channel, second_race_number, championship_config, season, second_race_config, is_provisional=False)
-        await self.last_inter.channel.send(f'✅ Résultats postés dans {results_channel.mention}!')
-
-        # DRIVER OF THE DAY
+        # DRIVER OF THE DAY : compute
         dotd_cog:DriverOfTheDayCog = self.bot.get_cog('DriverOfTheDayCog')
         if not second_race_config.race.driver_of_the_day:
             driver_of_the_day, percentage = await dotd_cog.compute(championship_config, second_race_config.race, season)
@@ -43,6 +35,16 @@ class ConfirmResultsCog(CompositeRaceCog):
             second_race_config.race.driver_of_the_day_percent = percentage
         else:
             await self.last_inter.channel.send(f'Driver of the day déjà renseigné : {second_race_config.race.driver_of_the_day.name}')
+
+        # RACE i RESULTS
+        results_channel = self._get_channel(discord_config, 'results')
+        results_cog:ResultsCog = self.bot.get_cog('ResultsCog')
+        await results_cog._run(results_channel, first_race_number, championship_config, season, first_race_config, is_provisional=False)
+        if first_race_number != second_race_number:
+            await results_cog._run(results_channel, second_race_number, championship_config, season, second_race_config, is_provisional=False)
+        await self.last_inter.channel.send(f'✅ Résultats postés dans {results_channel.mention}!')
+
+        # DRIVER OF THE DAY : send
         await dotd_cog._run(results_channel, second_race_number, championship_config, season, second_race_config)
         await self.last_inter.channel.send(f'✅ Driver of the day postés dans {results_channel.mention}!')
 
