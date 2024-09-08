@@ -74,7 +74,7 @@ from src.telemetry.models.session import Session
 _logger = logging.getLogger(__name__)
 
 LISTENER_CLASSES = [
-    AllSetupsListener,
+    # AllSetupsListener,
     BestLapTimeListener,
     ClassificationListener,
     CollisionListener,
