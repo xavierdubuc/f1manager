@@ -5,7 +5,7 @@ from typing import List
 import tabulate
 
 import disnake
-from config.config import layouts
+from config import layouts
 from f1_24_telemetry.listener import TelemetryListener
 from f1_24_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData, PacketTimeTrialData
 from src.telemetry.models.enums.track import Track
