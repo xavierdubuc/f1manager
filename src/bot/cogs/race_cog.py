@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import disnake
 from disnake.ext import commands
@@ -55,5 +56,5 @@ class RaceCog(VignebotCog):
 
     async def _send_generated_media(self, channel: disnake.TextChannel, race_number: str, championship_config: dict, season: int, config: GeneratorConfig, title:str):
         _logger.info('Rendering image...')
-        media_path = self.renderer.render(config, championship_config, season)
+        media_path = await asyncio.to_thread(lambda: self.renderer.render(config, championship_config, season))
         await self._send_media(channel, media_path, msg=title)
