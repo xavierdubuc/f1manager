@@ -1,6 +1,6 @@
 from datetime import datetime
 import unittest
-from config import layouts
+from config.config import layouts
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.helpers.generator_type import GeneratorType
 from src.media_generation.layout.dotted_image_layout import DottedImageLayout

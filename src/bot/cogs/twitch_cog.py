@@ -3,7 +3,7 @@ import logging
 from twitchAPI.twitch import Twitch
 from disnake.ext import commands, tasks
 from src.bot.vignebot import Vignebot
-from config import twitch_app_id, twitch_app_secret
+from config.config import twitch_app_id, twitch_app_secret
 
 
 INTERVAL = 120

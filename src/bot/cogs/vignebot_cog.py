@@ -5,7 +5,7 @@ import disnake
 from disnake.ext import commands
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.bot.vignebot import Vignebot
-from config import DISCORDS
+from config.config import DISCORDS
 
 
 _logger = logging.getLogger(__name__)
