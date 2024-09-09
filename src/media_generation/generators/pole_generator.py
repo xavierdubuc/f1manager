@@ -5,6 +5,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 
 from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 
 from ..font_factory import FontFactory
 from ..helpers.transform import *
@@ -34,7 +35,7 @@ class PoleGenerator(AbstractRaceGenerator):
 
     def _get_pilot_image(self, pilot: Pilot, width, height):
         img = Image.new('RGBA', (width, height), (0, 0, 0, 0))
-        team_pilot_img = pilot.get_long_range_image()
+        team_pilot_img = PilotImageManager().get_long_range_image(pilot)
         img = resize(team_pilot_img, width, height)
         return img
 

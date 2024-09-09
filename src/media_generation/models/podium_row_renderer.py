@@ -1,8 +1,8 @@
 import logging
-from dataclasses import dataclass, field
-from PIL import Image, ImageDraw
+from dataclasses import dataclass
+from PIL import Image
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 from src.media_generation.models.ranking_row_renderer import RankingRowRenderer
-from src.media_generation.readers.race_reader_models.race_ranking import RaceRankingRow
 
 from ..font_factory import FontFactory
 from ..helpers.transform import *
@@ -33,7 +33,7 @@ class PodiumRowRenderer(RankingRowRenderer):
 
         # PILOT IMG
         face_config = self.visual_config.get('face')
-        pilot_img = self.pilot.get_long_range_image()
+        pilot_img = PilotImageManager().get_long_range_image(self.pilot)
         pilot_img = resize(pilot_img, height=int(1.25 * height))
         paste(pilot_img, img, top=face_config.get('top', False), left=face_config.get('left', False))
 

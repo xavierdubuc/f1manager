@@ -6,6 +6,7 @@ from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.data import RESERVIST_TEAM
 from src.media_generation.generators.abstract_race_generator import \
     AbstractRaceGenerator
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 from src.media_generation.models.pilot import Pilot
 from src.media_generation.readers.race_reader_models import race
 
@@ -138,7 +139,7 @@ class PresentationGenerator(AbstractRaceGenerator):
         pilot_config = config.get('pilot', {})
         pilot_name = self.race.circuit_last_winner_name
         pilot = self.config.pilots.get(pilot_name) or Pilot(name='?', team=RESERVIST_TEAM)
-        pilot_img = pilot.get_mid_range_image(pilot_config.get('width'), pilot_config.get('height'))
+        pilot_img = PilotImageManager().get_mid_range_image(pilot, pilot_config.get('width'), pilot_config.get('height'))
         self.paste_image(pilot_img, img, pilot_config)
 
         # PILOT NAME + TITLE
@@ -196,7 +197,7 @@ class PresentationGenerator(AbstractRaceGenerator):
         # PILOT IMG
         pilot_config = config.get('pilot')
         pilot = self.config.pilots.get(pilot_name) or Pilot(name='?', team=RESERVIST_TEAM)
-        pilot_img = pilot.get_mid_range_image(pilot_config.get('width'), pilot_config.get('height'))
+        pilot_img = PilotImageManager().get_mid_range_image(pilot, pilot_config.get('width'), pilot_config.get('height'))
         self.paste_image(pilot_img, img, pilot_config)
 
         # PILOT NAME + TITLE

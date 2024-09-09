@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 
 from PIL import Image
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 from src.media_generation.models.pilot import Pilot
 from src.media_generation.readers.general_ranking_models.pilot_ranking import (
     PilotRanking, PilotRankingRow)
@@ -155,7 +156,7 @@ class PilotsRankingGenerator(AbstractGenerator):
 
         # FACE
         face_config = config.get('face', {})
-        face = pilot.get_face_image(face_config['width'], face_config['height'])
+        face = PilotImageManager().get_face_image(pilot, face_config['width'], face_config['height'])
         self.paste_image(face, img, face_config)
 
         # NAME

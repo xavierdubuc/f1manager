@@ -4,6 +4,7 @@ from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
 from src.media_generation.generators.pilots_ranking_generator import \
     PilotsRankingGenerator
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 from src.media_generation.readers.general_ranking_models.pilot_ranking import \
     PilotRankingRow
 
@@ -82,7 +83,7 @@ class LicensePointsGenerator(PilotsRankingGenerator):
 
         # face
         face_size = int(0.6 * height)
-        face = pilot.get_close_up_image(face_size, face_size)
+        face = PilotImageManager().get_close_up_image(pilot, face_size, face_size)
         face_pos = paste(face, img, top=0)
 
         # points

@@ -3,6 +3,7 @@ from PIL.PngImagePlugin import PngImageFile
 
 from src.media_generation.generators.abstract_race_generator import AbstractRaceGenerator
 from src.media_generation.generators.exceptions import IncorrectDataException
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 from ..helpers.transform import *
 
 from ..font_factory import FontFactory
@@ -40,7 +41,7 @@ class DriverOfTheDayGenerator(AbstractRaceGenerator):
         driver = self.race.driver_of_the_day
         if not driver:
             raise IncorrectDataException(f'Driver of the day "{self.race.driver_of_the_day_name}" is not known ! ')
-        pilot_photo = driver.get_long_range_image()
+        pilot_photo = PilotImageManager().get_long_range_image(driver)
         driver_height = self.visual_config['pilot_photo']['height']
         driver_top = self.visual_config['pilot_photo']['top']
         pilot_photo = resize(pilot_photo, height=driver_height, keep_ratio=True)

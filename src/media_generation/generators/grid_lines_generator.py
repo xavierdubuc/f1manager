@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from PIL import Image
 from src.media_generation.generators.grid_generator import GridGenerator
 
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 from src.media_generation.readers.race_reader_models.race_ranking import RaceRankingRow
 
 from ..helpers.transform import *
@@ -82,7 +83,7 @@ class GridLinesGenerator(GridGenerator):
         paste(position_img, img, left=pos_left, top=position_config['top'])
 
         # image
-        pilot_img = resize(row.pilot.get_long_range_image(), height=height)
+        pilot_img = resize(PilotImageManager().get_long_range_image(row.pilot), height=height)
         side = image_config['side']
         top = image_config['top']
         left = side if is_left else img.width - pilot_img.width - side

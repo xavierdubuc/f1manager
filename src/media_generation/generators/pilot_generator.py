@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 from PIL import Image
 from PIL.PngImagePlugin import PngImageFile
-from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.media_generation.helpers.pilot_image_manager import PilotImageManager
 from src.media_generation.models.pilot import Pilot
 
 from ..generators.abstract_generator import AbstractGenerator
@@ -68,14 +68,12 @@ class PilotGenerator(AbstractGenerator):
     def _get_pilot_img(self, pilot:Pilot, width, height):
         if self.forced_team:
             pilot.team = TEAMS.get(self.forced_team, pilot.team)
-        if self.visual_type == 'lineup':
-            pilot_name_length = len(pilot.name)
-            has_long_pseudo =  pilot_name_length >= 15
-            pilot_font = FontFactory.black(24 if has_long_pseudo else 30)
-            return pilot.team._get_lineup_pilot_image(pilot, pilot_font, width, height, 138, has_long_pseudo)
+        manager = PilotImageManager()
+        if self.visual_type == 'midrange':
+            return manager.get_mid_range_image(pilot, width=width, height=height)
         if self.visual_type == 'face':
-            return pilot.get_face_image()
+            return manager.get_face_image(pilot, width=width, height=height)
         if self.visual_type == 'closeup':
-            return pilot.get_close_up_image(138)
+            return manager.get_close_up_image(pilot, width=width, height=height)
         if self.visual_type == 'whole':
-            return pilot.get_long_range_image()
+            return manager.get_long_range_image(pilot, width=width, height=height)
