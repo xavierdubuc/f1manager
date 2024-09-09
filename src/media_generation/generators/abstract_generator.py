@@ -160,7 +160,7 @@ class AbstractGenerator:
             (prog_config.get('width', 90), prog_config.get('height', 105)),
             prog_config.get('color', (255, 255, 255))
         )
-        if progression == 0:
+        if not progression or progression == 0:
             prog_content = '-'
             text_config = prog_config.get('text_no_icon', text_config)
             prog_text = self.text(text_config, prog_content)
@@ -174,7 +174,10 @@ class AbstractGenerator:
                 with Image.open('assets/down.png') as icon:
                     prog_icon = resize(icon, height=icon_config.get('height'))
                 prog_content = str(-progression)
-            self.paste_image(prog_icon, prog_img, prog_config.get('icon'))
+            if len(prog_content) >= 2:
+                text_config = prog_config.get('text_long')
+                icon_config = prog_config.get('icon_long')
+            self.paste_image(prog_icon, prog_img, icon_config)
             prog_text = self.text(text_config, prog_content)
             self.paste_image(prog_text, prog_img, text_config)
         return prog_img
