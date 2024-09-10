@@ -1,6 +1,6 @@
 import logging
 
-from disnake import TextChannel, File
+from disnake import HTTPException, TextChannel, File
 from disnake.ext import commands, tasks
 from src.telemetry.message import Channel, Message
 from src.bot.vignebot import Vignebot
@@ -86,10 +86,18 @@ class TelemetryCog(commands.Cog):
             return await existing_message.edit(**kwargs)
 
         # CREATION
-        message = await channel.send(**kwargs)
-        if msg.local_id:
-            self.sent_messages[msg.local_id] = message
-        return message
+        try:
+            message = await channel.send(**kwargs)
+            if msg.local_id:
+                self.sent_messages[msg.local_id] = message
+            return message
+        except HTTPException as e:
+            if e.status == 400 and e.code == 50006:
+                _logger.error('Tried to send an empty message')
+                _logger.error(str(msg))
+            else:
+                raise e
+
 
     def _get_channel_for(self, msg: Message, is_broadcast=False):
         discord_config = self.bot.championship_config['discord'].get(msg.channel.value)
