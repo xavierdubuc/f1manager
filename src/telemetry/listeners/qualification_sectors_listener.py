@@ -12,8 +12,11 @@ from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
 from .abstract_listener import AbstractListener
 
+_logger = logging.getLogger(__name__)
+
 
 SECTOR_LENGTH = 10
+
 
 class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed table no ?
     SUBSCRIBED_EVENTS = [
@@ -29,9 +32,11 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
 
         # Only act on last lap and if the last lap should not be ignored
         laps = session.get_laps(participant)
-        last_lap = laps[-1]
+        last_lap: Lap = laps[-1]
 
         if self._lap_should_be_ignored(last_lap):
+            if session.session_type.is_qualification():
+                _logger.info(f'Lap for {participant} ignored (invalid:{last_lap.current_lap_invalid}, {last_lap.driver_status}, {last_lap.result_status})')
             return []
 
         # Send last lap status only if last lap is completed and we have last lap sectors time
@@ -50,6 +55,8 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
             return [self._get_lap_repr(lap, lap_record, participant, session)]
 
         if self._lap_should_be_ignored(lap):
+            if session.session_type.is_qualification():
+                _logger.info(f'Lap for {participant} ignored (invalid:{lap.current_lap_invalid}, {lap.driver_status}, {lap.result_status})')
             return []
 
         if 'sector_1_time_in_ms' not in changes and 'sector_2_time_in_ms' not in changes:
@@ -86,9 +93,9 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
             current_s1 = current_lap.sector_1_time_in_ms
             current_s2 = current_lap.sector_2_time_in_ms
             current_s3 = (lap_time - current_s1 - current_s2) if lap_time else None
-            personal_best_s1 =  lap_record.best_lap_sector1_time
-            personal_best_s2 =  lap_record.best_lap_sector2_time
-            personal_best_s3 =  lap_record.best_lap_sector3_time
+            personal_best_s1 = lap_record.best_lap_sector1_time
+            personal_best_s2 = lap_record.best_lap_sector2_time
+            personal_best_s3 = lap_record.best_lap_sector3_time
 
             delta_s1 = current_s1 - personal_best_s1 if (current_s1 and personal_best_s1) else None
             delta_s2 = current_s2 - personal_best_s2 if (current_s2 and personal_best_s2) else None
@@ -98,7 +105,8 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
             delta_s1_str = self._format_time(delta_s1, True).rjust(SECTOR_LENGTH) if delta_s1 else ' '*SECTOR_LENGTH
             delta_s2_str = self._format_time(delta_s2, True).rjust(SECTOR_LENGTH) if delta_s2 else ' '*SECTOR_LENGTH
             delta_s3_str = self._format_time(delta_s3, True).rjust(SECTOR_LENGTH) if delta_s3 else ' '*SECTOR_LENGTH
-            delta_to_pb_str = self._format_time(delta_to_pb, True).rjust(SECTOR_LENGTH) if delta_to_pb else ' '*SECTOR_LENGTH
+            delta_to_pb_str = self._format_time(delta_to_pb, True).rjust(
+                SECTOR_LENGTH) if delta_to_pb else ' '*SECTOR_LENGTH
             current_s1_str = (self._format_time(current_s1) if current_s1 else '-:--.---').rjust(SECTOR_LENGTH)
             current_s2_str = (self._format_time(current_s2) if current_s2 else '-:--.---').rjust(SECTOR_LENGTH)
             current_s3_str = (self._format_time(current_s3) if current_s3 else '-:--.---').rjust(SECTOR_LENGTH)
@@ -113,22 +121,21 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
                     '    S3'.rjust(SECTOR_LENGTH),
                     f'LAP {current_lap.current_lap_num}'.rjust(SECTOR_LENGTH),
                 )),
-                sep.join((current_s1_str, current_s2_str,current_s3_str, full_lap_str)),
+                sep.join((current_s1_str, current_s2_str, current_s3_str, full_lap_str)),
             ]
             if delta_s1 or delta_s2 or delta_s3 or delta_to_pb:
                 elements.append(f'{sep.join((delta_s1_str, delta_s2_str, delta_s3_str, delta_to_pb_str))}```')
             else:
                 elements.append('```')
             details = '\n'.join(elements)
-        teamoji = self.get_emoji(participant.team.as_emoji())
-        msg = f'# `{str(lap.car_position).rjust(2)}` {teamoji} {participant} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
-        return self._create_message(msg, participant, current_lap)
+        msg = f'# {self.driver(participant, session)} {personal_best_lap_str}{delta_to_pole_str}\n{details}'
+        return self._create_message(msg, participant, current_lap, session)
 
-    def _create_message(self, content:str, participant: Participant, lap: Lap):
-        local_id = f'sectors_{participant.race_number}_lap{lap.index}'
+    def _create_message(self, content: str, participant: Participant, lap: Lap, session: Session):
+        local_id = f'sectors_{participant.race_number}_lap{lap.index}_session{session.session_type.name}'
         return Message(content=content, channel=Channel.PACE, local_id=local_id)
 
-    def _format_time(self, signed_milliseconds:int, is_delta=False):
+    def _format_time(self, signed_milliseconds: int, is_delta=False):
         milliseconds = abs(signed_milliseconds)
         if milliseconds == 0:
             return '0.000'
@@ -142,7 +149,7 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
 
         milliseconds = milliseconds % 1000
         milliseconds_str = str(milliseconds).zfill(3)
- 
+
         if not is_delta:
             return f'{minutes_str}{seconds_str}.{milliseconds_str}'
         return f'{"-" if signed_milliseconds < 0 else "+"} {minutes_str}{seconds_str}.{milliseconds_str}'
