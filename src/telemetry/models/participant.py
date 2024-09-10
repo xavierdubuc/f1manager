@@ -3,6 +3,8 @@ from .enums.team import Team
 from .enums.original_driver import OriginalDriver
 from .enums.nationality import Nationality
 
+FAKE_NAMES = ('Driver', 'Pilote', 'Joueur', 'Player')
+
 
 @dataclass
 class Participant:
@@ -18,7 +20,7 @@ class Participant:
 
     @property
     def has_name(self):
-        return self.name_str and self.name_str != 'Joueur'
+        return self.name_str and self.name_str not in FAKE_NAMES
 
     @property
     def name_str(self):
