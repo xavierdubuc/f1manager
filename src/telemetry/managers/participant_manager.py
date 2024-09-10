@@ -6,6 +6,8 @@ from ..models.participant import Participant
 from .abstract_manager import AbstractManager, Change
 from f1_24_telemetry.packets import PacketParticipantsData
 
+FAKE_NAMES = ('Driver', 'Pilote', 'Joueur', 'Player')
+
 
 class ParticipantManager(AbstractManager):
     model = Participant
@@ -37,7 +39,7 @@ class ParticipantManager(AbstractManager):
     def update(cls, participant: Participant, packet: PacketParticipantsData) -> Dict[str, Change]:
         changes = super().update(participant, packet)
         new_name = packet.name.decode('utf-8')
-        if new_name != participant.name:
+        if new_name != participant.name and new_name not in FAKE_NAMES:
             changes['name'] = Change(old=participant.name, actual=new_name)
             participant.name = new_name
 
