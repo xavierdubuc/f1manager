@@ -20,10 +20,14 @@ class SpeedTrapListener(AbstractTableAndMessageListener):
     def _on_classification_list_initialized(self, session: Session, *args, **kwargs) -> List[Message]:
         return self._get_fixed_message(session)
 
-    def _on_speed_trap(self, speed_trap:SpeedTrapEntry, session: Session) -> List[Message]:
+    def _on_speed_trap(self, speed_trap: SpeedTrapEntry, session: Session) -> List[Message]:
         key = speed_trap.participant
         existing_speedtrap = session.speed_traps.get(key)
         if existing_speedtrap and existing_speedtrap >= speed_trap:
+            if not existing_speedtrap.participant.has_name and speed_trap.participant.has_name:
+                existing_speedtrap.participant = speed_trap.participant
+            if not existing_speedtrap.fastest_participant.has_name and speed_trap.fastest_participant.has_name:
+                existing_speedtrap.fastest_participant = speed_trap.fastest_participant
             return
 
         session.speed_traps[key] = speed_trap
@@ -38,7 +42,7 @@ class SpeedTrapListener(AbstractTableAndMessageListener):
     def _get_update_message(self, session: Session, speed_trap: SpeedTrapEntry = None, *args, **kwargs) -> Message:
         if not speed_trap:
             return
-        return f'🚀 **{self.driver(speed_trap.participant)}** {round(speed_trap.participant_speed)} km/h !'
+        return f'🚀 **{self.driver(speed_trap.participant, session)}** {round(speed_trap.participant_speed)} km/h !'
 
     def _get_table(self, session: Session, *args, **kwargs) -> Message:
         table_values = [
@@ -48,6 +52,6 @@ class SpeedTrapListener(AbstractTableAndMessageListener):
         if len(table_values) == 0:
             return
         values = sorted(table_values, key=lambda x: x[1], reverse=True)
-        values = [(i+1, v[0], f'{round(v[1])} km/h') for i,v in enumerate(values)]
+        values = [(i+1, v[0], f'{round(v[1])} km/h') for i, v in enumerate(values)]
         values_str = tabulate(values, tablefmt=TABLE_FORMAT)
         return f"## Speed trap ranking\n```{values_str}```"

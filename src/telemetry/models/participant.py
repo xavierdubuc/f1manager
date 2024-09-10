@@ -33,10 +33,8 @@ class Participant:
 
     def __hash__(self) -> int:
         return hash((
-            self.name_str,
             self.network_id,
             self.race_number,
-            self.name,
             self.original_driver
         ))
 
