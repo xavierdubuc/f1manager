@@ -36,7 +36,7 @@ class Reader:
         self.spreadsheet_id = self.season_config['sheet']
         self.google_sheet_service = GSheet()
 
-    def read(self):
+    def read(self) -> GeneratorConfig:
         pilots, teams = self._read()
         config = GeneratorConfig(
             type=self.type,

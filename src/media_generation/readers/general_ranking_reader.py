@@ -22,7 +22,7 @@ class GeneralRankingReader(Reader):
         else:
             raise IncorrectDataException(f'{self.type.value} is not supported by GeneralRankingReader !')
 
-    def read(self):
+    def read(self) -> GeneratorConfig:
         pilots, teams = self._read()
         ranking = self._get_general_ranking(pilots, teams)
         max_size = -1
