@@ -24,6 +24,8 @@ from config.config import (Q1_RANKING_RANGE, Q2_RANKING_RANGE,
                            RACE_RANKING_RANGE, FASTEST_LAP_PILOT_CELL,
                            FASTEST_LAP_LAP_CELL, FASTEST_LAP_TIME_CELL)
 
+from src.media_generation.helpers.generator_config import GeneratorConfig
+from src.telemetry.listeners.participant_name_listener import ParticipantNameListener
 from src.telemetry.listeners.tyreset_listener import TyreSetListener
 from src.telemetry.managers.tyreset_manager import TyreSetManager
 from src.telemetry.models.speed_trap_entry import SpeedTrapEntry
@@ -83,6 +85,7 @@ LISTENER_CLASSES = [
     NoticeableDamageListener,
     OutOfTrackListener,
     OvertakeListener,
+    ParticipantNameListener,
     PenaltyListener,
     PitListener,
     # PositionChangeListener,
@@ -191,6 +194,7 @@ class Brain:
                 _logger.info('A new session has started, previous one has been backuped')
                 self.previous_sessions.append(self.current_session)
                 self.current_session = tmp_session
+            self.current_session.config = self._get_session_config()
 
     """
     @emits PARTICIPANT_CREATED
@@ -642,6 +646,16 @@ class Brain:
                     setattr(self.current_session, f'current_fastest_{sector}', new_time)
                     self._emit(Event.BEST_SECTOR_UPDATED, session=self.current_session, participant=participant, sector=sector, now=new_time, old=current_best)
 
+    def _get_session_config(self) -> GeneratorConfig:
+        try:
+            seasons = self.championship_config['seasons']
+            season_id = list(seasons.keys())[-1] # FIXME pas ouf
+            reader = Reader(GeneratorType.LINEUP, self.championship_config, season_id, self.sheet_name)
+            return reader.read()
+        except Exception as e:
+            _logger.error("COULD NOT READ PILOTS FROM GSHEET")
+            _logger.exception(e)
+
     def _send_ranking_to_gsheet(self, session:Session):
         if not self.sheet_name:
             _logger.info('No sheet name given, nothing will be sent')
@@ -673,14 +687,12 @@ class Brain:
             _logger.info('Ranking will not be sent as this session type does not require it')
 
         g = GSheet()
-
         seasons = self.championship_config['seasons']
-        season_id = list(seasons.keys())[-1]
+        season_id = list(seasons.keys())[-1] # FIXME pas ouf
         season = seasons[season_id]
-        reader = Reader(GeneratorType.LINEUP, self.championship_config, season_id, self.sheet_name)
-        config = reader.read()
+
         # FIXME print the ranking without any config if somehow reader is failing ?
-        final_ranking = session.get_formatted_final_ranking(delta_char='', config=config)
+        final_ranking = session.get_formatted_final_ranking(delta_char='', config=session.config)
         for row in final_ranking:
             print('\t'.join(map(str, row)))
 
@@ -696,7 +708,7 @@ class Brain:
         if session.current_fastest_lap_driver:
             _logger.info('Writing fastest lap driver in sheet ...')
             if not session.current_fastest_lap_driver.has_name:
-                pilot = config.find_pilot(session.current_fastest_lap_driver)
+                pilot = session.config.find_pilot(session.current_fastest_lap_driver)
                 name = pilot.name
             else:
                 name = str(session.current_fastest_lap_driver)

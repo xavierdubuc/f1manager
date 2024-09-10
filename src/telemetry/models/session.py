@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import Dict, List, Tuple
+from typing import Dict, List
+from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.telemetry.models.motion import Motion
 from src.telemetry.models.overtake import Overtake
 from src.telemetry.models.speed_trap_entry import SpeedTrapEntry
@@ -95,6 +96,7 @@ class Session:
     speed_traps: Dict[Participant, SpeedTrapEntry] = field(default_factory=dict)
     motions: List[Motion] = None
     tyresets: List[TyreSet] = None
+    config: GeneratorConfig = None
 
     def __eq__(self, other):
         if type(self) != type(other):
