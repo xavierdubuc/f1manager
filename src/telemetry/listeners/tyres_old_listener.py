@@ -32,6 +32,6 @@ class TyresOldListener(AbstractListener):
                     tyres_wear_str = ','.join(f'{str(t).rjust(3)}%' for t in tyres_wear)
                     car_status = session.get_car_status(participant)
                     tyre = car_status.visual_tyre_compound
-                    msg = f"🆘 Les pneus {self.tyre(tyre)} de **{self.driver(participant)}** sont très usés `{tyres_wear_str}` !"
+                    msg = f"🆘 Les pneus {self.tyre(tyre)} de **{self.driver(participant, session)}** sont très usés `{tyres_wear_str}` !"
                     return [Message(content=msg, channel=Channel.DAMAGE)]
         return []

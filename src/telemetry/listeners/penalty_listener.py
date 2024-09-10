@@ -45,13 +45,13 @@ class PenaltyListener(AbstractTableAndMessageListener):
             diff = seconds_of_penalties - seconds_of_penalties_before
             if diff > 0:
                 flagmoji = self.get_emoji("blackwhiteflag", "🏴")
-                return f"{flagmoji} **{self.driver(participant)}** a recu une pénalité de {diff} secondes !"
+                return f"{flagmoji} **{self.driver(participant, session)}** a recu une pénalité de {diff} secondes !"
             diff = -diff
-            return f"✅ **{self.driver(participant)}** a purgé une pénalité de {diff} secondes !"
+            return f"✅ **{self.driver(participant, session)}** a purgé une pénalité de {diff} secondes !"
 
         if "corner_cutting_warnings" in changes:
             amount_of_warnings = changes["corner_cutting_warnings"].actual
-            return f"🏳️ **{self.driver(participant)}** a recu un avertissement ! **Total : {amount_of_warnings}**"
+            return f"🏳️ **{self.driver(participant, session)}** a recu un avertissement ! **Total : {amount_of_warnings}**"
 
     def _get_table(self, session: Session, *args, **kwargs) -> str:
         table_values = []

@@ -27,7 +27,7 @@ class PitListener(AbstractListener):
             if pit_status == PitStatus.pitting:
                 if lap.result_status.is_still_in_the_race():
                     # TODO emoji PIT / PIT EXIT ?
-                    msg = f'⤴️ **{participant}** rentre au stand...'
+                    msg = f'⤴️ **{self.driver(participant, session)}** rentre au stand...'
                     return [Message(msg, Channel.PIT)]
             if pit_status == PitStatus.not_in_pit:
                 car_status = session.get_car_status(participant)
@@ -44,6 +44,5 @@ class PitListener(AbstractListener):
                 t = f'({round(stop_time/1000,2)}s)' if stop_time else ''
                 tt = f' (Total: {round(lane_time/1000,2)}s)' if lane_time else ''
 
-                teamoji = self.get_emoji(participant.team.as_emoji())
-                msg = f'🟢 {teamoji} **{participant}** sort des stands{tyres_str}{fuel_str} {t}{tt}'
+                msg = f'🟢 **{self.driver(participant, session)}** sort des stands{tyres_str}{fuel_str} {t}{tt}'
                 return [Message(msg, Channel.PIT)]
