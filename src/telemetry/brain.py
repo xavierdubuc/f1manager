@@ -709,7 +709,10 @@ class Brain:
             _logger.info('Writing fastest lap driver in sheet ...')
             if not session.current_fastest_lap_driver.has_name:
                 pilot = session.config.find_pilot(session.current_fastest_lap_driver)
-                name = pilot.name
+                if pilot:
+                    name = pilot.name
+                else:
+                    name = str(session.current_fastest_lap_driver)
             else:
                 name = str(session.current_fastest_lap_driver)
             g.set_sheet_values(season['sheet'], f"'{self.sheet_name}'!{FASTEST_LAP_PILOT_CELL}", [[name]])
