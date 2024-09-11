@@ -34,7 +34,7 @@ class GeneratorConfig:
                 if participant.name_str == p.name:
                     return p
             else:
-                if participant.race_number.isnumeric() and int(participant.race_number) == int(p.number):
+                if int(participant.race_number) == int(p.number):
                     return p
         return None
 
