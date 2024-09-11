@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass, field
+from collections.abc import Iterable 
 from typing import Dict, List
 
 from src.telemetry.models.enums.tyre import Tyre
@@ -26,7 +27,9 @@ class AbstractListener:
         if method:
             res = method(*args, **kwargs)
             if res and not isinstance(res, list):
-                return list(res)
+                if isinstance(res, Iterable):
+                    return list(res)
+                return [res]
             return res
         else:
             _logger.warning(f'{self.__class__.__name__}.{method_name} does not exist !')

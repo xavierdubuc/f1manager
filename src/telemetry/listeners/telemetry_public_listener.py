@@ -26,12 +26,12 @@ class TelemetryPublicListener(AbstractListener):
         return messages
 
     def _on_participant_created(self, session: Session, participant: Participant) -> List[Message]:
-        return self._check_participant(participant)
+        return [self._check_participant(participant)]
 
     def _on_participant_updated(self, participant: Participant, changes: Dict[str, Change], session: Session) -> List[Message]:
         if 'telemetry_is_public' not in changes:
             return []
-        return self._check_participant(participant)
+        return [self._check_participant(participant)]
 
     def _check_participant(self, participant: Participant) -> Message:
         if participant.name in self.notified:

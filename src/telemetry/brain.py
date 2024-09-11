@@ -167,13 +167,16 @@ class Brain:
     def _emit(self, event:Event, *args, **kwargs):
         _logger.debug(f'{event.name} emitted !')
         for listener in self.listeners_by_event[event]:
-            msgs = listener.on(event, *args, **kwargs)
-            if msgs:
-                for msg in msgs:
-                    if not msg:
-                        _logger.error(f'None message recevied from {listener.__class__.__name__} !')
-                    else:
-                        self._send_discord_message(msg)
+            try:
+                msgs = listener.on(event, *args, **kwargs)
+                if msgs:
+                    for msg in msgs:
+                        if not msg:
+                            _logger.error(f'None message received from {listener.__class__.__name__} !')
+                        else:
+                            self._send_discord_message(msg)
+            except:
+                _logger.error(f'ERROR OCCURED WITH A TREATMENT MADE IN {listener.__class__.__name__}')
 
     """
     @emits SESSION_CREATED
