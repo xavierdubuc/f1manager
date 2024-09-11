@@ -35,8 +35,6 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
         last_lap: Lap = laps[-1]
 
         if self._lap_should_be_ignored(last_lap):
-            if session.session_type.is_qualification():
-                _logger.info(f'Lap for {participant} ignored (invalid:{last_lap.current_lap_invalid}, {last_lap.driver_status}, {last_lap.result_status})')
             return []
 
         # Send last lap status only if last lap is completed and we have last lap sectors time
@@ -55,8 +53,6 @@ class QualificationSectorsListener(AbstractListener):  # FIXME could be a fixed 
             return [self._get_lap_repr(lap, lap_record, participant, session)]
 
         if self._lap_should_be_ignored(lap):
-            if session.session_type.is_qualification():
-                _logger.info(f'Lap for {participant} ignored (invalid:{lap.current_lap_invalid}, {lap.driver_status}, {lap.result_status})')
             return []
 
         if 'sector_1_time_in_ms' not in changes and 'sector_2_time_in_ms' not in changes:
