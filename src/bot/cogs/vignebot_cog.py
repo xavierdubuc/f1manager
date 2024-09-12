@@ -27,7 +27,7 @@ class VignebotCog(commands.Cog):
     def _get_discord_config(self, discord_id: int) -> Tuple[Dict, str]:
         championship_config = DISCORDS[discord_id]
         _logger.info(f'Will use google sheet of {championship_config["name"]}')
-        season = DISCORDS[discord_id]['current_season']
+        season = championship_config['current_season']
         return championship_config, season
 
     async def _send_media(self, channel: disnake.TextChannel, media_path: str, msg: str = None):
@@ -43,7 +43,7 @@ class VignebotCog(commands.Cog):
                 await channel.send(file=picture)
             _logger.info('Media sent !')
 
-    def _get_channel(self, discord_config:dict, feed:str):
+    def _get_channel(self, discord_config:dict, feed:str) -> disnake.TextChannel:
         config = discord_config[feed]
         guild = self.bot.get_guild(config['guild'])
         return guild.get_channel(config['chann'])

@@ -10,6 +10,7 @@ from src.bot.cogs.driver_of_the_day_cog import DriverOfTheDayCog
 from src.bot.cogs.grid_cog import GridCog
 from src.bot.cogs.lineup_cog import LineupCog
 from src.bot.cogs.presentation_cog import PresentationCog
+from src.bot.cogs.remind_cog import RemindCog
 from src.bot.cogs.results_cog import ResultsCog
 from src.bot.vignebot import Vignebot
 
@@ -40,6 +41,9 @@ IS_LIVE = {}
 
 # PRESENCES
 bot.add_cog(PresencesCog(bot))
+
+# REMIND
+bot.add_cog(RemindCog(bot))
 
 # PRESENTATION
 bot.add_cog(PresentationCog(bot))
