@@ -52,7 +52,7 @@ from src.telemetry.listeners.qualification_sectors_listener import Qualification
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 from src.telemetry.listeners.telemetry_public_listener import TelemetryPublicListener
-from src.telemetry.listeners.tyres_old_listener import TyresOldListener
+from src.telemetry.listeners.tyres_listener import TyresListener
 from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
 
 from src.telemetry.managers.abstract_manager import Change
@@ -94,7 +94,7 @@ LISTENER_CLASSES = [
     SafetyCarListener,
     SessionCreationListener,
     TelemetryPublicListener,
-    TyresOldListener,
+    TyresListener,
     TyreSetListener,
     WeatherForecastListener,
 ]
