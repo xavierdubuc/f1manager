@@ -54,4 +54,4 @@ class SpeedTrapListener(AbstractTableAndMessageListener):
         values = sorted(table_values, key=lambda x: x[1], reverse=True)
         values = [(i+1, v[0], f'{round(v[1])} km/h') for i, v in enumerate(values)]
         values_str = tabulate(values, tablefmt=TABLE_FORMAT)
-        return f"## Speed trap ranking\n```{values_str}```"
+        return f"## Speed trap\n```{values_str}```"
