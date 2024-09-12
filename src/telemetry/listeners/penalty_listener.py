@@ -14,7 +14,7 @@ from .abstract_table_and_message_listener import AbstractTableAndMessageListener
 
 _logger = logging.getLogger(__name__)
 
-TABLE_FORMAT = "simple_outline"
+TABLE_FORMAT = "plain"
 
 
 class PenaltyListener(AbstractTableAndMessageListener):
@@ -66,4 +66,4 @@ class PenaltyListener(AbstractTableAndMessageListener):
         _logger.info("Penalty ranking:")
         values_str = tabulate(values, tablefmt=TABLE_FORMAT, headers=('', 'Virages', 'Avert.', 'Péna (s)'))
         _logger.info(values_str)
-        return f"```{values_str}```"
+        return f"## Pénalités\n```{values_str}```"
