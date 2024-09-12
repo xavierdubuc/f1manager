@@ -38,9 +38,9 @@ class TyresListener(AbstractTableAndMessageListener):
         driver_size = max(len(str(p.name_str)) for p in session.participants)
         table_values = [
             f"`{' '*driver_size}      AvG AvD ArG ArD`",
-            self._get_table_line(p, session, driver_size) for p in session.participants
-        ]
-        return f'## Pneus\n```{"\n".join(table_values)}```'
+        ] + [self._get_table_line(p, session, driver_size) for p in session.participants]
+        table_str = "\n".join(table_values)
+        return f'## Pneus\n```{table_str}```'
 
     def _get_update_message(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> str:
         old_tyres_wear = changes.get('tyres_damage').old
