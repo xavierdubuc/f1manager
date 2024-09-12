@@ -109,7 +109,7 @@ class TelemetryCog(commands.Cog):
             discord_config = self.bot.championship_config['discord']['default']
 
         if is_broadcast and not discord_config.get('broadcast', True):
-            _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as no config does not allow it')
+            _logger.debug(f'Message will not be broadcasted on channel {msg.channel} as config does not allow it')
             return
 
         guild = self.bot.get_guild(discord_config['guild'])
