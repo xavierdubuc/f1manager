@@ -28,10 +28,10 @@ class ConfirmResultsCog(CompositeRaceCog):
         # DRIVER OF THE DAY : compute
         dotd_cog:DriverOfTheDayCog = self.bot.get_cog('DriverOfTheDayCog')
         if not second_race_config.race.driver_of_the_day:
-            driver_of_the_day, percentage = await dotd_cog.compute(championship_config, second_race_config.race, season)
-            await self.last_inter.channel.send(f'✅ Driver of the day calculé : {driver_of_the_day} ({percentage})')
-            second_race_config.race.driver_of_the_day = driver_of_the_day
-            second_race_config.race.driver_of_the_day_name = driver_of_the_day.name
+            driver_of_the_day_name, percentage = await dotd_cog.compute(championship_config, second_race_config.race, season)
+            await self.last_inter.channel.send(f'✅ Driver of the day calculé : {driver_of_the_day_name} ({percentage})')
+            second_race_config.race.driver_of_the_day_name = driver_of_the_day_name
+            second_race_config.race.driver_of_the_day = second_race_config.pilots[driver_of_the_day_name]
             second_race_config.race.driver_of_the_day_percent = percentage
         else:
             await self.last_inter.channel.send(f'Driver of the day déjà renseigné : {second_race_config.race.driver_of_the_day.name}')
@@ -46,7 +46,7 @@ class ConfirmResultsCog(CompositeRaceCog):
 
         # DRIVER OF THE DAY : send
         await dotd_cog._run(results_channel, second_race_number, championship_config, season, second_race_config)
-        await self.last_inter.channel.send(f'✅ Driver of the day postés dans {results_channel.mention}!')
+        await self.last_inter.channel.send(f'✅ Driver of the day posté dans {results_channel.mention}!')
 
         # RANKINGS
         ranking_cog: RankingCog = self.bot.get_cog('RankingCog')
