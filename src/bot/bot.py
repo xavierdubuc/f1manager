@@ -11,7 +11,6 @@ from src.bot.cogs.grid_cog import GridCog
 from src.bot.cogs.lineup_cog import LineupCog
 from src.bot.cogs.presentation_cog import PresentationCog
 from src.bot.cogs.results_cog import ResultsCog
-from src.bot.cogs.twitch_cog import TwitchCog
 from src.bot.vignebot import Vignebot
 
 
@@ -38,9 +37,6 @@ IS_LIVE = {}
 ############
 # COGS
 ############
-
-# TWITCH
-bot.add_cog(TwitchCog(bot, FBRT_GUILD_ID, FBRT_TWITCH_CHAN_ID))
 
 # PRESENCES
 bot.add_cog(PresencesCog(bot))
@@ -82,11 +78,7 @@ bot.add_cog(PilotCog(bot))
 # bot.add_cog(SeasonRankingCog(bot))
 
 # TODO idée lisant le calendrier "@vignebot où est la prochaine course ?"
-# TODO un excel où un circuit = une page et chaque page contient le classement CLM
-# chaque page contient aussi l'identifiant du message discord correspondant
-# -> script pour créer ces liens + le message de sommaire
-# -> script pour mettre à jour l'excel sur base des données du jeu directement
-# -> script pour demander au bot de mettre à jour un post sur base de l'excel
+# pareil pour CLM "qui est le plus rapide à Zandvoort ?"
 
 ############
 # EVENT LISTENERS

@@ -25,7 +25,7 @@ queue = Queue()
 discord_conn, telemetry_conn = Pipe()
 discord_process = Process(
     target=run_discord_bot, name=' DISCORD ',
-    args=(queue, discord_conn, CHAMPIONSHIP_CONFIG)
+    args=(queue, discord_conn, CHAMPIONSHIP_CONFIG, args.skip_twitch)
 )
 telemetry_process = Process(
     target=run_telemetry, name='TELEMETRY',
