@@ -32,7 +32,7 @@ class Message:
         return self.content[:2000]
 
     def copy(self, channel=None):
-        return  Message(
+        return Message(
             content=self.content,
             channel=channel or self.channel,
             file_path=self.file_path
