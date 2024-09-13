@@ -141,7 +141,7 @@ class Session:
         if not self.laps:
             return
         index = self.participants.index(participant)
-        if not (0 <= index <= len(self.laps)):
+        if not (0 <= index < len(self.laps)):
             return
         return self.laps[index]
 
