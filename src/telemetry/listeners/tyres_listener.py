@@ -6,6 +6,7 @@ from src.telemetry.managers.abstract_manager import Change
 from src.telemetry.message import Channel, Message
 
 from src.telemetry.models.damage import Damage
+from src.telemetry.models.lap import Lap
 from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
 from .abstract_table_and_message_listener import AbstractTableAndMessageListener
@@ -17,46 +18,28 @@ TABLE_FORMAT = "plain"
 
 class TyresListener(AbstractTableAndMessageListener):
     SUBSCRIBED_EVENTS = [
-        Event.DAMAGE_UPDATED
+        Event.LAP_CREATED
     ]
 
-    def _get_fixed_message_id(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> str:
+    def _on_lap_created(self, lap: Lap, participant: Participant, session: Session) -> List[Message]:
+        return self._get_fixed_message(lap, participant, session)
+
+    def _get_fixed_message_id(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         return f'{session.session_identifier}_{session.session_type.name}_tyres'
 
-    def _get_fixed_message_channel(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> Channel:
+    def _get_fixed_message_channel(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         return Channel.CLASSIFICATION
 
-    def _on_damage_updated(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
-        if 'tyres_damage' not in changes:
-            return
-        return self._get_fixed_message(damage, changes, participant, session)
-
-    def _get_update_message(self, *args, **kwargs) -> str:
-        return super()._get_update_message(*args, **kwargs)
-
-    def _get_table(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> str:
+    def _get_table(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         driver_size = max(len(str(p.name_str)) for p in session.participants)
         table_values = [
-            f"`{' '*driver_size}      AvG AvD ArG ArD`",
+            f"`{' '*driver_size}          AvG AvD ArG ArD`",
         ] + [self._get_table_line(p, session, driver_size) for p in session.participants]
         table_str = "\n".join(table_values)
         return f'## Pneus\n{table_str}'
 
-    def _get_update_message(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> str:
-        old = changes.get('tyres_damage').old
-        actual = changes.get('tyres_damage').actual
-        old_tyres_wear = max(old) if old else 0
-        actual_tyres_wear = max(actual) if actual else 0
-        car_status = session.get_car_status(participant)
-        tyre = self.tyre(car_status.visual_tyre_compound)
-        if actual_tyres_wear == 100:
-            return
-        if actual_tyres_wear > 60:
-            return f'{tyre} **{self.driver(participant, session)}** a des pneus très usés !'
-        elif actual_tyres_wear > old_tyres_wear:
-            return f'{tyre} **{self.driver(participant, session)}** use ses pneus !'
-        elif actual_tyres_wear < old_tyres_wear:
-            return f'{tyre} **{self.driver(participant, session)}** a changé de pneu !'
+    def _get_update_message(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
+        return f"Dernière mise à jour : tour {lap.current_lap_num}"
 
     def _get_table_line(self, participant: Participant, session: Session, driver_size: int = 16) -> str:
         #` 6`:ferrari:`LECLERC   `:soft:` 0% 0% 1% 0%`
