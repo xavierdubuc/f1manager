@@ -43,8 +43,10 @@ class TyresListener(AbstractTableAndMessageListener):
         return f'## Pneus\n{table_str}'
 
     def _get_update_message(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> str:
-        old_tyres_wear = max(changes.get('tyres_damage').old)
-        actual_tyres_wear = max(changes.get('tyres_damage').actual)
+        old = changes.get('tyres_damage').old
+        actual = changes.get('tyres_damage').actual
+        old_tyres_wear = max(old) if old else 0
+        actual_tyres_wear = max(actual) if actual else 0
         car_status = session.get_car_status(participant)
         tyre = self.tyre(car_status.visual_tyre_compound)
         if actual_tyres_wear == 100:
