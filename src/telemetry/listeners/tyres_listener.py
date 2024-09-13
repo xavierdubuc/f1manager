@@ -20,10 +20,10 @@ class TyresListener(AbstractTableAndMessageListener):
         Event.DAMAGE_UPDATED
     ]
 
-    def _get_fixed_message_id(self, session: Session, *args, **kwargs) -> str:
+    def _get_fixed_message_id(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> str:
         return f'{session.session_identifier}_{session.session_type.name}_tyres'
 
-    def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:
+    def _get_fixed_message_channel(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> Channel:
         return Channel.CLASSIFICATION
 
     def _on_damage_updated(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
