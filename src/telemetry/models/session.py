@@ -111,6 +111,14 @@ class Session:
             return False
         return True
 
+    def get_sortered_participants(self) -> List[Participant]:
+        def sorting_key(participant):
+            lap = self.get_current_lap(participant)
+            if not lap:
+                return 99
+            return lap.car_position
+        return sorted(self.participants, key=sorting_key)
+
     def get_lap_record(self, participant:Participant) -> LapRecord:
         index = self.participants.index(participant)
         if not self.lap_records:

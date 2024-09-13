@@ -32,7 +32,7 @@ class TyresListener(AbstractTableAndMessageListener):
 
     def _get_table(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         driver_size = max(len(str(p.name_str)) for p in session.participants) + 1
-        participants = sorted(session.participants, key=lambda participant: session.get_current_lap(participant).car_position)
+        participants = session.get_sortered_participants()
         table_values = [
             f"`{' '*driver_size}          AvG AvD ArG ArD`",
         ] + [self._get_table_line(p, session, driver_size) for p in participants]
