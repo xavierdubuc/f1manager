@@ -66,8 +66,8 @@ class TyresListener(AbstractTableAndMessageListener):
                 f"{str(damage.get_rear_right_tyre_damage_value()).rjust(2)}% ",
                 "`",
             ]
-        # ERS
-        if car_status:
-            ersmoji = '🔋' if car_status.ers_left >= 50 else '🪫'
-            elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
+        # ERS FIXME msg is too long
+        # if car_status:
+        #     ersmoji = '🔋' if car_status.ers_left >= 50 else '🪫'
+        #     elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
         return "".join(elements)
