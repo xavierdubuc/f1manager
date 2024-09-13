@@ -36,3 +36,7 @@ class CarStatus:
     ers_harvested_this_lap_mguk: float = None
     ers_harvested_this_lap_mguh: float = None
     ers_deployed_this_lap: float = None
+
+    @property
+    def ers_left(self) -> int:
+        return self.ers_store_energy // ERS_CAPACITY_JOUL
