@@ -69,5 +69,5 @@ class TyresListener(AbstractTableAndMessageListener):
         # ERS
         if car_status:
             ersmoji = '🔋' if car_status.ers_left >= 50 else '🪫'
-            elements.append(f'` `{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
+            elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
         return "".join(elements)
