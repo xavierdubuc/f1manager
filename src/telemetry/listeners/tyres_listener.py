@@ -40,7 +40,7 @@ class TyresListener(AbstractTableAndMessageListener):
             f"`{' '*driver_size}      AvG AvD ArG ArD`",
         ] + [self._get_table_line(p, session, driver_size) for p in session.participants]
         table_str = "\n".join(table_values)
-        return f'## Pneus\n```{table_str}```'
+        return f'## Pneus\n{table_str}'
 
     def _get_update_message(self, damage: Damage, changes: Dict[str, Change], participant: Participant, session: Session, *args, **kwargs) -> str:
         old_tyres_wear = max(changes.get('tyres_damage').old)
@@ -57,6 +57,7 @@ class TyresListener(AbstractTableAndMessageListener):
             return f'{tyre} **{self.driver(participant, session)}** a changé de pneu !'
 
     def _get_table_line(self, participant: Participant, session: Session, driver_size: int = 16) -> str:
+        #` 6`:ferrari:`LECLERC   `:soft:` 0% 0% 1% 0%`
         elements = []
         # POSITION
         if lap := session.get_current_lap(participant):
@@ -65,16 +66,18 @@ class TyresListener(AbstractTableAndMessageListener):
         if teamoji := self.get_teamoji(participant):
             elements.append(teamoji)
         # DRIVER NAME
-        elements.append(str(participant).ljust(driver_size))
+        elements.append(f'`{str(participant).ljust(driver_size)}`')
         # TYRE
         car_status = session.get_car_status(participant)
         elements.append(self.tyre(car_status.visual_tyre_compound))
         # TYRE DAMAGES
         damage = session.get_car_damage(participant)
         elements += [
-            f"{str(damage.get_front_left_tyre_damage_value()).rjust(2)}%",
-            f"{str(damage.get_front_right_tyre_damage_value()).rjust(2)}%",
-            f"{str(damage.get_rear_left_tyre_damage_value()).rjust(2)}%",
-            f"{str(damage.get_rear_right_tyre_damage_value()).rjust(2)}%",
+            "`",
+            f"{str(damage.get_front_left_tyre_damage_value()).rjust(2)}% ",
+            f"{str(damage.get_front_right_tyre_damage_value()).rjust(2)}% ",
+            f"{str(damage.get_rear_left_tyre_damage_value()).rjust(2)}% ",
+            f"{str(damage.get_rear_right_tyre_damage_value()).rjust(2)}% ",
+            "`",
         ]
         return "".join(elements)
