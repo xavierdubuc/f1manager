@@ -53,10 +53,10 @@ class TyresListener(AbstractTableAndMessageListener):
         # DRIVER NAME
         elements.append(f'`{str(participant).ljust(driver_size)}`')
         # TYRE
-        if car_status := session.get_car_status(participant)
+        if car_status := session.get_car_status(participant):
             elements.append(self.tyre(car_status.visual_tyre_compound))
         # TYRE DAMAGES
-        if damage := session.get_car_damage(participant)
+        if damage := session.get_car_damage(participant):
             elements += [
                 "`",
                 f"{str(damage.get_front_left_tyre_damage_value()).rjust(2)}% ",
