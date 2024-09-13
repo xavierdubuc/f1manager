@@ -35,18 +35,19 @@ class TyresListener(AbstractTableAndMessageListener):
         participants = sorted(session.participants, key=lambda participant: session.get_current_lap(participant).car_position)
         table_values = [
             f"`{' '*driver_size}          AvG AvD ArG ArD`",
-        ] + [self._get_table_line(lap, p, session, driver_size) for p in participants]
+        ] + [self._get_table_line(p, session, driver_size) for p in participants]
         table_str = "\n".join(table_values)
         return f'## Pneus\n{table_str}'
 
     def _get_update_message(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         return f"Dernière mise à jour : tour {lap.current_lap_num}"
 
-    def _get_table_line(self, lap: Lap, participant: Participant, session: Session, driver_size: int = 16) -> str:
+    def _get_table_line(self, participant: Participant, session: Session, driver_size: int = 16) -> str:
         #` 6`:ferrari:`LECLERC   `:soft:` 0% 0% 1% 0%`
         elements = []
-        # POSITION
-        elements.append(f'`{str(lap.car_position).rjust(2)}`')
+        if lap := session.get_current_lap(participant):
+            # POSITION
+            elements.append(f'`{str(lap.car_position).rjust(2)}`')
         # TEAMOJI
         if teamoji := self.get_teamoji(participant):
             elements.append(teamoji)
