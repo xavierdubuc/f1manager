@@ -39,4 +39,4 @@ class CarStatus:
 
     @property
     def ers_left(self) -> int:
-        return self.ers_store_energy // ERS_CAPACITY_JOUL
+        return int(100 * (self.ers_store_energy / ERS_CAPACITY_JOUL))
