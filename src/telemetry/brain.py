@@ -175,8 +175,9 @@ class Brain:
                             _logger.error(f'None message received from {listener.__class__.__name__} !')
                         else:
                             self._send_discord_message(msg)
-            except:
+            except Exception as e:
                 _logger.error(f'ERROR OCCURED WITH A TREATMENT MADE IN {listener.__class__.__name__}')
+                _logger.exception(e)
 
     """
     @emits SESSION_CREATED

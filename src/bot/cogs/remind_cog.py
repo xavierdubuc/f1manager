@@ -21,7 +21,7 @@ class RemindCog(VignebotCog):
     async def root(self, inter: disnake.ApplicationCommandInteraction, **kwargs):
         pass
 
-    @root.sub_command(name="pilote_du_jour", description="Voter pour le pilote du jour")
+    @root.sub_command(name="pilote_du_jour", description="Rappeler de voter pour le pilote du jour")
     async def vote_for_dotd(self, inter: disnake.ApplicationCommandInteraction, **kwargs):
         championship_config, season = self._get_discord_config(inter.guild_id)
         discord_config = championship_config['discord']
@@ -34,7 +34,7 @@ class RemindCog(VignebotCog):
         else:
             await inter.response.send_message(msg)
 
-    @root.sub_command(name="presence", description="Remplir votre présence")
+    @root.sub_command(name="presence", description="Rappeler à ceux dont ce n'est pas encore le cas de remplir leur présence")
     async def presence(self, inter: disnake.ApplicationCommandInteraction,
                        race_number: str = RACE_NUMBER_PARAM,
                        only_role: str = ROLE_PARAM,
