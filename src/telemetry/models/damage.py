@@ -90,16 +90,16 @@ class Damage:
         return 'green'
 
     def get_front_left_tyre_damage_value(self):
-        return self.tyres_damage[2]
+        return self.tyres_damage[2] if self.tyres_damage and len(self.tyres_damage) > 2 else "?"
 
     def get_front_right_tyre_damage_value(self):
-        return self.tyres_damage[3]
+        return self.tyres_damage[3] if self.tyres_damage and len(self.tyres_damage) > 3 else "?"
 
     def get_rear_left_tyre_damage_value(self):
-        return self.tyres_damage[0]
+        return self.tyres_damage[0] if self.tyres_damage and len(self.tyres_damage) > 0 else "?"
 
     def get_rear_right_tyre_damage_value(self):
-        return self.tyres_damage[1]
+        return self.tyres_damage[1] if self.tyres_damage and len(self.tyres_damage) > 1 else "?"
 
     def get_max_tyre_damage(self):
         return max(self.tyres_damage)
