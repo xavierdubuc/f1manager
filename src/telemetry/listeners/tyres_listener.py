@@ -57,7 +57,7 @@ class TyresListener(AbstractTableAndMessageListener):
         elements = []
         if lap := session.get_current_lap(participant):
             # POSITION
-            elements.append(f'`{str(lap.car_position).rjust(2)}` ')
+            elements.append(f'`{str(lap.car_position).rjust(2)} ` ')
         # TEAMOJI
         if teamoji := self.get_teamoji(participant):
             elements.append(teamoji)
@@ -81,5 +81,9 @@ class TyresListener(AbstractTableAndMessageListener):
             ersmoji = '🔋' if car_status.ers_left >= 50 else '🪫'
             elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
         if lap:
-            elements.append(f"+{lap.delta_to_car_in_front_in_ms / 1000}s" if lap.delta_to_car_in_front_in_ms else session._format_time(timedelta(seconds=lap.last_lap_time_in_ms/1000)))
+            if lap.delta_to_car_in_front_in_ms:
+                content = f"` +{lap.delta_to_car_in_front_in_ms / 1000}s"
+            else:
+                content = f"`{session._format_time(timedelta(seconds=lap.last_lap_time_in_ms/1000))}`"
+            elements.append(content)
         return "".join(elements)
