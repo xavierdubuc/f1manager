@@ -13,6 +13,7 @@ from .abstract_table_and_message_listener import AbstractTableAndMessageListener
 
 _logger = logging.getLogger(__name__)
 TABLE_FORMAT = "plain"
+SPLIT_POSITION = 10
 
 
 class TyresListener(AbstractTableAndMessageListener):
@@ -22,14 +23,16 @@ class TyresListener(AbstractTableAndMessageListener):
 
     def _on_lap_created(self, lap: Lap, participant: Participant, session: Session) -> List[Message]:
         # Arbitrary way of lowering the amount of messages (FIXME some kind of buffering ?)
-        if lap.car_position % 2 == 1:
+        # or waiting for some update and if no update dans un temps donné hop on send
+        if lap.car_position % 4 == 1:
             return self._get_fixed_messages(lap, participant, session)
 
     def _get_fixed_messages_ids(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
-        return [
-            f'{session.session_identifier}_{session.session_type.name}_tyres_1',
-            f'{session.session_identifier}_{session.session_type.name}_tyres_2'
-        ]
+        if len(session.participants) <= 15:
+            return [f'{session.session_identifier}_{session.session_type.name}_tyres_1']
+        if lap.car_position <= SPLIT_POSITION:
+            return [f'{session.session_identifier}_{session.session_type.name}_tyres_1']
+        return [f'{session.session_identifier}_{session.session_type.name}_tyres_2']
 
     def _get_fixed_message_channel(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         return Channel.CLASSIFICATION
@@ -42,9 +45,12 @@ class TyresListener(AbstractTableAndMessageListener):
         if len(session.participants) <= 15:
             return ["\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants])]
         else:
+            if lap.car_position <= SPLIT_POSITION:
+                return [
+                    "\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants[:SPLIT_POSITION]])
+                ]
             return [
-                "\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants[:10]]),
-                "\n".join([self._get_table_line(p, session, driver_size) for p in participants[10:]]),
+                "\n".join([self._get_table_line(p, session, driver_size) for p in participants[SPLIT_POSITION:]]),
             ]
 
     def _get_update_message(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
@@ -82,7 +88,7 @@ class TyresListener(AbstractTableAndMessageListener):
             if lap.delta_to_car_in_front_in_ms:
                 delta = str(lap.delta_to_car_in_front_in_ms / 1000)
                 decimal_length = len(delta.split('.')[1])
-                if  decimal_length != 3:
+                if decimal_length != 3:
                     delta += "0" * (3 - decimal_length)
                 content = f" ` +{delta}`"
             else:
