@@ -16,28 +16,36 @@ _logger = logging.getLogger(__name__)
 TABLE_FORMAT = "plain"
 
 
+
 class TyresListener(AbstractTableAndMessageListener):
     SUBSCRIBED_EVENTS = [
         Event.LAP_CREATED
     ]
 
     def _on_lap_created(self, lap: Lap, participant: Participant, session: Session) -> List[Message]:
-        return self._get_fixed_message(lap, participant, session)
+        return self._get_fixed_messages(lap, participant, session)
 
-    def _get_fixed_message_id(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
-        return f'{session.session_identifier}_{session.session_type.name}_tyres'
+    def _get_fixed_messages_ids(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
+        return [
+            f'{session.session_identifier}_{session.session_type.name}_tyres_1',
+            f'{session.session_identifier}_{session.session_type.name}_tyres_2'
+        ]
 
     def _get_fixed_message_channel(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         return Channel.CLASSIFICATION
 
-    def _get_table(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
+    def _get_tables(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> List[str]:
         driver_size = max(len(str(p.name_str)) for p in session.participants) + 1
         participants = session.get_sortered_participants()
-        table_values = [
-            f"`{' '*driver_size}          AvG AvD ArG ArD`",
-        ] + [self._get_table_line(p, session, driver_size) for p in participants]
-        table_str = "\n".join(table_values)
-        return f'## Pneus\n{table_str}'
+        title = "## Pneus\n"
+        headers = f"`AvG AvD ArG ArD`".rjust(driver_size+10)
+        if len(session.participants) <= 15:
+            return ["\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants])]
+        else:
+            return [
+                "\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants[:10]]),
+                "\n".join([headers] + [self._get_table_line(p, session, driver_size) for p in participants[10:]]),
+            ]
 
     def _get_update_message(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
         return f"Dernière mise à jour : tour {lap.current_lap_num}"
@@ -66,8 +74,8 @@ class TyresListener(AbstractTableAndMessageListener):
                 f"{str(damage.get_rear_right_tyre_damage_value()).rjust(2)}% ",
                 "`",
             ]
-        # ERS FIXME msg is too long
-        # if car_status:
-        #     ersmoji = '🔋' if car_status.ers_left >= 50 else '🪫'
-        #     elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
+        # ERS
+        if car_status:
+            ersmoji = '🔋' if car_status.ers_left >= 50 else '🪫'
+            elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
         return "".join(elements)

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import List
 
 from src.telemetry.listeners.abstract_fixed_message_listener import AbstractFixedMessageListener
 
@@ -6,16 +7,19 @@ from src.telemetry.listeners.abstract_fixed_message_listener import AbstractFixe
 @dataclass
 class AbstractTableAndMessageListener(AbstractFixedMessageListener):
 
-    def _get_fixed_message_content(self, *args, **kwargs) -> str:
-        elements = []
-        if table := self._get_table(*args, **kwargs):
-            elements.append(table)
-        if last_update := self._get_update_message(*args, **kwargs):
-            elements.append(last_update)
-        return "\n".join(elements)
+    def _get_fixed_messages_content(self, *args, **kwargs) -> str:
+        msg_content_list = []
+        last_update = self._get_update_message(*args, **kwargs)
+        if tables := self._get_tables(*args, **kwargs):
+            for table in tables:
+                elements = [table]
+                if last_update:
+                    elements.append(last_update)
+            msg_content_list.append("\n".join(elements))
+        return msg_content_list
 
-    def _get_table(self, *args, **kwargs) -> str:
-        return ""
+    def _get_tables(self, *args, **kwargs) -> List[str]:
+        return []
 
     def _get_update_message(self, *args, **kwargs) -> str:
         return ""

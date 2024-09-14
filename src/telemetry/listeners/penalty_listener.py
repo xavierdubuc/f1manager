@@ -21,16 +21,16 @@ class PenaltyListener(AbstractTableAndMessageListener):
     SUBSCRIBED_EVENTS = [Event.LAP_UPDATED, Event.CLASSIFICATION_LIST_INITIALIZED]
 
     def _on_classification_list_initialized(self, session: Session, *args, **kwargs) -> List[Message]:
-        return self._get_fixed_message(session)
+        return self._get_fixed_messages(session)
 
     def _on_lap_updated(self, lap: Lap, changes: Dict[str, Change], participant: Participant, session: Session) -> List[Message]:
         if "corner_cutting_warnings" not in changes and "penalties" not in changes:
             return
 
-        return self._get_fixed_message(session, lap, changes, participant)
+        return self._get_fixed_messages(session, lap, changes, participant)
 
-    def _get_fixed_message_id(self, session: Session, *args, **kwargs) -> str:
-        return f'{session.session_identifier}_{session.session_type.name}_penalties'
+    def _get_fixed_messages_ids(self, session: Session, *args, **kwargs) -> str:
+        return [f'{session.session_identifier}_{session.session_type.name}_penalties']
 
     def _get_fixed_message_channel(self, event: Event, *args, **kwargs) -> Channel:
         return Channel.CLASSIFICATION
@@ -53,7 +53,7 @@ class PenaltyListener(AbstractTableAndMessageListener):
             amount_of_warnings = changes["corner_cutting_warnings"].actual
             return f"🏳️ **{self.driver(participant, session)}** a recu un avertissement ! **Total : {amount_of_warnings}**"
 
-    def _get_table(self, session: Session, *args, **kwargs) -> str:
+    def _get_tables(self, session: Session, *args, **kwargs) -> str:
         table_values = []
         for p in session.participants:
             lap = session.get_current_lap(p)
@@ -66,4 +66,4 @@ class PenaltyListener(AbstractTableAndMessageListener):
         _logger.info("Penalty ranking:")
         values_str = tabulate(values, tablefmt=TABLE_FORMAT, headers=('', 'Virages', 'Avert.', 'Péna (s)'))
         _logger.info(values_str)
-        return f"## Pénalités\n```{values_str}```"
+        return [f"## Pénalités\n```{values_str}```"]
