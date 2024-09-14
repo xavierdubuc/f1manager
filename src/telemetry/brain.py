@@ -652,7 +652,9 @@ class Brain:
 
     def _get_session_config(self) -> GeneratorConfig:
         try:
-            seasons = self.championship_config['seasons']
+            seasons = self.championship_config.get('seasons')
+            if not seasons:
+                return
             season_id = list(seasons.keys())[-1] # FIXME pas ouf
             reader = Reader(GeneratorType.LINEUP, self.championship_config, season_id, self.sheet_name)
             return reader.read()
