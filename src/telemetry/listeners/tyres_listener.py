@@ -1,12 +1,10 @@
 from datetime import timedelta
 import logging
-from typing import Dict, List
+from typing import List
 from src.telemetry.event import Event
 
-from src.telemetry.managers.abstract_manager import Change
 from src.telemetry.message import Channel, Message
 
-from src.telemetry.models.damage import Damage
 from src.telemetry.models.lap import Lap
 from src.telemetry.models.participant import Participant
 from src.telemetry.models.session import Session
@@ -17,14 +15,14 @@ _logger = logging.getLogger(__name__)
 TABLE_FORMAT = "plain"
 
 
-
 class TyresListener(AbstractTableAndMessageListener):
     SUBSCRIBED_EVENTS = [
         Event.LAP_CREATED
     ]
 
     def _on_lap_created(self, lap: Lap, participant: Participant, session: Session) -> List[Message]:
-        if lap.car_position % 2 == 1:  # Arbitrary way of lowering the amount of messages (FIXME some kind of buffering ?)
+        # Arbitrary way of lowering the amount of messages (FIXME some kind of buffering ?)
+        if lap.car_position % 2 == 1:
             return self._get_fixed_messages(lap, participant, session)
 
     def _get_fixed_messages_ids(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
@@ -53,7 +51,7 @@ class TyresListener(AbstractTableAndMessageListener):
         return f"Dernière mise à jour : tour {lap.current_lap_num}"
 
     def _get_table_line(self, participant: Participant, session: Session, driver_size: int = 16) -> str:
-        #` 6`:ferrari:`LECLERC   `:soft:` 0% 0% 1% 0%`
+        # ` 6`:ferrari:`LECLERC   `:soft:` 0% 0% 1% 0%`
         elements = []
         if lap := session.get_current_lap(participant):
             # POSITION
@@ -82,8 +80,12 @@ class TyresListener(AbstractTableAndMessageListener):
             elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
         if lap:
             if lap.delta_to_car_in_front_in_ms:
-                content = f"` +{lap.delta_to_car_in_front_in_ms / 1000}s"
+                delta = str(lap.delta_to_car_in_front_in_ms / 1000)
+                decimal_length = len(delta.split('.')[1])
+                if  decimal_length != 3:
+                    delta += "0" * (3 - decimal_length)
+                content = f" ` +{delta}`"
             else:
-                content = f"`{session._format_time(timedelta(seconds=lap.last_lap_time_in_ms/1000))}`"
+                content = f" `{session._format_time(timedelta(seconds=lap.last_lap_time_in_ms/1000))}`"
             elements.append(content)
         return "".join(elements)
