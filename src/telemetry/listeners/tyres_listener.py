@@ -38,7 +38,7 @@ class TyresListener(AbstractTableAndMessageListener):
         driver_size = max(len(str(p.name_str)) for p in session.participants) + 1
         participants = session.get_sortered_participants()
         title = "## Pneus\n"
-        headers = f"`{'AvG AvD ArG ArD'.rjust(driver_size+10)}`"
+        headers = f"`{' '*driver_size+10}AvG AvD ArG ArD`"
         if len(session.participants) <= 15:
             return ["\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants])]
         else:
