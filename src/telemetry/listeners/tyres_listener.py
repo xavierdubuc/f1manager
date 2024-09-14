@@ -24,7 +24,7 @@ class TyresListener(AbstractTableAndMessageListener):
     def _on_lap_created(self, lap: Lap, participant: Participant, session: Session) -> List[Message]:
         # Arbitrary way of lowering the amount of messages (FIXME some kind of buffering ?)
         # or waiting for some update and if no update dans un temps donné hop on send
-        if lap.car_position % 4 == 1:
+        if lap.car_position in (1, 10, 11, 20): # TODO find a way to replace 20 by "last still driving"
             return self._get_fixed_messages(lap, participant, session)
 
     def _get_fixed_messages_ids(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
