@@ -21,6 +21,7 @@ class SpeedTrapListener(AbstractTableAndMessageListener):
         return self._get_fixed_messages(session)
 
     def _on_speed_trap(self, speed_trap: SpeedTrapEntry, session: Session) -> List[Message]:
+        # TODO if still generating too much messages --> store new states but only update every X minute or smthg
         key = speed_trap.participant
         existing_speedtrap = session.speed_traps.get(key)
         if existing_speedtrap and existing_speedtrap >= speed_trap:
