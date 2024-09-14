@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 from typing import Dict, List
 from src.telemetry.event import Event
@@ -39,13 +40,13 @@ class TyresListener(AbstractTableAndMessageListener):
         driver_size = max(len(str(p.name_str)) for p in session.participants) + 1
         participants = session.get_sortered_participants()
         title = "## Pneus\n"
-        headers = f"`{' '*(driver_size+10)}AvG AvD ArG ArD`"
+        headers = f"`{' '*(driver_size+11)}AvG AvD ArG ArD`"
         if len(session.participants) <= 15:
             return ["\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants])]
         else:
             return [
                 "\n".join([title, headers] + [self._get_table_line(p, session, driver_size) for p in participants[:10]]),
-                "\n".join([headers] + [self._get_table_line(p, session, driver_size) for p in participants[10:]]),
+                "\n".join([self._get_table_line(p, session, driver_size) for p in participants[10:]]),
             ]
 
     def _get_update_message(self, lap: Lap, participant: Participant, session: Session, *args, **kwargs) -> str:
@@ -79,4 +80,6 @@ class TyresListener(AbstractTableAndMessageListener):
         if car_status:
             ersmoji = '🔋' if car_status.ers_left >= 50 else '🪫'
             elements.append(f'{ersmoji}`{str(car_status.ers_left).rjust(3)}%`')
+        if lap:
+            elements.append(f"+{lap.delta_to_car_in_front_in_ms / 1000}s" if lap.delta_to_car_in_front_in_ms else session._format_time(timedelta(seconds=lap.last_lap_time_in_ms/1000)))
         return "".join(elements)

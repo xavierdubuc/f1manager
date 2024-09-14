@@ -11,9 +11,9 @@ class AbstractTableAndMessageListener(AbstractFixedMessageListener):
         msg_content_list = []
         last_update = self._get_update_message(*args, **kwargs)
         if tables := self._get_tables(*args, **kwargs):
-            for table in tables:
+            for i, table in enumerate(i, tables):
                 elements = [table]
-                if last_update:
+                if last_update and i == len(tables) - 1:
                     elements.append(last_update)
                 msg_content_list.append("\n".join(elements))
         return msg_content_list
