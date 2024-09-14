@@ -15,7 +15,7 @@ class AbstractTableAndMessageListener(AbstractFixedMessageListener):
                 elements = [table]
                 if last_update:
                     elements.append(last_update)
-            msg_content_list.append("\n".join(elements))
+                msg_content_list.append("\n".join(elements))
         return msg_content_list
 
     def _get_tables(self, *args, **kwargs) -> List[str]:
