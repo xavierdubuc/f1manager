@@ -60,6 +60,6 @@ class TyreTemperatureListener(AbstractListener):
         tyre_pressures = {key: round(value, 1) for key, value in zip(max_vals.keys(), telemetry.tyres_pressure)}
         _logger.info(f'[{participant}] Tyres pressions : {tyre_pressures}')
         return Message(
-            f"{self.driver(participant)} nouvelle temp maximale atteinte : `{max_vals}`",
+            f"**{self.driver(participant)}** {self.tyre(car_status.visual_tyre_compound)} nouvelle temp maximale atteinte : `{max_vals}`",
             Channel.SETUP
         )
