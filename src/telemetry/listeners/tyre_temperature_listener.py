@@ -34,7 +34,6 @@ class TyreTemperatureListener(AbstractListener):
 
         self.max_values.setdefault(participant, {})
         participant_max_vals = self.max_values[participant]
-        _logger.info(f'[{participant}] Tyres pressions : {telemetry.tyres_pressure}')
 
         car_status = session.get_car_status(participant)
         if not car_status:
@@ -58,6 +57,8 @@ class TyreTemperatureListener(AbstractListener):
         if not changed:
             return []
 
+        tyre_pressures = {key: round(value, 1) for key, value in zip(max_vals.keys(), telemetry.tyres_pressure)}
+        _logger.info(f'[{participant}] Tyres pressions : {tyre_pressures}')
         return Message(
             f"{self.driver(participant)} nouvelle temp maximale atteinte : `{max_vals}`",
             Channel.SETUP
