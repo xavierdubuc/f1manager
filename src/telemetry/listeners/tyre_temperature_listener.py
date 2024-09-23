@@ -49,7 +49,7 @@ class TyreTemperatureListener(AbstractListener):
             return []
 
         changed = False
-        for key, value in zip(max_vals.keys(), changes[telemetry_key]):
+        for key, value in zip(max_vals.keys(), changes[telemetry_key].actual):
             if value > max_vals[key]:
                 max_vals[key] = value
                 changed = True
