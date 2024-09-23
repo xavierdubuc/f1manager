@@ -1,6 +1,47 @@
 from src.media_generation.layout import *
 from src.media_generation.layout.pilot.pilot_photo_layout import WHOLE
 
+DEFAULT_POLYGONS = [
+    Polygon(
+        edges=(
+            (0, 263),
+            (0, 510),
+            (445, 64),
+            (200, 64),
+        ),
+        color=230
+    ),
+    Polygon(
+        edges=(
+            (424, 523),
+            (1158, 523),
+            (605, 1080),
+            (0, 1080),
+            (0, 950),
+        ),
+        color=230
+    ),
+    Polygon(
+        edges=(
+            (738, 523),
+            (1468, 523),
+            (1920, 74),
+            (1920, 0),
+            (1256, 0),
+        ),
+        color=230
+    ),
+    Polygon(
+        edges=(
+            (1352, 1080),
+            (1920, 1080),
+            (1920, 523),
+            (1908, 523)
+        ),
+        color=230
+    )
+]
+
 FBRT = {
     # just _values
     "numbers": ImageLayout(
@@ -514,46 +555,7 @@ FBRT = {
                 }
             )
         },
-        polygons=[
-            Polygon(
-                edges=(
-                    (0, 263),
-                    (0, 510),
-                    (445, 64),
-                    (200, 64),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (424, 523),
-                    (1158, 523),
-                    (605, 1080),
-                    (0, 1080),
-                    (0, 950),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (738, 523),
-                    (1468, 523),
-                    (1920, 74),
-                    (1920, 0),
-                    (1256, 0),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (1352, 1080),
-                    (1920, 1080),
-                    (1920, 523),
-                    (1908, 523)
-                ),
-                color=230
-            )
-        ]
+        polygons=DEFAULT_POLYGONS
     ),
     # RaceReader
     "lineup": PolygonsLayout(
@@ -756,46 +758,7 @@ FBRT = {
                 },
             )
         },
-        polygons=[
-            Polygon(
-                edges=(
-                    (0, 263),
-                    (0, 510),
-                    (445, 64),
-                    (200, 64),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (424, 523),
-                    (1158, 523),
-                    (605, 1080),
-                    (0, 1080),
-                    (0, 950),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (738, 523),
-                    (1468, 523),
-                    (1920, 74),
-                    (1920, 0),
-                    (1256, 0),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (1352, 1080),
-                    (1920, 1080),
-                    (1920, 523),
-                    (1908, 523)
-                ),
-                color=230
-            )
-        ]
+        polygons=DEFAULT_POLYGONS
     ),
     "results": ImageLayout(
         name="results",
@@ -815,7 +778,7 @@ FBRT = {
                 width=900,
                 height=615,
                 left=30,
-                top=30,
+                top=0,
                 templates={
                     "full_size_pilots": LayoutTemplate(
                         FullSizeRankingRowLayout(
@@ -978,9 +941,34 @@ FBRT = {
                                             font_name="bold",
                                             name="pilot_name",
                                             width=290,
-                                            height=20,
+                                            text_height=20,
+                                            height=24,
                                             content="{pilot_name}",
                                             left=100
+                                        ),
+                                        "team_logo": Layout(
+                                            name="team_logo",
+                                            left=400,
+                                            width=72,
+                                            height=72,
+                                            children={
+                                                "logo": ImageLayout(
+                                                    name="logo",
+                                                    path="{team_logo_path}",
+                                                    height=48
+                                                ),
+                                            }
+                                        ),
+                                        'team_name': TextLayout(
+                                            name="team_name",
+                                            font_name="regular",
+                                            content="{team_name}",
+                                            left=472,
+                                            fg=(0, 0, 0, 255),
+                                            bg="{bg_color}",
+                                            height=18,
+                                            # text_height=20,
+                                            width=180,
                                         ),
                                         'delta': TextLayout(
                                             name="delta",
@@ -989,17 +977,17 @@ FBRT = {
                                             top=10,
                                             fg=(0, 0, 0, 255),
                                             bg="{bg_color}",
-                                            height=18,
+                                            height=20,
                                             width=225,
                                             right=85,
                                         ),
                                         'tyres': TyresLayout(
                                             name="tyres",
-                                            height=20,
+                                            height=24,
                                             tyre_spacing=-3,
-                                            tyre_size=18,
+                                            tyre_size=24,
                                             width=225,
-                                            bottom=8,
+                                            bottom=10,
                                             right=85
                                         ),
                                         'points': RoundedLayout(
@@ -1019,7 +1007,7 @@ FBRT = {
                                                     content="+{race_ranking_row.points}",
                                                     name="points_txt",
                                                     height=30,
-                                                    width=38,
+                                                    width=54,
                                                     fg=255,
                                                     bg=0,
                                                 ),
@@ -1501,46 +1489,7 @@ F140 = {
                 },
             )
         },
-        polygons=[
-            Polygon(
-                edges=(
-                    (0, 263),
-                    (0, 510),
-                    (445, 64),
-                    (200, 64),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (424, 523),
-                    (1158, 523),
-                    (605, 1080),
-                    (0, 1080),
-                    (0, 950),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (738, 523),
-                    (1468, 523),
-                    (1920, 74),
-                    (1920, 0),
-                    (1256, 0),
-                ),
-                color=230
-            ),
-            Polygon(
-                edges=(
-                    (1352, 1080),
-                    (1920, 1080),
-                    (1920, 523),
-                    (1908, 523)
-                ),
-                color=230
-            )
-        ]
+        polygons=DEFAULT_POLYGONS
     ),
 }
 

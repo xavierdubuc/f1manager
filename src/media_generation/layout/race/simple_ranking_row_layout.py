@@ -28,4 +28,10 @@ class SimpleRankingRowLayout(Layout):
         else:
             bg_color = self.odd_bg if race_ranking_row.position % 2 == 1 else self.even_bg
         ctx['bg_color'] = bg_color
+
+        if race_ranking_row.pilot:
+            pilot: Pilot = race_ranking_row.pilot
+            if pilot:
+                ctx['team_logo_path'] = pilot.team.get_results_logo_path()
+                ctx['team_name'] = pilot.team.title.upper()
         return ctx

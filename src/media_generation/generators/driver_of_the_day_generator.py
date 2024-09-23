@@ -63,7 +63,7 @@ class DriverOfTheDayGenerator(AbstractRaceGenerator):
                   top=pilot_name_pos.top-logo.height - 10)
 
         # PERCENTAGE TEXT
-        percentage_str = self.race.driver_of_the_day_percent or '0%'
+        percentage_str = str(self.race.driver_of_the_day_percent) or '0%'
         percentage = round(float(percentage_str.replace('%','').replace(',','.')))
         percentage_font = FontFactory.bold(40)
         percentage_sec_font = FontFactory.regular(20)

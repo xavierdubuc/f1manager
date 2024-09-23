@@ -32,7 +32,7 @@ class ConfirmResultsCog(CompositeRaceCog):
             await self.last_inter.channel.send(f'✅ Driver of the day calculé : {driver_of_the_day_name} ({percentage})')
             second_race_config.race.driver_of_the_day_name = driver_of_the_day_name
             second_race_config.race.driver_of_the_day = second_race_config.pilots[driver_of_the_day_name]
-            second_race_config.race.driver_of_the_day_percent = percentage
+            second_race_config.race.driver_of_the_day_percent = f'{percentage}%'
         else:
             await self.last_inter.channel.send(f'Driver of the day déjà renseigné : {second_race_config.race.driver_of_the_day.name}')
 
