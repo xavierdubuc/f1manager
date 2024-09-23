@@ -52,6 +52,7 @@ from src.telemetry.listeners.qualification_sectors_listener import Qualification
 from src.telemetry.listeners.safety_car_listener import SafetyCarListener
 from src.telemetry.listeners.session_creation_listener import SessionCreationListener
 from src.telemetry.listeners.telemetry_public_listener import TelemetryPublicListener
+from src.telemetry.listeners.tyre_temperature_listener import TyreTemperatureListener
 from src.telemetry.listeners.tyres_listener import TyresListener
 from src.telemetry.listeners.weather_forecast_listener import WeatherForecastListener
 
@@ -95,6 +96,7 @@ LISTENER_CLASSES = [
     SessionCreationListener,
     TelemetryPublicListener,
     TyresListener,
+    TyreTemperatureListener,
     TyreSetListener,
     WeatherForecastListener,
 ]

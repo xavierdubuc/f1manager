@@ -17,7 +17,7 @@ class Telemetry:
     rev_lights_bit_value: int = None
     engine_temperature: int = None
     brakes_temperature: List[int] = None
-    tyres_surface_temperature: List[int] = None
-    tyres_inner_temperature: List[int] = None
-    tyres_pressure: List[float] = None
+    tyres_surface_temperature: List[int] = None # RL RR FL FR
+    tyres_inner_temperature: List[int] = None # RL RR FL FR
+    tyres_pressure: List[float] = None # RL RR FL FR
     surface_types: List[SurfaceType] = None
