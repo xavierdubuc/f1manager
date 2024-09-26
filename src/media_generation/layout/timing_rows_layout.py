@@ -1,9 +1,15 @@
 from dataclasses import dataclass
+from math import inf
 from typing import Any, Dict, List, Tuple
 
 
 from src.media_generation.layout.layout import Layout
 
+def to_float(s:str):
+    try:
+        return float(s)
+    except ValueError:
+        return inf
 
 @dataclass
 class TimingRowsLayout(Layout):
@@ -17,7 +23,7 @@ class TimingRowsLayout(Layout):
         if self.ranking is None:
             self.ranking = context.get('ranking')
             float_values = [
-                [float(row[2]), float(row[3]), float(row[4])] for row in self.ranking
+                [to_float(row[2]), to_float(row[3]), to_float(row[4])] for row in self.ranking
             ]
             self.min_s1 = min(fv[0] for fv in float_values)
             self.min_s2 = min(fv[1] for fv in float_values)
@@ -32,11 +38,15 @@ class TimingRowsLayout(Layout):
         if not row:
             return {}
         bg_color = self.odd_bg if int(row[0]) % 2 == 1 else self.even_bg
+        print(row[1])
+        print(to_float(row[2]))
+        print(to_float(row[3]))
+        print(to_float(row[4]))
         return {
             'bg_color': bg_color,
             'lap_fg': self.fastest_fg if int(row[0]) == 1 else self.default_fg,
-            's1_fg': self.fastest_fg if float(row[2]) == self.min_s1 else self.default_fg,
-            's2_fg': self.fastest_fg if float(row[3]) == self.min_s2 else self.default_fg,
-            's3_fg': self.fastest_fg if float(row[4]) == self.min_s3 else self.default_fg,
+            's1_fg': self.fastest_fg if to_float(row[2]) == self.min_s1 else self.default_fg,
+            's2_fg': self.fastest_fg if to_float(row[3]) == self.min_s2 else self.default_fg,
+            's3_fg': self.fastest_fg if to_float(row[4]) == self.min_s3 else self.default_fg,
             'row': row
         }
