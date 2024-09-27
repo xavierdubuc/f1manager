@@ -126,21 +126,10 @@ class Layout:
         child.paste_on(img, self._get_children_context(context))
 
     def _get_bg(self, context: Dict[str, Any] = {}) -> Tuple[int, int, int, int]:
-        if isinstance(self.bg, str):
-            try:
-                return eval(self.bg.format(**context))
-            except KeyError as e:
-                print(context.keys())
-                raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
-        return self.bg
+        return self._get_ctx_attr('bg', context, use_format=True)
 
     def _get_fg(self, context: Dict[str, Any] = {}) -> Tuple[int, int, int, int]:
-        if isinstance(self.fg, str):
-            try:
-                return eval(self.fg.format(**context))
-            except KeyError as e:
-                raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
-        return self.fg
+        return self._get_ctx_attr('fg', context, use_format=True)
 
     def _get_children_context(self, context: Dict[str, Any] = {}) -> Dict[str, Any]:
         return context
@@ -148,10 +137,12 @@ class Layout:
     def _get_template_instance_context(self, i:int, context: Dict[str, Any] = {}):
         return {}
 
-    def _get_ctx_attr(self, attr_name:str, context: Dict[str, Any] = {}) -> Any:
+    def _get_ctx_attr(self, attr_name:str, context: Dict[str, Any] = {}, use_format=False) -> Any:
         attr = getattr(self, attr_name)
         if isinstance(attr, str):
             try:
+                if use_format:
+                    return eval(attr.format(**context))
                 return eval(attr, context)
             except KeyError as e:
                 print(context.keys())
