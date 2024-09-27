@@ -21,11 +21,14 @@ class RaceRankingLayout(Layout):
     def _get_template_instance_context(self, i: int, context: Dict[str, Any] = {}):
         race_ranking = self._get_race_ranking(context)
         if not race_ranking:
-            return super()._get_template_instance_context(i, context)
+            return None
         index = (self.initial_position-1) + i
         race_ranking_row = race_ranking.rows[index] if 0 <= index < len(race_ranking.rows) else None
+        if not race_ranking_row:
+            return None
         return {
             'race_ranking_row': race_ranking_row,
             'pilot_name': race_ranking_row.pilot_name.upper() if race_ranking_row and race_ranking_row.pilot_name else '',
-            'pilot': race_ranking_row.pilot if race_ranking_row and race_ranking_row.pilot else None
+            'pilot': race_ranking_row.pilot if race_ranking_row and race_ranking_row.pilot else None,
+            'is_last': index == len(race_ranking.rows) - 1
         }
