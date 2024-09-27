@@ -77,7 +77,6 @@ from src.telemetry.models.session import Session
 _logger = logging.getLogger(__name__)
 
 LISTENER_CLASSES = [
-    # AllSetupsListener,
     BestLapTimeListener,
     ClassificationListener,
     CollisionListener,
@@ -96,9 +95,13 @@ LISTENER_CLASSES = [
     SessionCreationListener,
     TelemetryPublicListener,
     TyresListener,
-    TyreTemperatureListener,
     TyreSetListener,
     WeatherForecastListener,
+]
+
+DEBUG_LISTENER_CLASSES = [
+    AllSetupsListener,
+    TyreTemperatureListener,
 ]
 
 
@@ -115,6 +118,12 @@ class Brain:
             listener = Listener(setup_data.get('emojis', {}))
             for event in Listener.SUBSCRIBED_EVENTS:
                 self.listeners_by_event[event].append(listener)
+        if championship_config.get('debug', False):
+            for Listener in DEBUG_LISTENER_CLASSES:
+                listener = Listener(setup_data.get('emojis', {}))
+                for event in Listener.SUBSCRIBED_EVENTS:
+                    self.listeners_by_event[event].append(listener)
+
 
     def handle_received_packet(self, packet: Packet):
         packet_type = type(packet)
