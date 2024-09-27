@@ -28,11 +28,16 @@ class FullSizeRankingRowLayout(Layout):
         race_ranking_row: RaceRankingRow = context.get('race_ranking_row')
         if not race_ranking_row:
             return ctx
-        if race_ranking_row.is_driver_of_the_day:
-            bg_color = self.driver_of_the_day_bg
-        elif race_ranking_row.has_fastest_lap: # what about half/half if both ? FIXME
-            bg_color = self.fastest_lap_bg
+
+        ctx['bg_color_2'] = None
+        if race_ranking_row.is_driver_of_the_day and race_ranking_row.has_fastest_lap:
+            ctx['bg_color'] = self.driver_of_the_day_bg
+            ctx['bg_color_2'] = self.fastest_lap_bg
+
+        elif race_ranking_row.is_driver_of_the_day:
+            ctx['bg_color'] = self.driver_of_the_day_bg
+        elif race_ranking_row.has_fastest_lap:
+            ctx['bg_color'] = self.fastest_lap_bg
         else:
-            bg_color = self.default_bg
-        ctx['bg_color'] = bg_color
+            ctx['bg_color'] = self.default_bg
         return ctx

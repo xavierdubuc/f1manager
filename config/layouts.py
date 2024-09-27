@@ -1,4 +1,5 @@
 from src.media_generation.layout import *
+from src.media_generation.layout.bicolor_layout import BicolorLayout
 from src.media_generation.layout.pilot.pilot_photo_layout import WHOLE
 
 DEFAULT_POLYGONS = [
@@ -824,34 +825,44 @@ FBRT = {
                                             bottom=55,
                                             center=True,
                                         ),
-                                        "result_row_bg": DottedImageLayout(
+                                        "result_row_bg": BicolorLayout(
                                             name="result_row_bg",
+                                            bg="{bg_color}",
+                                            bg_2="{bg_color_2}",
                                             height=55,
                                             width=225,
                                             left=0,
                                             bottom=0,
-                                            bg="{bg_color}",
-                                            round_bottom_left=True,
-                                            left_part_width=0,
                                             children={
-                                                'delta': TextLayout(
-                                                    name="delta",
-                                                    font_name="regular",
-                                                    content="{race_ranking_row.delta}",
-                                                    top=5,
-                                                    fg=(0, 0, 0, 255),
-                                                    bg="{bg_color}",
-                                                    height=18,
+                                                "result_row": DottedImageLayout(
+                                                    name="result_row",
+                                                    height=55,
                                                     width=225,
+                                                    left=0,
+                                                    bottom=0,
+                                                    round_bottom_left=True,
+                                                    left_part_width=0,
+                                                    children={
+                                                        'delta': TextLayout(
+                                                            name="delta",
+                                                            font_name="regular",
+                                                            content="{race_ranking_row.delta}",
+                                                            top=5,
+                                                            fg=(0, 0, 0, 255),
+                                                            # bg="{bg_color}",
+                                                            height=18,
+                                                            width=225,
+                                                        ),
+                                                        'tyres': TyresLayout(
+                                                            name="tyres",
+                                                            height=20,
+                                                            tyre_spacing=1,
+                                                            width=225,
+                                                            bottom=5
+                                                        )
+                                                    },
                                                 ),
-                                                'tyres': TyresLayout(
-                                                    name="tyres",
-                                                    height=20,
-                                                    tyre_spacing=1,
-                                                    width=225,
-                                                    bottom=5
-                                                )
-                                            },
+                                            }
                                         ),
                                     },
                                 ),
@@ -893,9 +904,6 @@ FBRT = {
                 width=1920,
                 height=1200,
                 initial_position=4,
-                children={
-                    # FIXME put here 4th, 10th, 11th & 20th to handle differencies
-                },
                 templates={
                     "ranking_result_row": LayoutTemplate(
                         SimpleRankingRowLayout(
@@ -906,6 +914,7 @@ FBRT = {
                             odd_bg=(227, 227, 227, 255),
                             driver_of_the_day_bg=(246, 212, 136, 255),
                             fastest_lap_bg=(191, 140, 210, 255),
+                            nt_bg=(150, 150, 150, 255),
                             children={
                                 # TODO Handle NT color (text + bg)
                                 "result_row_bg": DottedImageLayout(
@@ -915,11 +924,12 @@ FBRT = {
                                     left=0,
                                     bottom=0,
                                     bg="{bg_color}",
+                                    left_part_bg="{bg_color_2}",
                                     round_top_left="race_ranking_row.position in (4,11)",
                                     round_top_right="race_ranking_row.position in (4,11)",
-                                    round_bottom_left="race_ranking_row.position in (10, 20)",
-                                    round_bottom_right="race_ranking_row.position in (10, 20)",
-                                    crosses_positions="[(74, 71), (430, 71)] if race_ranking_row.position in (4, 11) else ([(74, -1), (430, -1)] if race_ranking_row.position in (10, 20) else [(74, -1), (74, 71), (430, -1), (430, 71)])",
+                                    round_bottom_left="race_ranking_row.position == 10 or is_last",
+                                    round_bottom_right="race_ranking_row.position == 10 or is_last",
+                                    crosses_positions="[(74, 71), (430, 71)] if race_ranking_row.position in (4, 11) else ([(74, -1), (430, -1)] if (race_ranking_row.position == 10 or is_last) else [(74, -1), (74, 71), (430, -1), (430, 71)])",
                                     crosses_color=(80, 80, 80),
                                     crosses_thickness=2,
                                     crosses_size=5,
@@ -965,7 +975,7 @@ FBRT = {
                                             content="{team_name}",
                                             left=472,
                                             fg=(0, 0, 0, 255),
-                                            bg="{bg_color}",
+                                            # bg="{bg_color}",
                                             height=18,
                                             # text_height=20,
                                             width=180,
@@ -976,7 +986,7 @@ FBRT = {
                                             content="{race_ranking_row.delta}",
                                             top=10,
                                             fg=(0, 0, 0, 255),
-                                            bg="{bg_color}",
+                                            # bg="{bg_color}",
                                             height=20,
                                             width=225,
                                             right=85,
@@ -1001,7 +1011,7 @@ FBRT = {
                                             round_top_left=False,
                                             round_top_right="race_ranking_row.position in (4,11)",
                                             round_bottom_left=False,
-                                            round_bottom_right="race_ranking_row.position in (10, 20)",
+                                            round_bottom_right="race_ranking_row.position == 10 or is_last",
                                             children={
                                                 "points_txt": TextLayout(
                                                     content="+{race_ranking_row.points}",
@@ -1029,12 +1039,12 @@ FBRT = {
                             {"left": 990, "top": 196, 'height': 72},  # 12
                             {"left": 990, "top": 268, 'height': 72},  # 13
                             {"left": 990, "top": 340, 'height': 72},  # 14
-                            {"left": 990, "top": 412, 'height': 72},  # 14
-                            {"left": 990, "top": 484, 'height': 72},  # 14
-                            {"left": 990, "top": 556, 'height': 72},  # 14
-                            {"left": 990, "top": 628, 'height': 72},  # 14
-                            {"left": 990, "top": 700, 'height': 72},  # 14
-                            {"left": 990, "top": 772, 'height': 72},  # 14
+                            {"left": 990, "top": 412, 'height': 72},  # 15
+                            {"left": 990, "top": 484, 'height': 72},  # 16
+                            {"left": 990, "top": 556, 'height': 72},  # 17
+                            {"left": 990, "top": 628, 'height': 72},  # 18
+                            {"left": 990, "top": 700, 'height': 72},  # 19
+                            {"left": 990, "top": 772, 'height': 72},  # 20
                         ]
                     )
                 }
@@ -1493,4 +1503,4 @@ F140 = {
     ),
 }
 
-del FBRT['results']  # FIXME quand le result est réglé
+# del FBRT['results']  # FIXME quand le result est réglé

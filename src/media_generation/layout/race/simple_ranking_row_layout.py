@@ -12,6 +12,7 @@ from src.media_generation.readers.race_reader_models.race_ranking import RaceRan
 @dataclass
 class SimpleRankingRowLayout(Layout):
     fastest_lap_bg: Tuple[int, int, int, int] = ()
+    nt_bg: Tuple[int, int, int, int] = ()
     driver_of_the_day_bg: Tuple[int, int, int, int] = ()
     even_bg: Tuple[int, int, int, int] = ()
     odd_bg: Tuple[int, int, int, int] = ()
@@ -21,13 +22,23 @@ class SimpleRankingRowLayout(Layout):
         race_ranking_row: RaceRankingRow = context.get('race_ranking_row')
         if not race_ranking_row:
             return ctx
-        if race_ranking_row.is_driver_of_the_day:
-            bg_color = self.driver_of_the_day_bg
-        elif race_ranking_row.has_fastest_lap: # what about half/half if both ? FIXME
-            bg_color = self.fastest_lap_bg
+
+        default_bg = self.odd_bg if race_ranking_row.position % 2 == 1 else self.even_bg
+
+        ctx['bg_color_2'] = None
+        if race_ranking_row.split in ('NT', 'DSQ'):
+            ctx['bg_color'] = self.nt_bg
         else:
-            bg_color = self.odd_bg if race_ranking_row.position % 2 == 1 else self.even_bg
-        ctx['bg_color'] = bg_color
+            if race_ranking_row.is_driver_of_the_day and race_ranking_row.has_fastest_lap:
+                ctx['bg_color'] = self.driver_of_the_day_bg
+                ctx['bg_color_2'] = self.fastest_lap_bg
+
+            elif race_ranking_row.is_driver_of_the_day:
+                ctx['bg_color'] = self.driver_of_the_day_bg
+            elif race_ranking_row.has_fastest_lap:
+                ctx['bg_color'] = self.fastest_lap_bg
+            else:
+                ctx['bg_color'] = default_bg
 
         if race_ranking_row.pilot:
             pilot: Pilot = race_ranking_row.pilot
