@@ -80,8 +80,13 @@ class DottedImageLayout(RoundedLayout):
 
 
     def _get_left_part_bg(self, context: Dict[str, Any] = {}):
-        if not self.left_part_bg:
-            self.left_part_bg = tuple(int(val/DARKEN_CONSTANT) for i,val in enumerate(self._get_bg(context)) if i < 3)
+        left_part_bg = self._get_ctx_attr('left_part_bg', context, use_format=True)
+        if not self.left_part_bg or not left_part_bg:
+            bg = self._get_bg(context)
+            self.left_part_bg = tuple(int(val/DARKEN_CONSTANT) for i,val in enumerate(bg) if i < 3)
+            if len(bg) == 4:
+                self.left_part_bg += (bg[3], )
+
         return self.left_part_bg
 
     def _draw_crosses(self, img: PngImageFile, draw: ImageDraw.ImageDraw, context: Dict[str, Any] = {}):
