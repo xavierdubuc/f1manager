@@ -779,7 +779,7 @@ FBRT = {
                 width=900,
                 height=615,
                 left=30,
-                top=0,
+                top=20,
                 templates={
                     "full_size_pilots": LayoutTemplate(
                         FullSizeRankingRowLayout(
@@ -916,7 +916,7 @@ FBRT = {
                             fastest_lap_bg=(191, 140, 210, 255),
                             nt_bg=(150, 150, 150, 255),
                             children={
-                                # TODO Handle NT color (text + bg)
+                                # TODO Handle NT color (text)
                                 "result_row_bg": DottedImageLayout(
                                     name="result_row_bg",
                                     height=72,
@@ -1047,6 +1047,110 @@ FBRT = {
                             {"left": 990, "top": 772, 'height': 72},  # 20
                         ]
                     )
+                }
+            ),
+            "track": Layout(
+                name="track",
+                bg=0,
+                width=500,
+                height=85,
+                top=20,
+                left=650,
+                children={
+                    "round": RoundLayout(
+                        name="round",
+                        create_subtype_layouts=False,
+                        width=85,
+                        height=85,
+                        left=0,
+                        fg=(255, 255, 255, 255),
+                        children={
+                            "round_text": TextLayout(
+                                name="round_text",
+                                content="R{race.round}",
+                                width=55,
+                                height=85,
+                            )
+                        }
+                    ),
+                    "day": TextLayout(
+                        name="date",
+                        content="{race.day}",
+                        width=85,
+                        height=24,
+                        top=13,
+                        left=85,
+                        font_name="regular",
+                        bg=0,
+                        center=True,
+                        fg=(255, 255, 255, 255)
+                    ),
+                    "month": TextLayout(
+                        name="date",
+                        content="{month_fr_short}",
+                        width=85,
+                        height=24,
+                        bottom=13,
+                        left=85,
+                        font_name="regular",
+                        bg=0,
+                        center=True,
+                        fg=(255, 255, 255, 255)
+                    ),
+                    "circuit_flag": ImageLayout(
+                        name="flag_layout",
+                        path="assets/circuits/flags/{race.circuit.id}.png",
+                        width=80,
+                        height=50,
+                        left=170,
+                    ),
+                    "circuit_name": TextLayout(
+                        name="circuit_name",
+                        content="{circuit_city}",
+                        width=230,
+                        height=34,
+                        left=265,
+                        bottom=9,
+                        font_name="black",
+                        bg=0,
+                        fg=(255, 255, 255, 255)
+                    ),
+                    "circuit_country": TextLayout(
+                        name="circuit_country",
+                        content="{circuit_country}",
+                        width=230,
+                        height=34,
+                        left=265,
+                        top=9,
+                        font_name="black",
+                        bg=0,
+                        fg=(230, 0, 0, 255)
+                    ),
+                }
+            ),
+            "fastest_lap": Layout(
+                name="fastest_lap",
+                left=1220,
+                width=670,
+                height=85,
+                top=20,
+                bg=0,
+                children={
+                    "fastest_lap_icon": ImageLayout(
+                        name="fastest_lap_icon",
+                        path="assets/fastest_lap.png",
+                        width=85,
+                        height=85,
+                        left=0,
+                    ),
+                    "team_logo": ImageLayout(
+                        name="team_logo",
+                        path="{fastest_lap_team_logo_path}",
+                        left=95,
+                        top=8,
+                        width=40,
+                        height=40,
+                    ),
                 }
             ),
             "logos": Layout(
@@ -1503,4 +1607,4 @@ F140 = {
     ),
 }
 
-# del FBRT['results']  # FIXME quand le result est réglé
+del FBRT['results']  # FIXME quand le result est réglé

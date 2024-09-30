@@ -18,6 +18,7 @@ METHOD_FONTS = [
 
 @dataclass
 class RoundLayout(Layout):
+    create_subtype_layouts: bool = True
     sprint_bg = (0, 200, 200, 240)
     double_grid_bg = (200, 200, 0, 240)
     full_length_bg = (200, 100, 200, 240)
@@ -31,45 +32,54 @@ class RoundLayout(Layout):
     def _render_base_image(self, context: dict = {}) -> PngImageFile:
         self.bg = self.default_bg
         self.fg = self.default_fg
-        race:Race = context.get('race', None)
+        race: Race = context.get('race', None)
         if race_type := (race.type if race else None):
-            if race_type in (RaceType.SPRINT_1, RaceType.SPRINT_2, RaceType.FULL_LENGTH):
-                if 'subtype_top' not in self.children:
-                    self.children['subtype_top'] = TextLayout(
-                        name='subtype_top',
-                        width=self.width,
-                        height=self.height,
-                        top=10
-                    )
-                if race_type == RaceType.FULL_LENGTH:
-                    self.bg = self.full_length_bg
-                    self.fg = self.full_length_fg
+            if self.create_subtype_layouts:
+                self._autocreate_subtype_layouts(race_type)
+
+            # 100%
+            if race_type == RaceType.FULL_LENGTH:
+                self.bg = self.full_length_bg
+                self.fg = self.full_length_fg
+                if 'subtype_top' in self.children:
                     self.children['subtype_top'].content = '100%'
-                else:
+
+            # SPRINTs
+            if race_type in (RaceType.SPRINT_1, RaceType.SPRINT_2):
+                self.bg = self.sprint_bg
+                self.fg = self.sprint_fg
+                if 'subtype_top' in self.children:
                     self.children['subtype_top'].content = 'SPRINT'
-                    self.bg = self.sprint_bg
-                    self.fg = self.sprint_fg
-            elif race_type in (RaceType.DOUBLE_GRID_1, RaceType.DOUBLE_GRID_2):
-                if 'subtype_top' not in self.children:
-                    self.children['subtype_top'] = TextLayout(
-                        name="subtype_top",
-                        width=self.width,
-                        height=self.height,
-                        top=10
-                    )
-                self.children['subtype_top'].content = 'DOUBLE'
-                if 'subtype_bottom' not in self.children:
-                    self.children['subtype_bottom'] = TextLayout(
-                        name="subtype_bottom",
-                        width=self.width,
-                        height=self.height,
-                        bottom=10
-                    )
-                self.children['subtype_bottom'].content = 'GRID'
+
+            # DOUBLE GRID
+            if race_type in (RaceType.DOUBLE_GRID_1, RaceType.DOUBLE_GRID_2):
                 self.bg = self.double_grid_bg
                 self.fg = self.double_grid_fg
+                if 'subtype_top' in self.children:
+                    self.children['subtype_top'].content = 'DOUBLE'
+                if 'subtype_bottom' in self.children:
+                    self.children['subtype_bottom'].content = 'GRID'
+
             for child in self.children.values():
                 child.bg = self.bg
                 child.fg = self.fg
 
         return super()._render_base_image(context)
+
+    def _autocreate_subtype_layouts(self, race_type:RaceType):
+        if race_type != RaceType.NORMAL:
+            if 'subtype_top' not in self.children:
+                self.children['subtype_top'] = TextLayout(
+                    name='subtype_top',
+                    width=self.width,
+                    height=self.height,
+                    top=10
+                )
+        if race_type in (RaceType.DOUBLE_GRID_1, RaceType.DOUBLE_GRID_2):
+            if 'subtype_bottom' not in self.children:
+                self.children['subtype_bottom'] = TextLayout(
+                    name="subtype_bottom",
+                    width=self.width,
+                    height=self.height,
+                    bottom=10
+                )

@@ -18,6 +18,8 @@ class AbstractRaceGenerator(AbstractGenerator):
             super()._get_layout_context(),
             race=self.race,
             circuit=self.race.circuit,
+            circuit_country=self.race.circuit.name.upper() if self.race.circuit else "?",
             circuit_city=self.race.circuit.city.upper() if self.race.circuit else "?",
-            month_fr=month_fr(self.race.full_date.month-1)
+            month_fr=month_fr(self.race.full_date.month-1),
+            month_fr_short=month_fr(self.race.full_date.month-1)[:3].upper(),
         )
