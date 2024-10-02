@@ -1607,4 +1607,4 @@ F140 = {
     ),
 }
 
-del FBRT['results']  # FIXME quand le result est réglé
+# del FBRT['results']  # FIXME quand le result est réglé
