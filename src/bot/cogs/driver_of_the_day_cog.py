@@ -54,7 +54,7 @@ class DriverOfTheDayCog(RaceCog):
         g.set_sheet_values(season['sheet'], f"'Race {race.round}'!I24:J24", [[
             driver_of_the_day, percentage
         ]])
-        return driver_of_the_day, percentage
+        return driver_of_the_day, round(percentage)
 
     @root.sub_command(name="results", description='Pilote du jour de la course désirée')
     async def run(self, inter: disnake.ApplicationCommandInteraction,
