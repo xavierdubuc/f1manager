@@ -40,7 +40,7 @@ class RemindCog(VignebotCog):
                        race_number: str = RACE_NUMBER_PARAM,
                        only_role: str = ROLE_PARAM,
                        **kwargs):
-        self._bootstrap(inter)
+        await self._bootstrap(inter)
         race_name = f'Course {race_number}'
         championship_config, season = self._get_discord_config(inter.guild_id)
         discord_config = championship_config['discord']
