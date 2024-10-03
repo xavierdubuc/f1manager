@@ -59,7 +59,7 @@ class RemindCog(VignebotCog):
 
         msg = f"☝️ {' '.join(m.mention for m in didnt_vote)} ☝️"
         if presences_channel != inter.channel:
-            await inter.followup.send_message("C'est fait :)")
+            await inter.followup.send("C'est fait :)")
             await presences_channel.send(msg)
         else:
-            await inter.followup.send_message(msg)
+            await inter.followup.send(msg)
