@@ -1,9 +1,11 @@
 import enum
 from functools import cache
 import logging
+import os.path
 from dataclasses import dataclass
 from typing import Dict, Tuple
 from PIL.PngImagePlugin import PngImageFile
+from PIL import Image
 
 from psd_tools import PSDImage
 
@@ -11,6 +13,9 @@ from src.media_generation.helpers.transform import resize
 from src.media_generation.models.pilot import Pilot
 _logger = logging.getLogger(__name__)
 
+
+ASSETS_PATH = 'assets/pilots'
+DEFAULT_LAYER_NAME = 'default'
 
 class CroppingZone(enum.Enum):
     FACE = (153, 180, 443, 470)
@@ -35,15 +40,21 @@ class PSDManager:
         initial_level = logging.getLogger().getEffectiveLevel()
         logging.getLogger().setLevel(logging.ERROR)
         selectors = {
-            0: pilot.psd_name,
-            1: pilot.team.psd_name if pilot.team else None
+            0: {'value': pilot.psd_name, 'use_default': not self._has_image_in_assets(pilot.psd_name)},
+            1: {'value': pilot.team.psd_name if pilot.team else None, 'use_default': True}
         }
         logging.getLogger().setLevel(initial_level)
         return self.get_image(selectors, width, height, cropping_zone.value)
 
     def get_image(self, selectors: Dict[int, str], width: int = None, height: int = None, cropping_zone: Tuple[int, int, int, int] = False):
-        self.select_layers(selectors)
+        results = self.select_layers(selectors)
         img = self.psd.composite(layer_filter=lambda x: x.is_visible())
+
+        # USE IMAGE FROM ASSET if needed
+        for index, result in results.items():
+            if not result and not selectors[index]["use_default"]:
+                with Image.open(os.path.join(ASSETS_PATH, f'{selectors[index]["value"]}.png')) as asset:
+                    img.paste(asset, (0,0), asset)
 
         # CROP
         if cropping_zone:
@@ -59,12 +70,15 @@ class PSDManager:
 
         return img
 
-    def select_layers(self, selectors: Dict[int, str]):
+    def select_layers(self, selectors: Dict[int, Dict[str,str]]) -> Dict[int, bool]:
         self._open_psd()
-        for index, layer_name in selectors.items():
-            self._select_layer(layer_name, index)
+        results = {}
+        for index, layer_config in selectors.items():
+            fallback_default_name = DEFAULT_LAYER_NAME if layer_config['use_default'] else False
+            results[index] = self._select_layer(layer_config["value"], index, fallback_default_name=fallback_default_name)
+        return results
 
-    def _select_layer(self, selector: str, group_index: int = 0, use_first_as_default: bool = False):
+    def _select_layer(self, selector: str, group_index: int = 0, use_first_as_default: bool = False, fallback_default_name:str = DEFAULT_LAYER_NAME) -> bool:
         try:
             layers = self.psd[group_index]
             layers.visible = True
@@ -77,7 +91,7 @@ class PSDManager:
         found = None
         for i, layer in enumerate(layers):
             layer_name = layer.name.replace(' ', '')
-            if not use_first_as_default and layer.name == 'default':
+            if not use_first_as_default and fallback_default_name and layer.name == fallback_default_name:
                 default_index = i
             layer.visible = layer_name == selector
             if layer.visible:
@@ -86,4 +100,10 @@ class PSDManager:
             _logger.debug(f'Using "{found}" layer')
         else:
             _logger.warning(f'No layer found for {selector}, using default one')
-            layers[default_index].visible = True  # enable 'default' layer
+            if default_index >= 0:
+                layers[default_index].visible = True  # enable 'default' layer
+
+        return found
+
+    def _has_image_in_assets(self, selector:str):
+        return os.path.exists(os.path.join(ASSETS_PATH, f"{selector}.png"))

@@ -18,7 +18,7 @@ class PublicException(Exception):
 @dataclass
 class PilotGenerator(AbstractGenerator):
     forced_team:str = None
-    visual_type:str = 'lineup'
+    visual_type:str = 'whole'
 
     def _get_visual_type(self) -> str:
         return 'pilot'
