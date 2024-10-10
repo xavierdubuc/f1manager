@@ -789,11 +789,28 @@ FBRT = {
                             default_bg=(241, 241, 241, 255),
                             driver_of_the_day_bg=(246, 212, 136, 255),
                             fastest_lap_bg=(191, 140, 210, 255),
+                            bg_transparency=100,
                             children={
                                 "bg": RoundedLayout(
                                     name="bg",
                                     width=280,
                                     children={
+                                        "team": ImageLayout(
+                                            name="team",
+                                            path="{team_logo_path}",
+                                            width=400,
+                                            height=400,
+                                            keep_ratio=False,
+                                        ),
+                                        "position_shadow": TextLayout(
+                                            name="position_shadow",
+                                            width=122,
+                                            height=142,
+                                            fg=0,
+                                            left=25,
+                                            top=15,
+                                            content="{race_ranking_row.position}"
+                                        ),
                                         "position": TextLayout(
                                             name="position",
                                             width=122,
@@ -849,7 +866,6 @@ FBRT = {
                                                             content="{race_ranking_row.delta}",
                                                             top=5,
                                                             fg=(0, 0, 0, 255),
-                                                            # bg="{bg_color}",
                                                             height=18,
                                                             width=225,
                                                         ),
@@ -882,6 +898,7 @@ FBRT = {
                                         "points_txt": TextLayout(
                                             content="+{race_ranking_row.points}",
                                             name="points_txt",
+                                            font_name="bold",
                                             height=40,
                                             width=40,
                                             fg=255,
@@ -929,11 +946,11 @@ FBRT = {
                                     round_top_right="race_ranking_row.position in (4,11)",
                                     round_bottom_left="race_ranking_row.position == 10 or is_last",
                                     round_bottom_right="race_ranking_row.position == 10 or is_last",
-                                    crosses_positions="[(74, 71), (430, 71)] if race_ranking_row.position in (4, 11) else ([(74, -1), (430, -1)] if (race_ranking_row.position == 10 or is_last) else [(74, -1), (74, 71), (430, -1), (430, 71)])",
+                                    crosses_positions="[(74, 71), (390, 71)] if race_ranking_row.position in (4, 11) else ([(74, -1), (390, -1)] if (race_ranking_row.position == 10 or is_last) else [(74, -1), (74, 71), (390, -1), (390, 71)])",
                                     crosses_color=(80, 80, 80),
                                     crosses_thickness=2,
                                     crosses_size=5,
-                                    dots_color=(200, 200, 200, 255),
+                                    dots_color="{dots_color}",
                                     dots_size=2,
                                     left_part_width=75,
                                     children={
@@ -950,6 +967,7 @@ FBRT = {
                                         "pilot_name": TextLayout(
                                             font_name="bold",
                                             name="pilot_name",
+                                            fg="{fg}",
                                             width=290,
                                             text_height=20,
                                             height=24,
@@ -974,10 +992,8 @@ FBRT = {
                                             font_name="regular",
                                             content="{team_name}",
                                             left=472,
-                                            fg=(0, 0, 0, 255),
-                                            # bg="{bg_color}",
+                                            fg="{fg}",
                                             height=18,
-                                            # text_height=20,
                                             width=180,
                                         ),
                                         'delta': TextLayout(
@@ -985,8 +1001,7 @@ FBRT = {
                                             font_name="regular",
                                             content="{race_ranking_row.delta}",
                                             top=10,
-                                            fg=(0, 0, 0, 255),
-                                            # bg="{bg_color}",
+                                            fg="{delta_fg}",
                                             height=20,
                                             width=225,
                                             right=85,
@@ -1016,6 +1031,7 @@ FBRT = {
                                                 "points_txt": TextLayout(
                                                     content="+{race_ranking_row.points}",
                                                     name="points_txt",
+                                                    font_name="bold",
                                                     height=30,
                                                     width=54,
                                                     fg=255,
@@ -1134,7 +1150,7 @@ FBRT = {
                 width=670,
                 height=85,
                 top=20,
-                bg=0,
+                bg=(0,0,0, 150),
                 children={
                     "fastest_lap_icon": ImageLayout(
                         name="fastest_lap_icon",
@@ -1151,6 +1167,45 @@ FBRT = {
                         width=40,
                         height=40,
                     ),
+                    "fastest_driver": TextLayout(
+                        name="fastest_driver",
+                        content="{fastest_lap_driver_name}",
+                        left=145,
+                        top=10,
+                        height=32,
+                        width=350,
+                        fg=255,
+                        font_name="bold",
+                    ),
+                    "lap_time": TextLayout(
+                        name="lap_time",
+                        content="{fastest_lap_time}",
+                        right=5,
+                        top=10,
+                        width=170,
+                        height=28,
+                        fg=255,
+                        font_name="bold",
+                    ),
+                    "lap": TextLayout(
+                        name="lap",
+                        content="{fastest_lap_lap}",
+                        left=95,
+                        bottom=10,
+                        width=170,
+                        height=20,
+                        fg=255,
+                        font_name="regular",
+                    ),
+                    "point": TextLayout(
+                        name="point",
+                        content="{fastest_lap_point_granted_txt}",
+                        right=10,
+                        bottom=10,
+                        height=25,
+                        fg=(210,0,0),
+                        font_name="bold",
+                    )
                 }
             ),
             "logos": Layout(
@@ -1606,5 +1661,3 @@ F140 = {
         polygons=DEFAULT_POLYGONS
     ),
 }
-
-del FBRT['results']  # FIXME quand le result est réglé
