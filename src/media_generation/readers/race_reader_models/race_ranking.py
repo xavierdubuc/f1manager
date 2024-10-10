@@ -23,7 +23,9 @@ class RaceRankingRow:
             return self.split
         if self.split in ('NT', 'DSQ'):
             return self.split
-        return f"+ {self.split}"
+        if self.split:
+            return f"+ {self.split}"
+        return ""
 
 @dataclass
 class RaceRanking:
