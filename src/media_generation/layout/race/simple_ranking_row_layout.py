@@ -25,9 +25,19 @@ class SimpleRankingRowLayout(Layout):
 
         default_bg = self.odd_bg if race_ranking_row.position % 2 == 1 else self.even_bg
 
-        ctx['bg_color_2'] = None
+        ctx.update({
+            'dots_color': (200, 200, 200, 255),
+            'bg_color_2': None,
+            'delta_fg': (0,0,0),
+            'fg': (0,0,0),
+        })
         if race_ranking_row.split in ('NT', 'DSQ'):
-            ctx['bg_color'] = self.nt_bg
+            ctx.update({
+                'dots_color': (135,135,135),
+                'bg_color': self.nt_bg,
+                'delta_fg': (255,0,0),
+                'fg': (100,100,100),
+            })
         else:
             if race_ranking_row.is_driver_of_the_day and race_ranking_row.has_fastest_lap:
                 ctx['bg_color'] = self.driver_of_the_day_bg
