@@ -42,14 +42,6 @@ class Team:
         if not self.alternate_main_color:
             self.alternate_main_color = self.standing_bg
 
-    def get_card_image(self):
-        basepath = os.path.join(ASSETS_PATH, 'empty_cards')
-        if self.card_image_path:
-            path = os.path.join(basepath, self.card_image_path)
-        else:
-            path = os.path.join(basepath, f'{self.name}.png')
-        return Image.open(path)
-
     def build_card_image(self, width, height):
         basepath = os.path.join(ASSETS_PATH, 'card_logos')
         if self.card_image_path:
