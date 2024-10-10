@@ -38,11 +38,10 @@ class ResultsGenerator(AbstractRaceGenerator):
             fastest_lap_driver=self.race.fastest_lap_pilot,
             fastest_lap_team_logo_path=self.race.fastest_lap_pilot.team.get_results_logo_path() if self.race.fastest_lap_pilot else "",
             fastest_lap_driver_name=self.race.fastest_lap_pilot_name.upper() if self.race.fastest_lap_pilot_name else "",
-            fastest_lap_point_granted=self.race.fastest_lap_point_granted(),
+            fastest_lap_point_granted_txt='+1 pt' if self.race.fastest_lap_point_granted() else "",
             fastest_lap_time=self.race.fastest_lap_time,
-            fastest_lap_lap=self.race.fastest_lap_lap,
+            fastest_lap_lap=f"TOUR {self.race.fastest_lap_lap}" if self.race.fastest_lap_lap else "",
         )
-
 
     def _get_background_image(self) -> PngImageFile:
         bg = super()._get_background_image()
@@ -52,7 +51,6 @@ class ResultsGenerator(AbstractRaceGenerator):
         paste(bg_overlay, bg)
         bg = bg.filter(ImageFilter.GaussianBlur(5))
         return bg
-
 
     def _generate_part_image(self, config_key):
         config = self.visual_config[config_key]
