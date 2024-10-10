@@ -63,6 +63,7 @@ class Layout:
         try:
             img = self.render(context)
             if not img:
+                _logger.debug("No img generated, won't paste")
                 return None
             left = self.left
             if left is None and self.right is not None:
@@ -76,13 +77,14 @@ class Layout:
             top = top if top is not None else (on.height-img.height) // 2
 
             if img.mode == 'RGB':
+                _logger.debug(f"Pasting RGB at ({left}, {top})")
                 on.paste(img, (left, top))
             else:
-                on.paste(img, (left, top), img)
                 if on.mode == 'RGBA' == img.mode:
-                    # img.alpha_composite(on, (left, top))
+                    _logger.debug(f"Alpha compositing at ({left}, {top})")
                     on.alpha_composite(img, (left, top))
                 else:
+                    _logger.debug(f"Pasting RGBA at ({left}, {top})")
                     on.paste(img, (left, top), img)
 
             return Dimension(left, top, left+img.width, top+img.height)

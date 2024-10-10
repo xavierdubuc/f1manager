@@ -1,10 +1,12 @@
+import logging
 from dataclasses import dataclass
 from typing import List, Tuple
 
 from PIL import ImageDraw
 from PIL.PngImagePlugin import PngImageFile
-
 from src.media_generation.layout.layout import Layout
+
+_logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -27,5 +29,6 @@ class PolygonsLayout(Layout):
         img = super()._render_base_image(context)
         draw = ImageDraw.Draw(img)
         for p in self.polygons:
+            _logger.debug(f"Drawing polygon {p}")
             draw.polygon(p.edges, p.color)
         return img
