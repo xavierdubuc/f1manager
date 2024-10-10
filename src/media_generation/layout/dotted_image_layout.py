@@ -40,7 +40,7 @@ class DottedImageLayout(RoundedLayout):
         else:
             img = super()._render_base_image(context)
         draw = ImageDraw.Draw(img)
-        self._draw_dots(img, draw)
+        self._draw_dots(img, draw, context)
         self._draw_crosses(img, draw, context)
         return img
 
@@ -93,10 +93,10 @@ class DottedImageLayout(RoundedLayout):
         for cross_position in self._get_crosses_positions(context):
             self._draw_cross(img, draw, cross_position)
 
-    def _draw_dots(self, img: PngImageFile, draw: ImageDraw.ImageDraw):
+    def _draw_dots(self, img: PngImageFile, draw: ImageDraw.ImageDraw, context: Dict[str, Any] = {}):
         for left in range(self.dots_first_left_top[0], img.width, self.dots_spacing):
             for top in range(self.dots_first_left_top[1], img.height, self.dots_spacing):
-                self._draw_dot(img, draw, (left, top))
+                self._draw_dot(img, draw, (left, top), context)
 
     def _draw_cross(self, img: PngImageFile, draw: ImageDraw.ImageDraw, position: Tuple[int, int]):
         #  (x, y-(size/2))
@@ -117,7 +117,7 @@ class DottedImageLayout(RoundedLayout):
         for line in lines:
             draw.line(line, self.crosses_color, self.crosses_thickness)
 
-    def _draw_dot(self, img: PngImageFile, draw: ImageDraw.ImageDraw, position: Tuple[int, int]):
+    def _draw_dot(self, img: PngImageFile, draw: ImageDraw.ImageDraw, position: Tuple[int, int], context: Dict[str, Any] = {}):
         #  (x, y-(size/2))
         #      |
         #      |
@@ -125,9 +125,13 @@ class DottedImageLayout(RoundedLayout):
         #      |
         #      |
         # (x, y+(size/2))
+        dots_color = self._get_dots_color(context)
         for i in range(self.dots_size):
             for j in range(self.dots_size):
-                draw.point((position[0]+i, position[1]+j), self.dots_color)
+                draw.point((position[0]+i, position[1]+j), dots_color)
+
+    def _get_dots_color(self, context: Dict[str, Any] = {}):
+        return self._get_ctx_attr('dots_color', context, use_format=True)
 
     def _get_crosses_positions(self, context: Dict[str, Any] = {}):
         return self._get_ctx_attr('crosses_positions', context)
