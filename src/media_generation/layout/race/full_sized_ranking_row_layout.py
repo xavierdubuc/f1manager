@@ -29,6 +29,11 @@ class FullSizeRankingRowLayout(Layout):
         if not race_ranking_row:
             return ctx
 
+        if race_ranking_row.pilot:
+            pilot: Pilot = race_ranking_row.pilot
+            if pilot:
+                ctx['team_logo_path'] = pilot.team.get_results_logo_path()
+
         ctx['bg_color_2'] = None
         if race_ranking_row.is_driver_of_the_day and race_ranking_row.has_fastest_lap:
             ctx['bg_color'] = self.driver_of_the_day_bg
