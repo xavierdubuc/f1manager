@@ -8,24 +8,22 @@ from src.media_generation.readers.race_reader_models.race_ranking import RaceRan
 
 @dataclass
 class RaceRankingLayout(Layout):
-    race_ranking: RaceRanking = None
     initial_position: int = 1
 
-    def _get_race_ranking(self, context: Dict[str, Any] = {}):
-        if not self.race_ranking:
-            race: Race = context.get('race')
-            if race:
-                self.race_ranking = race.race_result
-        return self.race_ranking
-
     def _get_template_instance_context(self, i: int, context: Dict[str, Any] = {}):
-        race_ranking = self._get_race_ranking(context)
+        race: Race = context.get('race')
+        if not race:
+            return None
+
+        race_ranking = race.race_result
         if not race_ranking:
             return None
+
         index = (self.initial_position-1) + i
         race_ranking_row = race_ranking.rows[index] if 0 <= index < len(race_ranking.rows) else None
         if not race_ranking_row:
             return None
+
         return {
             'race_ranking_row': race_ranking_row,
             'pilot_name': race_ranking_row.pilot_name.upper() if race_ranking_row and race_ranking_row.pilot_name else '',
