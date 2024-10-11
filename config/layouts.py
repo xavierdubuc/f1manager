@@ -770,8 +770,6 @@ FBRT = {
         children={
             "bg_overlay": Layout(
                 name="bg_overlay",
-                width=1920,
-                height=1200,
                 bg=(0, 0, 0, 100)
             ),
             "top3": RaceRankingLayout(
