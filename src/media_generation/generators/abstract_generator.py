@@ -44,6 +44,7 @@ class AbstractGenerator:
                     img.paste(title_img, title_img)
             self._add_content(img)
         img.save(self.config.output, quality=100)
+        _logger.info(f'Image successfully rendered in file "{self.config.output}"')
         return self.config.output
 
     def _get_layout_context(self):
