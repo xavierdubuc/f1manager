@@ -1,4 +1,5 @@
 import logging
+from typing import Tuple
 
 import disnake
 from disnake.ext import commands
@@ -29,7 +30,7 @@ class DriverOfTheDayCog(RaceCog):
         await self.compute(championship_config, race_config.race, season)
 
     # TODO may be improved (pour l'instant ca choppe juste le dernier msg dans le channel)
-    async def compute(self, championship_config: dict, race: Race, season: int=None):
+    async def compute(self, championship_config: dict, race: Race, season: int=None) -> Tuple[str, int]:
         discord_config = championship_config['discord']
         channel = self._get_channel(discord_config, 'driver_vote')
         bot_messages = channel.history().filter(lambda m: m.author == self.bot.user and len(m.reactions) > 0)
@@ -54,7 +55,7 @@ class DriverOfTheDayCog(RaceCog):
         g.set_sheet_values(season['sheet'], f"'Race {race.round}'!I24:J24", [[
             driver_of_the_day, percentage
         ]])
-        return driver_of_the_day, round(percentage)
+        return driver_of_the_day, percentage
 
     @root.sub_command(name="results", description='Pilote du jour de la course désirée')
     async def run(self, inter: disnake.ApplicationCommandInteraction,
