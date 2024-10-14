@@ -30,10 +30,10 @@ class RemindCog(VignebotCog):
         driver_vote_channel = self._get_channel(discord_config, 'driver_vote')
         msg = f"{inter.guild.roles[0].mention} n'oubliez pas de voter pour le pilote du jour dans {driver_vote_channel.mention} !"
         if remind_channel != inter.channel:
-            await inter.response.send_message("C'est fait :)")
+            await inter.followup.send("C'est fait :)")
             await remind_channel.send(msg)
         else:
-            await inter.response.send_message(msg)
+            await inter.followup.send(msg)
 
     @root.sub_command(name="presence", description="Rappeler à ceux dont ce n'est pas encore le cas de remplir leur présence")
     async def presence(self, inter: disnake.ApplicationCommandInteraction,
