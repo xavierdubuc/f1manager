@@ -18,6 +18,24 @@ class PilotRankingRow(RankingRow):
     # "COMPUTED"
     pilot: Pilot = None
 
+    def get_previous_ranking_row(self, points_to_remove:int, amount_race_to_withdraw:int) -> "PilotRankingRow":
+        total_points = self.total_points - points_to_remove
+        amount_of_races = self.amount_of_races - amount_race_to_withdraw
+        mean_points = (total_points / amount_of_races) if amount_of_races > 0 else 0
+        return PilotRankingRow(
+            pilot_name=self.pilot_name,
+            titular=self.titular,
+            team_name=self.team_name,
+            mean_points=mean_points,
+            license_points=self.license_points,
+            amount_of_races=amount_of_races,
+            pilot=self.pilot,
+            total_points=total_points
+        )
+
+    def should_be_ignored(self) -> bool:
+        return self.amount_of_races == 0
+
 @dataclass
 class PilotRanking(Ranking):
     rows: List[PilotRankingRow] = None
@@ -43,45 +61,6 @@ class PilotRanking(Ranking):
             second_criteria = 2
         # first sort by points, then titular first, then alphabetical
         return (row.total_points, second_criteria, -ord(row.pilot.name.lower()[0]))
-
-    def get_previous_ranking(self) -> "PilotRanking":
-        out_rows = []
-        last_race_index = self.amount_of_races
-        if self.amount_of_races <= 1:
-            return None
-        for row in self.rows:
-            if row.amount_of_races == 0:
-                continue
-            last_race_result = row.race_results[last_race_index-1]
-            amount_race_to_withdraw = 1 if last_race_result.has_raced() else 0
-            points_to_remove = last_race_result.get_points()
-
-            # If there is a previous previous race
-            # and previous race was a special format, we need to take both races into account
-            if last_race_index-2 >= 0:
-                before_last_race_result = row.race_results[last_race_index-2]
-                if 'R' in before_last_race_result.race_number or 'S' in before_last_race_result.race_number:
-                    points_to_remove += before_last_race_result.get_points()
-                    amount_race_to_withdraw += (1 if before_last_race_result.has_raced() else 0)
-
-            total_points = row.total_points - points_to_remove
-            amount_of_races = row.amount_of_races - amount_race_to_withdraw
-            mean_points = (total_points / amount_of_races) if amount_of_races > 0 else 0
-            out_rows.append(
-                PilotRankingRow(
-                    pilot_name=row.pilot_name,
-                    titular=row.titular,
-                    team_name=row.team_name,
-                    mean_points=mean_points,
-                    license_points=row.license_points,
-                    amount_of_races=amount_of_races,
-                    pilot=row.pilot,
-                    total_points=total_points
-                )
-            )
-        ranking = PilotRanking(rows=out_rows)
-        ranking.sort_by_points()
-        return ranking
 
     def __str__(self):
         values = [
