@@ -74,7 +74,7 @@ class Team:
         return Image.open(self.get_ranking_logo_path())
 
     def get_ranking_logo_path(self):
-        if self.name in ('KickSauber', 'RedBull'):
+        if self.name in ('RedBull',):
             return self._get_alt_logo_path()
         if self.name in ('AstonMartin', 'Williams', 'McLaren', 'Alpine'):
             return self._get_white_logo_path()
