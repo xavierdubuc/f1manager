@@ -1,0 +1,96 @@
+<Polygons name="time_trial" width="1200" height="1080" bg="20">
+    <FBRTLogo width="1200" height="1080" gaussian_blur="5"/>
+    <Layout name="bg" width="1140" height="1040" left="30" top="20" bg="(20,20,20,100)">
+        <Layout name="headers" height="80" left="0" top="0">
+            <Image name="flag" path="assets/circuits/flags/{circuit.id}.png" width="60" height="80"
+                left="25" top="25" />
+            <Text name="pilot_header" content="PILOTE" font_name="bold" fg="255" width="200"
+                left="120" height="40" />
+            <Text name="s1_header" content="S1" font_name="bold" fg="255" width="200" left="500"
+                height="40" />
+            <Text name="s2_header" content="S2" font_name="bold" fg="255" width="200" left="650"
+                height="40" />
+            <Text name="s3_header" content="S3" font_name="bold" fg="255" width="200" left="800"
+                height="40" />
+        </Layout>
+        <TimingRows name="body" width="1140" height="900" top="100" left="0"
+            fastest_bg="(146, 75, 155)" fastest_fg="(255,255,255)">
+            <LayoutTemplate>
+                <Template>
+                    <Layout name="time_trial_row" width="1140" height="45" left="0" bg="{bg_color}">
+                        <Layout name="position_wrapper" width="50" left="20">
+                            <Text name="position" width="38" font_name="regular" fg="255"
+                                height="24" right="0" content="{row[0]}" />
+                        </Layout>
+                        <Text name="pilot" width="250" height="24" left="120" font_name="regular"
+                            fg="255" content="{row[1]}" />
+                        <Layout name="s1_wrapper" width="110" bg="{s1_bg}" left="500" height="30">
+                            <Text name="s1" width="90" height="24" font_name="regular"
+                                bg="{s1_bg}" fg="{s1_fg}" content="{row[2]}" />
+                        </Layout>
+                        <Layout name="s2_wrapper" width="110" bg="{s2_bg}" left="650" height="30">
+                            <Text name="s2" width="90" height="24" font_name="regular"
+                                bg="{s2_bg}" fg="{s2_fg}" content="{row[3]}" />
+                        </Layout>
+                        <Layout name="s3_wrapper" width="110" bg="{s3_bg}" left="800" height="30">
+                            <Text name="s3" width="90" height="24" font_name="regular"
+                                bg="{s3_bg}" fg="{s3_fg}" content="{row[4]}" />
+                        </Layout>
+                        <Layout name="lap_wrapper" width="160" bg="{lap_bg}" right="10" height="30">
+                            <Text name="lap" height="24" font_name="bold" width="140" top="2"
+                                bg="{lap_bg}" fg="{lap_fg}" content="{row[5]}" />
+                        </Layout>
+                    </Layout>
+                </Template>
+                <Instances>
+                    <Instance top="0" />
+                    <Instance top="45" />
+                    <Instance top="90" />
+                    <Instance top="135" />
+                    <Instance top="180" />
+                    <Instance top="225" />
+                    <Instance top="270" />
+                    <Instance top="315" />
+                    <Instance top="360" />
+                    <Instance top="405" />
+                    <Instance top="450" />
+                    <Instance top="495" />
+                    <Instance top="540" />
+                    <Instance top="585" />
+                    <Instance top="630" />
+                    <Instance top="675" />
+                    <Instance top="720" />
+                    <Instance top="765" />
+                    <Instance top="810" />
+                    <Instance top="855" />
+                </Instances>
+            </LayoutTemplate>
+        </TimingRows>
+    </Layout>
+    <Polygon color="60">
+        <Edge x="0" y="263" />
+        <Edge x="0" y="510" />
+        <Edge x="505" y="0" />
+        <Edge x="260" y="0" />
+    </Polygon>
+    <Polygon color="60">
+        <Edge x="424" y="523" />
+        <Edge x="1158" y="523" />
+        <Edge x="605" y="1080" />
+        <Edge x="0" y="1080" />
+        <Edge x="0" y="950" />
+    </Polygon>
+    <Polygon color="60">
+        <Edge x="738" y="523" />
+        <Edge x="1468" y="523" />
+        <Edge x="1920" y="74" />
+        <Edge x="1920" y="0" />
+        <Edge x="1256" y="0" />
+    </Polygon>
+    <Polygon color="60">
+        <Edge x="1352" y="1080" />
+        <Edge x="1920" y="1080" />
+        <Edge x="1920" y="523" />
+        <Edge x="1908" y="523" />
+    </Polygon>
+</Polygons>

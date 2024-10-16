@@ -1,0 +1,76 @@
+<Polygons name="season_pilots" width="1080" height="1080" bg="255">
+    <Layout name="title">
+        <FBRTLogo name="fbrt" width="175" top="20" left="40" />
+        <FIFLogo color="black" name="fif" width="175" top="120" right="40" />
+        <Text name="saison_text" content="SAISON {season}" width="440" height="60" fg="0" top="40" />
+        <IdentifierDependantText name="pilots_text" top="110" width="380" height="60" fg="0"
+            content="{'default': 'PILOTES','reservists': 'RÉSERVISTES','reservist': 'RÉSERVISTES'}" />
+    </Layout>
+    <SeasonPilots name="pilots" width="1000" height="860" top="200">
+        <LayoutTemplate>
+            <Template>
+                <PilotNumber name="pilot_number" width="480" height="75">
+                    <Text name="number" content="{number}" width="90" height="60" left="0"
+                        stroke_width="18" text_top="-10" text_left="15" center="True" />
+                    <PilotCard name="card" width="380" height="75" left="100">
+                        <Layout name="logo_container" left="0" height="75" width="120">
+                            <Image name="logo" path="{team_logo_path}" height="80" />
+                        </Layout>
+                        <Image name="pilot_row" path="assets/backgrounds/FBRT/ranking_row_bg.png" width="280" left="100" top="0" keep_ratio="False">
+                            <Text name="pilot_name" content="{pilot_name}" width="215" height="30" left="60"/>
+                        </Image>
+                        <PilotPhoto name="face" width="820" height="115" left="45" top="-15"/>
+                    </PilotCard>
+                </PilotNumber>
+            </Template>
+            <Instances>
+                <Instance left="0" top="0" />
+                <Instance left="520" top="20" />
+                <Instance left="0" top="85" />
+                <Instance left="520" top="105" />
+                <Instance left="0" top="170" />
+                <Instance left="520" top="190" />
+                <Instance left="0" top="255" />
+                <Instance left="520" top="275" />
+                <Instance left="0" top="340" />
+                <Instance left="520" top="360" />
+                <Instance left="0" top="425" />
+                <Instance left="520" top="445" />
+                <Instance left="0" top="510" />
+                <Instance left="520" top="530" />
+                <Instance left="0" top="595" />
+                <Instance left="520" top="615" />
+                <Instance left="0" top="680" />
+                <Instance left="520" top="700" />
+                <Instance left="0" top="765" />
+                <Instance left="520" top="785" />
+            </Instances>
+        </LayoutTemplate>
+    </SeasonPilots>
+    <Polygon color="230">
+        <Edge x="0" y="263" />
+        <Edge x="0" y="510" />
+        <Edge x="505" y="0" />
+        <Edge x="260" y="0" />
+    </Polygon>
+    <Polygon color="230">
+        <Edge x="424" y="523" />
+        <Edge x="1158" y="523" />
+        <Edge x="605" y="1080" />
+        <Edge x="0" y="1080" />
+        <Edge x="0" y="950" />
+    </Polygon>
+    <Polygon color="230">
+        <Edge x="738" y="523" />
+        <Edge x="1468" y="523" />
+        <Edge x="1920" y="74" />
+        <Edge x="1920" y="0" />
+        <Edge x="1256" y="0" />
+    </Polygon>
+    <Polygon color="230">
+        <Edge x="1352" y="1080" />
+        <Edge x="1920" y="1080" />
+        <Edge x="1920" y="523" />
+        <Edge x="1908" y="523" />
+    </Polygon>
+</Polygons>

@@ -1,0 +1,219 @@
+<Image name="numbers" path="assets/backgrounds/FBRT/numbers.png" width="1920" height="1080" bg="255">
+    <PilotNumbers name="numbers" width="1880" height="1052">
+        <LayoutTemplate>
+            <Template>
+                <PilotNumber name="pilot_number" width="360" height="45">
+                    <Text name="number" content="{number}" width="45" height="35" left="0"
+                        stroke_width="18" text_top="-10" text_left="15" />
+                    <PilotCard name="card" width="300" left="60">
+                        <Layout name="team_logo_container" width="65" left="2">
+                            <Image name="team_logo" path="{team_logo_path}" />
+                        </Layout>
+                        <Text name="pilot_name" content="{pilot_name}" width="205" height="22"
+                            left="80" top="10" underscore_top="12" long_top="15" />
+                    </PilotCard>
+                </PilotNumber>
+            </Template>
+            <Instances>
+                <!-- 1 -->
+                <Instance left="0" top="0" />
+                <!-- 2 -->
+                <Instance left="0" top="53" />
+                <!-- 3 -->
+                <Instance left="0" top="106" />
+                <!-- 4 -->
+                <Instance left="0" top="159" />
+                <!-- 5 -->
+                <Instance left="0" top="212" />
+                <!-- 6 -->
+                <Instance left="0" top="265" />
+                <!-- 7 -->
+                <Instance left="0" top="318" />
+                <!-- 8 -->
+                <Instance left="0" top="371" />
+                <!-- 9 -->
+                <Instance left="0" top="424" />
+                <!-- 10 -->
+                <Instance left="0" top="477" />
+                <!-- 11 -->
+                <Instance left="0" top="530" />
+                <!-- 12 -->
+                <Instance left="0" top="583" />
+                <!-- 13 -->
+                <Instance left="0" top="636" />
+                <!-- 14 -->
+                <Instance left="0" top="689" />
+                <!-- 15 -->
+                <Instance left="0" top="742" />
+                <!-- 16 -->
+                <Instance left="0" top="795" />
+                <!-- 17 -->
+                <Instance left="0" top="848" />
+                <!-- 18 -->
+                <Instance left="0" top="901" />
+                <!-- 19 -->
+                <Instance left="0" top="954" />
+                <!-- 20 -->
+                <Instance left="0" top="1007" />
+                <!-- 21 -->
+                <Instance left="380" top="0" />
+                <!-- 22 -->
+                <Instance left="380" top="53" />
+                <!-- 23 -->
+                <Instance left="380" top="106" />
+                <!-- 24 -->
+                <Instance left="380" top="159" />
+                <!-- 25 -->
+                <Instance left="380" top="212" />
+                <!-- 26 -->
+                <Instance left="380" top="265" />
+                <!-- 27 -->
+                <Instance left="380" top="318" />
+                <!-- 28 -->
+                <Instance left="380" top="371" />
+                <!-- 29 -->
+                <Instance left="380" top="424" />
+                <!-- 30 -->
+                <Instance left="380" top="477" />
+                <!-- 31 -->
+                <Instance left="380" top="530" />
+                <!-- 32 -->
+                <Instance left="380" top="583" />
+                <!-- 33 -->
+                <Instance left="380" top="636" />
+                <!-- 34 -->
+                <Instance left="380" top="689" />
+                <!-- 35 -->
+                <Instance left="380" top="742" />
+                <!-- 36 -->
+                <Instance left="380" top="795" />
+                <!-- 37 -->
+                <Instance left="380" top="848" />
+                <!-- 38 -->
+                <Instance left="380" top="901" />
+                <!-- 39 -->
+                <Instance left="380" top="954" />
+                <!-- 40 -->
+                <Instance left="380" top="1007" />
+                <!-- 41 -->
+                <Instance left="760" top="0" />
+                <!-- 42 -->
+                <Instance left="760" top="53" />
+                <!-- 43 -->
+                <Instance left="760" top="106" />
+                <!-- 44 -->
+                <Instance left="760" top="159" />
+                <!-- 45 -->
+                <Instance left="760" top="212" />
+                <!-- 46 -->
+                <Instance left="760" top="265" />
+                <!-- 47 -->
+                <Instance left="760" top="318" />
+                <!-- 48 -->
+                <Instance left="760" top="371" />
+                <!-- 49 -->
+                <Instance left="760" top="424" />
+                <!-- 50 -->
+                <Instance left="760" top="477" />
+                <!-- 51 -->
+                <Instance left="760" top="530" />
+                <!-- 52 -->
+                <Instance left="760" top="583" />
+                <!-- 53 -->
+                <Instance left="760" top="636" />
+                <!-- 54 -->
+                <Instance left="760" top="689" />
+                <!-- 55 -->
+                <Instance left="760" top="742" />
+                <!-- 56 -->
+                <Instance left="760" top="795" />
+                <!-- 57 -->
+                <Instance left="760" top="848" />
+                <!-- 58 -->
+                <Instance left="760" top="901" />
+                <!-- 59 -->
+                <Instance left="760" top="954" />
+                <!-- 60 -->
+                <Instance left="760" top="1007" />
+                <!-- 61 -->
+                <Instance left="1140" top="0" />
+                <!-- 62 -->
+                <Instance left="1140" top="53" />
+                <!-- 63 -->
+                <Instance left="1140" top="106" />
+                <!-- 64 -->
+                <Instance left="1140" top="159" />
+                <!-- 65 -->
+                <Instance left="1140" top="212" />
+                <!-- 66 -->
+                <Instance left="1140" top="265" />
+                <!-- 67 -->
+                <Instance left="1140" top="318" />
+                <!-- 68 -->
+                <Instance left="1140" top="371" />
+                <!-- 69 -->
+                <Instance left="1140" top="424" />
+                <!-- 70 -->
+                <Instance left="1140" top="477" />
+                <!-- 71 -->
+                <Instance left="1140" top="530" />
+                <!-- 72 -->
+                <Instance left="1140" top="583" />
+                <!-- 73 -->
+                <Instance left="1140" top="636" />
+                <!-- 74 -->
+                <Instance left="1140" top="689" />
+                <!-- 75 -->
+                <Instance left="1140" top="742" />
+                <!-- 76 -->
+                <Instance left="1140" top="795" />
+                <!-- 77 -->
+                <Instance left="1140" top="848" />
+                <!-- 78 -->
+                <Instance left="1140" top="901" />
+                <!-- 79 -->
+                <Instance left="1140" top="954" />
+                <!-- 80 -->
+                <Instance left="1140" top="1007" />
+                <!-- 81 -->
+                <Instance left="1520" top="0" />
+                <!-- 82 -->
+                <Instance left="1520" top="53" />
+                <!-- 83 -->
+                <Instance left="1520" top="106" />
+                <!-- 84 -->
+                <Instance left="1520" top="159" />
+                <!-- 85 -->
+                <Instance left="1520" top="212" />
+                <!-- 86 -->
+                <Instance left="1520" top="265" />
+                <!-- 87 -->
+                <Instance left="1520" top="318" />
+                <!-- 88 -->
+                <Instance left="1520" top="371" />
+                <!-- 89 -->
+                <Instance left="1520" top="424" />
+                <!-- 90 -->
+                <Instance left="1520" top="477" />
+                <!-- 91 -->
+                <Instance left="1520" top="530" />
+                <!-- 92 -->
+                <Instance left="1520" top="583" />
+                <!-- 93 -->
+                <Instance left="1520" top="636" />
+                <!-- 94 -->
+                <Instance left="1520" top="689" />
+                <!-- 95 -->
+                <Instance left="1520" top="742" />
+                <!-- 96 -->
+                <Instance left="1520" top="795" />
+                <!-- 97 -->
+                <Instance left="1520" top="848" />
+                <!-- 98 -->
+                <Instance left="1520" top="901" />
+                <!-- 99 -->
+                <Instance left="1520" top="954" />
+            </Instances>
+        </LayoutTemplate>
+    </PilotNumbers>
+</Image>

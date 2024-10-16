@@ -5,6 +5,7 @@ from abc import ABC
 from dataclasses import dataclass
 
 from src.media_generation.font_factory import FontFactory
+from src.media_generation.helpers.layout_manager import LayoutManager
 from src.media_generation.helpers.transform import Dimension, paste, resize, text
 from src.media_generation.layout.layout import Layout
 from ..helpers.generator_config import GeneratorConfig
@@ -26,8 +27,11 @@ class AbstractGenerator:
     visual_config: dict = None
 
     def __post_init__(self):
-        self.visual_config = self.championship_config['settings']['visuals'].get(self._get_visual_type(), {})
-        self.layout: Layout = self.championship_config['settings'].get('layouts', {}).get(self._get_visual_type(), {})
+        sttngs = self.championship_config['settings']
+        self.visual_config = sttngs['visuals'].get(self._get_visual_type(), {})
+        self.layout = LayoutManager().load(
+            sttngs.get('layouts', {}).get(self._get_visual_type(), {})
+        )
 
     def generate(self) -> str:
         if self.layout:
@@ -44,7 +48,6 @@ class AbstractGenerator:
                     img.paste(title_img, title_img)
             self._add_content(img)
         img.save(self.config.output, quality=100)
-        _logger.info(f'Image successfully rendered in file "{self.config.output}"')
         return self.config.output
 
     def _get_layout_context(self):

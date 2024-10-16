@@ -28,8 +28,7 @@ class DottedImageLayout(RoundedLayout):
     round_bottom_left: bool = False
     round_bottom_right: bool = False
 
-    def __post_init__(self):
-        super().__post_init__()
+    def _compute(self):
         self._ensure_rgba(self.dots_color)
         self._ensure_rgba(self.crosses_color)
 

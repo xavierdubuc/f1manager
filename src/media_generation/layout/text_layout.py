@@ -36,18 +36,6 @@ class TextLayout(Layout):
     def text_position(self):
         return (self.text_left, self.text_top)
 
-    def __post_init__(self):
-        super().__post_init__()
-        self.font = self._compute_font()
-        if self.underscore_top is None:
-            self.underscore_top = self.top
-        if self.long_top is None:
-            self.long_top = self.top
-        if self.text_width is None:
-            self.text_width = self.width
-        if self.text_height is None:
-            self.text_height = self.height
-
     def _compute_font(self):
         if self.font_name in METHOD_FONTS:
             return getattr(FontFactory, self.font_name)(self.font_size)
@@ -72,7 +60,7 @@ class TextLayout(Layout):
             self.text_position, content, self._get_fg(context), self.font,
             stroke_width=self.stroke_width, stroke_fill=self.stroke_fill
         )
-        text_img = resize(img, self.text_width, self.text_height)
+        text_img = resize(img, self.text_width or self.width, self.text_height or self.height)
         if not self.center:
             return text_img
 
@@ -93,3 +81,15 @@ class TextLayout(Layout):
         if len(txt) > 14:
             return self.long_top
         return self.top
+
+    def _compute(self):
+        super()._compute()
+        self.font = self._compute_font()
+        if self.underscore_top is None:
+            self.underscore_top = self.top
+        if self.long_top is None:
+            self.long_top = self.top
+        if self.text_width is None:
+            self.text_width = self.width
+        if self.text_height is None:
+            self.text_height = self.height

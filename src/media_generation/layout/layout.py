@@ -40,19 +40,16 @@ class Layout:
     def size(self):
         return (self.width, self.height)
 
-    def __post_init__(self):
+    def _compute(self):
         self.bg = self._ensure_rgba(self.bg)
         self.fg = self._ensure_rgba(self.fg)
 
     def render(self, context: Dict[str, Any] = {}) -> PngImageFile:
         self.width = self.width or context.get('width')
         self.height = self.height or context.get('height')
+        self._compute()
         img = self._render_base_image(context)
         if img:
-            context.update({
-                'width': img.width,
-                'height': img.height,
-            })
             if self.templates:
                 self._process_templates(img, context)
             if self.children:
@@ -110,6 +107,12 @@ class Layout:
 
     def _paste_children(self, img: PngImageFile, context: Dict[str, Any] = {}):
         for key, child in self.children.items():
+            # propagate parent size to children
+            # need to be done at every step as children can erase context
+            context.update({
+                'width': img.width,
+                'height': img.height,
+            })
             if key.startswith(TEMPLATE_PREFIX):
                 i, child = child
                 child_ctx = self._get_template_instance_context(i, context)
@@ -120,7 +123,7 @@ class Layout:
 
     def _process_templates(self, img: PngImageFile, context: Dict[str, Any] = {}):
         for template in self.templates.values():
-            _logger.info(f'Processing template {template.layout.name}')
+            _logger.debug(f'Processing template {template.layout.name}')
             self.children.update(template.get_layouts())
 
     def _paste_child(self, img: PngImageFile, key: str, child: "Layout", context: Dict[str, Any] = {}):
@@ -150,6 +153,20 @@ class Layout:
                 print(context.keys())
                 raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
         return attr
+
+    def tree(self, prefix=""):
+        this = f"{self.__class__.__name__} #{self.name}"
+        children_parts = [
+            f"{prefix}{child.tree(prefix+'  ')}"
+            for s, child in self.children.items()
+        ]
+        tpl_parts = [
+            f"{prefix}TPL::{child.layout.tree(prefix+'  ')}"
+            for t, child in self.templates.items()
+        ]
+        children = "\n" + "\n".join(children_parts) if children_parts else ""
+        tpl = "\n" + "\n".join(tpl_parts) if tpl_parts else ""
+        return f"{this}{children}{tpl}"
 
 @dataclass
 class LayoutTemplate:

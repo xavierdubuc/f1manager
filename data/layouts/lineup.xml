@@ -1,0 +1,62 @@
+<Polygons name="lineup" width="1920" height="1080" bg="255">
+    <Image name="black_rows" path="assets/backgrounds/FBRT/lineup.png" top="0" left="0">
+        <Layout name="track">
+            <Image name="flag" path="assets/circuits/flags/{race.circuit.id}.png"
+                width="60" height="35" left="230" bottom="14" />
+            <Text name="city" content="{circuit_city}" font_name="regular"
+                width="1200" height="35" left="310" bottom="16"
+                bg="(10, 8, 32)" fg="(255, 255, 255)"
+            />
+            <Text name="hour" content="{race.hour}" width="1200" height="35" bottom="60"
+                right="10" font_name="regular" bg="(10, 8, 32)" fg="(255, 255, 255)" />
+            <Text name="date" content="{race.day} {month_fr}" width="1200" height="35" bottom="16"
+                right="10" font_name="regular" bg="(10, 8, 32)" fg="(255, 255, 255)" />
+        </Layout>
+    </Image>
+    <Layout name="logos">
+        <FBRTLogo width="175" left="1740" top="0" />
+        <FIFLogo color="black" width="175" left="0" top="1010" />
+    </Layout>
+    <Layout name="center_information">
+        <Round name="round" width="125" height="125" top="425" fg="(255,255,255)">
+            <Text name="round_text" content="R{race.round}" width="90" height="45"/>
+            <Text name="subtype_top" top="10" height="15" font_name="regular"/>
+            <Text name="subtype_bottom" bottom="10" height="15" font_name="regular"/>
+        </Round>
+        <Text name="line_up_text" top="600" width="380" height="75" content="LINE-UP"
+            font_name="black" fg="(0, 0, 0)" />
+    </Layout>
+    <Teams name="teams">
+        <LayoutTemplate>
+            <Template name="team_template">
+                <TeamLineup name="team" width="680" height="200">
+                    <Image name="logo" height="90" top="30"/>
+                    <Layout name="pilot_1" left="0" top="0" width="368" height="200">
+                        <PilotPhoto name="photo" height="143" top="5"/>
+                        <PilotBox name="box" height="62" left="0" top="138">
+                            <Text name="name" content="{pilot_name}" width="250" height="28"/>
+                        </PilotBox>
+                    </Layout>
+                    <Layout name="pilot_2" left="312" top="0" width="368" height="200">
+                        <PilotPhoto name="photo" height="143" top="5"/>
+                        <PilotBox name="box" height="62" left="0" top="138">
+                            <Text name="name" content="{pilot_name}" width="250" height="28"/>
+                        </PilotBox>
+                    </Layout>
+                </TeamLineup>
+            </Template>
+            <Instances>
+                <Instance left="295" top="2"/>
+                <Instance left="938" top="2"/>
+                <Instance left="150" top="204"/>
+                <Instance left="1095" top="204"/>
+                <Instance left="32" top="406"/>
+                <Instance left="1203" top="406"/>
+                <Instance left="150" top="608"/>
+                <Instance left="1098" top="608"/>
+                <Instance left="295" top="810"/>
+                <Instance left="938" top="810"/>
+            </Instances>
+        </LayoutTemplate>
+    </Teams>
+</Polygons>

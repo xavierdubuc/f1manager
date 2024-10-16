@@ -14,10 +14,12 @@ def to_float(s:str):
 @dataclass
 class TimingRowsLayout(Layout):
     ranking: List[List[str]] = None
-    odd_bg: Tuple[int, int, int, int] = (100, 100, 100, 100)
-    even_bg: Tuple[int, int, int, int] = (50, 50, 50, 100)
+    odd_bg: Tuple[int, int, int, int] = (100, 100, 100, 200)
+    even_bg: Tuple[int, int, int, int] = (50, 50, 50, 200)
+    default_bg: Tuple[int, int, int, int] = (0,0,0,0)
     default_fg: Tuple[int, int, int, int] = (255, 255, 255, 255)
     fastest_fg: Tuple[int, int, int, int] = (255, 0, 0, 255)
+    fastest_bg: Tuple[int, int, int, int] = (0, 0, 0, 255)
 
     def _get_ranking(self, context: Dict[str, Any] = {}) -> List[List[str]]:
         if self.ranking is None:
@@ -38,15 +40,15 @@ class TimingRowsLayout(Layout):
         if not row:
             return {}
         bg_color = self.odd_bg if int(row[0]) % 2 == 1 else self.even_bg
-        print(row[1])
-        print(to_float(row[2]))
-        print(to_float(row[3]))
-        print(to_float(row[4]))
         return {
             'bg_color': bg_color,
             'lap_fg': self.fastest_fg if int(row[0]) == 1 else self.default_fg,
+            'lap_bg': self.fastest_bg if int(row[0]) == 1 else self.default_bg,
             's1_fg': self.fastest_fg if to_float(row[2]) == self.min_s1 else self.default_fg,
+            's1_bg': self.fastest_bg if to_float(row[2]) == self.min_s1 else self.default_bg,
             's2_fg': self.fastest_fg if to_float(row[3]) == self.min_s2 else self.default_fg,
+            's2_bg': self.fastest_bg if to_float(row[3]) == self.min_s2 else self.default_bg,
             's3_fg': self.fastest_fg if to_float(row[4]) == self.min_s3 else self.default_fg,
+            's3_bg': self.fastest_bg if to_float(row[4]) == self.min_s3 else self.default_bg,
             'row': row
         }

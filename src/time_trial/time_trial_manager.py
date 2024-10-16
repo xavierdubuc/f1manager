@@ -8,6 +8,7 @@ import disnake
 from config import layouts
 from f1_24_telemetry.listener import TelemetryListener
 from f1_24_telemetry.packets import PacketParticipantsData, PacketSessionData, PacketLapData, PacketTimeTrialData
+from src.media_generation.helpers.layout_manager import LayoutManager
 from src.telemetry.models.enums.track import Track
 from src.bot.vignebot import Vignebot
 from src.gsheet.gsheet import GSheet
@@ -305,7 +306,7 @@ class TimeTrialManager:
         out = {}
         circuit_ranking = self._get_circuit_ranking(circuit)
         if use_image and circuit_ranking:
-            layout = layouts.FBRT["time_trial"] # TODO use championship param ?
+            layout = LayoutManager().load(layouts.FBRT["time_trial"]) # TODO use championship param ?
             context = {
                 "circuit": circuit,
                 "ranking": circuit_ranking,

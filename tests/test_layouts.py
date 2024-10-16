@@ -1,6 +1,6 @@
 from datetime import datetime
 import unittest
-from config.config import layouts
+from config import layouts
 from src.media_generation.helpers.generator_config import GeneratorConfig
 from src.media_generation.helpers.generator_type import GeneratorType
 from src.media_generation.layout.dotted_image_layout import DottedImageLayout
@@ -10,6 +10,7 @@ from src.media_generation.readers.race_reader_models.lineup import LineUp
 from src.media_generation.readers.race_reader_models.race import Race, RaceType
 from src.media_generation.data import ASPIRANT_TEAM, RESERVIST_TEAM, circuits, teams_idx
 from src.media_generation.readers.race_reader_models.race_ranking import RaceRanking, RaceRankingRow
+from src.media_generation.xml_parser import XMLParser
 
 
 class TestLayouts(unittest.TestCase):
@@ -174,7 +175,7 @@ class TestLayouts(unittest.TestCase):
     #     img.save('tests/_outputs/test.png', quality=100)
 
     def test_timetrial_layout(self):
-        circuit = circuits['Italie']
+        circuit = circuits['Qatar']
         ranking = [
             ['1', 'QSL-Rhumsko', '26.153', '25.977', '26.373', '1:18.504'],
             ['2', 'OVR_Kayzor', '26.183', '26.033', '26.454', '1:18.671'],
@@ -193,6 +194,6 @@ class TestLayouts(unittest.TestCase):
             "circuit": circuit,
             "ranking": ranking,
         }
-        layout = layouts.FBRT["time_trial"]
+        layout = XMLParser().parse(layouts.FBRT["time_trial"])
         img = layout.render(context=context)
         img.save('tests/_outputs/time_trial.png', quality=100)
