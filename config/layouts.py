@@ -8,13 +8,11 @@ FBRT = {
     "season_pilots": "data/layouts/season_pilots.xml",
     "season_teams": "data/layouts/season_teams.xml",
     # RaceReader
+    "driver_of_the_day": "data/layouts/driver_of_the_day.xml",
     "lineup": "data/layouts/lineup.xml",
     "results": "data/layouts/results.xml",
     "time_trial": "data/layouts/time_trial.xml",
 }
-
-FBRT["time_trial"] = "data/layouts/time_trial.xml"
-
 
 F140 = {
     "lineup": PolygonsLayout(

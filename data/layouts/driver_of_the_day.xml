@@ -1,0 +1,49 @@
+<Layout name="driver_of_the_day" width="640" height="800" bg="(20,20,30)">
+    <Layout name="center_rectangle" left="80" top="0" width="480" height="700">
+        <Image name="track_image" top="100" height="600"
+            path="assets/circuits/photos/{race.circuit.id}.png"
+            crop_and_zoom_center="True"
+            grayscale="driver_of_the_day.team.driver_of_the_day_use_grayscale"
+            hsv_offset="{driver_of_the_day.team.driver_of_the_day_hsv_offset}"
+        >
+        </Image>
+        <PilotPhoto name="face" photo_type="WHOLE" height="1000" top="0"
+            pilot="driver_of_the_day" />
+        <TeamLogo name="team_logo" team="driver_of_the_day.team" width="100" height="100"
+            left="20" bottom="90" variant="dotd" />
+        <Text name="pilot_name" height="36" content="{driver_of_the_day.name}" fg="255"
+            left="20" bottom="45" shadow_color="0" shadow_offset_h="10" shadow_offset_v="10"/>
+        <Text name="text_votes" content="{driver_of_the_day_percent}"
+            fg="{driver_of_the_day.team.driver_of_the_day_color}" right="90"
+            width="120" bottom="5" font_name="bold" height="38" />
+        <Layout name="text_des_votes" width="80" height="36" right="5" bottom="5">
+            <Text name="text_des" content="DES" fg="255" font_name="regular" top="0" height="18"
+                left="0" />
+            <Text name="text_votes" content="VOTES" fg="255" font_name="regular" bottom="0"
+                height="18" left="0" />
+        </Layout>
+
+    </Layout>
+    <Layout name="dotd_text">
+        <Text name="driver_text" content="DRIVER" top="20" left="20" height="45"
+            width="200" fg="(255,255,255)"
+            shadow_color="0" shadow_offset_h="6" shadow_offset_v="6"/>
+        <Text name="ofthe_text" content="OF THE" top="60" left="20" height="45"
+            width="200" fg="(255,255,255)" shadow_color="0" shadow_offset_h="6" shadow_offset_v="6"/>
+        <Text name="day_text" content="DAY" top="100" left="20" height="45"
+            width="200" fg="(255,255,255)"  shadow_color="0" shadow_offset_h="6" shadow_offset_v="6"/>
+    </Layout>
+
+    <Layout name="footer" bottom="0" height="100">
+        <Layout name="track" width="275" left="0">
+            <Image name="flag" path="assets/circuits/flags/{race.circuit.id}.png"
+                width="40" height="25" left="20" />
+            <Text name="city" content="{circuit_city}" font_name="regular"
+                width="200" height="16" left="70"
+                fg="(255, 255, 255)"
+            />
+        </Layout>
+        <FBRTLogo height="90" right="200" />
+        <FIFLogo width="175" right="10" />
+    </Layout>
+</Layout>

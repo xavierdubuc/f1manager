@@ -68,7 +68,7 @@
                                 height="142" fg="(255, 255, 255)" left="20" top="10"
                                 content="{race_ranking_row.position}" />
                             <PilotPhoto name="face" photo_type="WHOLE" width="500"
-                                height="730" left="45" top="-15" />
+                                height="730" left="45" top="-15" pilot="race_ranking_row.pilot"/>
                             <Text name="pilot_name" content="{pilot_name}"
                                 fg="{race_ranking_row.pilot.team.standing_fg}"
                                 bg="{race_ranking_row.pilot.team.standing_bg}"

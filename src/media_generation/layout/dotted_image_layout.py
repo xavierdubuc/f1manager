@@ -29,8 +29,8 @@ class DottedImageLayout(RoundedLayout):
     round_bottom_right: bool = False
 
     def _compute(self):
-        self._ensure_rgba(self.dots_color)
-        self._ensure_rgba(self.crosses_color)
+        self.dots_color = self._ensure_rgba(self.dots_color)
+        self.crosses_color = self._ensure_rgba(self.crosses_color)
 
     def _render_base_image(self, context: Dict[str, Any] = {}) -> PngImageFile:
         if self.left_part_width > 0:

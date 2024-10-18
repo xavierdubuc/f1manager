@@ -284,6 +284,7 @@ vcarb = Team(
     breaking_bg_color=(35, 40, 80),
     breaking_line_color=(15, 20, 60),
     alternate_main_color=(40, 64, 90),
+    driver_of_the_day_color=(40, 64, 170),
     breaking_use_white_logo=False,
     driver_of_the_day_hsv_offset=140,
     driver_of_the_day_use_grayscale=False,

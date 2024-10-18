@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any, Dict
 
 from PIL.PngImagePlugin import PngImageFile
 
@@ -15,9 +16,10 @@ WHOLE = 'WHOLE'
 @dataclass
 class PilotPhotoLayout(Layout):
     photo_type: str = FACE
+    pilot: Pilot = None
 
     def _render_base_image(self, context: dict = {}) -> PngImageFile:
-        pilot: Pilot = context.get('pilot')
+        pilot = self._get_pilot(context)
         if not pilot:
             # TODO get default image ?
             return super()._render_base_image(context)
@@ -26,3 +28,6 @@ class PilotPhotoLayout(Layout):
             return manager.get_close_up_image(pilot, height=self.height, width=self.width)
         img = manager.get_long_range_image(pilot)
         return resize(img, self.width, self.height)
+
+    def _get_pilot(self, context: Dict[str, Any] = {}) -> Pilot:
+        return self._get_ctx_attr('pilot', context, use_format=False)

@@ -37,10 +37,13 @@ class Team:
     card_image_path: str = None
     driver_of_the_day_hsv_offset: int = None
     driver_of_the_day_use_grayscale: bool = False
+    driver_of_the_day_color: tuple= None
 
     def __post_init__(self):
         if not self.alternate_main_color:
             self.alternate_main_color = self.standing_bg
+        if not self.driver_of_the_day_color:
+            self.driver_of_the_day_color = self.main_color
 
     def build_card_image(self, width, height):
         basepath = os.path.join(ASSETS_PATH, 'card_logos')
@@ -95,6 +98,10 @@ class Team:
 
     def get_lineup_logo(self):
         return Image.open(self.get_lineup_logo_path())
+
+    @property
+    def filename(self):
+        return f'{self.name}.png'
 
     def get_image(self):
         return os.path.join(ASSETS_PATH, f'{self.name}.png')

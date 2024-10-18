@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 from PIL.PngImagePlugin import PngImageFile
 from PIL import Image, ImageDraw
@@ -31,10 +31,20 @@ class TextLayout(Layout):
     center: bool = False
     text_width: int = None
     text_height: int = None
+    shadow_color: Tuple[int, int, int, int] = None
+    shadow_offset_h: int = 0
+    shadow_offset_v: int = 0
 
     @property
     def text_position(self):
         return (self.text_left, self.text_top)
+
+    @property
+    def shadow_position(self):
+        return (
+            self.text_left+self.shadow_offset_h,
+            self.text_top+self.shadow_offset_v
+        )
 
     def _compute_font(self):
         if self.font_name in METHOD_FONTS:
@@ -54,8 +64,17 @@ class TextLayout(Layout):
         if not content:
             return None
         size = self._estimate_size(content)
-        img = Image.new('RGBA', [d+self.stroke_width for d in size], self._get_bg(context))
+        img = Image.new('RGBA', size, self._get_bg(context))
         text_draw = ImageDraw.Draw(img)
+
+        # SHADOW
+        shadow_color = self._get_shadow_color(context)
+        if shadow_color is not None:
+            text_draw.text(
+                self.shadow_position, content, shadow_color, self.font,
+                stroke_width=self.stroke_width, stroke_fill=self.stroke_fill
+            )
+
         text_draw.text(
             self.text_position, content, self._get_fg(context), self.font,
             stroke_width=self.stroke_width, stroke_fill=self.stroke_fill
@@ -72,7 +91,10 @@ class TextLayout(Layout):
 
     def _estimate_size(self, content: str) -> Tuple[int, int]:
         _, _, w, h = SANDBOX.textbbox((0, 0), content, self.font)
-        return w+self.text_left, h+self.text_top
+        return (
+            w+self.text_left+self.shadow_offset_v+self.stroke_width,
+            h+self.text_top+self.shadow_offset_h+self.stroke_width
+        )
 
     def _get_top(self, context: dict = {}) -> int:
         txt = self._get_text(context)
@@ -81,6 +103,9 @@ class TextLayout(Layout):
         if len(txt) > 14:
             return self.long_top
         return self.top
+
+    def _get_shadow_color(self, context: Dict[str, Any] = {}):
+        return self._get_ctx_attr('shadow_color', context, use_format=False)
 
     def _compute(self):
         super()._compute()
@@ -93,3 +118,5 @@ class TextLayout(Layout):
             self.text_width = self.width
         if self.text_height is None:
             self.text_height = self.height
+        if self.shadow_color is not None:
+            self.shadow_color = self._ensure_rgba(self.shadow_color)
