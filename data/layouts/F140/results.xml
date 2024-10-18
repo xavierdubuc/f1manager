@@ -1,0 +1,180 @@
+<Layout name="results" width="1920" height="1200" bg="(200,200,200)">
+    <!-- RACE -->
+    <Layout name="race" bg="0" width="500" height="85" top="20" left="650">
+        <Round name="round" create_subtype_layouts="False" width="85" height="85" left="0"
+            fg="(255, 255, 255, 255)">
+            <Text name="round_text" content="'R{race.round}'" width="55" height="85" />
+        </Round>
+        <Text name="day" content="{race.day}"
+            width="85" height="40"
+            top="-5" left="85" font_name="Kanit"
+            bg="0" fg="(255, 255, 255, 255)" center="True" />
+        <Text name="month" content="{month_fr_short}"
+            width="85" height="35" bottom="13"
+            left="85" font_name="Kanit"
+            bg="0" center="True" fg="(255, 255, 255, 255)" />
+        <Image name="flag"
+            path="assets/circuits/flags/{race.circuit.id}.png"
+            width="80" height="50" left="170" />
+        <Text name="circuit_city" content="{circuit_city}" width="230"
+            height="40" left="265" bottom="10" font_name="Kanit Bold"
+            bg="0" fg="(255, 255, 255, 255)" />
+        <Text name="circuit_country" content="{circuit_country}"
+            width="230" height="40" left="265" top="-5" font_name="Kanit Bold"
+            bg="0" fg="(230, 0, 0, 255)" />
+    </Layout>
+    <!-- FASTEST LAP -->
+    <Layout name="fastest_lap" width="670" height="85" left="1220" top="20"
+        bg="(0,0,0, 150)">
+        <FastestLapIcon name="icon" width="85" left="0" />
+        <Image name="team_logo" path="{fastest_lap_team_logo_path}"
+            width="40" height="40" left="95" top="8" />
+        <Text name="driver" content="{fastest_lap_driver_name}" font_name="Kanit Bold"
+            left="145" top="0" height="40" width="350" fg="255" />
+        <Text name="lap_time" content="{fastest_lap_time}" font_name="Kanit Bold"
+            right="5" top="0" height="40" width="170" fg="255" />
+        <Text name="lap" content="{fastest_lap_lap}" font_name="Kanit"
+            left="95" bottom="10" height="30" width="170" fg="255" />
+        <Text name="point" content="{fastest_lap_point_granted_txt}" font_name="Kanit Bold"
+            right="10" bottom="10" height="30" fg="(210,0,0)" />
+    </Layout>
+    <!-- LOGOS -->
+    <Layout name="logos" width="905" height="280" right="20" bottom="20">
+        <F140Logo name="f140" height="160" top="0" />
+        <F1Logo name="f1" color="black" width="600" height="140" bottom="30" />
+    </Layout>
+    <!-- TOP 3-->
+    <RaceRanking name="top3" width="900" height="615" left="30" top="20">
+        <LayoutTemplate>
+            <Template name="full_size_pilots_template">
+                <FullSizeRankingRow
+                    name="full_size_pilots" width="280" bottom="0"
+                    default_bg="(241, 241, 241, 255)"
+                    driver_of_the_day_bg="(246, 212, 136, 255)"
+                    fastest_lap_bg="(191, 140, 210, 255)"
+                    bg_transparency="100">
+                    <Rounded name="bg" width="280">
+                        <Image name="team" width="400" height="400"
+                            keep_ratio="False" path="{team_logo_path}"
+                        />
+                        <Text name="position_shadow" width="122"
+                            height="142" fg="(0,0,0)" left="25" top="15"
+                            content="{race_ranking_row.position}" />
+                        <Text name="position" width="122"
+                            height="142" fg="(255, 255, 255)" left="20" top="10"
+                            content="{race_ranking_row.position}" />
+                        <PilotPhoto name="face" photo_type="WHOLE" width="500"
+                            height="730" left="45" top="-15" pilot="race_ranking_row.pilot"/>
+                        <Text name="pilot_name" content="{pilot_name}"
+                            fg="{race_ranking_row.pilot.team.standing_fg}"
+                            bg="{race_ranking_row.pilot.team.standing_bg}"
+                            font_name="Kanit Bold" bottom="55"
+                            width="280" text_width="200" center="True"
+                            height="55" text_height="40" />
+                        <!-- DELTA & TYRES -->
+                        <Bicolor name="result_row_bg" bg="{bg_color}"
+                            bg_alt="{bg_color_2}" height="55"
+                            width="225" left="0" bottom="0">
+                            <DottedImage name="result_row"
+                                height="55" width="225" left="0" bottom="0"
+                                round_bottom_left="True" left_part_width="0">
+                                <Text name="delta" font_name="Kanit"
+                                    content="{race_ranking_row.delta}" top="-5"
+                                    fg="(0, 0, 0, 255)" height="28" width="225" />
+                                <Tyres name="tyres" height="20" tyre_spacing="1"
+                                    width="225" bottom="5" />
+                            </DottedImage>
+                        </Bicolor>
+                    </Rounded>
+                    <!-- POINTS -->
+                    <Rounded name="points" height="55" width="55" bg="0"
+                        radius="20" right="0" bottom="0"
+                        round_bottom_left="False" round_top_left="False"
+                        round_top_right="False" round_bottom_right="True">
+                        <Text
+                            content="+{race_ranking_row.points}"
+                            name="points_txt" font_name="Kanit Bold" top="5"
+                            height="40" width="40" fg="255" bg="0" />
+                    </Rounded>
+                </FullSizeRankingRow>
+            </Template>
+            <Instances>
+                <!-- 1er-->
+                <Instance left="310" height="575" />
+                <!-- 2ème-->
+                <Instance left="0" height="495" />
+                <!-- 3ème-->
+                <Instance left="620" height="495" />
+            </Instances>
+        </LayoutTemplate>
+    </RaceRanking>
+    <!-- TOP 20-->
+    <RaceRanking name="top20" initial_position="4">
+        <LayoutTemplate>
+            <Template name="simple_line_template">
+                <SimpleRankingRow width="900" height="72"
+                    even_bg="(241, 241, 241, 255)"
+                    odd_bg="(227, 227, 227, 255)"
+                    driver_of_the_day_bg="(246, 212, 136, 255)"
+                    fastest_lap_bg="(191, 140, 210, 255)"
+                    nt_bg="(150, 150, 150, 255)">
+                    <DottedImage name="result_row_bg" height="72"
+                        width="900" left="0" bottom="0" bg="{bg_color}"
+                        left_part_bg="{bg_color_2}" left_part_width="75"
+                        round_top_left="race_ranking_row.position in (4,11)"
+                        round_top_right="race_ranking_row.position in (4,11)"
+                        round_bottom_left="race_ranking_row.position == 10 or is_last"
+                        round_bottom_right="race_ranking_row.position == 10 or is_last"
+                        crosses_positions="[(74, 71), (390, 71)] if race_ranking_row.position in (4, 11) else ([(74, -1), (390, -1)] if (race_ranking_row.position == 10 or is_last) else [(74, -1), (74, 71), (390, -1), (390, 71)])"
+                        crosses_color="(80, 80, 80)"
+                        crosses_thickness="2"
+                        crosses_size="5"
+                        dots_color="{dots_color}" dots_size="2">
+                        <Text name="position" content="{race_ranking_row.position}"
+                            font_name="Kanit Bold" width="75" height="40" fg="0" left="0"
+                            center="True" top="10"/>
+                        <Text name="pilot_name" content="{pilot_name}" fg="{fg}" width="290"
+                            font_name="Kanit Bold" text_height="32" height="34" left="100" top="15" />
+                        <Layout name="team_logo" left="400" width="72" height="72">
+                            <Image name="logo" path="{team_logo_path}" height="48" />
+                        </Layout>
+                        <Text name="team_name" content="{team_name}" font_name="Kanit"
+                            left="472" fg="{fg}" top="15" height="28" width="180" />
+                        <Text name="delta" content="{race_ranking_row.delta}"
+                            font_name="Kanit" top="0" fg="{delta_fg}" height="28"
+                            width="225" right="85" />
+                        <Tyres name="tyres" height="24" tyre_spacing="-3" tyre_size="24"
+                            width="225" bottom="10" right="85" />
+                        <Rounded name="points" height="72" width="72" bg="0" radius="20"
+                            right="0" bottom="0" round_top_left="False"
+                            round_bottom_left="False"
+                            round_top_right="race_ranking_row.position in (4,11)"
+                            round_bottom_right="race_ranking_row.position == 10 or is_last">
+                            <Text name="points_txt" content="+{race_ranking_row.points}"
+                                font_name="Kanit Bold" height="36" top="7" width="54" fg="255" bg="0" />
+                        </Rounded>
+                    </DottedImage>
+                </SimpleRankingRow>
+            </Template>
+            <Instances> <!-- 4 to 20-->
+                <Instance left="30" top="660" />
+                <Instance left="30" top="732" />
+                <Instance left="30" top="804" />
+                <Instance left="30" top="876" />
+                <Instance left="30" top="948" />
+                <Instance left="30" top="1020" />
+                <Instance left="30" top="1092" />
+                <Instance left="990" top="124" />
+                <Instance left="990" top="196" />
+                <Instance left="990" top="268" />
+                <Instance left="990" top="340" />
+                <Instance left="990" top="412" />
+                <Instance left="990" top="484" />
+                <Instance left="990" top="556" />
+                <Instance left="990" top="628" />
+                <Instance left="990" top="700" />
+                <Instance left="990" top="772" />
+            </Instances>
+        </LayoutTemplate>
+    </RaceRanking>
+</Layout>
