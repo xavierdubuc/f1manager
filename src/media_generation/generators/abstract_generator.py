@@ -36,7 +36,9 @@ class AbstractGenerator:
     def generate(self) -> str:
         if self.layout:
             _logger.info('Using layout method...')
-            img = self.layout.render(context=self._get_layout_context())
+            ctx = self._get_layout_context()
+            _logger.debug(f'Using context {ctx}')
+            img = self.layout.render(context=ctx)
         else:
             _logger.info('Using legacy method...')
             img = self._generate_basic_image()
