@@ -32,13 +32,13 @@
                 <TeamLineup name="team" width="680" height="200">
                     <Image name="logo" height="90" top="30"/>
                     <Layout name="pilot_1" left="0" top="0" width="368" height="200">
-                        <PilotPhoto name="photo" height="143" top="5"/>
+                        <PilotPhoto name="photo" height="143" top="5" pilot="pilot"/>
                         <PilotBox name="box" height="62" left="0" top="138">
                             <Text name="name" content="{pilot_name}" width="250" height="28"/>
                         </PilotBox>
                     </Layout>
                     <Layout name="pilot_2" left="312" top="0" width="368" height="200">
-                        <PilotPhoto name="photo" height="143" top="5"/>
+                        <PilotPhoto name="photo" height="143" top="5" pilot="pilot"/>
                         <PilotBox name="box" height="62" left="0" top="138">
                             <Text name="name" content="{pilot_name}" width="250" height="28"/>
                         </PilotBox>

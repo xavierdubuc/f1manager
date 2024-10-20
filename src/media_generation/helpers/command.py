@@ -11,4 +11,5 @@ class Command(argparse.ArgumentParser):
         self.add_argument("-s", "--sheet", help="Name of the Excel sheet to use", dest='sheet', default=None)
         self.add_argument("-m", "--metric", help="Metric to use to sort rankings (only used in standings)", dest='metric', default='Total')
         self.add_argument("-i", "--identifier", help="Identifier for a sub part (like the pseudo for a pilot)", dest='identifier', default=None)
+        self.add_argument("--log-level", help="Log level", dest='loglevel', default="info")
 

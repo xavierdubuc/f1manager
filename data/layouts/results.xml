@@ -145,10 +145,11 @@
                             <Text name="team_name" content="{team_name}" font_name="regular"
                                 left="472" fg="{fg}" height="18" width="180" />
                             <Text name="delta" content="{race_ranking_row.delta}"
-                                font_name="regular" top="10" fg="{delta_fg}" height="20"
-                                width="225" right="85" />
+                                font_name="regular" top="5" fg="{delta_fg}" bg="{delta_bg}"
+                                height="30" text_height="20" center="race_ranking_row.delta in ('NT', 'DSQ')"
+                                width="135" text_width="125" right="85" />
                             <Tyres name="tyres" height="24" tyre_spacing="-3" tyre_size="24"
-                                width="225" bottom="10" right="85" />
+                                width="225" bottom="8" right="85" />
                             <Rounded name="points" height="72" width="72" bg="0" radius="20"
                                 right="0" bottom="0" round_top_left="False"
                                 round_bottom_left="False"

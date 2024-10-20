@@ -38,7 +38,7 @@ class TimingRowsLayout(Layout):
             return super()._get_template_instance_context(i, context)
         row = ranking[i] if 0 <= i < len(ranking) else None
         if not row:
-            return {}
+            return None
         bg_color = self.odd_bg if int(row[0]) % 2 == 1 else self.even_bg
         return {
             'bg_color': bg_color,

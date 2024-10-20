@@ -60,7 +60,7 @@ class Layout:
         try:
             img = self.render(context)
             if not img:
-                _logger.debug("No img generated, won't paste")
+                _logger.debug("[{self.name}] No img generated, won't paste")
                 return None
             left = self.left
             if left is None and self.right is not None:
@@ -73,15 +73,18 @@ class Layout:
             left = left if left is not None else (on.width-img.width) // 2
             top = top if top is not None else (on.height-img.height) // 2
 
+            if img.mode == 'P':
+                _logger.debug(f"[{self.name}] Converting img P mode to RGB")
+                img = img.convert('RGB')
             if img.mode == 'RGB':
-                _logger.debug(f"Pasting RGB at ({left}, {top})")
+                _logger.debug(f"[{self.name}] Pasting RGB at ({left}, {top})")
                 on.paste(img, (left, top))
             else:
                 if on.mode == 'RGBA' == img.mode:
-                    _logger.debug(f"Alpha compositing at ({left}, {top})")
+                    _logger.debug(f"[{self.name}] Alpha compositing at ({left}, {top})")
                     on.alpha_composite(img, (left, top))
                 else:
-                    _logger.debug(f"Pasting RGBA at ({left}, {top})")
+                    _logger.debug(f"[{self.name}] Pasting RGBA at ({left}, {top})")
                     on.paste(img, (left, top), img)
 
             return Dimension(left, top, left+img.width, top+img.height)
@@ -116,7 +119,8 @@ class Layout:
             if key.startswith(TEMPLATE_PREFIX):
                 i, child = child
                 child_ctx = self._get_template_instance_context(i, context)
-                if not child_ctx:
+                if child_ctx is None:
+                    _logger.debug(f'Ignoring {key}, None context')
                     continue
                 context.update(child_ctx)
             self._paste_child(img, key, child, context)
@@ -124,17 +128,20 @@ class Layout:
     def _process_templates(self, img: PngImageFile, context: Dict[str, Any] = {}):
         for template in self.templates.values():
             _logger.debug(f'Processing template {template.layout.name}')
-            self.children.update(template.get_layouts())
+            layouts = template.get_layouts()
+            self.children.update(layouts)
+            _logger.info(f'Added {len(layouts)} children to {self}')
+            _logger.debug(f'({list(layouts.keys())})')
 
     def _paste_child(self, img: PngImageFile, key: str, child: "Layout", context: Dict[str, Any] = {}):
-        _logger.debug(f'Pasting child {key} on layout {self.__class__.__name__}')
+        _logger.debug(f'Pasting child {key} on layout {self}')
         child.paste_on(img, self._get_children_context(context))
 
     def _get_bg(self, context: Dict[str, Any] = {}) -> Tuple[int, int, int, int]:
-        return self._get_ctx_attr('bg', context, use_format=True)
+        return self._get_ctx_attr('bg', context)
 
     def _get_fg(self, context: Dict[str, Any] = {}) -> Tuple[int, int, int, int]:
-        return self._get_ctx_attr('fg', context, use_format=True)
+        return self._get_ctx_attr('fg', context)
 
     def _get_children_context(self, context: Dict[str, Any] = {}) -> Dict[str, Any]:
         return context
@@ -142,20 +149,27 @@ class Layout:
     def _get_template_instance_context(self, i:int, context: Dict[str, Any] = {}):
         return {}
 
-    def _get_ctx_attr(self, attr_name:str, context: Dict[str, Any] = {}, use_format=False) -> Any:
+    def _get_ctx_attr(self, attr_name:str, context: Dict[str, Any] = {}, use_format=None) -> Any:
         attr = getattr(self, attr_name)
         if isinstance(attr, str):
             try:
-                if use_format:
+                if use_format is None:
+                    use_eval = "{" not in attr
+                else:
+                    use_eval = not use_format
+                if not use_eval:
                     return eval(attr.format(**context))
                 return eval(attr, context)
             except KeyError as e:
-                print(context.keys())
+                _logger.debug(f"Available keys are : \"{context.keys()}\"")
                 raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
         return attr
 
+    def __str__(self):
+        return f"{self.__class__.__name__} #{self.name}"
+
     def tree(self, prefix=""):
-        this = f"{self.__class__.__name__} #{self.name}"
+        this = str(self)
         children_parts = [
             f"{prefix}{child.tree(prefix+'  ')}"
             for s, child in self.children.items()

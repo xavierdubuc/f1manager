@@ -43,7 +43,7 @@ class PilotNumbersLayout(Layout):
     def _get_template_instance_context(self, i: int, context: Dict[str, Any] = {}):
         config = context.get('config', None)
         if not config:
-            return {}
+            return None
         ctx = {'number': i+1}
         if self.locked_numbers:
             ctx['official_pilot'] = self.locked_numbers.get(i+1)

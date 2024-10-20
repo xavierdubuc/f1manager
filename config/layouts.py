@@ -11,6 +11,9 @@ FBRT = {
     "driver_of_the_day": "data/layouts/driver_of_the_day.xml",
     "lineup": "data/layouts/lineup.xml",
     "results": "data/layouts/results.xml",
+    # General
+    "teams_ranking": "data/layouts/teams_ranking.xml",
+    # Misc
     "time_trial": "data/layouts/time_trial.xml",
 }
 

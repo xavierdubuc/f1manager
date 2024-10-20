@@ -19,6 +19,7 @@ METHOD_FONTS = [
 
 @dataclass
 class TextLayout(Layout):
+    econtent: str = None
     content: str = None
     font_name: str = "black"
     font_size: int = DEFAULT_FONT_SIZE
@@ -54,8 +55,14 @@ class TextLayout(Layout):
     def _get_text(self, context: dict = {}) -> str:
         try:
             if not self.content:
-                return self.content
-            return self.content.format(**context)
+                if not self.econtent:
+                    return None
+                txt = self._get_ctx_attr('econtent', context, use_format=False)
+            else:
+                txt = self.content.format(**context)
+            if isinstance(txt, int):
+                txt = str(txt)
+            return txt
         except KeyError as e:
             raise Exception(f"Missing variable \"{e.args[0]}\" in rendering context")
 
@@ -80,7 +87,7 @@ class TextLayout(Layout):
             stroke_width=self.stroke_width, stroke_fill=self.stroke_fill
         )
         text_img = resize(img, self.text_width or self.width, self.text_height or self.height)
-        if not self.center:
+        if not self._get_center(context):
             return text_img
 
         left = (self.width-img.width) // 2
@@ -106,6 +113,9 @@ class TextLayout(Layout):
 
     def _get_shadow_color(self, context: Dict[str, Any] = {}):
         return self._get_ctx_attr('shadow_color', context, use_format=False)
+
+    def _get_center(self, context: Dict[str, Any] = {}):
+        return self._get_ctx_attr('center', context)
 
     def _compute(self):
         super()._compute()

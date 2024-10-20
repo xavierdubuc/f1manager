@@ -19,7 +19,7 @@
                         <Image name="pilot_row" path="assets/backgrounds/FBRT/ranking_row_bg.png" width="280" left="100" top="0" keep_ratio="False">
                             <Text name="pilot_name" content="{pilot_name}" width="215" height="30" left="60"/>
                         </Image>
-                        <PilotPhoto name="face" width="820" height="115" left="45" top="-15"/>
+                        <PilotPhoto name="face" width="820" height="115" left="45" top="-15" pilot="pilot"/>
                     </PilotCard>
                 </PilotNumber>
             </Template>

@@ -21,9 +21,9 @@ class TeamsLayout(Layout):
         if self.teams is None:
             config = context.get('config')
             if config and config.teams:
-                teams:List[Team] = config.teams
+                teams: List[Team] = config.teams
             else:
-                teams:List[Team] = context.get('teams', [])
+                teams: List[Team] = context.get('teams', [])
             self.teams = list(teams.values()) if isinstance(teams, dict) else teams
         return self.teams
 
@@ -31,6 +31,6 @@ class TeamsLayout(Layout):
         teams = self._get_teams(context)
         if not teams:
             return super()._get_template_instance_context(i, context)
-        return {
-            'team': teams[i] if 0 <= i < len(teams) else None
-        }
+        if 0 <= i < len(teams):
+            return {"team": teams[i]}
+        return None

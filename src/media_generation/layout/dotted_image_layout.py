@@ -79,7 +79,7 @@ class DottedImageLayout(RoundedLayout):
 
 
     def _get_left_part_bg(self, context: Dict[str, Any] = {}):
-        left_part_bg = self._get_ctx_attr('left_part_bg', context, use_format=True)
+        left_part_bg = self._get_ctx_attr('left_part_bg', context)
         if not self.left_part_bg or not left_part_bg:
             bg = self._get_bg(context)
             self.left_part_bg = tuple(int(val/DARKEN_CONSTANT) for i,val in enumerate(bg) if i < 3)

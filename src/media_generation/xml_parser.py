@@ -61,7 +61,8 @@ class XMLParser:
             value = self._get_attr_value(field, str_value)
             setattr(layout, field, value)
         if node.tag == POLYGONS_TAG:
-            layout.polygons = self._parse_polygons(node)
+            if polygons := self._parse_polygons(node):
+                layout.polygons = polygons
         return layout
 
     def _node_to_template(self, node:ET.Element) -> LayoutTemplate:

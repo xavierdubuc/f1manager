@@ -37,7 +37,7 @@ class AbstractGenerator:
         if self.layout:
             _logger.info('Using layout method...')
             ctx = self._get_layout_context()
-            _logger.debug(f'Using context {ctx}')
+            _logger.debug(f'Available vars in context {ctx.keys()}')
             img = self.layout.render(context=ctx)
         else:
             _logger.info('Using legacy method...')
@@ -72,16 +72,16 @@ class AbstractGenerator:
         return title_img
 
     def _render_initial_image(self) -> PngImageFile:
-        width = self.visual_config['width']
-        height = self.visual_config['height']
+        width = self.visual_config.get('width', 1920)
+        height = self.visual_config.get('height', 1080)
         _logger.info(f'Output size is {width}px x {height}px')
         bgcolor = self.visual_config.get('background', (30, 30, 30))
         return Image.new('RGB', (width, height), bgcolor)
 
     def _generate_basic_image(self) -> PngImageFile:
         img = self._render_initial_image()
-        width = self.visual_config['width']
-        height = self.visual_config['height']
+        width = self.visual_config.get('width', 1920)
+        height = self.visual_config.get('height', 1080)
         bg = self._get_background_image()
         if bg:
             with bg:

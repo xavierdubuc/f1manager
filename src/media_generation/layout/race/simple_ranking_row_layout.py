@@ -29,13 +29,15 @@ class SimpleRankingRowLayout(Layout):
             'dots_color': (200, 200, 200, 255),
             'bg_color_2': None,
             'delta_fg': (0,0,0),
+            'delta_bg': (0,0,0,0),
             'fg': (0,0,0),
         })
         if race_ranking_row.split in ('NT', 'DSQ'):
             ctx.update({
                 'dots_color': (135,135,135),
                 'bg_color': self.nt_bg,
-                'delta_fg': (255,0,0),
+                'delta_fg': (255,255,255),
+                'delta_bg': (255,0,0),
                 'fg': (100,100,100),
             })
         else:

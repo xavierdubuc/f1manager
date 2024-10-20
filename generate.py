@@ -11,10 +11,10 @@ from src.media_generation.run_config import RUN_CONFIGS, RunConfig
 
 from src.logging import setup as setup_logging
 
-setup_logging()
-_logger = logging.getLogger(__name__)
-
 args = Command().parse_args()
+
+setup_logging(args.loglevel)
+_logger = logging.getLogger(__name__)
 _logger.info('Parameters:')
 _logger.info(f'\t championship: {args.championship}')
 _logger.info(f'\t season: {args.season}')

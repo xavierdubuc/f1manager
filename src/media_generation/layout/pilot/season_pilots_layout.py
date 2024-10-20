@@ -41,4 +41,4 @@ class SeasonPilotsLayout(Layout):
                 'number': pilot.number,
                 'pilot': pilot
             }
-        return {}
+        return None

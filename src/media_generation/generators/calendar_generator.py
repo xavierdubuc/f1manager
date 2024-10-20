@@ -24,20 +24,20 @@ class CalendarGenerator(AbstractGenerator):
         self._render_body(base_img)
 
     def _render_title(self, base_img: PngImageFile):
-        for logo_config in self.visual_config.get('logos'):
+        for logo_config in self.visual_config.get('logos', []):
             with Image.open(logo_config['path']) as logo_img:
                 logo_width = logo_config.get('width', 100)
                 logo_height = logo_config.get('height', 100)
                 logo_img = resize(logo_img, height=logo_height, width=logo_width)
                 self.paste_image(logo_img, base_img, logo_config)
 
-        for title_config in self.visual_config.get('titles'):
+        for title_config in self.visual_config.get('titles', []):
             content = title_config.get('content', "{season}").format(season=self.season)
             title_img = self.text(title_config, content, default_font=FontFactory.black)
             self.paste_image(title_img, base_img, title_config)
 
     def _render_body(self, base_img: PngImageFile):
-        config = self.visual_config.get('body')
+        config = self.visual_config.get('body', {})
         w = config.get('width', base_img.width)
         h = config.get('height', base_img.height)
         img = Image.new('RGBA', (w, h), config.get('background', (0, 0, 0, 0)))
@@ -51,7 +51,7 @@ class CalendarGenerator(AbstractGenerator):
         self.paste_image(img, base_img, config)
 
     def _render_race(self, race: Race, amount_of_races: int, base_img: PngImageFile):
-        config = self.visual_config.get('race')
+        config = self.visual_config.get('race', {})
         w = config.get('width')
         h = config.get('height')
         space_between = config.get('space_between')
