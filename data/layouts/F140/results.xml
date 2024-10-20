@@ -64,7 +64,7 @@
                             height="142" fg="(255, 255, 255)" left="20" top="10"
                             content="{race_ranking_row.position}" />
                         <PilotPhoto name="face" photo_type="WHOLE" width="500"
-                            height="730" left="45" top="-15" pilot="race_ranking_row.pilot"/>
+                            height="730" left="45" top="-15" pilot="race_ranking_row.pilot" />
                         <Text name="pilot_name" content="{pilot_name}"
                             fg="{race_ranking_row.pilot.team.standing_fg}"
                             bg="{race_ranking_row.pilot.team.standing_bg}"
@@ -72,7 +72,7 @@
                             width="280" text_width="200" center="True"
                             height="55" text_height="40" />
                         <!-- DELTA & TYRES -->
-                        <Bicolor name="result_row_bg" bg="{bg_color}"
+                        <Bicolor name="result_nrow_bg" bg="{bg_color}"
                             bg_alt="{bg_color_2}" height="55"
                             width="225" left="0" bottom="0">
                             <DottedImage name="result_row"
@@ -132,7 +132,7 @@
                         dots_color="{dots_color}" dots_size="2">
                         <Text name="position" content="{race_ranking_row.position}"
                             font_name="Kanit Bold" width="75" height="40" fg="0" left="0"
-                            center="True" top="10"/>
+                            center="True" top="10" />
                         <Text name="pilot_name" content="{pilot_name}" fg="{fg}" width="290"
                             font_name="Kanit Bold" text_height="32" height="34" left="100" top="15" />
                         <Layout name="team_logo" left="400" width="72" height="72">
@@ -141,8 +141,9 @@
                         <Text name="team_name" content="{team_name}" font_name="Kanit"
                             left="472" fg="{fg}" top="15" height="28" width="180" />
                         <Text name="delta" content="{race_ranking_row.delta}"
-                            font_name="Kanit" top="0" fg="{delta_fg}" height="28"
-                            width="225" right="85" />
+                            font_name="Kanit" top="0" fg="{delta_fg}" bg="{delta_bg}"
+                            center="race_ranking_row.delta in ('NT', 'DSQ')"
+                            text_height="26" height="30" width="135" text_width="125" right="85" />
                         <Tyres name="tyres" height="24" tyre_spacing="-3" tyre_size="24"
                             width="225" bottom="10" right="85" />
                         <Rounded name="points" height="72" width="72" bg="0" radius="20"
@@ -151,7 +152,8 @@
                             round_top_right="race_ranking_row.position in (4,11)"
                             round_bottom_right="race_ranking_row.position == 10 or is_last">
                             <Text name="points_txt" content="+{race_ranking_row.points}"
-                                font_name="Kanit Bold" height="36" top="7" width="54" fg="255" bg="0" />
+                                font_name="Kanit Bold" height="36" top="7" width="54" fg="255"
+                                bg="0" />
                         </Rounded>
                     </DottedImage>
                 </SimpleRankingRow>
