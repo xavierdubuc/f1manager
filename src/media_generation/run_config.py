@@ -42,18 +42,22 @@ RUN_CONFIGS: Dict[GeneratorType, RunConfig] = {
     GeneratorType.LINEUP: RaceRunConfig(
         Generator=LineupGenerator
     ),
+    # TODO
     GeneratorType.PRESENTATION: RaceRunConfig(
         Generator=PresentationGenerator
     ),
     GeneratorType.RESULTS: RaceRunConfig(
         Generator=ResultsGenerator
     ),
+    # TODO
     GeneratorType.POLE: RaceRunConfig(
         Generator=PoleGenerator
     ),
+    # TODO
     GeneratorType.GRID_LINES: RaceRunConfig(
         Generator=GridLinesGenerator
     ),
+    # TODO
     GeneratorType.GRID: RaceRunConfig(
         Generator=GridGenerator
     ),
@@ -71,9 +75,11 @@ RUN_CONFIGS: Dict[GeneratorType, RunConfig] = {
     GeneratorType.TEAMS_RANKING: GeneralRunConfig(
         Generator=TeamsRankingGenerator
     ),
+    # TODO
     GeneratorType.PILOTS_RANKING: GeneralRunConfig(
         Generator=PilotsRankingGenerator
     ),
+    # TODO
     GeneratorType.LICENSE_POINTS: GeneralRunConfig(
         Generator=LicensePointsGenerator
     ),
@@ -93,10 +99,12 @@ RUN_CONFIGS: Dict[GeneratorType, RunConfig] = {
     ),
 
     # ALL RACES
+    # TODO
     GeneratorType.CALENDAR: RunConfig(
         Generator=CalendarGenerator,
         Reader=CalendarReader
     ),
+    # TODO
     GeneratorType.SEASON_RANKING: RunConfig(
         Generator=SeasonRankingGenerator,
         Reader=SeasonRankingReader

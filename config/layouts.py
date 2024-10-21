@@ -215,3 +215,8 @@ F140 = {
         polygons=DEFAULT_POLYGONS
     ),
 }
+
+BTM = {
+    # General
+    "season_teams": "data/layouts/BTM/season_teams.xml",
+}
