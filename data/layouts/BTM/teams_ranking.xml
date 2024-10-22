@@ -1,0 +1,69 @@
+<Image name="teams_ranking" path="assets/backgrounds/FBRT/teams_ranking.png"
+    width="1080" height="1440">
+    <BMTLogo shape="wide" name="btm_logo" height="150" left="40" top="20" />
+    <Text name="main_title" content="SAISON {season}" fg="255" height="46" left="20" top="180" />
+    <Text name="sub_title" content="CLASSEMENT ÉQUIPES" fg="255" height="46" left="20" top="240" />
+    <Text name="points_title" content="POINTS APRES" fg="255" height="30" right="30" top="230" />
+    <Text name="race_round_title" content="COURSE {config.ranking.amount_of_races}" fg="255"
+        height="30" right="30" top="270" />
+
+    <Loop name="standing" width="1020" height="1100" left="30" top="310"
+        iterable="'ranking'" iterator="'ranking_row'">
+        <LayoutTemplate>
+            <Template name="standing_row_template">
+                <Layout name="test" width="1020" height="110" left="0">
+                    <DottedImage name="teams_ranking_row"
+                        crosses_positions="[]" left_part_width="115"
+                        bg="(240,240,240) if even else (220,220,220)"
+                        left_part_bg="(230,230,230) if even else (210,210,210)"
+                        round_top_left="i == 0"
+                        round_top_right="i == 0"
+                        round_bottom_left="i == 9"
+                        round_bottom_right="i == 9"
+                        >
+                        <Text name="position"
+                            left="0"
+                            width="115"
+                            height="110"
+                            center="True"
+                            text_height="50"
+                            text_width="70"
+                            fg="1" econtent="ranking_row['position_str']"
+                        />
+                        <TeamCard name="team_card" team="ranking_row['row'].team"
+                            height="105" width="625" top="0" left="115">
+                            <TeamLogo
+                                name="team_logo" variant="ranking" height="105"
+                                keep_ratio="False" width="240"
+                                left="0" team="ranking_row['row'].team" />
+                            <Text name="team_name" left="255"
+                                width="370" height="110"
+                                text_height="31" text_width="350"
+                                fg="ranking_row['row'].team.standing_fg"
+                                econtent="ranking_row['row'].team.title.upper()"
+                            />
+                        </TeamCard>
+                        <Progression value="ranking_row['progression']" left="740" width="90" height="105"
+                            text_height="35" text_width="30" text_left="50"
+                            image_height="25" image_width="25" image_left="15"/>
+                        <Text name="points" bg="(200,0,0)" fg="255" width="190" height="105" right="0"
+                            text_width="150" text_height="50" center="True"
+                            top="0" econtent="ranking_row['row'].total_points"/>
+                    </DottedImage>
+                </Layout>
+            </Template>
+            <Instances>
+                <Instance top="0" />
+                <Instance top="110" />
+                <Instance top="220" />
+                <Instance top="330" />
+                <Instance top="440" />
+                <Instance top="550" />
+                <Instance top="660" />
+                <Instance top="770" />
+                <Instance top="880" />
+                <Instance top="990" />
+            </Instances>
+        </LayoutTemplate>
+    </Loop>
+</Image>
