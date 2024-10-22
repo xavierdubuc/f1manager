@@ -31,7 +31,7 @@
             width="40" height="40" left="95" top="8" />
         <Text name="driver" content="{fastest_lap_driver_name}" font_name="Kanit Bold"
             left="145" top="0" height="40" width="350" fg="255" />
-        <Text name="lap_time" content="{fastest_lap_time}" font_name="Kanit Bold"
+        <Text name="lap_time" econtent="fastest_lap_time or ''" font_name="Kanit Bold"
             right="5" top="0" height="40" width="170" fg="255" />
         <Text name="lap" content="{fastest_lap_lap}" font_name="Kanit"
             left="95" bottom="10" height="30" width="170" fg="255" />

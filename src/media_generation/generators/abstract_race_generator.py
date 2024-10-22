@@ -35,7 +35,10 @@ class AbstractRaceGenerator(AbstractGenerator):
         if self.race.driver_of_the_day:
             ctx.update({
                 "driver_of_the_day": self.race.driver_of_the_day,
-                "driver_of_the_day_name": self.race.driver_of_the_day_name.upper() if self.race.driver_of_the_day_name else "",
-                "driver_of_the_day_percent": f"{int(float(self.race.driver_of_the_day_percent[:-1].replace(',','.')))}%"
+                "driver_of_the_day_name": self.race.driver_of_the_day_name.upper() if self.race.driver_of_the_day_name else ""
             })
+            if pct := self.race.driver_of_the_day_percent:
+                ctx.update({
+                    "driver_of_the_day_percent": f"{int(float(pct[:-1].replace(',','.')))}%"
+                })
         return ctx
