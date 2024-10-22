@@ -49,7 +49,7 @@ class RemindCog(VignebotCog):
         presences = gsheet.get(race_name)
 
         didnt_vote = []
-        roles = ROLES if only_role is None else [only_role]
+        roles = championship_config["roles"] if only_role is None else [only_role]
         for role in inter.guild.roles:
             if role.name in roles:
                 for member in role.members:
