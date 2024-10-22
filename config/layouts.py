@@ -217,6 +217,8 @@ F140 = {
 }
 
 BTM = {
+    # Race
+    "lineup": "data/layouts/BTM/lineup.xml",
     # General
     "season_teams": "data/layouts/BTM/season_teams.xml",
 }
