@@ -60,7 +60,8 @@ class PresencesCog(RaceCog):
         ]
         circuit_country = race.circuit.emoji
         roles = []
-        for role_str in ('Titulaire', 'Aspirant', 'Réserviste', 'Commentateur'):
+        championship_config, _ = self._get_discord_config(inter.guild_id)
+        for role_str in championship_config["roles"]:
             for r in inter.guild.roles:
                 if r.name == role_str:
                     roles.append(r)
@@ -83,7 +84,7 @@ class PresencesCog(RaceCog):
         embed.set_image(url=photo_path)
 
         for role in roles:
-            inline = role.name not in ("Titulaire", "Commentateur")
+            inline = False #role.name not in ("Titulaire", "Commentateur")
             embed.add_field(name=role.name, inline=inline, value='-')
         embed_dict = await self._configure_embed(embed, inter)
         embed = disnake.Embed.from_dict(embed_dict)
@@ -138,10 +139,10 @@ class PresencesCog(RaceCog):
         return None
 
 def sorting_key(name:str):
-        if name.startswith('✅'):
-            return 1
-        elif name.startswith('❔'):
-            return 2
-        elif name.startswith('❌'):
-            return 3
-        return 4
+    if name.startswith('✅'):
+        return 1
+    elif name.startswith('❔'):
+        return 2
+    elif name.startswith('❌'):
+        return 3
+    return 4
