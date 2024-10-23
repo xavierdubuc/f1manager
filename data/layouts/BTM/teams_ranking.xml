@@ -1,4 +1,4 @@
-<Image name="teams_ranking" path="assets/backgrounds/FBRT/teams_ranking.png"
+<Layout name="teams_ranking" bg="(40,40,40)"
     width="1080" height="1440">
     <BMTLogo shape="wide" name="btm_logo" height="150" left="40" top="20" />
     <Text name="main_title" content="SAISON {season}" fg="255" height="46" left="20" top="180" />
@@ -66,4 +66,4 @@
             </Instances>
         </LayoutTemplate>
     </Loop>
-</Image>
+</Layout>
