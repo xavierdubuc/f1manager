@@ -11,13 +11,13 @@ class TeamsRankingGenerator(AbstractGenerator):
     def _get_layout_context(self):
         ctx = super()._get_layout_context()
         ranking = []
-        previous_pilot_points = None
+        previous_team_points = None
         previous_ranking = self.config.ranking.get_previous_ranking()
         for i, row in enumerate(self.config.ranking):
             is_champion = False  # i == 0 # FIXME
             # DETERMINE POSITION
             points = row.total_points
-            if previous_pilot_points is not None and previous_pilot_points == points:
+            if previous_team_points is not None and previous_team_points == points:
                 position = '-'
             else:
                 position = str(i+1)
@@ -37,7 +37,7 @@ class TeamsRankingGenerator(AbstractGenerator):
             })
 
             # UPDATE LOOP VARIABLES
-            previous_pilot_points = row.total_points
+            previous_team_points = row.total_points
 
         ctx["ranking"] = ranking
         return ctx

@@ -25,7 +25,7 @@ class ProgressionLayout(RoundedLayout):
     image_left: int = None
 
     def _get_value(self, context: Dict[str, Any] = {}) -> int:
-        return self._get_ctx_attr('value', context)
+        return self._get_ctx_attr('value', context) or 0
 
     def _render_base_image(self, context: Dict[str, Any] = {}) -> PngImageFile:
         img = super()._render_base_image(context)
@@ -71,37 +71,3 @@ class ProgressionLayout(RoundedLayout):
             top=self.text_only_top,
             content="-"
         )
-
-    # def _paste_special_sublayouts(self, img: PngImageFile, context: Dict[str, Any] = {}):
-    #     left = RoundedLayout(
-    #         name='left_part',
-    #         height=self.height,
-    #         width=self.left_part_width,
-    #         left=0,
-    #         top=0,
-    #         radius=self.radius,
-    #         outline=self.outline,
-    #         thickness=self.thickness,
-    #         round_top_left=self._get_round_top_left(context),
-    #         round_bottom_left=self._get_round_bottom_left(context),
-    #         round_top_right=False,
-    #         round_bottom_right=False,
-    #         bg=self._get_left_part_bg(context)
-    #     )
-    #     main = RoundedLayout(
-    #         name='main_part',
-    #         width=self.width - self.left_part_width,
-    #         height=self.height,
-    #         top=0,
-    #         left=self.left_part_width,
-    #         radius=self.radius,
-    #         outline=self.outline,
-    #         thickness=self.thickness,
-    #         round_top_left=False,
-    #         round_bottom_left=False,
-    #         round_top_right=self._get_round_top_right(context),
-    #         round_bottom_right=self._get_round_bottom_right(context),
-    #         bg=self._get_bg(context)
-    #     )
-    #     self._paste_child(img, 'left_part', left, context)
-    #     self._paste_child(img, 'main_part', main, context)

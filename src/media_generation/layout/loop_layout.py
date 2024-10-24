@@ -29,5 +29,5 @@ class LoopLayout(Layout):
                 "even": i % 2 == 0,
                 "i": i,
             }
-        _logger.error(f'{i} is out of range of {len(iterable)} for {self}')
+        _logger.warning(f'{i} is out of range of {len(iterable)} for {self}')
         return None

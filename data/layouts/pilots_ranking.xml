@@ -1,0 +1,94 @@
+<Image name="teams_ranking" path="assets/backgrounds/FBRT/pilots_ranking.png"
+    width="2220" height="1440">
+    <FBRTLogo name="fbrt_logo" height="250" left="60" top="0" />
+    <FIFLogo name="fif_logo" height="150" right="40" top="0" />
+    <Text name="main_title" content="SAISON {season}" fg="255" height="58" left="360" top="50" />
+    <Text name="sub_title" content="CLASSEMENT PILOTES" fg="255" height="58" left="360" top="125" />
+    <Text name="points_title" content="POINTS APRES COURSE {config.ranking.amount_of_races}"
+        fg="255" height="34" right="40" top="150" font_name="regular" />
+
+    <Loop name="standing" width="2080" height="1155" left="70" top="235"
+        iterable="'ranking'" iterator="'ranking_row'">
+        <LayoutTemplate>
+            <Template>
+                <Layout name="standing_row_line" width="1000" height="105">
+                    <DottedImage name="teams_ranking_row"
+                        dots_color="(210,210,210)"
+                        crosses_positions="[]" left_part_width="115"
+                        bg="(240,240,240) if even else (220,220,220)"
+                        left_part_bg="(230,230,230) if even else (210,210,210)"
+                        round_top_left="i == 0 or i == 11"
+                        round_top_right="i == 0 or i == 11"
+                        round_bottom_left="i == 10 or ranking_row['is_last']"
+                        round_bottom_right="i == 10 or ranking_row['is_last']"
+                    >
+                        <!-- POSITION -->
+                        <Text name="position" width="115" height="105" fg="1"
+                            left="0" econtent="ranking_row['position_str']"
+                            center="True" text_height="50" text_width="70"
+                        />
+                        <!-- TEAM -->
+                        <Layout name="team_pilot" width="220" height="104" left="115" top="0">
+                            <TeamCard name="team_card" team="ranking_row['row'].pilot.team"
+                                width="220" top="0" left="0">
+                                <Layout name="team_logo_container" width="220" left="0" top="0">
+                                    <TeamLogo
+                                        name="team_logo" variant="standing" height="90"
+                                        team="ranking_row['row'].pilot.team" />
+                                </Layout>
+                            </TeamCard>
+                        </Layout>
+                        <!-- PILOT PHOTO -->
+                        <Layout name="face_crop" height="104" width="140" left="260" top="0">
+                            <PilotPhoto name="face" width="140" height="140" top="-20"
+                            pilot="ranking_row['row'].pilot"/>
+                        </Layout>
+                        <!-- PILOT NAME -->
+                        <Text name="pilot_name" left="400"
+                            width="370" height="104" fg="0"
+                            text_height="28" text_width="350"
+                            text_underscore_height="34"
+                            econtent="ranking_row['row'].pilot.name.upper()"
+                        />
+                        <!-- DELTA / PROGRESSION -->
+                        <Layout name="progression_bg" bg="240" right="130" width="90">
+                            <Progression name="progression"
+                                value="ranking_row['progression']"
+                                text_height="35" text_width="30" text_left="50" bg="240"
+                                image_height="25" image_width="25" image_left="15" />
+                        </Layout>
+                        <!-- POINTS -->
+                        <Text name="points" bg="(200,0,0)" fg="255" width="130"
+                            right="0" top="0"
+                            text_width="105" text_height="45" center="True"
+                            econtent="ranking_row['row'].total_points" />
+                    </DottedImage>
+                </Layout>
+            </Template>
+            <Instances>
+                <Instance left="0" top="0" />
+                <Instance left="0" top="105" />
+                <Instance left="0" top="210" />
+                <Instance left="0" top="315" />
+                <Instance left="0" top="420" />
+                <Instance left="0" top="525" />
+                <Instance left="0" top="630" />
+                <Instance left="0" top="735" />
+                <Instance left="0" top="840" />
+                <Instance left="0" top="945" />
+                <Instance left="0" top="1050" />
+                <Instance left="1080" top="0" />
+                <Instance left="1080" top="105" />
+                <Instance left="1080" top="210" />
+                <Instance left="1080" top="315" />
+                <Instance left="1080" top="420" />
+                <Instance left="1080" top="525" />
+                <Instance left="1080" top="630" />
+                <Instance left="1080" top="735" />
+                <Instance left="1080" top="840" />
+                <Instance left="1080" top="945" />
+                <Instance left="1080" top="1050" />
+            </Instances>
+        </LayoutTemplate>
+    </Loop>
+</Image>

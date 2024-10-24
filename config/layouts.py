@@ -12,6 +12,7 @@ FBRT = {
     "lineup": "data/layouts/lineup.xml",
     "results": "data/layouts/results.xml",
     # General
+    "pilots_ranking": "data/layouts/pilots_ranking.xml",
     "teams_ranking": "data/layouts/teams_ranking.xml",
     # Misc
     "time_trial": "data/layouts/time_trial.xml",

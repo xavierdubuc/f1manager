@@ -32,6 +32,7 @@ class TextLayout(Layout):
     center: bool = False
     text_width: int = None
     text_height: int = None
+    text_underscore_height: int = None
     shadow_color: Tuple[int, int, int, int] = None
     shadow_offset_h: int = 0
     shadow_offset_v: int = 0
@@ -86,7 +87,8 @@ class TextLayout(Layout):
             self.text_position, content, self._get_fg(context), self.font,
             stroke_width=self.stroke_width, stroke_fill=self.stroke_fill
         )
-        text_img = resize(img, self.text_width or self.width, self.text_height or self.height)
+        text_height = self.text_underscore_height if "_" in content else self.text_height
+        text_img = resize(img, self.text_width or self.width, text_height or self.height)
         if not self._get_center(context):
             return text_img
 
@@ -128,5 +130,7 @@ class TextLayout(Layout):
             self.text_width = self.width
         if self.text_height is None:
             self.text_height = self.height
+        if self.text_underscore_height is None:
+            self.text_underscore_height = self.text_height
         if self.shadow_color is not None:
             self.shadow_color = self._ensure_rgba(self.shadow_color)
