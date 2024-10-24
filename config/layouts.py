@@ -224,4 +224,5 @@ BTM = {
     # General
     "season_teams": "data/layouts/BTM/season_teams.xml",
     "teams_ranking": "data/layouts/BTM/teams_ranking.xml",
+    "pilots_ranking": "data/layouts/BTM/pilots_ranking.xml",
 }

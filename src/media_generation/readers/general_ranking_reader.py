@@ -98,6 +98,7 @@ class GeneralRankingReader(Reader):
 
     def _get_pilots_general_ranking(self, pilots:dict) -> PilotRanking:
         dataset = self.data[self.data['Pilot'] != '']
+        self._validate_rows(dataset)
         ranking = PilotRanking(
             rows=[
                 PilotRankingRow(
@@ -121,3 +122,18 @@ class GeneralRankingReader(Reader):
         )
 
         return ranking
+
+    def _validate_rows(self, dataset):
+        for i, row in dataset.iterrows():
+            if row.iloc[1] is None:
+                continue
+            if row.iloc[0] is None:
+                raise ValueError(f"Ligne #{i} ne contient pas de nom de pilote !")
+            if row.iloc[3] != 0 and not row.iloc[3]:
+                raise ValueError(f"Ligne #{i} ({row.iloc[0]}) ne contient pas de points !")
+            if row.iloc[4] != 0 and not row.iloc[4]:
+                raise ValueError(f"Ligne #{i} ({row.iloc[0]}) ne contient pas de points moyens !")
+            if row.iloc[5] != 0 and not row.iloc[5]:
+                raise ValueError(f"Ligne #{i} ({row.iloc[0]}) ne contient pas de points de permis !")
+            if row.iloc[6] != 0 and not row.iloc[6]:
+                raise ValueError(f"Ligne #{i} ({row.iloc[0]}) ne contient pas le nombre de course !")
